@@ -1,0 +1,14 @@
+# Build output must never be committed.
+/build/
+/out/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+*.log
+*.part
+
+# Local/editor files
+.vscode/
+.idea/
+*.user
+*.local
