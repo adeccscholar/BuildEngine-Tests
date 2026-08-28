@@ -1,6 +1,5 @@
 #include <curl/curl.h>
 
-#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <string_view>
@@ -16,6 +15,13 @@ bool HasProtocol(curl_version_info_data const& theInfo, std::string_view const s
 
 bool HasFeature(curl_version_info_data const& theInfo, int const iFeature) noexcept {
    return (theInfo.features & iFeature) != 0;
+   }
+
+bool HasFeatureName(curl_version_info_data const& theInfo, std::string_view const svFeature) {
+   if(theInfo.feature_names == nullptr) return false;
+   for(char const* const* pszFeature = theInfo.feature_names; *pszFeature != nullptr; ++pszFeature)
+      if(svFeature == *pszFeature) return true;
+   return false;
    }
 
 bool Require(bool const bCondition, std::string_view const svDescription) {
@@ -38,6 +44,8 @@ int main() {
    bool bSuccess = true;
    bSuccess = Require(HasProtocol(*pInfo, "http"), "HTTP protocol") && bSuccess;
    bSuccess = Require(HasProtocol(*pInfo, "https"), "HTTPS protocol") && bSuccess;
+   bSuccess = Require(HasProtocol(*pInfo, "ldap"), "LDAP protocol") && bSuccess;
+   bSuccess = Require(HasProtocol(*pInfo, "ldaps"), "LDAPS protocol") && bSuccess;
    bSuccess = Require(HasFeature(*pInfo, CURL_VERSION_SSL), "SSL/TLS") && bSuccess;
    bSuccess = Require(HasFeature(*pInfo, CURL_VERSION_IPV6), "IPv6") && bSuccess;
    bSuccess = Require(HasFeature(*pInfo, CURL_VERSION_ASYNCHDNS), "asynchronous/threaded resolver") && bSuccess;
@@ -49,6 +57,7 @@ int main() {
    bSuccess = Require(HasFeature(*pInfo, CURL_VERSION_ZSTD), "Zstd") && bSuccess;
    bSuccess = Require(HasFeature(*pInfo, CURL_VERSION_UNICODE), "Unicode Windows API") && bSuccess;
    bSuccess = Require(HasFeature(*pInfo, CURL_VERSION_THREADSAFE), "thread-safe libcurl") && bSuccess;
+   bSuccess = Require(HasFeatureName(*pInfo, "NativeCA"), "Windows native CA store") && bSuccess;
 
    std::string_view const svSsl = pInfo->ssl_version != nullptr ? pInfo->ssl_version : "";
    bSuccess = Require(svSsl.find("OpenSSL") != std::string_view::npos, "OpenSSL TLS backend") && bSuccess;
