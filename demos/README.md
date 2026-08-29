@@ -1,17 +1,15 @@
-# Evidence Demos
+# Demos
 
-This directory is reserved for focused demonstration programs that provide additional evidence for third-party libraries built and consumed with **Embarcadero C++Builder / BCC64X**.
+Dieses Verzeichnis enthaelt groessere, reproduzierbare Consumer-Beispiele fuer den von BuildEngine publizierten `Win64x`-SDK-Baum.
 
-A demo is not the BuildEngine application and it is not a product application. It exists to demonstrate a documented integration claim that is better shown through a small working program than through a minimal pass/fail smoke test.
+Demos duerfen mehrere Bibliotheken und Anwendungsbausteine kombinieren. Sie sind bewusst von den kleinen Library-Smokes getrennt, die als fester Bestandteil des Bibliotheksvertrags unter `BuildEngine-Admin/admin/smokes` liegen.
 
-Typical examples include rendering, networking/TLS, service interaction, or a representative public-library workflow.
-
-The intended layout is:
+Vorgesehene Struktur:
 
 ```text
-demos/<library>/<stable-demo-id>/
+demos/
+   financial/
+   <weitere-demo>/
 ```
 
-Demo source paths are normally version-independent. Version applicability and whether a demo is required evidence belong to the administration contracts, not to the directory name.
-
-Third-party libraries remain under their own upstream licenses. Project-authored demo sources in this repository are licensed under the MIT License.
+Eine Demo soll normale Consumer-Schnittstellen verwenden, insbesondere `find_package()` beziehungsweise die gemeinsame BuildEngine-CMake-Consumer-Integration, und keine privaten Build-Verzeichnisse oder versionsfesten Paketpfade voraussetzen.
