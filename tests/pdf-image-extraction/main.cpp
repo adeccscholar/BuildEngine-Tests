@@ -6,15 +6,18 @@
 #include <qpdf/QPDFPageObjectHelper.hh>
 
 #include <cctype>
+#include <cstdio>
 #include <cstddef>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <print>
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace {
 
@@ -98,7 +101,7 @@ std::string_view RawExtension(std::string const& strFilter) noexcept {
 \returns Number of bytes written.
 \throw std::runtime_error If the output file cannot be created or written.
 */
-std::size_t WriteRawStream(QPDFObjectHandle const& theImage, std::filesystem::path const& theOutput) {
+std::size_t WriteRawStream(QPDFObjectHandle& theImage, std::filesystem::path const& theOutput) {
    std::shared_ptr<Buffer> const pBuffer = theImage.getRawStreamData();
    if(pBuffer == nullptr) {
       throw std::runtime_error("QPDF returned no raw stream buffer");
