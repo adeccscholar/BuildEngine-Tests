@@ -163,6 +163,8 @@ file(TO_NATIVE_PATH "${ADECC_CMAKE_EXECUTABLE}" _cmake_native)
 file(TO_NATIVE_PATH "${ADECC_NINJA_EXECUTABLE}" _ninja_native)
 file(TO_NATIVE_PATH "${ADECC_TOOLCHAIN_FILE}" _toolchain_native)
 file(TO_NATIVE_PATH "${ADECC_QPDF_DIR}" _qpdf_native)
+file(TO_NATIVE_PATH "${BUILDENGINE_ROOT}/install/Win64x/bin" _consumer_bin_native)
+file(TO_NATIVE_PATH "${ADECC_BDS_ROOT}/bin64" _bds_bin64_native)
 
 set(_configure_cmd "${ADECC_CACHE_ROOT}/configure-pdf-image-extraction.cmd")
 file(WRITE "${_configure_cmd}"
@@ -176,6 +178,12 @@ file(WRITE "${_build_cmd}"
    "@echo off\r\n"
    "\"${_cmake_native}\" --build \"${_repo_native}\\tests\\pdf-image-extraction\\build\"\r\n")
 
+set(_run_cmd "${ADECC_CACHE_ROOT}/run-pdf-image-extraction.cmd")
+file(WRITE "${_run_cmd}"
+   "@echo off\r\n"
+   "set \"PATH=${_consumer_bin_native};${_bds_bin64_native};%PATH%\"\r\n"
+   "\"${_repo_native}\\tests\\pdf-image-extraction\\build\\pdf-image-extraction.exe\" %*\r\n")
+
 message(STATUS "Repository root : ${ADECC_REPOSITORY_ROOT}")
 message(STATUS "BuildEngine root: ${BUILDENGINE_ROOT}")
 message(STATUS "BDS root        : ${ADECC_BDS_ROOT}")
@@ -187,3 +195,4 @@ message(STATUS "qpdf package    : ${ADECC_QPDF_DIR}")
 message(STATUS "Tool evidence   : ${ADECC_TOOLS_FILE}")
 message(STATUS "Configure       : ${_configure_cmd}")
 message(STATUS "Build           : ${_build_cmd}")
+message(STATUS "Run             : ${_run_cmd}")
