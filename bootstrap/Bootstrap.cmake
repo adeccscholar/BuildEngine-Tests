@@ -169,12 +169,12 @@ file(WRITE "${_configure_cmd}"
    "@echo off\r\n"
    "set \"CB_BDS=${_bds_native}\"\r\n"
    "set \"CB_BCC64X=${_bcc_native}\"\r\n"
-   "\"\${_cmake_native}\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:FILEPATH=\"${_toolchain_native}\" -DCMAKE_MAKE_PROGRAM:FILEPATH=\"${_ninja_native}\" -Dqpdf_DIR:PATH=\"${_qpdf_native}\" -S \"${_repo_native}\\tests\\pdf-image-extraction\" -B \"${_repo_native}\\tests\\pdf-image-extraction\\build\"\r\n")
+   "\"${_cmake_native}\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:FILEPATH=\"${_toolchain_native}\" -DCMAKE_MAKE_PROGRAM:FILEPATH=\"${_ninja_native}\" -Dqpdf_DIR:PATH=\"${_qpdf_native}\" -S \"${_repo_native}\\tests\\pdf-image-extraction\" -B \"${_repo_native}\\tests\\pdf-image-extraction\\build\"\r\n")
 
 set(_build_cmd "${ADECC_CACHE_ROOT}/build-pdf-image-extraction.cmd")
 file(WRITE "${_build_cmd}"
    "@echo off\r\n"
-   "\"\${_cmake_native}\" --build \"${_repo_native}\\tests\\pdf-image-extraction\\build\"\r\n")
+   "\"${_cmake_native}\" --build \"${_repo_native}\\tests\\pdf-image-extraction\\build\"\r\n")
 
 message(STATUS "Repository root : ${ADECC_REPOSITORY_ROOT}")
 message(STATUS "BuildEngine root: ${BUILDENGINE_ROOT}")
