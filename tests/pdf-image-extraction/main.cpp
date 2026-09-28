@@ -49,7 +49,7 @@ long long ReadInteger(QPDFObjectHandle const& theDictionary, std::string_view co
 \throw std::runtime_error If QPDF cannot serialize the value.
 */
 std::string Describe(QPDFObjectHandle const& theValue) {
-   return theValue.null() ? "-" : theValue.unparse();
+   return theValue.isNull() ? "-" : theValue.unparse();
    }
 
 /**
@@ -183,8 +183,8 @@ int Run(
 
             bool const bImageMask = theDictionary.getKey("/ImageMask").isBool() &&
                                     theDictionary.getKey("/ImageMask").getBoolValue();
-            bool const bMask = !theDictionary.getKey("/Mask").null();
-            bool const bSoftMask = !theDictionary.getKey("/SMask").null();
+            bool const bMask = !theDictionary.getKey("/Mask").isNull();
+            bool const bSoftMask = !theDictionary.getKey("/SMask").isNull();
 
             std::string const strObjectFilePart = Sanitize(strObject);
             std::string const strFileName =
