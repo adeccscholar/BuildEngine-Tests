@@ -40,17 +40,32 @@ file(TO_CMAKE_PATH "${CMAKE_COMMAND}" ADECC_CMAKE_EXECUTABLE)
 set(ADECC_BCC64X_EXECUTABLE "${ADECC_BDS_ROOT}/bin64/bcc64x.exe")
 set(ADECC_TOOLCHAIN_FILE
    "${BUILDENGINE_ROOT}/admin/cmake/toolchains/bcc64x-buildengine-cxx.cmake")
-set(ADECC_QPDF_DIR
-   "${BUILDENGINE_ROOT}/install/Win64x/lib/win64/Release/cmake/qpdf")
+set(_ADECC_QPDF_CANDIDATES
+   "${BUILDENGINE_ROOT}/install/Win64x/lib/cmake/qpdf"
+   "${BUILDENGINE_ROOT}/install/Win64x/lib/win64/Release/cmake/qpdf"
+   "${BUILDENGINE_ROOT}/install/packages/qpdf/12.4.1/lib/win64/Release/cmake/qpdf")
+
+set(ADECC_QPDF_DIR "")
+foreach(_candidate IN LISTS _ADECC_QPDF_CANDIDATES)
+   if(EXISTS "${_candidate}/qpdfConfig.cmake")
+      set(ADECC_QPDF_DIR "${_candidate}")
+      break()
+   endif()
+endforeach()
 
 foreach(_required IN ITEMS
    "${ADECC_BCC64X_EXECUTABLE}"
-   "${ADECC_TOOLCHAIN_FILE}"
-   "${ADECC_QPDF_DIR}/qpdfConfig.cmake")
+   "${ADECC_TOOLCHAIN_FILE}")
    if(NOT EXISTS "${_required}")
       message(FATAL_ERROR "Required BuildEngine repro input is missing: ${_required}")
    endif()
 endforeach()
+
+if(ADECC_QPDF_DIR STREQUAL "")
+   string(JOIN "\n  " _qpdf_candidates_text ${_ADECC_QPDF_CANDIDATES})
+   message(FATAL_ERROR
+      "qpdfConfig.cmake was not found in the BuildEngine publish/package layouts checked:\n  ${_qpdf_candidates_text}")
+endif()
 
 file(MAKE_DIRECTORY "${ADECC_CACHE_ROOT}" "${ADECC_TOOLS_ROOT}" "${ADECC_DOWNLOAD_ROOT}")
 
