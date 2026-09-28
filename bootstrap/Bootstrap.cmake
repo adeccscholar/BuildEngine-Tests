@@ -1,0 +1,174 @@
+cmake_minimum_required(VERSION 3.25)
+
+# ---------------------------------------------------------------------------
+# BuildEngine-Tests Stage-0 bootstrap
+#
+# Run from a C++Builder Developer Command Prompt:
+#
+#   cmake -DBUILDENGINE_ROOT=D:/local/embarcadero/test_v3 -P bootstrap/Bootstrap.cmake
+#
+# The bootstrap provisions the pinned Ninja, validates the BuildEngine
+# production tree and writes machine-local tool evidence plus ready-to-run
+# command files below Cache.
+# ---------------------------------------------------------------------------
+
+get_filename_component(ADECC_REPOSITORY_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+set(ADECC_CACHE_ROOT "${ADECC_REPOSITORY_ROOT}/Cache")
+set(ADECC_TOOLS_ROOT "${ADECC_CACHE_ROOT}/tools")
+set(ADECC_DOWNLOAD_ROOT "${ADECC_CACHE_ROOT}/downloads")
+
+include("${CMAKE_CURRENT_LIST_DIR}/BootstrapConfig.cmake")
+
+if("$ENV{BDS}" STREQUAL "")
+   message(FATAL_ERROR
+      "BDS is not set. Start a C++Builder Developer Command Prompt and run the bootstrap from there.")
+endif()
+
+if(NOT DEFINED BUILDENGINE_ROOT OR BUILDENGINE_ROOT STREQUAL "")
+   if(NOT "$ENV{BUILDENGINE_ROOT}" STREQUAL "")
+      set(BUILDENGINE_ROOT "$ENV{BUILDENGINE_ROOT}")
+   else()
+      message(FATAL_ERROR
+         "BUILDENGINE_ROOT is not set. Pass -DBUILDENGINE_ROOT=<BuildEngine production root>.")
+   endif()
+endif()
+
+file(TO_CMAKE_PATH "$ENV{BDS}" ADECC_BDS_ROOT)
+file(TO_CMAKE_PATH "${BUILDENGINE_ROOT}" BUILDENGINE_ROOT)
+file(TO_CMAKE_PATH "${CMAKE_COMMAND}" ADECC_CMAKE_EXECUTABLE)
+
+set(ADECC_BCC64X_EXECUTABLE "${ADECC_BDS_ROOT}/bin64/bcc64x.exe")
+set(ADECC_TOOLCHAIN_FILE
+   "${BUILDENGINE_ROOT}/admin/cmake/toolchains/bcc64x-buildengine-cxx.cmake")
+set(ADECC_QPDF_DIR
+   "${BUILDENGINE_ROOT}/install/Win64x/lib/win64/Release/cmake/qpdf")
+
+foreach(_required IN ITEMS
+   "${ADECC_BCC64X_EXECUTABLE}"
+   "${ADECC_TOOLCHAIN_FILE}"
+   "${ADECC_QPDF_DIR}/qpdfConfig.cmake")
+   if(NOT EXISTS "${_required}")
+      message(FATAL_ERROR "Required BuildEngine repro input is missing: ${_required}")
+   endif()
+endforeach()
+
+file(MAKE_DIRECTORY "${ADECC_CACHE_ROOT}" "${ADECC_TOOLS_ROOT}" "${ADECC_DOWNLOAD_ROOT}")
+
+set(ADECC_NINJA_ROOT "${ADECC_TOOLS_ROOT}/ninja/${ADECC_NINJA_VERSION}")
+set(ADECC_NINJA_ARCHIVE
+   "${ADECC_DOWNLOAD_ROOT}/ninja-${ADECC_NINJA_VERSION}-win.zip")
+set(ADECC_NINJA_EXECUTABLE "${ADECC_NINJA_ROOT}/ninja.exe")
+
+set(_ninja_ok FALSE)
+if(EXISTS "${ADECC_NINJA_EXECUTABLE}")
+   execute_process(
+      COMMAND "${ADECC_NINJA_EXECUTABLE}" --version
+      RESULT_VARIABLE _ninja_result
+      OUTPUT_VARIABLE _ninja_version
+      ERROR_QUIET
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+   if(_ninja_result EQUAL 0 AND _ninja_version STREQUAL ADECC_NINJA_VERSION)
+      set(_ninja_ok TRUE)
+   endif()
+endif()
+
+if(NOT _ninja_ok)
+   set(_archive_ok FALSE)
+   if(EXISTS "${ADECC_NINJA_ARCHIVE}")
+      file(SIZE "${ADECC_NINJA_ARCHIVE}" _archive_size)
+      file(SHA256 "${ADECC_NINJA_ARCHIVE}" _archive_sha)
+      string(TOLOWER "${_archive_sha}" _archive_sha)
+      string(TOLOWER "${ADECC_NINJA_SHA256}" _expected_sha)
+      if("${_archive_size}" STREQUAL "${ADECC_NINJA_ARCHIVE_SIZE}" AND
+         _archive_sha STREQUAL _expected_sha)
+         set(_archive_ok TRUE)
+      endif()
+   endif()
+
+   if(NOT _archive_ok)
+      file(REMOVE "${ADECC_NINJA_ARCHIVE}")
+      message(STATUS "[DOWNLOAD] Ninja ${ADECC_NINJA_VERSION}")
+      file(
+         DOWNLOAD
+         "${ADECC_NINJA_URL}"
+         "${ADECC_NINJA_ARCHIVE}"
+         EXPECTED_HASH "SHA256=${ADECC_NINJA_SHA256}"
+         TLS_VERIFY ON
+         SHOW_PROGRESS
+         STATUS _download_status)
+      list(GET _download_status 0 _download_code)
+      list(GET _download_status 1 _download_text)
+      if(NOT _download_code EQUAL 0)
+         file(REMOVE "${ADECC_NINJA_ARCHIVE}")
+         message(FATAL_ERROR "Ninja download failed: ${_download_text}")
+      endif()
+      file(SIZE "${ADECC_NINJA_ARCHIVE}" _download_size)
+      if(NOT "${_download_size}" STREQUAL "${ADECC_NINJA_ARCHIVE_SIZE}")
+         file(REMOVE "${ADECC_NINJA_ARCHIVE}")
+         message(FATAL_ERROR
+            "Ninja archive size mismatch: expected ${ADECC_NINJA_ARCHIVE_SIZE}, got ${_download_size}")
+      endif()
+   endif()
+
+   file(REMOVE_RECURSE "${ADECC_NINJA_ROOT}")
+   file(MAKE_DIRECTORY "${ADECC_NINJA_ROOT}")
+   file(ARCHIVE_EXTRACT INPUT "${ADECC_NINJA_ARCHIVE}" DESTINATION "${ADECC_NINJA_ROOT}")
+endif()
+
+if(NOT EXISTS "${ADECC_NINJA_EXECUTABLE}")
+   message(FATAL_ERROR "Ninja could not be provisioned: ${ADECC_NINJA_EXECUTABLE}")
+endif()
+
+file(TO_CMAKE_PATH "${ADECC_NINJA_EXECUTABLE}" ADECC_NINJA_EXECUTABLE)
+
+function(_adecc_append_set theFile theName theValue)
+   set(_value "${theValue}")
+   string(REPLACE "\\" "/" _value "${_value}")
+   string(REPLACE "\"" "\\\"" _value "${_value}")
+   file(APPEND "${theFile}" "set(${theName} \"${_value}\")\n")
+endfunction()
+
+set(ADECC_TOOLS_FILE "${ADECC_CACHE_ROOT}/BootstrapTools.cmake")
+file(WRITE "${ADECC_TOOLS_FILE}"
+   "# Generated by bootstrap/Bootstrap.cmake - do not edit.\n"
+   "# Machine-local BuildEngine repro evidence.\n\n")
+_adecc_append_set("${ADECC_TOOLS_FILE}" ADECC_REPOSITORY_ROOT "${ADECC_REPOSITORY_ROOT}")
+_adecc_append_set("${ADECC_TOOLS_FILE}" ADECC_BUILDENGINE_ROOT "${BUILDENGINE_ROOT}")
+_adecc_append_set("${ADECC_TOOLS_FILE}" ADECC_BDS_ROOT "${ADECC_BDS_ROOT}")
+_adecc_append_set("${ADECC_TOOLS_FILE}" ADECC_BCC64X_EXECUTABLE "${ADECC_BCC64X_EXECUTABLE}")
+_adecc_append_set("${ADECC_TOOLS_FILE}" ADECC_CMAKE_EXECUTABLE "${ADECC_CMAKE_EXECUTABLE}")
+_adecc_append_set("${ADECC_TOOLS_FILE}" ADECC_NINJA_EXECUTABLE "${ADECC_NINJA_EXECUTABLE}")
+_adecc_append_set("${ADECC_TOOLS_FILE}" ADECC_TOOLCHAIN_FILE "${ADECC_TOOLCHAIN_FILE}")
+_adecc_append_set("${ADECC_TOOLS_FILE}" ADECC_QPDF_DIR "${ADECC_QPDF_DIR}")
+
+file(TO_NATIVE_PATH "${ADECC_REPOSITORY_ROOT}" _repo_native)
+file(TO_NATIVE_PATH "${ADECC_BDS_ROOT}" _bds_native)
+file(TO_NATIVE_PATH "${ADECC_BCC64X_EXECUTABLE}" _bcc_native)
+file(TO_NATIVE_PATH "${ADECC_CMAKE_EXECUTABLE}" _cmake_native)
+file(TO_NATIVE_PATH "${ADECC_NINJA_EXECUTABLE}" _ninja_native)
+file(TO_NATIVE_PATH "${ADECC_TOOLCHAIN_FILE}" _toolchain_native)
+file(TO_NATIVE_PATH "${ADECC_QPDF_DIR}" _qpdf_native)
+
+set(_configure_cmd "${ADECC_CACHE_ROOT}/configure-pdf-image-extraction.cmd")
+file(WRITE "${_configure_cmd}"
+   "@echo off\r\n"
+   "set \"CB_BDS=${_bds_native}\"\r\n"
+   "set \"CB_BCC64X=${_bcc_native}\"\r\n"
+   "\"\${_cmake_native}\" -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE:FILEPATH=\"${_toolchain_native}\" -DCMAKE_MAKE_PROGRAM:FILEPATH=\"${_ninja_native}\" -Dqpdf_DIR:PATH=\"${_qpdf_native}\" -S \"${_repo_native}\\tests\\pdf-image-extraction\" -B \"${_repo_native}\\tests\\pdf-image-extraction\\build\"\r\n")
+
+set(_build_cmd "${ADECC_CACHE_ROOT}/build-pdf-image-extraction.cmd")
+file(WRITE "${_build_cmd}"
+   "@echo off\r\n"
+   "\"\${_cmake_native}\" --build \"${_repo_native}\\tests\\pdf-image-extraction\\build\"\r\n")
+
+message(STATUS "Repository root : ${ADECC_REPOSITORY_ROOT}")
+message(STATUS "BuildEngine root: ${BUILDENGINE_ROOT}")
+message(STATUS "BDS root        : ${ADECC_BDS_ROOT}")
+message(STATUS "bcc64x          : ${ADECC_BCC64X_EXECUTABLE}")
+message(STATUS "CMake           : ${ADECC_CMAKE_EXECUTABLE}")
+message(STATUS "Ninja           : ${ADECC_NINJA_EXECUTABLE}")
+message(STATUS "Toolchain       : ${ADECC_TOOLCHAIN_FILE}")
+message(STATUS "qpdf package    : ${ADECC_QPDF_DIR}")
+message(STATUS "Tool evidence   : ${ADECC_TOOLS_FILE}")
+message(STATUS "Configure       : ${_configure_cmd}")
+message(STATUS "Build           : ${_build_cmd}")
