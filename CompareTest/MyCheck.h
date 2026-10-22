@@ -82,7 +82,7 @@ inline void build_dirs(fs::path const& r, fs::path const& p, std::vector<fs::pat
       }
    }
 
-// einige interne Lambda- Ausdrücke zu externen Methoden umgewandelt, um es verständlicher zu machen
+// einige interne Lambda- AusdrÃ¼cke zu externen Methoden umgewandelt, um es verstÃ¤ndlicher zu machen
 inline void Compare(fs::path const& strDirectory1, fs::path const& strDirectory2) {
 
    std::vector<fs::path> vDirs1, vDirs2, vDirs, vDiff1, vDiff2;
@@ -127,6 +127,9 @@ inline bool Compare_Input(fs::path const& strDirectory1, fs::path const& strDire
       std::string strBuffer1, strBuffer2;
       auto view1 = GetContent(strDirectory1 / file, strBuffer1);
       auto view2 = GetContent(strDirectory2 / file, strBuffer2);
+      // Identical 8-bit files need no line-wise diagnostic comparison.
+      // Keep the original per-line check for differing files.
+      if (view1 == view2) continue;
       size_t size = std::ranges::count(view1, '\n');
       std::vector<my_line> lines1;
       lines1.reserve(size);
