@@ -1,96 +1,46 @@
-# BuildEngine Tests und Demos
+# BuildEngine Test Applications
 
-Dieses Repository ist die Heimat der **komplexeren, paketuebergreifenden Tests und Demonstrationen** des C++Builder-Third-Party-Projekts.
-
-Es enthaelt bewusst **nicht** die einfachen Library-Smoke-Tests. Diese sind fester Bestandteil des jeweiligen Bibliotheksvertrags und liegen zusammen mit `build-libraries.xml` unter `BuildEngine-Admin/admin/smokes`.
-
-## Aufgabenteilung
+This repository is checked out as `BuildEngine/Test`. All applications and shared test code live directly in the repository root. No distinction between demos and tests.
 
 ```text
-BuildEngine
-   Ausfuehrung, Scheduling, ProcessRunner, Validatoren
-
-BuildEngine-Admin
-   Bibliotheksvertrag
-   source -> build/test -> install -> publish -> smoke -> ready
-   einfache, paketbezogene Consumer-Smokes
-
-BuildEngine-Tests
-   komplexe, paketuebergreifende Integrations-Tests
-   Demos und repraesentative Anwendungsszenarien
+BuildEngine/
+  Test/                    (this repository)
+    CMakeLists.txt
+    CMakePresets.json
+    bootstrap/Bootstrap.cmake
+    cmake/BuildEngineTests.cmake
+    CompareTest/
+    PDFiumSDL2/
+    PDFiumVCL/             (native RAD Studio VCL project)
+    PDFiumCommon/
+    pdf-image-extraction/
+  build/Test/
+    Release/cmake/         (CMake/Ninja build tree)
+    Release/<target>/      (installed EXE + runtime DLLs)
+    Debug/cmake/
+    Debug/<target>/
 ```
 
-Die Trennung folgt der Semantik des Tests, nicht der technischen Ausfuehrung:
+## Commands
 
-- Ein **Library-Smoke** beantwortet nur die Frage, ob genau ein publiziertes Paket aus der gemeinsamen `Win64x`-Consumer-Sicht gefunden, kompiliert, gelinkt, geladen und minimal benutzt werden kann. Er gehoert deshalb zum Library-Vertrag in `BuildEngine-Admin`.
-- Ein **Integrationstest** kombiniert mehrere publizierte Pakete, Prozesse oder Dienste und prueft deren Zusammenspiel.
-- Eine **Demo** zeigt ein groesseres, nachvollziehbares Anwendungsszenario und darf mehrere Bibliotheken und Anwendungsbausteine verwenden.
+Use the RAD Studio 13 developer environment (BDS must be defined), then from `BuildEngine/Test`:
 
-## Verzeichnisstruktur
-
-```text
-BuildEngine-Tests/
-   tests/
-      <integration-test>/
-   demos/
-      <demo>/
+```bat
+cmake -P bootstrap/Bootstrap.cmake
+cmake --preset Release
+cmake --build --preset Release
+cmake --install ../build/Test/Release/cmake
 ```
 
-Die Verzeichnisse enthalten keine Bibliotheksversionsnummern, solange nicht wirklich eine inkompatible Testimplementierung fuer eine bestimmte Version notwendig ist.
+For Debug, replace Release with Debug. Bootstrap validates tools but does not install a new Ninja or alter production BuildEngine packages.
 
-## Consumer-Sicht
+The CMake install uses the existing BuildEngine-Admin `BuildEngineRuntime.cmake` for each target with a declared package closure. It copies the EXE and its staged DLLs into the target-specific directory. The declared runtime package closure MUST include all transitive DLL-producing dependencies. It is not sufficient to stage only a top-level package. No automatic DLL selection from PATH is permitted.
 
-Tests und Demos konsumieren die von BuildEngine publizierte SDK-Sicht:
+## Status and limitations
 
-```text
-<InstallRoot>/Win64x/
-   include/
-   lib/
-   bin/
-   cmake/
-```
-
-Sie sollen keine privaten Build-Verzeichnisse und keine fest verdrahteten Pfade nach `install/packages/<id>/<version>` verwenden. CMake-Projekte benutzen nach Moeglichkeit normale `find_package()`-Aufrufe und die gemeinsame BuildEngine-Consumer-Integration.
-
-## Komplexe Tests
-
-Unter `tests/` gehoeren Szenarien, die ueber einen einzelnen Paket-Smoke hinausgehen, beispielsweise:
-
-- mehrere Bibliotheken gemeinsam in einem Consumer;
-- Client/Server- oder Mehrprozess-Tests;
-- TLS-/Netzwerk-Interaktion;
-- CORBA-Dienste und Clients;
-- Zusammenspiel von Datenformat-, Kompressions-, Netzwerk- und Kryptographie-Bibliotheken.
-
-Solche Tests duerfen eine eigene fachliche Auswertung besitzen. Sie ersetzen nicht die kleinen Library-Smokes und sind nicht automatisch Teil des `ready`-Knotens einer einzelnen Bibliothek.
-
-## Demos
-
-Unter `demos/` liegen groessere, reproduzierbare Beispielanwendungen. Dazu gehoert auch die vorgesehene Integration des Financial-Beispiels.
-
-Das bereits vorhandene Repository `adeccscholar/Financial_Example` bleibt dabei eine eigenstaendige Quelle. Eine BuildEngine-Demo kann dieses Beispiel als echten Consumer des publizierten `Win64x`-SDK-Baums einbinden oder seinen Build reproduzierbar anstossen; die Library-Smoke-Logik wird nicht in das Financial-Beispiel kopiert.
-
-## Alter `smoketests`-Baum
-
-Der bisherige `smoketests/`-Baum dieses Repositories wird nach Uebernahme der neuen Admin-Smokes nicht mehr benoetigt. Die einfachen Consumer-Smokes liegen dann ausschliesslich unter:
-
-```text
-BuildEngine-Admin/admin/smokes/<library>/consumer/
-```
-
-Damit existiert fuer einfache Library-Smokes nur noch eine Quelle und ein Vertrag.
-
-## Anforderungen
-
-Tests und Demos sollen:
-
-- keine absoluten Maschinenpfade enthalten;
-- die publizierte `Win64x`-Consumer-Sicht verwenden;
-- mit C++Builder/BCC64X ueber die normale Projekt-Toolchain gebaut werden;
-- keine privaten Third-Party-Source- oder Build-Verzeichnisse verwenden;
-- reproduzierbare Eingaben und nachvollziehbare Logs erzeugen;
-- ihren Zweck und die beteiligten Pakete dokumentieren.
-
-## Lizenz
-
-Projekt-eigene Test-, Demo-, CMake- und Dokumentationsdateien stehen unter der MIT-Lizenz des Repositories. Drittanbieterbibliotheken behalten ihre jeweiligen Upstream-Lizenzen.
+* `PDFiumSDL2`, `PDFiumCommon`, `PDFiumVCL` source files were migrated from `BuildEngine/Test`.
+* `pdf-image-extraction` is migrated to the same flat application layout.
+* `CompareTest/CMakeLists.txt` has been moved, but **its original C++ sources are still not committed to this Git repository**; the most recent complete CompareTest archive must be imported before enabling that target. Its `MyData.h` must use `auto const aResult = fast_float::from_chars(...)`, not `std::from_chars_result`.
+* Runtime package closures for PDFium/SDL2 and qpdf must be validated against the installed package imports. They are configurable via `ADECC_PDFIUM_RUNTIME_ROOTS` and `ADECC_QPDF_RUNTIME_ROOTS`; no runtime closure completeness is claimed yet.
+* PDFiumVCL is a `.cbproj` and remains separate from the CMake build.
+* No local BCC64X build/install has been executed here.
