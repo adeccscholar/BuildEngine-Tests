@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(BuildEngineCompareTest LANGUAGES CXX)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/BuildEngineTests.cmake")
 get_filename_component(BUILDENGINE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
 set(BUILDENGINE_INSTALL_ROOT "${BUILDENGINE_ROOT}/install" CACHE PATH "BuildEngine install root")
 set(BUILDENGINE_CONFIGURATION "Release" CACHE STRING "BuildEngine package variant")
