@@ -169,49 +169,51 @@ inline void Writing(data_vector<ty> const& vData, fs::path const& strFile) {
 template <typename ty>
    requires std::floating_point<ty>
 inline void Sorting(data_vector<ty>& vData) {
-   // Compare CP1252 text without temporary allocations in the parallel comparator.
-   // Match the original accent expansion used by CompareTest.
-   static constexpr auto compare_text = [](std::string_view const left,
-                                           std::string_view const right) noexcept {
-      struct cursor {
-         std::string_view text;
-         std::size_t pos = 0;
-         char pending = 0;
+   static const std::string special_chars = "ßüöäÄÖÜáèéçñ"s;
 
-         char Next() noexcept {
-            if (pending != 0) {
-               char const ch = pending;
-               pending = 0;
-               return ch;
+   static const std::map<char, std::string> special_values = {
+      { 'Ö', "Oe"s }, { 'ä', "ae"s }, { 'Ä', "Ae"s }, { 'ñ', "n"s  },
+      { 'ü', "ue"s }, { 'ç', "c"s  }, { 'Ü', "Ue"s }, { 'è', "e"s  },
+      { 'ß', "ss"s }, { 'ö', "oe"s }, { 'á', "a"s  }, { 'é', "e"s  }
+      };
+
+   static const auto normalize = [](std::string const& param, std::size_t pos) {
+            std::string text = param;
+
+            do {
+               text.replace(pos, 1, special_values.find(text[pos])->second);
                }
-            if (pos == text.size()) return 0;
-            unsigned char const ch = static_cast<unsigned char>(text[pos++]);
-            switch (ch) {
-               case 0xDF: pending = 's'; return 's'; // sharp s
-               case 0xFC: pending = 'e'; return 'u'; // ue
-               case 0xF6: pending = 'e'; return 'o'; // oe
-               case 0xE4: pending = 'e'; return 'a'; // ae
-               case 0xC4: pending = 'e'; return 'A'; // Ae
-               case 0xD6: pending = 'e'; return 'O'; // Oe
-               case 0xDC: pending = 'e'; return 'U'; // Ue
-               case 0xE1: return 'a';
-               case 0xE8: return 'e';
-               case 0xE9: return 'e';
-               case 0xE7: return 'c';
-               case 0xF1: return 'n';
-               default: return static_cast<char>(ch);
+            while ((pos = text.find_first_of(special_chars, pos)) != std::string::npos);
+
+            return text;
+      };
+
+   static const auto compare_text = [](std::string const& left, std::string const& right) {
+            if (auto const result = left <=> right; result == 0) [[likely]] {
+               return result;
                }
-            }
-         };
-      cursor aLeft{ left };
-      cursor aRight{ right };
-      for (;;) {
-         unsigned char const chLeft = static_cast<unsigned char>(aLeft.Next());
-         unsigned char const chRight = static_cast<unsigned char>(aRight.Next());
-         if (chLeft < chRight) return std::strong_ordering::less;
-         if (chLeft > chRight) return std::strong_ordering::greater;
-         if (chLeft == 0) return std::strong_ordering::equal;
-         }
+            else {
+               auto const left_pos = left.find_first_of(special_chars);
+               auto const right_pos = right.find_first_of(special_chars);
+
+               bool const left_special = left_pos != std::string::npos;
+
+               bool const right_special = right_pos != std::string::npos;
+
+               if (left_special && right_special) {
+                  return normalize(left, left_pos) <=> normalize(right, right_pos);
+                  }
+
+               if (!left_special && right_special) {
+                  return left <=> normalize(right, right_pos);
+                  }
+
+               if (left_special && !right_special) {
+                  return normalize(left, left_pos) <=> right;
+                  }
+
+               return result;
+               }
       };
 
    static constexpr auto compare_street_number = [](TDataNew<ty> const& lhs, TDataNew<ty> const& rhs) noexcept {
