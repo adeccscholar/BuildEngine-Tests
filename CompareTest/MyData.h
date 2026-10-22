@@ -266,7 +266,10 @@ private:
       ty flValue = ty{ 0.0 };
 
       char const* const pBegin = svValue.data();
-      char const* const pEnd = pBegin + svValue.size();
+      // A CRLF line split on '\n' leaves '\r' in the final CSV field.
+      // Exclude only this record delimiter; keep the source's 8-bit bytes intact.
+      char const* const pEnd = pBegin + svValue.size()
+         - (!svValue.empty() && svValue.back() == '\r' ? 1 : 0);
 
       auto const aResult =
          fast_float::from_chars(
