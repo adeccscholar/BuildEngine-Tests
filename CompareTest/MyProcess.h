@@ -523,7 +523,7 @@ inline void WriteToDirectory(
                std::for_each(group.first, group.last,
                   [&strBuffer](auto const& value) {
                      auto const& [address, result] = value;
-                     std::format_to(std::back_inserter(strBuffer), "{};{};{};{};{};{};{}\\n",
+                     std::format_to(std::back_inserter(strBuffer), "{};{};{};{};{};{};{}\n",
                         address.StreetNumber(), address.ZipCode(),
                         address.UrbanUnitOld(),
                         my_Double_to_String_short(address.Latitude(), 9),
