@@ -55,6 +55,9 @@ struct my_line_iterator {
          end_pos = theText->find('\n', start_pos);
          if (end_pos != std::string_view::npos) {
             theLine = theText->substr(start_pos, end_pos - start_pos);
+            if (!theLine.empty() && theLine.back() == '\r') {
+               theLine.remove_suffix(1);
+               }
             start_pos = end_pos + 1;
          }
          else {
