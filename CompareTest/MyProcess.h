@@ -447,8 +447,23 @@ inline void WriteToDirectory(
 
    fs::path oldPath;
 
-   // Scan group boundaries once; each element after the first is compared
-   // only with its immediate predecessor. Preserve the original group keys.
+   // Compare neighbouring keys independently; each worker writes to its own
+   // boundary flag. File grouping and directory creation stay ordered.
+   std::vector<unsigned char> boundaries(vData.size(), 0u);
+   oneapi::tbb::parallel_for(
+      oneapi::tbb::blocked_range<std::size_t>(1u, vData.size(), 4096u),
+      [&](auto const& range) {
+         for (std::size_t i = range.begin(); i != range.end(); ++i) {
+            auto const& left = vData[i - 1u].first;
+            auto const& right = vData[i].first;
+            boundaries[i] = static_cast<unsigned char>(
+               left.Street() != right.Street()
+               || left.District() != right.District()
+               || left.UrbanUnit() != right.UrbanUnit()
+               || left.City() != right.City());
+            }
+         });
+
    auto const emitGroup = [&](iterator_ty first, iterator_ty last) {
       auto const& address = first->first;
       fs::path const currentPath = strPath / address.City() / address.UrbanUnit()
@@ -463,21 +478,15 @@ inline void WriteToDirectory(
       };
 
    if (!vData.empty()) {
-      auto first = vData.cbegin();
-      auto previous = first;
-      for (auto current = std::next(first); current != vData.cend(); ++current) {
-         auto const& left = previous->first;
-         auto const& right = current->first;
-         if (left.Street() != right.Street()
-            || left.District() != right.District()
-            || left.UrbanUnit() != right.UrbanUnit()
-            || left.City() != right.City()) {
-            emitGroup(first, current);
-            first = current;
+      std::size_t first = 0u;
+      for (std::size_t i = 1u; i < boundaries.size(); ++i) {
+         if (boundaries[i] != 0u) {
+            emitGroup(vData.cbegin() + static_cast<std::ptrdiff_t>(first),
+                      vData.cbegin() + static_cast<std::ptrdiff_t>(i));
+            first = i;
             }
-         previous = current;
          }
-      emitGroup(first, vData.cend());
+      emitGroup(vData.cbegin() + static_cast<std::ptrdiff_t>(first), vData.cend());
       }
 
    if (positions.empty()) {
