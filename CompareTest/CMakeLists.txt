@@ -15,6 +15,15 @@ function(add_compare_executable target file)
   set_property(TARGET ${target} PROPERTY CXX_SCAN_FOR_MODULES OFF)
   target_compile_features(${target} PRIVATE cxx_std_23)
   target_compile_options(${target} PRIVATE -std=c++23)
+  # Optimise the benchmark in Release without changing floating-point semantics.
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    target_compile_options(${target} PRIVATE
+      "$<$<CONFIG:Release>:-O3>"
+      "$<$<CONFIG:Release>:-DNDEBUG>")
+  elseif(MSVC)
+    target_compile_options(${target} PRIVATE "$<$<CONFIG:Release>:/O2>")
+    target_compile_definitions(${target} PRIVATE "$<$<CONFIG:Release>:NDEBUG>")
+  endif()
   target_include_directories(${target} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${_ff}/include")
   target_link_libraries(${target} PRIVATE TBB::tbb)
   target_compile_definitions(${target} PRIVATE __TBB_NO_IMPLICIT_LINKAGE=1)
