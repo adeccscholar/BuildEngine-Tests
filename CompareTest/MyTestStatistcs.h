@@ -239,8 +239,8 @@ template <typename ty>
 void WriteStatistic(std::ostream& out, TTestData<ty> const& test) {
    // Use the same column widths for headings, rules and every data row.
    static constexpr std::size_t nameWidth = 44u;
-   static constexpr std::size_t countWidth = 7u;
-   static constexpr std::size_t valueWidth = 11u;
+   static constexpr std::size_t countWidth = 5u;
+   static constexpr std::size_t valueWidth = 9u;
    static constexpr std::array<std::string_view, 11u> headings = {
       "minimum", "P10", "mean", "median", "P90", "maximum",
       "variance", "std_dev", "rel_std%", "std_error", "MAD"
@@ -256,9 +256,9 @@ void WriteStatistic(std::ostream& out, TTestData<ty> const& test) {
       };
 
    static auto const print_caption = [](std::ostream& stream) {
-      stream << std::format("| {:<44} | {:>7} |", "", "count");
+      stream << std::format("| {:<44} | {:>5} |", "", "count");
       for (auto const heading : headings) {
-         stream << std::format(" {:>11} |", heading);
+         stream << std::format(" {:>9} |", heading);
          }
       stream << '\n';
       };
@@ -268,18 +268,18 @@ void WriteStatistic(std::ostream& out, TTestData<ty> const& test) {
                                   std::string const& count,
                                   std::array<ty, 11u> const& values,
                                   std::size_t const numberOfValues) {
-      stream << std::format("| {:<44} | {:>7} |", name, count);
+      stream << std::format("| {:<44} | {:>5} |", name, count);
       for (std::size_t i = 0u; i < values.size(); ++i) {
          if (i < numberOfValues) {
             if (i == 8u) {
-               stream << std::format(" {:>11.2f} |", values[i]);
+               stream << std::format(" {:>9.2f} |", values[i]);
                }
             else {
-               stream << std::format(" {:>11.{}f} |", values[i], test.prec);
+               stream << std::format(" {:>9.{}f} |", values[i], test.prec);
                }
             }
          else {
-            stream << std::format(" {:>11} |", "");
+            stream << std::format(" {:>9} |", "");
             }
          }
       stream << '\n';
