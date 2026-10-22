@@ -559,13 +559,17 @@ inline void WriteToDirectory(
                std::for_each(group.first, group.last,
                   [&strBuffer](auto const& value) {
                      auto const& [address, result] = value;
-                     std::format_to(std::back_inserter(strBuffer), "{};{};{};{};{};{};{}\n",
+                     std::format_to(std::back_inserter(strBuffer), "{};{};{};",
                         address.StreetNumber(), address.ZipCode(),
-                        address.UrbanUnitOld(),
-                        my_Double_to_String_short(address.Latitude(), 9),
-                        my_Double_to_String_short(address.Longitude(), 9),
-                        my_Double_to_String_short(result.first, 3),
-                        my_Double_to_String_short(result.second, 3));
+                        address.UrbanUnitOld());
+                     append_Double_to_String_short(strBuffer, address.Latitude(), 9);
+                     strBuffer.push_back(';');
+                     append_Double_to_String_short(strBuffer, address.Longitude(), 9);
+                     strBuffer.push_back(';');
+                     append_Double_to_String_short(strBuffer, result.first, 3);
+                     strBuffer.push_back(';');
+                     append_Double_to_String_short(strBuffer, result.second, 3);
+                     strBuffer.push_back('\n');
                      });
 
                if (!queue.Push(directory_buffer{
