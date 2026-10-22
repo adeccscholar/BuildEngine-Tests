@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(BuildEnginePDFiumSDL2 LANGUAGES CXX)
-include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/BuildEngineTests.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/BuildEngineTests.cmake")
 adecc_package_root(PDFIUM_PACKAGE pdfium 2025.11.19)
 adecc_package_root(SDL2_PACKAGE sdl2 2.32.10)
 list(PREPEND CMAKE_PREFIX_PATH "${PDFIUM_PACKAGE}" "${SDL2_PACKAGE}")
