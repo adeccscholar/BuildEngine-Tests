@@ -317,11 +317,16 @@ inline void ReadFromDirectory(fs::path const& strPath, data_vector<ty>& vData) {
       }
    my_line_count::reset();
 
-   std::for_each(to_read.begin(), to_read.end(), [](auto& val) mutable {
-      auto test = GetContent(std::get<0>(val), std::get<1>(val));
-      std::get<2>(val).reserve(std::ranges::count(test, '\n'));
-      std::ranges::copy(my_lines { test }, std::back_inserter(std::get<2>(val)));
-      });
+   oneapi::tbb::parallel_for(
+      oneapi::tbb::blocked_range<std::size_t>(0u, to_read.size()),
+      [&to_read](auto const& range) {
+         for (std::size_t i = range.begin(); i != range.end(); ++i) {
+            auto& val = to_read[i];
+            auto const test = GetContent(std::get<0>(val), std::get<1>(val));
+            std::get<2>(val).reserve(std::ranges::count(test, '\n'));
+            std::ranges::copy(my_lines { test }, std::back_inserter(std::get<2>(val)));
+            }
+         });
 
    vData.resize(my_line_count::GetCounter());
 
@@ -329,7 +334,11 @@ inline void ReadFromDirectory(fs::path const& strPath, data_vector<ty>& vData) {
       static constexpr std::string_view delim{ ";" };
 
 
-      std::for_each(to_read.begin(), to_read.end(), [&vData](auto& val) {
+      oneapi::tbb::parallel_for(
+      oneapi::tbb::blocked_range<std::size_t>(0u, to_read.size()),
+      [&vData, &to_read](auto const& range) {
+         for (std::size_t i = range.begin(); i != range.end(); ++i) {
+            auto& val = to_read[i];
          auto& [strCity, strUnit, strDistrict, strStreet] = std::get<3>(val);
          std::for_each(std::get<2>(val).begin(), std::get<2>(val).end(), [&vData, &strCity, &strUnit, &strDistrict, &strStreet](auto& val_) mutable {
             auto& address = vData[val_.index];
@@ -344,6 +353,7 @@ inline void ReadFromDirectory(fs::path const& strPath, data_vector<ty>& vData) {
                 funcs_read_d[iCount++](address, std::string_view{ data.begin(), data.end() });
                }
             });
+            }
          });
    }
    catch (std::exception& ex) {
@@ -389,7 +399,10 @@ inline void WriteToDirectory(
          return cmp < 0;
          }
 
-      return left.StreetNumberSuffix() < right.StreetNumberSuffix();
+      if (auto const cmp = left.StreetNumberSuffix() <=> right.StreetNumberSuffix(); cmp != 0) {
+         return cmp < 0;
+         }
+      return left.ZipCode() < right.ZipCode();
       };
 
    oneapi::tbb::parallel_sort( vData.begin(), vData.end(), compare);
