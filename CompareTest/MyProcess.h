@@ -24,6 +24,7 @@
 #include <iterator>
 #include <filesystem>
 #include <future>
+#include <thread>
 #include <ranges>
 #include <concepts>
 #include <source_location>
@@ -483,9 +484,12 @@ inline void WriteToDirectory(
       std::string content;
    };
 
-   constexpr std::size_t producerCount =  20u;
-   constexpr std::size_t queueCapacity = 256u;
-   constexpr std::size_t writerCount   =   5u;
+   // Writer perform blocking file I/O, so they are separate from the oneTBB
+   // CPU workers. Scale with the machine instead of fixing the count at five.
+   auto const hardwareThreads = std::max<std::size_t>(
+      1u, std::thread::hardware_concurrency());
+   auto const writerCount = std::min(hardwareThreads, positions.size());
+   auto const queueCapacity = std::max<std::size_t>(256u, writerCount * 4u);
 
    BlockingQueue<directory_buffer> queue{ queueCapacity };
 
