@@ -10,6 +10,36 @@
         "CMAKE_MAKE_PROGRAM": "${fileDir}/../tools/ninja/1.13.2/ninja.exe",
         "CMAKE_CXX_SCAN_FOR_MODULES": "OFF"
       }
+    },
+    {
+      "name": "Release",
+      "inherits": "base",
+      "binaryDir": "${fileDir}/../build/Test/Release/cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILDENGINE_CONFIGURATION": "Release",
+        "CMAKE_INSTALL_PREFIX": "${fileDir}/../build/Test/Release"
+      }
+    },
+    {
+      "name": "Debug",
+      "inherits": "base",
+      "binaryDir": "${fileDir}/../build/Test/Debug/cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILDENGINE_CONFIGURATION": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${fileDir}/../build/Test/Debug"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "Release",
+      "configurePreset": "Release"
+    },
+    {
+      "name": "Debug",
+      "configurePreset": "Debug"
     }
   ]
 }
