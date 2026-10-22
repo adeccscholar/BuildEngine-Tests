@@ -2,11 +2,13 @@
 //
 
 #include "MyProcess.h"
+#include "ConsoleCodePage.h"
 
 #include <string>
 #include <algorithm>
 
 int main(int argc, char* argv[]) {
+   ConfigureConsoleCodePage();
 
    std::string strDirectory = "D:\\Test"s;
    if (argc == 2) strDirectory = argv[1];
