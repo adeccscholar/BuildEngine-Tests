@@ -6,6 +6,8 @@
 #include <string>
 #include <string_view>
 #include <cstdlib>
+#include <array>
+#include <stdexcept>
 
 
 template <std::integral ty>
@@ -38,11 +40,20 @@ template <std::integral ty>
 
 template <typename ty>
    requires std::floating_point<ty>
-[[nodiscard]] inline constexpr std::string my_Double_to_String_short(ty const& value, int iPrecision) {
-   std::string target{ "0000000000000000" };
-   std::to_chars(target.data(), target.data() + target.size(), value, std::chars_format::fixed, iPrecision);
-   //target.resize(target.find_last_not_of("0") + 1);
-   return target.erase(target.find_last_not_of("0") + 1);
+[[nodiscard]] inline std::string my_Double_to_String_short(ty const& value, int iPrecision) {
+   std::array<char, 128> aBuffer{};
+   auto const aResult = std::to_chars(aBuffer.data(), aBuffer.data() + aBuffer.size(),
+      value, std::chars_format::fixed, iPrecision);
+   if (aResult.ec != std::errc{}) throw std::runtime_error("floating point formatting failed");
+   std::string strResult(aBuffer.data(), aResult.ptr);
+   auto const iPoint = strResult.find('.');
+   if (iPoint != std::string::npos) {
+      auto const iLast = strResult.find_last_not_of('0');
+      if (iLast != std::string::npos && iLast >= iPoint) {
+         strResult.resize(iLast == iPoint ? iPoint : iLast + 1);
+         }
+      }
+   return strResult;
 }
 
 //template <typename ty>
