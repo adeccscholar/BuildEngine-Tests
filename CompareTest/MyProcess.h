@@ -10,6 +10,7 @@
 #include "MyConvert.h"
 #include "MyTestStatistcs.h"
 #include "BlockingQueue.h"
+#include "AnsiPath.h"
 
 #include <iostream>
 #include <fstream>
@@ -296,13 +297,13 @@ inline void ReadFromDirectory(fs::path const& strPath, data_vector<ty>& vData) {
 
    try {
       std::ranges::for_each(fs::directory_iterator{ strPath } | std::views::filter(is_directory), [&to_read](auto& d) {
-         std::string&& strCities = d.path().stem().string();
+         std::string&& strCities = adecc::compare::AnsiName(d.path());
          std::ranges::for_each(fs::directory_iterator{ d } | std::views::filter(is_directory), [&to_read, &strCities](auto& d) {
-            std::string&& strUnit = d.path().stem().string();
+            std::string&& strUnit = adecc::compare::AnsiName(d.path());
             std::ranges::for_each(fs::directory_iterator{ d } | std::views::filter(is_directory), [&to_read, &strCities, &strUnit](auto& d) {
-               std::string&& strDistrict = d.path().stem().string();
+               std::string&& strDistrict = adecc::compare::AnsiName(d.path());
                std::ranges::for_each(fs::directory_iterator{ d } | std::views::filter(is_file), [&to_read, &strCities, &strUnit, &strDistrict](auto& d) {
-                  std::string&& strStreet = d.path().stem().string();
+                  std::string&& strStreet = adecc::compare::AnsiName(d.path());
                   detail_data data = { strCities, strUnit, strDistrict, strStreet };
                   to_read.emplace_back(std::move(d), std::string(), std::move(std::vector<my_line_count>()), std::move(data));
                   });
@@ -414,15 +415,15 @@ inline void WriteToDirectory(
                || address.City() != other.City();
             });
 
-      fs::path const currentPath = strPath / address.City() / address.UrbanUnit()
-         / address.District();
+      fs::path const currentPath = strPath / adecc::compare::AnsiPath(address.City()) / adecc::compare::AnsiPath(address.UrbanUnit())
+         / adecc::compare::AnsiPath(address.District());
 
       if (currentPath != oldPath) {
          fs::create_directories(currentPath);
          oldPath = currentPath;
          }
 
-      positions.emplace_back(first, last, currentPath / (address.Street() + ".csv"s));
+      positions.emplace_back(first, last, currentPath / adecc::compare::AnsiPath(address.Street() + ".csv"s));
       first = last;
       }
 
@@ -641,15 +642,15 @@ inline void WriteToDirectory(fs::path const& strPath, data_vector<ty>& vData, st
                 || address.City()      != other.City();
             });
 
-      fs::path const currentPath = strPath / address.City() / address.UrbanUnit()
-                                   / address.District();
+      fs::path const currentPath = strPath / adecc::compare::AnsiPath(address.City()) / adecc::compare::AnsiPath(address.UrbanUnit())
+                                   / adecc::compare::AnsiPath(address.District());
 
       if (currentPath != oldPath) {
          fs::create_directories(currentPath);
          oldPath = currentPath;
          }
 
-      positions.emplace_back(first, last, currentPath / (address.Street() + ".csv"s));
+      positions.emplace_back(first, last, currentPath / adecc::compare::AnsiPath(address.Street() + ".csv"s));
       first = last;
       }
 
@@ -789,15 +790,15 @@ inline void WriteToDirectory(
                     || address.City() != other.City();
          });
 
-      fs::path const currentPath = strPath / address.City() / address.UrbanUnit()
-                                    / address.District();
+      fs::path const currentPath = strPath / adecc::compare::AnsiPath(address.City()) / adecc::compare::AnsiPath(address.UrbanUnit())
+                                    / adecc::compare::AnsiPath(address.District());
 
       if (currentPath != oldPath) {
          fs::create_directories(currentPath);
          oldPath = currentPath;
          }
 
-      positions.emplace_back(first, last, currentPath / (address.Street() + ".csv"s));
+      positions.emplace_back(first, last, currentPath / adecc::compare::AnsiPath(address.Street() + ".csv"s));
       first = last;
       }
 
