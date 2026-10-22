@@ -9,6 +9,7 @@
 #include <chrono>
 #include <ctime>
 #include <format>
+#include <array>
 #include <vector>
 #include <filesystem>
 
@@ -236,34 +237,74 @@ void WriteProtocol(std::ostream& out, TTestData<ty> test) {
 template <typename ty>
    requires std::floating_point<ty>
 void WriteStatistic(std::ostream& out, TTestData<ty> const& test) {
-   static auto constexpr print_caption = [](std::ostream& out) {
-      out << std::format("| {0:>45}{1:>6}{0:>2}{2:>10}{0:>2}{3:>10}{0:>2}{4:>10}{0:>2}{5:>10}{0:>2}{6:>10}{0:>2}"
-                         "{7:>10}{0:>2}{8:>10}{0:>2}{9:>10}{0:>2}{10:>10}{0:>2}{11:>10}{0:>2}{12:>10} |\n",
-                         "|", "count", "minimum", "P10", "mean", "median", "P90", "maximum", "variance",
-                         "std_dev", "rel_std%", "std_error", "MAD");
+   // Use the same column widths for headings, rules and every data row.
+   static constexpr std::size_t nameWidth = 44u;
+   static constexpr std::size_t countWidth = 7u;
+   static constexpr std::size_t valueWidth = 11u;
+   static constexpr std::array<std::string_view, 11u> headings = {
+      "minimum", "P10", "mean", "median", "P90", "maximum",
+      "variance", "std_dev", "rel_std%", "std_error", "MAD"
       };
 
-   static auto constexpr print_line = [](std::ostream& out) {
-      out << std::format("+ {0:->45}{0:->8}{0:->12}{0:->12}{0:->12}{0:->12}{0:->12}{0:->12}"
-                         "{0:->12}{0:->12}{0:->12}{0:->12}{1:->11}+\n", "+", "-");
+   static auto const print_line = [](std::ostream& stream) {
+      stream << "+-" << std::string(nameWidth, '-') << "-+-"
+             << std::string(countWidth, '-') << "-+";
+      for (std::size_t i = 0u; i < headings.size(); ++i) {
+         stream << "-" << std::string(valueWidth, '-') << "-+";
+         }
+      stream << '\n';
       };
 
-   auto print_data = [&test](std::ostream& out, std::string const& strTestName, Statistical_Data<ty> const& aStats) {
-      out << std::format("| {2:<44s} {1} {3:>6d} {1:^3}{4:9.{0}f}{1:^3}{5:9.{0}f}{1:^3}{6:9.{0}f}{1:^3}"
-                         "{7:9.{0}f}{1:^3}{8:9.{0}f}{1:^3}{9:9.{0}f}{1:^3}{10:9.{0}f}{1:^3}{11:9.{0}f}{1:^3}"
-                         "{12:9.2f}{1:^3}{13:9.{0}f}{1:^3}{14:9.{0}f} |\n",
-                         test.prec, "|", strTestName, aStats.count, aStats.minimum, aStats.percentile_10, aStats.mean, 
-                         aStats.median, aStats.percentile_90, aStats.maximum, aStats.variance, aStats.std_deviation, 
-                         aStats.relative_std_deviation * ty{ 100.0 }, aStats.standard_error, aStats.median_absolute_deviation);
+   static auto const print_caption = [](std::ostream& stream) {
+      stream << std::format("| {:<44} | {:>7} |", "", "count");
+      for (auto const heading : headings) {
+         stream << std::format(" {:>11} |", heading);
+         }
+      stream << '\n';
       };
 
-   auto print_sum = [&test](std::ostream& out, std::string const& strTestName, Statistical_Data<ty> const& aStats) {
-      out << std::format("| {2:<44s}{1}{3:>6}{1:^3}{4:9.{0}f}{1:^3}{5:9.{0}f}{1:^3}{6:9.{0}f}{1:^3}{7:9.{0}f}{1:^3}{8:9.{0}f}{1:^3}"
-                         "{9:9.{0}f}{1:^3}{10:9.{0}f}{1:^3}{3:>9}{1:^3}{3:>9}{1:^3}{3:>9}{1:^3}{3:>9}{1:^3}{3:>9} |\n",
-                         test.prec, "|", strTestName, "", aStats.minimum, aStats.percentile_10, aStats.mean, aStats.median,
-                         aStats.percentile_90, aStats.maximum, aStats.variance);
+   auto const print_row = [&test](std::ostream& stream,
+                                  std::string const& name,
+                                  std::string const& count,
+                                  std::array<ty, 11u> const& values,
+                                  std::size_t const numberOfValues) {
+      stream << std::format("| {:<44} | {:>7} |", name, count);
+      for (std::size_t i = 0u; i < values.size(); ++i) {
+         if (i < numberOfValues) {
+            if (i == 8u) {
+               stream << std::format(" {:>11.2f} |", values[i]);
+               }
+            else {
+               stream << std::format(" {:>11.{}f} |", values[i], test.prec);
+               }
+            }
+         else {
+            stream << std::format(" {:>11} |", "");
+            }
+         }
+      stream << '\n';
       };
 
+   auto const print_data = [&print_row](std::ostream& stream,
+                                       std::string const& name,
+                                       Statistical_Data<ty> const& stats) {
+      print_row(stream, name, std::to_string(stats.count), {
+         stats.minimum, stats.percentile_10, stats.mean, stats.median,
+         stats.percentile_90, stats.maximum, stats.variance,
+         stats.std_deviation, stats.relative_std_deviation * ty{ 100.0 },
+         stats.standard_error, stats.median_absolute_deviation
+         }, 11u);
+      };
+
+   auto const print_sum = [&print_row](std::ostream& stream,
+                                      std::string const& name,
+                                      Statistical_Data<ty> const& stats) {
+      print_row(stream, name, "", {
+         stats.minimum, stats.percentile_10, stats.mean, stats.median,
+         stats.percentile_90, stats.maximum, stats.variance,
+         ty{}, ty{}, ty{}, ty{}
+         }, 7u);
+      };
 
    out.setf(std::ios::fixed);
    out.setf(std::ios::showpoint);
