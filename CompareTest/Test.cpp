@@ -11,6 +11,7 @@
 
 
 #include "MyProcess.h"
+#include "ConsoleCodePage.h"
 #include "Geodaten.h"
 
 #include <iostream>
@@ -73,6 +74,7 @@ std::vector<std::tuple<std::string, Location<double>, myMercatorETRS89<double>>>
    };
 
 int main(int argc, char* argv[]) {
+   ConfigureConsoleCodePage();
    std::ios_base::sync_with_stdio(false);
    std::cout.setf(std::ios::showpoint);
    std::cout.setf(std::ios::fixed);
