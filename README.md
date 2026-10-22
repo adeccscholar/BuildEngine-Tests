@@ -1,16 +1,16 @@
 # BuildEngine Tests
 
-This repository is checked out as `BuildEngine/Test`. Every application is a separate project directly below this directory. There is no test/demo split and no top-level multi-project configure required.
+This repository can be checked out under the BuildEngine root as `tests` (or `Test`). Every application is a separate project directly below this directory. There is no test/demo split and no top-level multi-project configure required.
 
 ## Common bootstrap, independent per-project CMake commands
 
-Run from `BuildEngine/Test`, in the RAD Studio 13 developer command prompt:
+Run from the checkout directory (e.g. `BuildEngine/tests`), in the RAD Studio 13 developer command prompt:
 
 ```bat
 cmake -P bootstrap/Bootstrap.cmake
 ```
 
-The bootstrap checks BCC64X, BuildEngine's existing Ninja and toolchain, and generates `bootstrap/BuildEngineInit.cmake` (a local, untracked CMake initial-cache file). It does not build libraries or download tools.
+The bootstrap checks BCC64X, BuildEngine's existing Ninja and toolchain, and validates the tracked `bootstrap/BuildEngineInit.cmake` initial-cache file. It does not build libraries or download tools.
 
 Then configure, build and install any particular project separately:
 
@@ -20,9 +20,19 @@ cmake --build ../build/Test/CompareTest/Release/cmake
 cmake --install ../build/Test/CompareTest/Release/cmake
 ```
 
-For pdfium/SDL2, replace `CompareTest` by `pdfium/SDL2`; for pdf-image-extraction replace by `pdf-image-extraction`. For Debug use a `Debug` build tree and `-DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug`.
+For `pdfium/SDL2` use its own independent build tree, e.g. `../build/Test/pdfium-SDL2/Release/cmake`. For `pdf-image-extraction` use `../build/Test/pdf-image-extraction/Release/cmake`. Never share a CMake binary directory across different source projects. For Debug use a `Debug` build tree and `-DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug`.
 
 A CMake app is installed under `../build/Test/<project>/<configuration>/<target>/` with its executable and staged DLLs side-by-side. The shared functions `adecc_stage_runtime()` and `adecc_install_application()` originate from BuildEngine-Admin. Each app must declare **the complete exact package-root closure**, including transitive dependencies. No PATH-based newest-package probing is allowed.
+
+## One-time cache reset after moving sources
+
+If CMake reports `source ... does not match the source ... used to generate cache`, remove **only that project's** old build directory, e.g. from the checkout directory:
+
+```bat
+cmake -E rm -rf ../build/Test/CompareTest/Release/cmake
+```
+
+Then rerun the project's configure command. Do not delete library build caches or reinstall third-party packages.
 
 ## Current project status
 
