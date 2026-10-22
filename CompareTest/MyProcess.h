@@ -479,50 +479,116 @@ inline void WriteToDirectory(
       return;
       }
 
-   // Each group represents one independent CSV file. Format and write it
-   // within one TBB task to avoid the producer/consumer queue and threads.
-   oneapi::tbb::parallel_for(
-      oneapi::tbb::blocked_range<std::size_t>(0u, positions.size(), 1u),
-      [&positions](auto const& range) {
-         for (std::size_t i = range.begin(); i != range.end(); ++i) {
-            auto const& group = positions[i];
-            auto const count = static_cast<std::size_t>(
-               std::distance(group.first, group.last));
+   struct directory_buffer {
+      fs::path file;
+      std::string content;
+   };
 
-            std::string strBuffer;
-            strBuffer.reserve(count * 68u);
+   // Writer perform blocking file I/O, so they are separate from the oneTBB
+   // CPU workers. Scale with the machine instead of fixing the count at five.
+   auto const hardwareThreads = std::max<std::size_t>(
+      1u, std::thread::hardware_concurrency());
+   auto const writerCount = std::min(hardwareThreads, positions.size());
+   auto const queueCapacity = std::max<std::size_t>(256u, writerCount * 4u);
 
-            // Preserve the already sorted order inside each file.
-            std::for_each(group.first, group.last,
-               [&strBuffer](auto const& value) {
-                  auto const& [address, result] = value;
-                  std::format_to(std::back_inserter(strBuffer),
-                     "{};{};{};{};{};{};{}\n",
-                     address.StreetNumber(), address.ZipCode(),
-                     address.UrbanUnitOld(),
-                     my_Double_to_String_short(address.Latitude(), 9),
-                     my_Double_to_String_short(address.Longitude(), 9),
-                     my_Double_to_String_short(result.first, 3),
-                     my_Double_to_String_short(result.second, 3));
-                  });
+   BlockingQueue<directory_buffer> queue{ queueCapacity };
 
-            std::ofstream output{ group.file };
+   std::exception_ptr pipelineException;
+   std::mutex pipelineExceptionMutex;
+
+   auto const storeException = [&pipelineException, &pipelineExceptionMutex] {
+      std::lock_guard guard{ pipelineExceptionMutex };
+
+      if (!pipelineException) {
+         pipelineException = std::current_exception();
+         }
+      };
+
+   auto const writeBuffers = [&queue, &storeException] {
+      try {
+         while (auto value = queue.Pop()) {
+            std::ofstream output{ value->file };
+
             if (!output) {
-               throw std::runtime_error(std::format(
-                  "Die Datei \"{}\" konnte nicht geöffnet werden.",
-                  group.file.string()));
+               throw std::runtime_error(
+                  std::format("Die Datei \"{}\" konnte nicht geöffnet werden.",
+                     value->file.string()));
                }
 
-            output.write(strBuffer.data(),
-               static_cast<std::streamsize>(strBuffer.size()));
+            output.write(
+               value->content.data(),
+               static_cast<std::streamsize>(value->content.size()));
 
             if (!output) {
-               throw std::runtime_error(std::format(
-                  "Die Datei \"{}\" konnte nicht vollständig geschrieben werden.",
-                  group.file.string()));
+               throw std::runtime_error(
+                  std::format(
+                     "Die Datei \"{}\" konnte nicht vollständig geschrieben werden.",
+                     value->file.string()));
                }
             }
+         }
+      catch (...) {
+         storeException();
+         queue.Close();
+         }
+      };
+
+   std::vector<std::jthread> writers;
+   writers.reserve(writerCount);
+
+   for (std::size_t iWriter = 0u; iWriter < writerCount; ++iWriter) {
+      writers.emplace_back(writeBuffers);
+      }
+   // for(auto& current : writers) current = std::jthread{ writeBuffers };
+   
+   // Each file group owns its output buffer. oneTBB schedules the groups
+   // dynamically; the existing bounded queue and writer threads perform I/O.
+   oneapi::tbb::parallel_for(
+      oneapi::tbb::blocked_range<std::size_t>(0u, positions.size(), 1u),
+      [&positions, &queue, &storeException](auto const& range) {
+         try {
+            for (std::size_t i = range.begin(); i != range.end(); ++i) {
+               auto const& group = positions[i];
+               auto const count = static_cast<std::size_t>(
+                  std::distance(group.first, group.last));
+
+               std::string strBuffer;
+               strBuffer.reserve(count * 68u);
+
+               // Sequential within each file: preserve its sorted row order.
+               std::for_each(group.first, group.last,
+                  [&strBuffer](auto const& value) {
+                     auto const& [address, result] = value;
+                     std::format_to(std::back_inserter(strBuffer), "{};{};{};{};{};{};{}\n",
+                        address.StreetNumber(), address.ZipCode(),
+                        address.UrbanUnitOld(),
+                        my_Double_to_String_short(address.Latitude(), 9),
+                        my_Double_to_String_short(address.Longitude(), 9),
+                        my_Double_to_String_short(result.first, 3),
+                        my_Double_to_String_short(result.second, 3));
+                     });
+
+               if (!queue.Push(directory_buffer{
+                     group.file, std::move(strBuffer) })) {
+                  return;
+                  }
+               }
+            }
+         catch (...) {
+            storeException();
+            queue.Close();
+            }
          });
+
+   queue.Close();
+
+   for (auto& writer : writers) {
+      writer.join();
+      }
+
+   if (pipelineException) {
+      std::rethrow_exception(pipelineException);
+      }
 }
 
 /*
