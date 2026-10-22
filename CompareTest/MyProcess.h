@@ -260,14 +260,46 @@ inline void DeleteDirectories_with_ranges(std::string const& strPath) {
    }
 
 inline void DeleteDirectories(fs::path const& strPath) {
-   static std::function<void(fs::path const&, bool)> ClearDir = [](fs::path const& p, bool boDelete) {
-      auto files = fs::directory_iterator { p } | std::ranges::to<std::vector>();
-      auto it_dir = std::partition(files.begin(), files.end(), [](fs::path const& p) { return !fs::is_directory(p); });
-      if (boDelete) std::for_each(files.begin(), it_dir, [](fs::path const& p) { fs::remove(p); });
-      if(it_dir != files.end()) std::for_each(it_dir, files.end(), [](fs::path const& p2) { ClearDir(p2, true); } );
-      if (boDelete) fs::remove(p);
+   // The original post-order deletion is preserved: files first, then
+   // independent child subtrees, and finally the empty parent directory.
+   auto const clearDir = [&](auto const& self, fs::path const& p,
+                             bool boDelete, unsigned depth) -> void {
+      auto files = fs::directory_iterator{ p } | std::ranges::to<std::vector>();
+      auto const it_dir = std::partition(files.begin(), files.end(),
+         [](auto const& entry) { return !fs::is_directory(entry); });
+
+      if (boDelete) {
+         std::for_each(files.begin(), it_dir,
+            [](auto const& entry) { fs::remove(entry.path()); });
+         }
+
+      auto const dirCount = static_cast<std::size_t>(
+         std::distance(it_dir, files.end()));
+
+      // Only independent subtrees are parallel. Limit recursive scheduling
+      // overhead at deeper levels; oneTBB manages the worker pool.
+      if (dirCount > 1u && depth < 3u) {
+         oneapi::tbb::parallel_for(
+            oneapi::tbb::blocked_range<std::size_t>(0u, dirCount, 1u),
+            [&](auto const& range) {
+               for (std::size_t i = range.begin(); i != range.end(); ++i) {
+                  self(self, std::next(it_dir,
+                     static_cast<std::ptrdiff_t>(i))->path(), true, depth + 1u);
+                  }
+               });
+         }
+      else {
+         std::for_each(it_dir, files.end(), [&](auto const& entry) {
+            self(self, entry.path(), true, depth + 1u);
+            });
+         }
+
+      if (boDelete) {
+         fs::remove(p);
+         }
       };
-   ClearDir(strPath, false);
+
+   clearDir(clearDir, strPath, false, 0u);
    }
 
 template <typename ty>
