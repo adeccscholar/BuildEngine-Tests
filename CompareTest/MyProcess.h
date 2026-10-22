@@ -399,10 +399,7 @@ inline void WriteToDirectory(
          return cmp < 0;
          }
 
-      if (auto const cmp = left.StreetNumberSuffix() <=> right.StreetNumberSuffix(); cmp != 0) {
-         return cmp < 0;
-         }
-      return left.ZipCode() < right.ZipCode();
+      return left.StreetNumberSuffix() < right.StreetNumberSuffix();
       };
 
    oneapi::tbb::parallel_sort( vData.begin(), vData.end(), compare);
