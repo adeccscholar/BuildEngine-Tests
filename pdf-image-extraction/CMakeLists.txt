@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.25)
-
 project(BuildEnginePdfImageExtraction LANGUAGES CXX)
-
+adecc_package_root(QPDF_PACKAGE qpdf 12.4.1)
+list(PREPEND CMAKE_PREFIX_PATH "${QPDF_PACKAGE}")
 find_package(qpdf CONFIG REQUIRED)
-
-add_executable(pdf-image-extraction
-   main.cpp)
-
+add_executable(pdf-image-extraction main.cpp)
 set_property(TARGET pdf-image-extraction PROPERTY CXX_SCAN_FOR_MODULES OFF)
 target_compile_features(pdf-image-extraction PRIVATE cxx_std_23)
 target_link_libraries(pdf-image-extraction PRIVATE qpdf::libqpdf)
+set(ADECC_QPDF_RUNTIME_ROOTS "${QPDF_PACKAGE}" CACHE STRING "Exact QPDF transitive runtime package roots")
+adecc_test_install(pdf-image-extraction PACKAGE_ROOTS ${ADECC_QPDF_RUNTIME_ROOTS})
