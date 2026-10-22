@@ -18,10 +18,18 @@ function(adecc_test_install target)
  if(ARG_PACKAGE_ROOTS)
    adecc_stage_runtime(${target} PACKAGE_ROOTS ${ARG_PACKAGE_ROOTS}
      TOOLCHAIN_DLLS ${ARG_TOOLCHAIN_DLLS} EXCLUDE_DLLS ${ARG_EXCLUDE_DLLS})
-   adecc_install_application(${target} DESTINATION bin)
- else()
-   install(TARGETS ${target} RUNTIME DESTINATION bin)
  endif()
+ # One executable and only top-level staged DLL files, never CMakeFiles/.
+ install(TARGETS ${target} RUNTIME DESTINATION ".")
+ install(CODE "
+    file(GLOB _adecc_runtime_dlls LIST_DIRECTORIES FALSE
+      \"$<TARGET_FILE_DIR:${target}>/*.dll\"
+      \"$<TARGET_FILE_DIR:${target}>/*.DLL\")
+    foreach(_adecc_dll IN LISTS _adecc_runtime_dlls)
+      file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}\" TYPE FILE
+        FILES \"\${_adecc_dll}\")
+    endforeach()
+ ")
 endfunction()
 function(adecc_package_root output id version)
  set(root "${BUILDENGINE_INSTALL_ROOT}/packages/${id}/${version}")
