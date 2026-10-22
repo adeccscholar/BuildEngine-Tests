@@ -506,7 +506,7 @@ inline void WriteToDirectory(
                      my_Double_to_String_short(result.second, 3));
                   });
 
-            std::ofstream output{ group.file, std::ios::binary };
+            std::ofstream output{ group.file };
             if (!output) {
                throw std::runtime_error(std::format(
                   "Die Datei \"{}\" konnte nicht geöffnet werden.",
