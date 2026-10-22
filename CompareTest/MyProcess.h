@@ -505,27 +505,25 @@ inline void WriteToDirectory(
       }
    // for(auto& current : writers) current = std::jthread{ writeBuffers };
    
-   using position_iterator_ty =
-      typename std::vector<directory_group>::const_iterator;
-
-   auto const createBuffers =
-      [&queue, &storeException](
-         position_iterator_ty first,
-         position_iterator_ty const last) {
+   // Each file group owns its output buffer. oneTBB schedules the groups
+   // dynamically; the existing bounded queue and writer threads perform I/O.
+   oneapi::tbb::parallel_for(
+      oneapi::tbb::blocked_range<std::size_t>(0u, positions.size(), 1u),
+      [&positions, &queue, &storeException](auto const& range) {
          try {
-            for (; first != last; ++first) {
-               auto const& group = *first;
-
+            for (std::size_t i = range.begin(); i != range.end(); ++i) {
+               auto const& group = positions[i];
                auto const count = static_cast<std::size_t>(
                   std::distance(group.first, group.last));
 
                std::string strBuffer;
                strBuffer.reserve(count * 68u);
 
+               // Sequential within each file: preserve its sorted row order.
                std::for_each(group.first, group.last,
                   [&strBuffer](auto const& value) {
                      auto const& [address, result] = value;
-                     std::format_to(std::back_inserter(strBuffer), "{};{};{};{};{};{};{}\n",
+                     std::format_to(std::back_inserter(strBuffer), "{};{};{};{};{};{};{}\\n",
                         address.StreetNumber(), address.ZipCode(),
                         address.UrbanUnitOld(),
                         my_Double_to_String_short(address.Latitude(), 9),
@@ -534,11 +532,8 @@ inline void WriteToDirectory(
                         my_Double_to_String_short(result.second, 3));
                      });
 
-               if (!queue.Push(
-                     directory_buffer{
-                        std::move(group.file),
-                        std::move(strBuffer)
-                        })) {
+               if (!queue.Push(directory_buffer{
+                     group.file, std::move(strBuffer) })) {
                   return;
                   }
                }
@@ -547,44 +542,7 @@ inline void WriteToDirectory(
             storeException();
             queue.Close();
             }
-         };
-
-   auto const effectiveProducerCount = std::min(
-      producerCount,
-      positions.size());
-
-   std::vector<std::jthread> producers;
-   producers.reserve(effectiveProducerCount);
-
-   auto firstPosition = positions.cbegin();
-
-   auto const baseCount =
-      positions.size() / effectiveProducerCount;
-
-   auto const remainder =
-      positions.size() % effectiveProducerCount;
-
-   for (std::size_t iProducer = 0u;
-      iProducer < effectiveProducerCount;
-      ++iProducer) {
-      auto const count =
-         baseCount + (iProducer < remainder ? 1u : 0u);
-
-      auto const lastPosition = std::next(
-         firstPosition,
-         static_cast<std::ptrdiff_t>(count));
-
-      producers.emplace_back(
-         createBuffers,
-         firstPosition,
-         lastPosition);
-
-      firstPosition = lastPosition;
-      }
-
-   for (auto& producer : producers) {
-      producer.join();
-      }
+         });
 
    queue.Close();
 
