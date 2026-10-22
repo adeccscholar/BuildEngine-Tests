@@ -3,6 +3,8 @@
 #include "MyType_Traits.h"
 
 #include <charconv>
+#include <array>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <cstdlib>
@@ -70,4 +72,24 @@ template <typename ty>
       return strVal;
    }
    else return strVal;
+}
+
+
+// Append a fixed-precision floating-point number directly to the CSV buffer.
+// Keep the original trailing-zero rule (including a possible final decimal
+// point) so that this optimization does not silently change file contents.
+template <std::floating_point ty>
+inline void append_Double_to_String_short(std::string& target, ty value, int precision) {
+   std::array<char, 128> digits;
+   auto const result = std::to_chars(digits.data(), digits.data() + digits.size(),
+                                    value, std::chars_format::fixed, precision);
+   if (result.ec != std::errc{}) {
+      throw std::runtime_error("floating-point CSV formatting failed");
+      }
+
+   char const* last = result.ptr;
+   while (last != digits.data() && last[-1] == '0') {
+      --last;
+      }
+   target.append(digits.data(), static_cast<std::size_t>(last - digits.data()));
 }
