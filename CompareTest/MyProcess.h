@@ -447,22 +447,10 @@ inline void WriteToDirectory(
 
    fs::path oldPath;
 
-   for (auto first = vData.cbegin();
-      first != vData.cend();) {
+   // Scan group boundaries once; each element after the first is compared
+   // only with its immediate predecessor. Preserve the original group keys.
+   auto const emitGroup = [&](iterator_ty first, iterator_ty last) {
       auto const& address = first->first;
-
-      auto const last = std::find_if(
-         std::next(first),
-         vData.cend(),
-         [&address](auto const& value) noexcept {
-            auto const& other = value.first;
-
-            return address.Street() != other.Street()
-               || address.District() != other.District()
-               || address.UrbanUnit() != other.UrbanUnit()
-               || address.City() != other.City();
-            });
-
       fs::path const currentPath = strPath / address.City() / address.UrbanUnit()
          / address.District();
 
@@ -472,7 +460,24 @@ inline void WriteToDirectory(
          }
 
       positions.emplace_back(first, last, currentPath / (address.Street() + ".csv"s));
-      first = last;
+      };
+
+   if (!vData.empty()) {
+      auto first = vData.cbegin();
+      auto previous = first;
+      for (auto current = std::next(first); current != vData.cend(); ++current) {
+         auto const& left = previous->first;
+         auto const& right = current->first;
+         if (left.Street() != right.Street()
+            || left.District() != right.District()
+            || left.UrbanUnit() != right.UrbanUnit()
+            || left.City() != right.City()) {
+            emitGroup(first, current);
+            first = current;
+            }
+         previous = current;
+         }
+      emitGroup(first, vData.cend());
       }
 
    if (positions.empty()) {
