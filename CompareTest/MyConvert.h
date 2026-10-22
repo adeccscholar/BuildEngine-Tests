@@ -48,10 +48,10 @@ template <typename ty>
    std::string strResult(aBuffer.data(), aResult.ptr);
    auto const iPoint = strResult.find('.');
    if (iPoint != std::string::npos) {
-      auto const iLast = strResult.find_last_not_of('0');
-      if (iLast != std::string::npos && iLast >= iPoint) {
-         strResult.resize(iLast == iPoint ? iPoint : iLast + 1);
+      while (strResult.size() > iPoint + 1 && strResult.back() == '0') {
+         strResult.pop_back();
          }
+      if (strResult.back() == '.') strResult.pop_back();
       }
    return strResult;
 }
