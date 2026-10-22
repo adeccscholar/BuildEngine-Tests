@@ -210,8 +210,8 @@ void WriteStart(std::ostream& out, TTestData<ty> test) {
       << " - directory for test:        " << test.strDirectory << "\n"
       << " - count of test runs:        " << test.iTestCases << "\n"
       << " - start time:                " << get_current_time_and_date(test.start_time) << "\n"s
-      << " - detail data saved in file: \""s << test.strProtocol << "\"\n"s
-      << " - overview saved in file:    \""s << test.strOverview << "\"\n"s;
+      << " - detail data saved in file: " << test.strProtocol << "\n"
+      << " - overview saved in file:    " << test.strOverview << "\n";
 
    //out << std::format
 }
