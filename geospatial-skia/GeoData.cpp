@@ -112,7 +112,7 @@ Dataset LoadDirectory(std::string const& directory,bool parallel) {
    namespace fs=std::filesystem;
    auto const begin=Clock::now();
    std::vector<fs::path> files;
-   for(auto const& city:fs::directory_iterator(fs::u8path(directory))) {
+   for(auto const& city:fs::directory_iterator(fs::path(directory))) {
       if(!city.is_directory())continue;
       for(auto const& unit:fs::directory_iterator(city.path())) {
          if(!unit.is_directory())continue;
