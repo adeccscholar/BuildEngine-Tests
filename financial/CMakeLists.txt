@@ -40,10 +40,18 @@ add_executable(financial_demo
  OpenHolidaysQuery.cpp EcbPublicationCheck.cpp EcbHistoryCache.cpp)
 set_property(TARGET financial_demo PROPERTY CXX_SCAN_FOR_MODULES OFF)
 target_compile_features(financial_demo PRIVATE cxx_std_23)
-target_include_directories(financial_demo PRIVATE "${BOOST_PACKAGE}/include")
+# Boost's managed BCC64X/Clang compatibility overlay is mandatory and must
+# precede the unmodified Boost package headers in the compiler search path.
+set(_adecc_boost_overlay "${BUILDENGINE_ROOT}/admin/cmake/boost/bcc64x-native-clang")
+if(NOT EXISTS "${_adecc_boost_overlay}/boost/config/user.hpp")
+   message(FATAL_ERROR "Managed Boost BCC64X overlay missing: ${_adecc_boost_overlay}/boost/config/user.hpp")
+endif()
+target_include_directories(financial_demo BEFORE PRIVATE
+   "${_adecc_boost_overlay}"
+   "${BOOST_PACKAGE}/include")
 target_compile_definitions(financial_demo PRIVATE
  BOOST_ALL_NO_LIB BOOST_SYSTEM_NO_LIB BOOST_JSON_DYN_LINK _WIN32_WINNT=0x0A00
- BOOST_COMPILER_CONFIG="boost/config/compiler/clang.hpp")
+)
 # BCC64X defines __CODEGEARC__ and a GCC compatibility version, which can
 # otherwise select GCC 4.x compatibility in Boost.Config instead of Clang.
 set(_adecc_boost_lib "${BOOST_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libboost_json.lib")
