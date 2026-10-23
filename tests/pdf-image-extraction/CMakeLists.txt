@@ -16,3 +16,12 @@ target_link_libraries(pdf-image-extraction PRIVATE qpdf::libqpdf)
 set(ADECC_QPDF_RUNTIME_ROOTS "${QPDF_PACKAGE}" CACHE STRING
    "Exact QPDF runtime package closure, including transitive dependencies")
 adecc_test_install(pdf-image-extraction PACKAGE_ROOTS ${ADECC_QPDF_RUNTIME_ROOTS})
+
+# Standalone integration regression: export a known one-pixel PDF image.
+enable_testing()
+add_test(NAME qpdf-image-extraction
+  COMMAND "${CMAKE_COMMAND}"
+    "-DTEST_EXE=$<TARGET_FILE:pdf-image-extraction>"
+    "-DTEST_PDF=${CMAKE_CURRENT_SOURCE_DIR}/../../pdf-image-extraction/fixtures/single-image.pdf"
+    "-DTEST_OUTPUT=${CMAKE_CURRENT_BINARY_DIR}/qpdf-image-extraction-output"
+    -P "${CMAKE_CURRENT_SOURCE_DIR}/../../pdf-image-extraction/CheckExtraction.cmake")
