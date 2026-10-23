@@ -24,12 +24,34 @@ provides numerical reproducibility and parallel scheduling comparisons.
 ## Controls
 
 - Left mouse drag: orbit 3D camera
-- Mouse wheel: zoom
+- Right mouse drag: pan the view
+- Mouse wheel: smooth zoom
+- Arrow keys: pan the view
+- F1/F2/F3: top-down / edge-on / angled camera
+- C: reset camera
+- [ and ]: halve / double simulation speed (0.125x to 8x)
 - Space: pause / resume
 - 1–4: serial / static / dynamic / guided
 - + and -: OpenMP thread count
 - R: reset seeded galaxy
 - Esc: close GUI
+
+## GPU selection and diagnostics
+
+The viewer exports `NvOptimusEnablement=1` and `AmdPowerXpressRequestHighPerformance=1`
+to **request** the discrete GPU. These hints do not guarantee adapter selection.
+After SDL creates the OpenGL context, the viewer reads `GL_VENDOR`,
+`GL_RENDERER` and `GL_VERSION`, writes them to the Windows debugger
+with `OutputDebugStringA`, and displays `GL_RENDERER` in the title bar.
+Verify that the title bar names your NVIDIA model instead of Intel or
+`softpipe`. GPU *rendering* is through hardware OpenGL, but the star
+*simulation* is still OpenMP on the CPU; CUDA and OpenGL compute shaders
+are not used.
+
+When Windows selects the integrated GPU, choose the application's
+high-performance graphics preference under Windows Settings > System >
+Display > Graphics; the ultimate choice depends on OS, GPU drivers and
+display topology. This project does not deploy Mesa's `opengl32.dll`.
 
 ## Stage-1 boundaries
 
