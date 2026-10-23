@@ -11,6 +11,11 @@ int main(int argc,char** argv) {
    if(argc>2) c.height=std::atoi(argv[2]);
    if(argc>3) c.maxIterations=std::atoi(argv[3]);
    if(argc>4) c.threads=std::atoi(argv[4]);
+   if(argc>5 && std::string_view(argv[5])=="julia") {
+      c.fractal=Fractal::Julia;
+      c.centerX=0.0;
+      c.spanX=3.0;
+   }
    if(c.width<=0 || c.height<=0 || c.maxIterations<=0 || c.threads<=0) return 2;
    auto baseline=Compute(Settings{.width=c.width,.height=c.height,.maxIterations=c.maxIterations,
       .threads=1,.schedule=Schedule::Serial});
