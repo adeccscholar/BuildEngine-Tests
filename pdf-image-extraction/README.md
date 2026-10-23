@@ -97,3 +97,33 @@ RESULT|images=1|unique=1|output=C:\\temp\\pdf-images
 For JPEG and JPEG 2000 this gives strong evidence for whether a higher-resolution image is still
 present inside the PDF: the encoded image stream stored in the PDF is exported instead of a page
 rendering.
+
+## Installed, self-contained demo (BuildEngine Tests)
+
+Configure, build and install the independent CMake project with the shared
+BuildEngine initial cache (see the repository root README). For example, from
+`BuildEngine/tests`:
+
+```bat
+cmake -S pdf-image-extraction -B ../build/Test/pdf-image-extraction/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/pdf-image-extraction/Release
+cmake --build ../build/Test/pdf-image-extraction/Release/cmake
+ctest --test-dir ../build/Test/pdf-image-extraction/Release/cmake --output-on-failure
+cmake --install ../build/Test/pdf-image-extraction/Release/cmake
+```
+
+The resulting standalone demo is installed under
+`../build/Test/pdf-image-extraction/Release/pdf-image-extraction/` with
+`pdf-image-extraction.exe`, the BuildEngine-staged runtime DLLs and
+`examples/single-image.pdf`. It does not require the CMake build directory
+in order to run. Invoke from `BuildEngine/tests`:
+
+```bat
+..\\build\\Test\\pdf-image-extraction\\Release\\pdf-image-extraction\\pdf-image-extraction.exe ..\\build\\Test\\pdf-image-extraction\\Release\\pdf-image-extraction\\examples\\single-image.pdf ..\\build\\Test\\pdf-image-extraction\\Release\\pdf-image-extraction\\output
+```
+
+Expected summary: `RESULT|images=1|unique=1|...`. The exported
+`image-4_0.bin` is a 1-byte grayscale sample, not a displayable JPEG.
+The integration CTest runs against the build-tree executable; the command above
+additionally exercises the **installed** executable. Every executable and
+runtime closure must pass this separate installed-demo check before marking
+installation as verified.
