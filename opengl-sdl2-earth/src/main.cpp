@@ -571,7 +571,7 @@ void DrawUi(GLuint const uProgram, UiBuffer const& aBuffer,
 void SDLCALL GuiLogOutput([[maybe_unused]] void* context,
    [[maybe_unused]] int category, SDL_LogPriority priority, const char* message) {
    std::string const line = std::format("SDL [{}] {}\n",
-      SDL_GetPriorityName(priority), message ? message : "");
+      static_cast<int>(priority), message ? message : "");
    OutputDebugStringA(line.c_str());
 }
 
