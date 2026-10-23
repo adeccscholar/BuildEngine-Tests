@@ -39,4 +39,4 @@ add_test(NAME qpdf-image-extraction
 
 # Ship a ready-to-run example PDF with the installed demo application.
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../../pdf-image-extraction/fixtures/single-image.pdf"
-   DESTINATION "pdf-image-extraction/examples")
+   DESTINATION "examples")
