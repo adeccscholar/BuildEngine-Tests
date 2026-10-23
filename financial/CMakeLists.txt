@@ -3,9 +3,9 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/../bootstrap/PrepareToolchain.cmake")
 project(BuildEngineFinancial LANGUAGES CXX)
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/BuildEngineTests.cmake")
 
-adecc_package_root(BOOST_PACKAGE boost 1.92.0)
-adecc_package_root(PUGIXML_PACKAGE pugixml 1.16)
-adecc_package_root(OPENSSL_PACKAGE openssl 3.5.8)
+adecc_package_current_root(BOOST_PACKAGE boost)
+adecc_package_current_root(PUGIXML_PACKAGE pugixml)
+adecc_package_current_root(OPENSSL_PACKAGE openssl)
 list(PREPEND CMAKE_PREFIX_PATH "${PUGIXML_PACKAGE}" "${OPENSSL_PACKAGE}" "${BOOST_PACKAGE}")
 find_package(pugixml CONFIG REQUIRED)
 # OpenSSL's exported CONFIG has an invalid include path, and FindOpenSSL
@@ -66,12 +66,12 @@ target_link_libraries(financial_demo PRIVATE
  pugixml::pugixml OpenSSL::SSL OpenSSL::Crypto AdeccBoostJson crypt32)
 
 # Explicit runtime dependency closure from the BuildEngine XML contracts:
-# OpenSSL 3.5.8 -> zlib 1.3.2, brotli 1.2.0, zstd 1.5.7;
-# Boost 1.92.0 -> zlib 1.3.2 (its OpenSSL dependency is currently 3.5.9).
+# OpenSSL (active BuildEngine version) -> zlib 1.3.2, brotli 1.2.0, zstd 1.5.7;
+# Boost -> OpenSSL and zlib.
 # Runtime staging does not resolve transitive dependencies automatically.
-adecc_package_root(ZLIB_PACKAGE zlib 1.3.2)
-adecc_package_root(BROTLI_PACKAGE brotli 1.2.0)
-adecc_package_root(ZSTD_PACKAGE zstd 1.5.7)
+adecc_package_current_root(ZLIB_PACKAGE zlib)
+adecc_package_current_root(BROTLI_PACKAGE brotli)
+adecc_package_current_root(ZSTD_PACKAGE zstd)
 set(FINANCIAL_RUNTIME_ROOTS
    "${PUGIXML_PACKAGE};${OPENSSL_PACKAGE};${BOOST_PACKAGE};${ZLIB_PACKAGE};${BROTLI_PACKAGE};${ZSTD_PACKAGE}")
 adecc_test_install(financial_demo
