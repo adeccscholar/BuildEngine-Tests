@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <windows.h>
 #include <shellapi.h>
+#include <shlobj.h>
+#include <commdlg.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -38,10 +40,15 @@ out float heightColor;
 out vec3 normalColor;
 void main() {
    float cy=cos(yaw),sy=sin(yaw),cp=cos(pitch),sp=sin(pitch);
+   // World axes: x=East, y=North, z=address-density height (up).
    vec3 p=vec3(position.x*cy-position.y*sy,position.x*sy+position.y*cy,position.z);
-   p=vec3(p.x,p.y*cp-p.z*sp,p.y*sp+p.z*cp);
-   float depth=max(1.0,distance-p.z);
-   gl_Position=vec4(p.x/(depth*aspect),p.y/depth,0.5,1.0);
+   float screenY=p.y*cp+p.z*sp;
+   float viewDepth=p.y*sp-p.z*cp;
+   float depth=max(1.0,distance-viewDepth);
+   float nearPlane=0.1,farPlane=250.0;
+   float clipZ=((farPlane+nearPlane)/(farPlane-nearPlane))*depth-
+      (2.0*farPlane*nearPlane)/(farPlane-nearPlane);
+   gl_Position=vec4(1.7*p.x/aspect,1.7*screenY,clipZ,depth);
    heightColor=heightValue;
    normalColor=position;
 }
@@ -103,7 +110,7 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
    indices.reserve((gridW-1)*(gridH-1)*6);
    for(int y=0;y<gridH-1;++y)for(int x=0;x<gridW-1;++x) {
       auto const a=static_cast<std::uint32_t>(y*gridW+x);
-      indices.insert(indices.end(),{a,a+1,a+gridW,a+1,a+gridW+1,a+gridW});
+      indices.insert(indices.end(),{a,a+gridW,a+1,a+1,a+gridW,a+gridW+1});
    }
    SDL_SetMainReady();
    if(SDL_Init(SDL_INIT_VIDEO)!=0)return 4;
@@ -133,7 +140,7 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
       reinterpret_cast<void*>(3*sizeof(float)));
    glEnableVertexAttribArray(0);glEnableVertexAttribArray(1);
    glEnable(GL_DEPTH_TEST);
-   float yaw=0.4f,pitch=0.95f,distance=23.0f;
+   float yaw=0.22f,pitch=0.58f,distance=24.0f;
    bool running=true,dragging=false;
    std::string renderer=reinterpret_cast<char const*>(glGetString(GL_RENDERER));
    char title[480];
@@ -149,15 +156,15 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
          if(event.type==SDL_MOUSEBUTTONUP&&event.button.button==SDL_BUTTON_LEFT)dragging=false;
          if(event.type==SDL_MOUSEMOTION&&dragging) {
             yaw+=event.motion.xrel*0.008f;
-            pitch=(std::clamp)(pitch+event.motion.yrel*0.006f,0.03f,1.54f);
+            pitch=(std::clamp)(pitch+event.motion.yrel*0.006f,0.0f,1.48f);
          }
          if(event.type==SDL_MOUSEWHEEL&&event.wheel.y)
             distance=(std::clamp)(distance*std::pow(0.88f,static_cast<float>(event.wheel.y)),9.0f,90.0f);
          if(event.type==SDL_KEYDOWN) {
             if(event.key.keysym.sym==SDLK_ESCAPE)running=false;
-            if(event.key.keysym.sym==SDLK_1){yaw=0;pitch=1.54f;}
-            if(event.key.keysym.sym==SDLK_2){yaw=0;pitch=0.10f;}
-            if(event.key.keysym.sym==SDLK_3){yaw=0.4f;pitch=0.95f;distance=23;}
+            if(event.key.keysym.sym==SDLK_1){yaw=0;pitch=0.0f;}
+            if(event.key.keysym.sym==SDLK_2){yaw=0;pitch=1.42f;}
+            if(event.key.keysym.sym==SDLK_3){yaw=0.22f;pitch=0.58f;distance=24;}
          }
       }
       int w=0,h=0;SDL_GL_GetDrawableSize(window,&w,&h);
