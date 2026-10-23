@@ -24,4 +24,18 @@ target_link_libraries(OpenGLSDL2EarthDemo PRIVATE
 adecc_test_install(OpenGLSDL2EarthDemo
  PACKAGE_ROOTS "${SDL2_PACKAGE}" "${GLEW_PACKAGE}" "${SOIL2_PACKAGE}" "${OPENGL_PACKAGE}"
  TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll)
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/graphics/" DESTINATION "graphics")
+# These five assets are required by the real demo. A missing texture or OBJ
+# is a configuration error, not an empty graphics directory at runtime.
+set(_adecc_earth_assets
+   2k_earth_daymap.jpg
+   2k_earth_nightmap.jpg
+   2k_stars_milky_way.jpg
+   adecc_official_logo_planar_cutout_3d_opengl.obj
+   adecc_official_logo_planar_cutout_3d_opengl.mtl)
+foreach(_asset IN LISTS _adecc_earth_assets)
+   if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/graphics/${_asset}")
+      message(FATAL_ERROR "Missing OpenGL Earth demo asset: graphics/${_asset}")
+   endif()
+endforeach()
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/graphics/" DESTINATION "graphics"
+   FILES_MATCHING PATTERN "*.jpg" PATTERN "*.obj" PATTERN "*.mtl")
