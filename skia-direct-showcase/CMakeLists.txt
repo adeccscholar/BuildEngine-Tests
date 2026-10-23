@@ -21,7 +21,8 @@ target_link_libraries(SkiaDirectShowcase PRIVATE
 target_link_options(SkiaDirectShowcase PRIVATE "-Wl,--subsystem,windows")
 
 # Skia native dynamic dependencies from the BuildEngine XML contract.
-foreach(_id IN ITEMS zlib brotli libjpeg-turbo libpng harfbuzz freetype)
+# FreeType also imports bzip2; stage the full transitive DLL closure.
+foreach(_id IN ITEMS zlib bzip2 brotli libjpeg-turbo libpng harfbuzz freetype)
    string(REPLACE "-" "_" _variable "${_id}")
    adecc_package_current_root(_package "${_id}")
    list(APPEND SKIA_RUNTIME_ROOTS "${_package}")
