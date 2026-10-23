@@ -19,12 +19,11 @@ function(adecc_test_install target)
    adecc_stage_runtime(${target} PACKAGE_ROOTS ${ARG_PACKAGE_ROOTS}
      TOOLCHAIN_DLLS ${ARG_TOOLCHAIN_DLLS} EXCLUDE_DLLS ${ARG_EXCLUDE_DLLS})
  endif()
- # Install a self-contained application in its own target directory.
- # The same exact staged DLLs that are validated in the build tree are
- # installed beside the executable; no PATH lookup or library-wide copy.
- install(TARGETS ${target} RUNTIME DESTINATION "${target}")
+ # Install directly to the configured application Release/Debug prefix.
+ # Keep the executable and its exact staged DLLs side-by-side.
+ install(TARGETS ${target} RUNTIME DESTINATION ".")
  install(DIRECTORY "$<TARGET_FILE_DIR:${target}>/"
-    DESTINATION "${target}"
+    DESTINATION "."
     FILES_MATCHING PATTERN "*.dll" PATTERN "*.DLL")
 
 endfunction()
