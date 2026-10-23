@@ -209,3 +209,19 @@ geospatial_terrain.exe "D:/Test/berlin_infos.dat"
 geospatial_terrain.exe "D:/Test/Adressverzeichnisse"
 geospatial_terrain.exe
 ```
+
+## Gezieltes Zoomen in der Skia-Adresspunktkarte
+
+**Diese Funktion betrifft `geospatial_viewer.exe`, nicht den OpenGL-Terrain-Viewer.** Das Mausrad zoomt um den aktuellen Mauszeiger in den **geografischen Datenbereich**. Die linke Maustaste verschiebt bei gedrückter Taste die Karte; `0` stellt den gesamten Ausgangsbereich wieder her.
+
+Jede Änderung erzeugt eine **neue Projektion der originalen GPS-Koordinaten auf das aktuelle Fenster**, keine hochskalierte Bitmap-Kopie. Deshalb steigt die sichtbare Punktdichte/-trennung beim Hineinzoomen, ohne dass die Koordinatenquelle verloren geht. Der Zoomfaktor reicht von 1 bis 2048, pro Mausrad-Rastung wird mit 1,25 multipliziert oder dividiert. Der Fenstertitel zeigt Zoomfaktor und Anzahl der im sichtbaren Raster berücksichtigten Adressen.
+
+Ausgangspunkt ist die einmalig beim Laden berechnete Bounding Box. Für den sichtbaren Bereich gilt:
+
+$$
+B_z=\left[c_x-\frac{w_0}{2z},\;c_y-\frac{h_0}{2z},\;c_x+\frac{w_0}{2z},\;c_y+\frac{h_0}{2z}\right].
+$$
+
+`z` ist der Zoomfaktor, `(c_x,c_y)` das verschiebbare geografische Zentrum, `w_0,h_0` sind Breite und Höhe des ursprünglichen Projektausschnitts. Die Projektion berücksichtigt das Fenstersseitenverhältnis und behält den 3-%-Rand in jeder Richtung.
+
+**Wichtig:** Außerhalb des Viewports liegende Adressen werden **verworfen**, nicht an die Bildkante geklemmt. Das wurde im gemeinsamen Rasterkern für Punktkarte, Dichtekarte und Gauß-Relief korrigiert. Bei hohem Zoom werden alle eingelesenen GPS-Punkte erneut geprüft und projiziert. Ein räumlicher Index (Quadtree/R-Tree) und asynchrones Kachel-Rendering sind mögliche spätere Performance-Optimierungen.
