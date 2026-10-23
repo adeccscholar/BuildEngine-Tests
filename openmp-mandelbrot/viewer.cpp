@@ -35,6 +35,23 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
             if(k==SDLK_2) {cfg.schedule=Schedule::Static;dirty=true;}
             if(k==SDLK_3) {cfg.schedule=Schedule::Dynamic;dirty=true;}
             if(k==SDLK_4) {cfg.schedule=Schedule::Guided;dirty=true;}
+            if(k==SDLK_j) {
+               cfg.fractal=cfg.fractal==Fractal::Julia?Fractal::Mandelbrot:Fractal::Julia;
+               cfg.centerX=cfg.fractal==Fractal::Julia?0.0:-0.5;
+               cfg.centerY=0.0;
+               cfg.spanX=cfg.fractal==Fractal::Julia?3.0:3.4;
+               cfg.maxIterations=cfg.fractal==Fractal::Julia?1400:512;
+               dirty=true;
+            }
+            if(k==SDLK_PAGEUP) {cfg.maxIterations=std::min(20000,cfg.maxIterations*2);dirty=true;}
+            if(k==SDLK_PAGEDOWN) {cfg.maxIterations=std::max(64,cfg.maxIterations/2);dirty=true;}
+            if(k==SDLK_r) {
+               Fractal const f=cfg.fractal;
+               cfg=Settings{};
+               cfg.fractal=f;
+               if(f==Fractal::Julia) {cfg.centerX=0;cfg.spanX=3.0;cfg.maxIterations=1400;}
+               dirty=true;
+            }
             if(k==SDLK_LEFT) {cfg.centerX-=cfg.spanX*0.1;dirty=true;}
             if(k==SDLK_RIGHT){cfg.centerX+=cfg.spanX*0.1;dirty=true;}
             if(k==SDLK_UP) {cfg.centerY-=cfg.spanX*0.1*cfg.height/cfg.width;dirty=true;}
@@ -48,7 +65,9 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
       if(dirty) {
          image=Compute(cfg);
          SDL_UpdateTexture(texture,nullptr,image.pixels.data(),cfg.width*4);
-         std::string title="OpenMP Mandelbrot | "+std::string(Name(cfg.schedule))+
+         std::string title="OpenMP "+std::string(Name(cfg.fractal))+
+            " | "+std::string(Name(cfg.schedule))+
+            " | iterations "+std::to_string(cfg.maxIterations)+
             " | threads "+std::to_string(image.threadsUsed)+
             " | compute "+std::to_string(static_cast<int>(image.milliseconds))+" ms";
          SDL_SetWindowTitle(window,title.c_str());
