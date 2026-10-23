@@ -66,3 +66,14 @@ the GUI thread using OpenMP, so larger particle counts can stall input handling.
 
 Sources and contracts are checked into GitHub; real BCC64X compiler/linker
 validation and graphics hardware startup remain pending.
+
+## Stable performance telemetry
+
+The window title is refreshed **once every two seconds**, not every rendered frame.
+It reports rendered **FPS**, completed OpenMP simulation **steps/s**, the
+**arithmetic mean CPU simulation time per completed step** (ms/step), and
+**million body updates per second** (M bodies/s = stars × steps/s / 1,000,000).
+The counters deliberately exclude the CPU-to-GPU VBO upload and OpenGL draw
+from the step-time average. FPS includes normal frame presentation and VSync.
+During pause, FPS remains measurable while step throughput is zero. The title
+is an interval measurement, not a per-frame instantaneous reading.
