@@ -39,13 +39,15 @@ uniform float tilt;
 uniform float spin;
 uniform float distance;
 uniform float aspect;
+uniform vec2 pan;
 out vec3 color;
 void main() {
    float c=cos(spin),s=sin(spin),a=cos(tilt),b=sin(tilt);
-   vec3 p=vec3(c*position.x-s*position.y,s*position.x+c*position.y,position.z);
+   vec3 relative=position;
+   vec3 p=vec3(c*relative.x-s*relative.y,s*relative.x+c*relative.y,relative.z);
    p=vec3(p.x,a*p.y-b*p.z,b*p.y+a*p.z);
    float z=max(0.4,distance-p.z);
-   gl_Position=vec4(p.x/(z*aspect),p.y/z,0.5,1.0);
+   gl_Position=vec4(p.x/(z*aspect)+pan.x,p.y/z+pan.y,0.5,1.0);
    gl_PointSize=clamp(18.0/z,1.0,10.0);
    color=tint;
 }
@@ -102,6 +104,15 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
    glewExperimental=GL_TRUE;
    if(glewInit()!=GLEW_OK){SDL_GL_DeleteContext(context);SDL_DestroyWindow(window);SDL_Quit();return 4;}
    glGetError();
+   auto glText=[](GLenum property) -> std::string {
+      auto const* p=glGetString(property);
+      return p?reinterpret_cast<char const*>(p):"unknown";
+   };
+   std::string const gpuVendor=glText(GL_VENDOR);
+   std::string const gpuRenderer=glText(GL_RENDERER);
+   std::string const gpuVersion=glText(GL_VERSION);
+   std::string const diagnostics="OpenMP Galaxy OpenGL: "+gpuVendor+" | "+gpuRenderer+" | "+gpuVersion+"\n";
+   OutputDebugStringA(diagnostics.c_str());
    GLuint program=Program();
    if(!program){SDL_GL_DeleteContext(context);SDL_DestroyWindow(window);SDL_Quit();return 5;}
    GLuint vao=0,vbo=0;
@@ -121,21 +132,37 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
    Schedule schedule=Schedule::Static;
    int threads=(std::min)(8,(std::max)(1,SDL_GetCPUCount()));
    float tilt=0.57f,spin=0.0f,distance=16.0f;
-   bool running=true,paused=false,dragging=false;
+   float panX=0.0f,panY=0.0f;
+   float simulationSpeed=1.0f;
+   bool running=true,paused=false,orbiting=false,panning=false;
    Uint64 last=SDL_GetPerformanceCounter();
    double elapsed=0.0, lastSimulationMs=0;
    while(running) {
       SDL_Event e;
       while(SDL_PollEvent(&e)) {
          if(e.type==SDL_QUIT)running=false;
-         if(e.type==SDL_MOUSEBUTTONDOWN && e.button.button==SDL_BUTTON_LEFT)dragging=true;
-         if(e.type==SDL_MOUSEBUTTONUP && e.button.button==SDL_BUTTON_LEFT)dragging=false;
-         if(e.type==SDL_MOUSEMOTION && dragging) {
-            spin+=e.motion.xrel*0.005f;
-            tilt=(std::clamp)(tilt+e.motion.yrel*0.005f,-1.4f,1.4f);
+         if(e.type==SDL_MOUSEBUTTONDOWN) {
+            if(e.button.button==SDL_BUTTON_LEFT) orbiting=true;
+            if(e.button.button==SDL_BUTTON_RIGHT) panning=true;
          }
-         if(e.type==SDL_MOUSEWHEEL)
-            distance=(std::clamp)(distance*(e.wheel.y>0?0.9f:1.1f),4.0f,75.0f);
+         if(e.type==SDL_MOUSEBUTTONUP) {
+            if(e.button.button==SDL_BUTTON_LEFT) orbiting=false;
+            if(e.button.button==SDL_BUTTON_RIGHT) panning=false;
+         }
+         if(e.type==SDL_MOUSEMOTION) {
+            if(orbiting) {
+               spin+=e.motion.xrel*0.005f;
+               tilt=(std::clamp)(tilt+e.motion.yrel*0.005f,-1.55f,1.55f);
+            }
+            if(panning) {
+               int w=0,h=0;
+               SDL_GL_GetDrawableSize(window,&w,&h);
+               panX+=2.0f*e.motion.xrel/(std::max)(1,w);
+               panY-=2.0f*e.motion.yrel/(std::max)(1,h);
+            }
+         }
+         if(e.type==SDL_MOUSEWHEEL && e.wheel.y!=0)
+            distance=(std::clamp)(distance*std::pow(0.88f,static_cast<float>(e.wheel.y)),2.0f,120.0f);
          if(e.type==SDL_KEYDOWN) {
             switch(e.key.keysym.sym) {
                case SDLK_ESCAPE:running=false;break;
@@ -146,13 +173,23 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
                case SDLK_4:schedule=Schedule::Guided;break;
                case SDLK_PLUS:case SDLK_EQUALS:case SDLK_KP_PLUS:threads=(std::min)(128,threads+1);break;
                case SDLK_MINUS:case SDLK_KP_MINUS:threads=(std::max)(1,threads-1);break;
-               case SDLK_r:galaxy=Initialize(configuration);break;
+               case SDLK_r:galaxy=Initialize(configuration);elapsed=0.0;break;
+               case SDLK_c:spin=0.0f;tilt=0.57f;distance=16.0f;panX=panY=0.0f;break;
+               case SDLK_F1:spin=0.0f;tilt=1.55f;panX=panY=0.0f;break;
+               case SDLK_F2:spin=0.0f;tilt=0.03f;panX=panY=0.0f;break;
+               case SDLK_F3:spin=0.0f;tilt=0.57f;panX=panY=0.0f;break;
+               case SDLK_LEFT:panX-=0.05f;break;
+               case SDLK_RIGHT:panX+=0.05f;break;
+               case SDLK_UP:panY+=0.05f;break;
+               case SDLK_DOWN:panY-=0.05f;break;
+               case SDLK_LEFTBRACKET:simulationSpeed=(std::max)(0.125f,simulationSpeed*0.5f);break;
+               case SDLK_RIGHTBRACKET:simulationSpeed=(std::min)(8.0f,simulationSpeed*2.0f);break;
                default:break;
             }
          }
       }
       Uint64 const now=SDL_GetPerformanceCounter();
-      elapsed+=static_cast<double>(now-last)/SDL_GetPerformanceFrequency();
+      elapsed+=static_cast<double>(now-last)/SDL_GetPerformanceFrequency()*simulationSpeed;
       last=now;
       // Fixed-step simulation: cap backlog to preserve GUI responsiveness.
       elapsed=(std::min)(elapsed,0.05);
@@ -181,14 +218,15 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
       glUniform1f(glGetUniformLocation(program,"spin"),spin);
       glUniform1f(glGetUniformLocation(program,"distance"),distance);
       glUniform1f(glGetUniformLocation(program,"aspect"),static_cast<float>(w)/(std::max)(h,1));
+      glUniform2f(glGetUniformLocation(program,"pan"),panX,panY);
       glBindVertexArray(vao);
       glDrawArrays(GL_POINTS,0,static_cast<GLsizei>(vertices.size()));
       SDL_GL_SwapWindow(window);
       char title[320];
       std::snprintf(title,sizeof(title),
-         "OpenMP Galaxy | %zu stars | %s | %d threads | simulation %.2f ms | %s",
-         galaxy.stars.size(),ScheduleName(schedule),threads,lastSimulationMs,
-         paused?"PAUSED":"running");
+         "OpenMP Galaxy | %s | %zu stars | %s | %d threads | sim %.2f ms | %.2fx | %s",
+         gpuRenderer.c_str(),galaxy.stars.size(),ScheduleName(schedule),threads,
+         lastSimulationMs,simulationSpeed,paused?"PAUSED":"running");
       SDL_SetWindowTitle(window,title);
    }
    glDeleteBuffers(1,&vbo);glDeleteVertexArrays(1,&vao);glDeleteProgram(program);
