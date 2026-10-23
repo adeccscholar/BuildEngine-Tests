@@ -218,7 +218,9 @@ bool InitializeWindow(UniqueSdlWindow& pWindow, UniqueSdlGlContext& pContext) no
       }
 
    SDL_GL_MakeCurrent(pWindow.get(), pContext.get());
-   SDL_GL_SetSwapInterval(1);
+   if (SDL_GL_SetSwapInterval(1) != 0)
+      DebugPrint(std::format("VSync unavailable: {}", SDL_GetError()));
+   DebugPrint(std::format("VSync interval: {}", SDL_GL_GetSwapInterval()));
 
    return true;
    }
@@ -610,6 +612,10 @@ int RunApplication() {
    Uint64 uPreviousCounter = SDL_GetPerformanceCounter();
    double const flCounterFrequency = static_cast<double>(SDL_GetPerformanceFrequency());
    bool fRunning = true;
+   Uint64 uStatsStart = uPreviousCounter;
+   Uint64 uStatsFrames = 0;
+   double flStatsFrameMs = 0.0;
+   double flStatsSwapMs = 0.0;
 
    while (fRunning) {
       SDL_Event aEvent{};
@@ -617,6 +623,12 @@ int RunApplication() {
       while (SDL_PollEvent(&aEvent) != 0) {
          if (aEvent.type == SDL_QUIT) {
             fRunning = false;
+            }
+         else if ((aEvent.type == SDL_KEYDOWN) && (aEvent.key.keysym.sym == SDLK_F9) && aEvent.key.repeat == 0) {
+            int const iNext = SDL_GL_GetSwapInterval() == 0 ? 1 : 0;
+            if (SDL_GL_SetSwapInterval(iNext) != 0)
+               DebugPrint(std::format("Cannot change VSync: {}", SDL_GetError()));
+            DebugPrint(std::format("VSync interval: {}", SDL_GL_GetSwapInterval()));
             }
          else if ((aEvent.type == SDL_KEYDOWN) && (aEvent.key.keysym.sym == SDLK_ESCAPE)) {
             fRunning = false;
@@ -697,7 +709,26 @@ int RunApplication() {
          }
 
       DrawUi(aUiProgram.Get(), aUiBuffer, iWindowWidth, iWindowHeight, aMode);
+      Uint64 const uSwapBegin = SDL_GetPerformanceCounter();
       SDL_GL_SwapWindow(pWindow.get());
+      Uint64 const uSwapEnd = SDL_GetPerformanceCounter();
+      ++uStatsFrames;
+      flStatsFrameMs += 1000.0 * static_cast<double>(uSwapEnd - uCurrentCounter) / flCounterFrequency;
+      flStatsSwapMs += 1000.0 * static_cast<double>(uSwapEnd - uSwapBegin) / flCounterFrequency;
+      double const flPeriod = static_cast<double>(uSwapEnd - uStatsStart) / flCounterFrequency;
+      if (flPeriod >= 3.0) {
+         DebugPrint(std::format(
+            "PERF scene={} fps={:.1f} frame_ms={:.2f} swap_ms={:.2f} vsync={} viewport={}x{}",
+            aMode == DemoMode::Logo ? "Logo" : "Earth",
+            static_cast<double>(uStatsFrames) / flPeriod,
+            flStatsFrameMs / static_cast<double>(uStatsFrames),
+            flStatsSwapMs / static_cast<double>(uStatsFrames),
+            SDL_GL_GetSwapInterval(), iDrawableWidth, iDrawableHeight));
+         uStatsStart = uSwapEnd;
+         uStatsFrames = 0;
+         flStatsFrameMs = 0.0;
+         flStatsSwapMs = 0.0;
+         }
       }
 
    /*
