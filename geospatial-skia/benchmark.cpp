@@ -3,17 +3,40 @@
 #include <algorithm>
 #include <cstdio>
 #include <exception>
+#include <filesystem>
 #include <string>
 using namespace adecc::geo;
 int main(int argc,char** argv) {
-   if(argc<2) {std::fprintf(stderr,"usage: geospatial_benchmark <berlin_infos.dat>\n");return 2;}
+   if(argc<2) {std::fprintf(stderr,"usage: geospatial_benchmark <berlin_infos.dat|directory> [second-input-for-cross-validation]\n");return 2;}
    try {
-      auto sequential=Load(argv[1],false),parallel=Load(argv[1],true);
+      auto loader=[&](char const* name,bool concurrent) {
+         return std::filesystem::is_directory(std::filesystem::path(name))
+            ? LoadDirectory(name,concurrent) : Load(name,concurrent);
+      };
+      auto sequential=loader(argv[1],false),parallel=loader(argv[1],true);
       if(sequential.points.size()!=parallel.points.size() ||
          sequential.rejected!=parallel.rejected)return 1;
       for(std::size_t i=0;i<sequential.points.size();++i)
          if(sequential.points[i].latitude!=parallel.points[i].latitude ||
             sequential.points[i].longitude!=parallel.points[i].longitude)return 1;
+      if(argc>2) {
+         auto other=loader(argv[2],true);
+         auto compare=[](Point a,Point b) {
+            if(a.latitude!=b.latitude)return a.latitude<b.latitude;
+            return a.longitude<b.longitude;
+         };
+         auto left=sequential.points,right=other.points;
+         std::sort(left.begin(),left.end(),compare);
+         std::sort(right.begin(),right.end(),compare);
+         bool const equal=left.size()==right.size() &&
+            std::equal(left.begin(),left.end(),right.begin(),
+               [](Point a,Point b) {
+                  return a.latitude==b.latitude && a.longitude==b.longitude;
+               });
+         std::printf("cross-source coordinates: %s (%zu vs %zu)\n",
+            equal?"PASS":"FAIL",left.size(),right.size());
+         if(!equal)return 1;
+      }
       auto bounds=ProjectBounds(sequential.points,false);
       auto boundsParallel=ProjectBounds(parallel.points,true);
       if(bounds.minX!=boundsParallel.minX||bounds.maxX!=boundsParallel.maxX||
