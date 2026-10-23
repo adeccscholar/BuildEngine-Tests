@@ -34,6 +34,12 @@ adecc_test_install(OpenGLSDL2EarthDemo
  PACKAGE_ROOTS "${SDL2_PACKAGE}" "${GLEW_PACKAGE}" "${SOIL2_PACKAGE}"
  TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll
  EXCLUDE_DLLS opengl32.dll)
+# Remove a Mesa DLL left in the INSTALL prefix by older demo installs.
+# The stage exclusion above affects the build output, not pre-existing Release/.
+install(CODE "if(EXISTS \"\${CMAKE_INSTALL_PREFIX}/opengl32.dll\")
+   file(REMOVE \"\${CMAKE_INSTALL_PREFIX}/opengl32.dll\")
+   message(STATUS \"[OpenGL] removed legacy local Mesa opengl32.dll\")
+endif()")
 # These five assets are required by the real demo. A missing texture or OBJ
 # is a configuration error, not an empty graphics directory at runtime.
 set(_adecc_earth_assets
