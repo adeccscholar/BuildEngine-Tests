@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <SDL.h>
 #include <windows.h>
+#include <shellapi.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
