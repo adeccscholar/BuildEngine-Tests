@@ -121,7 +121,7 @@ void TMainForm::ResetDashboard() {
 
    OpenResultButton->Enabled = false;
    theArchivePath.clear();
-   StatusBar->SimpleText = L"Bereit. Die Demo führt zwei reale HTTPS Requests über unabhängige Stacks aus.";
+   StatusBar->SimpleText = L"Bereit. Die Demo f\u00fchrt zwei reale HTTPS Requests \u00fcber unabh\u00e4ngige Stacks aus.";
    }
 
 void TMainForm::ApplyUpdate(adecc::showcase::Showcase_Update const& theUpdate) {
@@ -175,9 +175,9 @@ void __fastcall TMainForm::RunButtonClick(TObject*) {
       theArchivePath = theResult.theArchivePath;
       JsonMemo->Lines->Text = ToUnicode(theResult.strSummaryJson);
       OpenResultButton->Enabled = true;
-      StatusBar->SimpleText = ToUnicode(std::format(
-         "Fertig: {} Bibliotheksstufen grün, ZIP mit {} Einträgen verifiziert.",
-         iCompletedRows, theResult.uArchiveEntries));
+      StatusBar->SimpleText = UnicodeString(std::format(
+         L"Fertig: {} Bibliotheksstufen gr\u00fcn, ZIP mit {} Eintr\u00e4gen verifiziert.",
+         iCompletedRows, theResult.uArchiveEntries).c_str());
       }
    catch (std::exception const& theException) {
       StatusBar->SimpleText = L"FEHLER: Showcase wurde abgebrochen.";
