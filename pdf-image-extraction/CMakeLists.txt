@@ -31,3 +31,7 @@ add_test(NAME qpdf-image-extraction
     "-DTEST_PDF=${CMAKE_CURRENT_SOURCE_DIR}/./fixtures/single-image.pdf"
     "-DTEST_OUTPUT=${CMAKE_CURRENT_BINARY_DIR}/qpdf-image-extraction-output"
     -P "${CMAKE_CURRENT_SOURCE_DIR}/./CheckExtraction.cmake")
+
+# Ship a ready-to-run example PDF with the installed demo application.
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/single-image.pdf"
+   DESTINATION "pdf-image-extraction/examples")
