@@ -98,32 +98,34 @@ For JPEG and JPEG 2000 this gives strong evidence for whether a higher-resolutio
 present inside the PDF: the encoded image stream stored in the PDF is exported instead of a page
 rendering.
 
-## Installed, self-contained demo (BuildEngine Tests)
+## Installed demo (BuildEngine Tests)
 
-Configure, build and install the independent CMake project with the shared
-BuildEngine initial cache (see the repository root README). For example, from
-`BuildEngine/tests`:
+The install prefix is the application configuration directory, **not** an extra
+directory named after the executable.
 
-```bat
-cmake -S pdf-image-extraction -B ../build/Test/pdf-image-extraction/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/pdf-image-extraction/Release
-cmake --build ../build/Test/pdf-image-extraction/Release/cmake
-ctest --test-dir ../build/Test/pdf-image-extraction/Release/cmake --output-on-failure
-cmake --install ../build/Test/pdf-image-extraction/Release/cmake
+For the current BuildEngine workspace the Release install root is exactly:
+
+```text
+D:\\local\\embarcadero\\test_v3\\build\\test\\pdf-image-extraction\\Release\\
 ```
 
-The resulting standalone demo is installed under
-`../build/Test/pdf-image-extraction/Release/pdf-image-extraction/` with
-`pdf-image-extraction.exe`, the BuildEngine-staged runtime DLLs and
-`examples/single-image.pdf`. It does not require the CMake build directory
-in order to run. Invoke from `BuildEngine/tests`:
+From `D:\\local\\embarcadero\\test_v3\\tests`:
 
 ```bat
-..\\build\\Test\\pdf-image-extraction\\Release\\pdf-image-extraction\\pdf-image-extraction.exe ..\\build\\Test\\pdf-image-extraction\\Release\\pdf-image-extraction\\examples\\single-image.pdf ..\\build\\Test\\pdf-image-extraction\\Release\\pdf-image-extraction\\output
+cmake -S pdf-image-extraction -B D:/local/embarcadero/test_v3/build/test/pdf-image-extraction/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=D:/local/embarcadero/test_v3/build/test/pdf-image-extraction/Release
+cmake --build D:/local/embarcadero/test_v3/build/test/pdf-image-extraction/Release/cmake
+ctest --test-dir D:/local/embarcadero/test_v3/build/test/pdf-image-extraction/Release/cmake --output-on-failure
+cmake --install D:/local/embarcadero/test_v3/build/test/pdf-image-extraction/Release/cmake
 ```
 
-Expected summary: `RESULT|images=1|unique=1|...`. The exported
-`image-4_0.bin` is a 1-byte grayscale sample, not a displayable JPEG.
-The integration CTest runs against the build-tree executable; the command above
-additionally exercises the **installed** executable. Every executable and
-runtime closure must pass this separate installed-demo check before marking
-installation as verified.
+The executable and all staged runtime DLLs are installed directly into
+`Release`. The example PDF is installed to `Release/examples/single-image.pdf`.
+
+Run the **installed** executable:
+
+```bat
+"D:\\local\\embarcadero\\test_v3\\build\\test\\pdf-image-extraction\\Release\\pdf-image-extraction.exe" "D:\\local\\embarcadero\\test_v3\\build\\test\\pdf-image-extraction\\Release\\examples\\single-image.pdf" "D:\\local\\embarcadero\\test_v3\\build\\test\\pdf-image-extraction\\Release\\output"
+```
+
+Expect `RESULT|images=1|unique=1|...`. CTest executes the build-tree binary;
+the installed executable must also be verified independently.
