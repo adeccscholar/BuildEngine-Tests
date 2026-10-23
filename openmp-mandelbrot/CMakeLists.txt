@@ -16,7 +16,8 @@ add_library(BuildEngineOpenMP SHARED IMPORTED)
 set_target_properties(BuildEngineOpenMP PROPERTIES
    IMPORTED_IMPLIB "${_omp_lib}"
    INTERFACE_INCLUDE_DIRECTORIES "${OPENMP_PACKAGE}/include")
-# Shared compute implementation as object files; no static archives.\nadd_library(mandelbrot_core OBJECT Mandelbrot.cpp)
+# Shared compute implementation as object files; no static archives.
+add_library(mandelbrot_core OBJECT Mandelbrot.cpp)
 # Object library compiles once and links into both demo executables.
 set_property(TARGET mandelbrot_core PROPERTY CXX_SCAN_FOR_MODULES OFF)
 target_compile_features(mandelbrot_core PUBLIC cxx_std_23)
