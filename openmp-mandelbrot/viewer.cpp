@@ -1,11 +1,11 @@
 #include "Mandelbrot.h"
-#include <SDL.h>
+#include <SDL.h>\n#include <windows.h>
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
 using namespace adecc::mandelbrot;
-int WINAPI WinMain(void*,void*,char*,int) {
+int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
    SDL_SetMainReady();
    if(SDL_Init(SDL_INIT_VIDEO)!=0) return 1;
    SDL_Window* window=SDL_CreateWindow("OpenMP Mandelbrot",SDL_WINDOWPOS_CENTERED,
