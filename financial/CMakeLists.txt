@@ -37,15 +37,25 @@ endif()
 
 add_executable(financial_demo
  main.cpp FinancialJson.cpp HttpsClient.cpp EcbHttpsDownload.cpp
- OpenHolidaysQuery.cpp EcbPublicationCheck.cpp EcbHistoryCache.cpp
- BoostJsonCompiled.cpp EcbData.cpp)
+ OpenHolidaysQuery.cpp EcbPublicationCheck.cpp EcbHistoryCache.cpp)
 set_property(TARGET financial_demo PROPERTY CXX_SCAN_FOR_MODULES OFF)
 target_compile_features(financial_demo PRIVATE cxx_std_23)
 target_include_directories(financial_demo PRIVATE "${BOOST_PACKAGE}/include")
 target_compile_definitions(financial_demo PRIVATE
- BOOST_ALL_NO_LIB BOOST_JSON_NO_LIB BOOST_SYSTEM_NO_LIB _WIN32_WINNT=0x0A00)
+ BOOST_ALL_NO_LIB BOOST_SYSTEM_NO_LIB BOOST_JSON_DYN_LINK _WIN32_WINNT=0x0A00
+ BOOST_COMPILER_CONFIG="boost/config/compiler/clang.hpp")
+# BCC64X defines __CODEGEARC__ and a GCC compatibility version, which can
+# otherwise select GCC 4.x compatibility in Boost.Config instead of Clang.
+set(_adecc_boost_lib "${BOOST_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libboost_json.lib")
+if(NOT EXISTS "${_adecc_boost_lib}")
+   message(FATAL_ERROR "Required BuildEngine Boost.JSON DLL import library missing: ${_adecc_boost_lib}")
+endif()
+add_library(AdeccBoostJson SHARED IMPORTED)
+set_target_properties(AdeccBoostJson PROPERTIES
+   IMPORTED_IMPLIB "${_adecc_boost_lib}"
+   INTERFACE_INCLUDE_DIRECTORIES "${BOOST_PACKAGE}/include")
 target_link_libraries(financial_demo PRIVATE
- pugixml::pugixml OpenSSL::SSL OpenSSL::Crypto crypt32)
+ pugixml::pugixml OpenSSL::SSL OpenSSL::Crypto AdeccBoostJson crypt32)
 
 set(FINANCIAL_RUNTIME_ROOTS
  "${PUGIXML_PACKAGE};${OPENSSL_PACKAGE};${BOOST_PACKAGE}")
