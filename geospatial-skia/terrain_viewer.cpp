@@ -79,38 +79,47 @@ void main() {
 }
 }
 int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
-   // Start with a dataset path: either the original CompareTest flat file
-   // or the hierarchical CompareTest directory root.
    int argc=0;
    LPWSTR* argv=CommandLineToArgvW(GetCommandLineW(),&argc);
-   if(!argv||argc<2){MessageBoxW(nullptr,
-      L"Pass berlin_infos.dat or a CompareTest directory root as argument.",
-      L"GeoSpatial 3D Terrain",MB_ICONINFORMATION);if(argv)LocalFree(argv);return 2;}
-   std::filesystem::path path(argv[1]);
-   bool const directory=std::filesystem::is_directory(path);
-   std::string const filename=path.string();
-   LocalFree(argv);
+   std::filesystem::path initial;
+   if(argv && argc>1)initial=argv[1];
+   if(argv)LocalFree(argv);
    Dataset dataset;
-   try {dataset=directory?LoadDirectory(filename,true):Load(filename,true);}
-   catch(std::exception const& e) {MessageBoxA(nullptr,e.what(),"Loading failed",MB_ICONERROR);return 3;}
-   auto const bounds=ProjectBounds(dataset.points,true);
+   std::filesystem::path currentPath;
+   Bounds bounds{};
    constexpr int gridW=256,gridH=192;
-   Terrain terrain=BuildTerrain(dataset.points,bounds,gridW,gridH,2.8,
-      Method::OpenMP,8);
+   Terrain terrain;
    std::vector<Vertex> vertices;
-   vertices.reserve(gridW*gridH);
-   for(int y=0;y<gridH;++y)for(int x=0;x<gridW;++x) {
-      float const normalized=terrain.peak>0?
-         terrain.heightField[static_cast<std::size_t>(y)*gridW+x]/terrain.peak:0;
-      float const elevation=5.0f*std::sqrt((std::max)(0.0f,normalized));
-      vertices.push_back({(x/(gridW-1.0f)-0.5f)*16.0f,
-         (0.5f-y/(gridH-1.0f))*12.0f,elevation,normalized});
-   }
    std::vector<std::uint32_t> indices;
    indices.reserve((gridW-1)*(gridH-1)*6);
    for(int y=0;y<gridH-1;++y)for(int x=0;x<gridW-1;++x) {
       auto const a=static_cast<std::uint32_t>(y*gridW+x);
       indices.insert(indices.end(),{a,a+gridW,a+1,a+1,a+gridW,a+gridW+1});
+   }
+   auto build=[&](std::filesystem::path const& source) {
+      bool const directory=std::filesystem::is_directory(source);
+      Dataset next=directory?LoadDirectory(source.string(),true):Load(source.string(),true);
+      Bounds const nextBounds=ProjectBounds(next.points,true);
+      Terrain nextTerrain=BuildTerrain(next.points,nextBounds,gridW,gridH,2.8,
+         Method::OpenMP,8);
+      std::vector<Vertex> nextVertices;
+      nextVertices.reserve(gridW*gridH);
+      for(int y=0;y<gridH;++y)for(int x=0;x<gridW;++x) {
+         float const normalized=nextTerrain.peak>0?
+            nextTerrain.heightField[static_cast<std::size_t>(y)*gridW+x]/nextTerrain.peak:0;
+         nextVertices.push_back({(x/(gridW-1.0f)-0.5f)*16.0f,
+            (0.5f-y/(gridH-1.0f))*12.0f,
+            5.0f*std::sqrt((std::max)(0.0f,normalized)),normalized});
+      }
+      dataset=std::move(next);
+      bounds=nextBounds;
+      terrain=std::move(nextTerrain);
+      vertices=std::move(nextVertices);
+      currentPath=source;
+   };
+   if(!initial.empty()) {
+      try {build(initial);}
+      catch(std::exception const& e) {MessageBoxA(nullptr,e.what(),"Loading failed",MB_ICONERROR);}
    }
    SDL_SetMainReady();
    if(SDL_Init(SDL_INIT_VIDEO)!=0)return 4;
@@ -132,7 +141,7 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
    GLuint vao=0,vbo=0,ibo=0;
    glGenVertexArrays(1,&vao);glBindVertexArray(vao);
    glGenBuffers(1,&vbo);glBindBuffer(GL_ARRAY_BUFFER,vbo);
-   glBufferData(GL_ARRAY_BUFFER,vertices.size()*sizeof(Vertex),vertices.data(),GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER,vertices.size()*sizeof(Vertex),vertices.data(),GL_DYNAMIC_DRAW);
    glGenBuffers(1,&ibo);glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
    glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size()*sizeof(std::uint32_t),indices.data(),GL_STATIC_DRAW);
    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,sizeof(Vertex),nullptr);
@@ -143,14 +152,49 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
    float yaw=0.22f,pitch=0.58f,distance=24.0f;
    bool running=true,dragging=false;
    std::string renderer=reinterpret_cast<char const*>(glGetString(GL_RENDERER));
-   char title[480];
-   std::snprintf(title,sizeof(title),"GeoSpatial Terrain | %zu addresses | %s | terrain %.1f ms",
-      dataset.points.size(),renderer.c_str(),terrain.buildMs);
-   SDL_SetWindowTitle(window,title);
+   auto upload=[&]() {
+      glBindBuffer(GL_ARRAY_BUFFER,vbo);
+      glBufferData(GL_ARRAY_BUFFER,vertices.size()*sizeof(Vertex),
+         vertices.data(),GL_DYNAMIC_DRAW);
+      char title[512];
+      std::snprintf(title,sizeof(title),
+         "GeoSpatial Terrain | %zu addresses | %s | %.1f ms | F=flat D=directory L=reload | %s",
+         dataset.points.size(),currentPath.empty()?"No data":
+         std::filesystem::is_directory(currentPath)?"hierarchy":"flat file",
+         terrain.buildMs,renderer.c_str());
+      SDL_SetWindowTitle(window,title);
+   };
+   upload();
+   auto selectFile=[&]() -> std::filesystem::path {
+      wchar_t filename[32768]{};
+      OPENFILENAMEW dialog{};
+      dialog.lStructSize=sizeof(dialog);dialog.lpstrFile=filename;
+      dialog.nMaxFile=32768;
+      dialog.lpstrFilter=L"CompareTest data (*.dat)\0*.dat\0All files\0*.*\0";
+      dialog.Flags=OFN_FILEMUSTEXIST|OFN_PATHMUSTEXIST;
+      return GetOpenFileNameW(&dialog)?std::filesystem::path(filename):std::filesystem::path{};
+   };
+   auto selectDirectory=[&]() -> std::filesystem::path {
+      BROWSEINFOW info{};
+      info.lpszTitle=L"Select the CompareTest hierarchy ROOT (contains city directories)";
+      info.ulFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
+      PIDLIST_ABSOLUTE selected=SHBrowseForFolderW(&info);
+      if(!selected)return {};
+      wchar_t name[MAX_PATH]{};
+      bool const ok=SHGetPathFromIDListW(selected,name)!=FALSE;
+      CoTaskMemFree(selected);
+      return ok?std::filesystem::path(name):std::filesystem::path{};
+   };
    SDL_GL_SetSwapInterval(1);
+   SDL_EventState(SDL_DROPFILE,SDL_ENABLE);
    while(running) {
       SDL_Event event;
       while(SDL_PollEvent(&event)) {
+         if(event.type==SDL_DROPFILE) {
+            try {build(std::filesystem::path(event.drop.file));upload();}
+            catch(std::exception const& e){MessageBoxA(nullptr,e.what(),"Load failed",MB_ICONERROR);}
+            SDL_free(event.drop.file);
+         }
          if(event.type==SDL_QUIT)running=false;
          if(event.type==SDL_MOUSEBUTTONDOWN&&event.button.button==SDL_BUTTON_LEFT)dragging=true;
          if(event.type==SDL_MOUSEBUTTONUP&&event.button.button==SDL_BUTTON_LEFT)dragging=false;
@@ -162,6 +206,16 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
             distance=(std::clamp)(distance*std::pow(0.88f,static_cast<float>(event.wheel.y)),9.0f,90.0f);
          if(event.type==SDL_KEYDOWN) {
             if(event.key.keysym.sym==SDLK_ESCAPE)running=false;
+            if(event.key.keysym.sym==SDLK_f || event.key.keysym.sym==SDLK_d ||
+               event.key.keysym.sym==SDLK_l) {
+               try {
+                  auto const path=event.key.keysym.sym==SDLK_f?selectFile():
+                     event.key.keysym.sym==SDLK_d?selectDirectory():currentPath;
+                  if(!path.empty()){build(path);upload();}
+               } catch(std::exception const& e) {
+                  MessageBoxA(nullptr,e.what(),"Load failed",MB_ICONERROR);
+               }
+            }
             if(event.key.keysym.sym==SDLK_1){yaw=0;pitch=0.0f;}
             if(event.key.keysym.sym==SDLK_2){yaw=0;pitch=1.42f;}
             if(event.key.keysym.sym==SDLK_3){yaw=0.22f;pitch=0.58f;distance=24;}
