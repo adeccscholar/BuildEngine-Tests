@@ -74,6 +74,17 @@ adecc_package_current_root(BROTLI_PACKAGE brotli)
 adecc_package_current_root(ZSTD_PACKAGE zstd)
 set(FINANCIAL_RUNTIME_ROOTS
    "${PUGIXML_PACKAGE};${OPENSSL_PACKAGE};${BOOST_PACKAGE};${ZLIB_PACKAGE};${BROTLI_PACKAGE};${ZSTD_PACKAGE}")
+# Controlled migration of OpenSSL DLLs staged by the former 3.5.8 contract.
+# Only delete files whose SHA256 matches the versioned old BuildEngine package.
+# Unknown/conflicting application DLLs must still fail the normal stage gate.
+add_custom_command(TARGET financial_demo PRE_LINK
+   COMMAND "${CMAKE_COMMAND}"
+      "-DADECC_DEMO_DIR=$<TARGET_FILE_DIR:financial_demo>"
+      "-DADECC_OLD_OPENSSL_ROOT=${BUILDENGINE_INSTALL_ROOT}/packages/openssl/3.5.8"
+      "-DADECC_ACTIVE_OPENSSL_ROOT=${OPENSSL_PACKAGE}"
+      "-DADECC_RUNTIME_CONFIG=${BUILDENGINE_CONFIGURATION}"
+      -P "${CMAKE_CURRENT_SOURCE_DIR}/RemoveRetiredOpenSslRuntime.cmake"
+   VERBATIM)
 adecc_test_install(financial_demo
    PACKAGE_ROOTS ${FINANCIAL_RUNTIME_ROOTS}
    TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
