@@ -51,7 +51,7 @@ UnicodeString TMainForm::ToUnicode(std::string_view svText) const {
    if (iCharacters == 0) {
       throw std::runtime_error("Invalid UTF-8 text for VCL display.");
       }
-   std::wstring strUnicode(static_cast<std::size_t>(iCharacters), L'\\0');
+   std::wstring strUnicode(static_cast<std::size_t>(iCharacters), L'\0');
    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, svText.data(),
        iBytes, strUnicode.data(), iCharacters) != iCharacters) {
       throw std::runtime_error("UTF-8 conversion for VCL display failed.");
