@@ -10,6 +10,8 @@
 #include <chrono>
 #include <cmath>
 #include <fstream>
+#include <filesystem>
+#include <iterator>
 #include <limits>
 #include <stdexcept>
 #include <string_view>
@@ -105,6 +107,124 @@ Dataset Load(std::string const& path,bool parallel) {
    if(out.points.empty())throw std::runtime_error("no valid GPS coordinates in input");
    return out;
 }
+
+Dataset LoadDirectory(std::string const& directory,bool parallel) {
+   namespace fs=std::filesystem;
+   auto const begin=Clock::now();
+   std::vector<fs::path> files;
+   for(auto const& city:fs::directory_iterator(fs::u8path(directory))) {
+      if(!city.is_directory())continue;
+      for(auto const& unit:fs::directory_iterator(city.path())) {
+         if(!unit.is_directory())continue;
+         for(auto const& district:fs::directory_iterator(unit.path())) {
+            if(!district.is_directory())continue;
+            for(auto const& street:fs::directory_iterator(district.path()))
+               if(street.is_regular_file() && street.path().extension()==".csv")
+                  files.push_back(street.path());
+         }
+      }
+   }
+   std::sort(files.begin(),files.end());
+   if(files.empty())throw std::runtime_error("no CompareTest hierarchical CSV files found");
+   std::vector<std::vector<Point>> chunks(files.size());
+   std::vector<std::size_t> rejected(files.size(),0);
+   auto parseFile=[&](std::size_t i) {
+      std::ifstream in(files[i],std::ios::binary);
+      if(!in)throw std::runtime_error("cannot open hierarchy CSV");
+      std::string line;
+      while(std::getline(in,line)) {
+         if(!line.empty() && line.back()=='\r')line.pop_back();
+         // CompareTest directory row: number;zip;old-urban;lat;lon;distance;bearing
+         std::string_view view(line);
+         std::size_t start=0;
+         std::string_view lat,lon;
+         bool format=true;
+         for(int col=0;col<5;++col) {
+            auto const end=view.find(';',start);
+            if(end==std::string_view::npos && col<4){format=false;break;}
+            auto const field=view.substr(start,end==std::string_view::npos?end:end-start);
+            if(col==3)lat=field;
+            if(col==4)lon=field;
+            start=end==std::string_view::npos?view.size():end+1;
+         }
+         Point point;
+         if(format && ParseCoord(lat,point.latitude) && ParseCoord(lon,point.longitude)
+            && point.latitude>=-90 && point.latitude<=90
+            && point.longitude>=-180 && point.longitude<=180)
+            chunks[i].push_back(point);
+         else ++rejected[i];
+      }
+   };
+   if(parallel)oneapi::tbb::parallel_for(
+      oneapi::tbb::blocked_range<std::size_t>(0,files.size(),1),
+      [&](auto const& range){for(auto i=range.begin();i!=range.end();++i)parseFile(i);});
+   else for(std::size_t i=0;i<files.size();++i)parseFile(i);
+   Dataset output;
+   for(std::size_t i=0;i<files.size();++i) {
+      output.points.insert(output.points.end(),chunks[i].begin(),chunks[i].end());
+      output.rejected+=rejected[i];
+   }
+   if(output.points.empty())throw std::runtime_error("no GPS points in hierarchy");
+   output.readMs=Millis(begin);
+   return output;
+}
+Terrain BuildTerrain(std::vector<Point> const& points,Bounds bounds,
+   int width,int height,double sigma,Method method,int threads) {
+   if(width<2||height<2||sigma<=0||threads<1)throw std::invalid_argument("invalid terrain size");
+   auto const begin=Clock::now();
+   // Build a count histogram directly: visualization color is not a metric.
+   std::vector<double> density(static_cast<std::size_t>(width)*height,0.0);
+   for(auto const& p:points) {
+      auto const xy=Transform(p,bounds,width,height);
+      density[static_cast<std::size_t>(xy.y)*width+xy.x]+=1.0;
+   }
+   int const radius=static_cast<int>(std::ceil(sigma*3.0));
+   std::vector<double> kernel(static_cast<std::size_t>(radius)*2+1);
+   double sum=0;
+   for(int k=-radius;k<=radius;++k) {
+      double const v=std::exp(-0.5*k*k/(sigma*sigma));
+      kernel[static_cast<std::size_t>(k+radius)]=v;sum+=v;
+   }
+   for(auto& v:kernel)v/=sum;
+   std::vector<double> intermediate(density.size(),0.0);
+   auto horizontal=[&](int y){
+      for(int x=0;x<width;++x) {
+         double v=0;
+         for(int k=-radius;k<=radius;++k) {
+            int const xx=(std::clamp)(x+k,0,width-1);
+            v+=density[static_cast<std::size_t>(y)*width+xx]*kernel[static_cast<std::size_t>(k+radius)];
+         }
+         intermediate[static_cast<std::size_t>(y)*width+x]=v;
+      }
+   };
+   auto vertical=[&](int y,Terrain& out){
+      for(int x=0;x<width;++x) {
+         double v=0;
+         for(int k=-radius;k<=radius;++k) {
+            int const yy=(std::clamp)(y+k,0,height-1);
+            v+=intermediate[static_cast<std::size_t>(yy)*width+x]*kernel[static_cast<std::size_t>(k+radius)];
+         }
+         out.heightField[static_cast<std::size_t>(y)*width+x]=static_cast<float>(v);
+      }
+   };
+   auto rows=[&](auto&& fn) {
+      if(method==Method::OpenMP) {
+         #pragma omp parallel for num_threads(threads) schedule(static)
+         for(int y=0;y<height;++y)fn(y);
+      } else if(method==Method::Tbb) {
+         oneapi::tbb::parallel_for(0,height,1,[&](int y){fn(y);});
+      } else for(int y=0;y<height;++y)fn(y);
+   };
+   rows(horizontal);
+   Terrain output;
+   output.width=width;output.height=height;
+   output.heightField.resize(density.size());
+   rows([&](int y){vertical(y,output);});
+   output.peak=*std::max_element(output.heightField.begin(),output.heightField.end());
+   output.buildMs=Millis(begin);
+   return output;
+}
+
 Bounds ProjectBounds(std::vector<Point> const& points,bool parallel) {
    if(points.empty())throw std::invalid_argument("empty point set");
    // The same reference latitude is required for all threads.
