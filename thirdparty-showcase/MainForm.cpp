@@ -18,6 +18,7 @@
 #include <array>
 #include <exception>
 #include <format>
+#include <limits>
 #include <stdexcept>
 
 #pragma package(smart_init)
@@ -34,7 +35,28 @@ void __fastcall TMainForm::FormShow(TObject*) {
    }
 
 UnicodeString TMainForm::ToUnicode(std::string_view svText) const {
-   return UTF8ToString(UTF8String(std::string { svText }.c_str()));
+   if (svText.empty()) {
+      return UnicodeString();
+      }
+
+   // ShowcaseEngine/std::format/nlohmann::json supply UTF-8 byte strings.
+   // Decode bytes explicitly: UTF8String(char*) can otherwise depend on the
+   // source/runtime codepage and corrupt German umlauts in the VCL UI.
+   if (svText.size() > static_cast<std::size_t>((std::numeric_limits<int>::max)())) {
+      throw std::length_error("UTF-8 text exceeds the Windows conversion limit.");
+      }
+   int const iBytes = static_cast<int>(svText.size());
+   int const iCharacters = MultiByteToWideChar(
+      CP_UTF8, MB_ERR_INVALID_CHARS, svText.data(), iBytes, nullptr, 0);
+   if (iCharacters == 0) {
+      throw std::runtime_error("Invalid UTF-8 text for VCL display.");
+      }
+   std::wstring strUnicode(static_cast<std::size_t>(iCharacters), L'\\0');
+   if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, svText.data(),
+       iBytes, strUnicode.data(), iCharacters) != iCharacters) {
+      throw std::runtime_error("UTF-8 conversion for VCL display failed.");
+      }
+   return UnicodeString(strUnicode.c_str(), iCharacters);
    }
 
 int TMainForm::RowForComponent(std::string_view svComponent) const noexcept {
