@@ -136,7 +136,11 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
    float simulationSpeed=1.0f;
    bool running=true,paused=false,orbiting=false,panning=false;
    Uint64 last=SDL_GetPerformanceCounter();
-   double elapsed=0.0, lastSimulationMs=0;
+   double elapsed=0.0;
+   Uint64 statisticsStart=last;
+   std::uint64_t frameCount=0, stepCount=0;
+   double stepMilliseconds=0.0;
+   constexpr double statisticsInterval=2.0;
    while(running) {
       SDL_Event e;
       while(SDL_PollEvent(&e)) {
@@ -195,14 +199,16 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
       elapsed=(std::min)(elapsed,0.05);
       if(!paused) {
          int steps=0;
-         Uint64 const start=SDL_GetPerformanceCounter();
          while(elapsed>=configuration.dt && steps<6) {
+            Uint64 const stepStart=SDL_GetPerformanceCounter();
             Step(galaxy,schedule,threads);
+            Uint64 const stepEnd=SDL_GetPerformanceCounter();
+            stepMilliseconds+=1000.0*static_cast<double>(stepEnd-stepStart)/
+               SDL_GetPerformanceFrequency();
+            ++stepCount;
             elapsed-=configuration.dt;
             ++steps;
          }
-         lastSimulationMs=1000.0*(SDL_GetPerformanceCounter()-start)/
-            SDL_GetPerformanceFrequency();
       } else elapsed=0;
       Fill(galaxy,vertices);
       glBindBuffer(GL_ARRAY_BUFFER,vbo);
@@ -222,12 +228,29 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
       glBindVertexArray(vao);
       glDrawArrays(GL_POINTS,0,static_cast<GLsizei>(vertices.size()));
       SDL_GL_SwapWindow(window);
-      char title[320];
-      std::snprintf(title,sizeof(title),
-         "OpenMP Galaxy | %s | %zu stars | %s | %d threads | sim %.2f ms | %.2fx | %s",
-         gpuRenderer.c_str(),galaxy.stars.size(),ScheduleName(schedule),threads,
-         lastSimulationMs,simulationSpeed,paused?"PAUSED":"running");
-      SDL_SetWindowTitle(window,title);
+      ++frameCount;
+      Uint64 const statisticsNow=SDL_GetPerformanceCounter();
+      double const seconds=static_cast<double>(statisticsNow-statisticsStart)/
+         SDL_GetPerformanceFrequency();
+      if(seconds>=statisticsInterval) {
+         double const fps=static_cast<double>(frameCount)/seconds;
+         double const stepsPerSecond=static_cast<double>(stepCount)/seconds;
+         double const averageMs=stepCount
+            ? stepMilliseconds/static_cast<double>(stepCount) : 0.0;
+         double const bodiesPerSecond=stepsPerSecond*
+            static_cast<double>(galaxy.stars.size());
+         char title[512];
+         std::snprintf(title,sizeof(title),
+            "OpenMP Galaxy | %.1f FPS | %.1f steps/s | %.3f ms/step avg | %.2f M bodies/s | %s | %zu stars | %d threads | %.2fx | %s",
+            fps,stepsPerSecond,averageMs,bodiesPerSecond/1000000.0,
+            gpuRenderer.c_str(),galaxy.stars.size(),threads,simulationSpeed,
+            paused?"PAUSED":ScheduleName(schedule));
+         SDL_SetWindowTitle(window,title);
+         frameCount=0;
+         stepCount=0;
+         stepMilliseconds=0.0;
+         statisticsStart=statisticsNow;
+      }
    }
    glDeleteBuffers(1,&vbo);glDeleteVertexArrays(1,&vao);glDeleteProgram(program);
    SDL_GL_DeleteContext(context);SDL_DestroyWindow(window);SDL_Quit();
