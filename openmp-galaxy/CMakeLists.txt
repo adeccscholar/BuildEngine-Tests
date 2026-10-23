@@ -1,0 +1,46 @@
+cmake_minimum_required(VERSION 3.25)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../bootstrap/PrepareToolchain.cmake")
+project(BuildEngineOpenMpGalaxy LANGUAGES CXX)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/BuildEngineTests.cmake")
+include(CTest)
+adecc_package_current_root(OPENMP_PACKAGE llvm-openmp)
+adecc_package_current_root(SDL2_PACKAGE sdl2)
+adecc_package_current_root(GLEW_PACKAGE glew)
+set(_omp_lib "${OPENMP_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libomp.lib")
+foreach(_file IN ITEMS "${OPENMP_PACKAGE}/include/omp.h" "${_omp_lib}")
+   if(NOT EXISTS "${_file}")
+      message(FATAL_ERROR "Required native OpenMP artifact missing: ${_file}")
+   endif()
+endforeach()
+add_library(BuildEngineGalaxyOpenMP SHARED IMPORTED)
+set_target_properties(BuildEngineGalaxyOpenMP PROPERTIES
+   IMPORTED_IMPLIB "${_omp_lib}"
+   INTERFACE_INCLUDE_DIRECTORIES "${OPENMP_PACKAGE}/include")
+add_library(galaxy_core OBJECT Galaxy.cpp)
+set_property(TARGET galaxy_core PROPERTY CXX_SCAN_FOR_MODULES OFF)
+target_compile_features(galaxy_core PUBLIC cxx_std_23)
+target_compile_options(galaxy_core PRIVATE -fopenmp)
+target_link_libraries(galaxy_core PUBLIC BuildEngineGalaxyOpenMP)
+add_executable(galaxy_benchmark benchmark.cpp)
+set_property(TARGET galaxy_benchmark PROPERTY CXX_SCAN_FOR_MODULES OFF)
+target_link_libraries(galaxy_benchmark PRIVATE galaxy_core)
+list(PREPEND CMAKE_PREFIX_PATH "${SDL2_PACKAGE}" "${GLEW_PACKAGE}")
+find_package(SDL2 CONFIG REQUIRED)
+find_package(GLEW CONFIG REQUIRED)
+add_executable(galaxy_viewer WIN32 viewer.cpp)
+set_property(TARGET galaxy_viewer PROPERTY CXX_SCAN_FOR_MODULES OFF)
+target_compile_features(galaxy_viewer PRIVATE cxx_std_23)
+target_compile_definitions(galaxy_viewer PRIVATE SDL_MAIN_HANDLED WIN32_LEAN_AND_MEAN NOMINMAX)
+target_link_libraries(galaxy_viewer PRIVATE galaxy_core SDL2::SDL2 GLEW::GLEW opengl32)
+target_link_options(galaxy_viewer PRIVATE "-Wl,--subsystem,windows")
+adecc_test_install(galaxy_benchmark
+   PACKAGE_ROOTS "${OPENMP_PACKAGE}"
+   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
+adecc_test_install(galaxy_viewer
+   PACKAGE_ROOTS "${OPENMP_PACKAGE}" "${SDL2_PACKAGE}" "${GLEW_PACKAGE}"
+   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll
+   EXCLUDE_DLLS opengl32.dll)
+if(BUILD_TESTING)
+   add_test(NAME GalaxyDeterministicOpenMP
+      COMMAND galaxy_benchmark 2048 12 4)
+endif()
