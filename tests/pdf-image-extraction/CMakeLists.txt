@@ -17,9 +17,10 @@ target_link_libraries(pdf-image-extraction PRIVATE qpdf::libqpdf)
 # Full transitive DLL closure may be supplied explicitly by the calling build.
 # QPDF 12.4.1 BuildEngine contract: shared QPDF, zlib 1.3.2 and
 # libjpeg-turbo 3.2.0. Do not resolve transitive DLLs through PATH.
+# This is a fixed dependency contract, not a cached user preference.
+# An old CMakeCache.txt may still contain a QPDF-only runtime root.
 set(ADECC_QPDF_RUNTIME_ROOTS
-   "${QPDF_PACKAGE};${ZLIB_PACKAGE};${JPEG_PACKAGE}" CACHE STRING
-   "Exact QPDF runtime package closure")
+   "${QPDF_PACKAGE};${ZLIB_PACKAGE};${JPEG_PACKAGE}")
 # BCC64X C++ executables depend on the selected Embarcadero runtime.
 set(ADECC_QPDF_TOOLCHAIN_DLLS "libc++-370.dll;libunwind-370.dll"
    CACHE STRING "Exact BCC64X runtime DLLs required by the QPDF consumer")
