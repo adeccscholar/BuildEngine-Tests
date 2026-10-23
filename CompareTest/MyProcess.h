@@ -129,41 +129,43 @@ inline void WritingPart(auto begin, auto end, fs::path const& strFile) {
 template <typename ty>
 requires std::floating_point<ty>
 inline void Writing(data_vector<ty> const& vData, fs::path const& strFile) {
-   //WritingPart(vData.cbegin(), vData.cend(), strFile);
+   // Create ordered text blocks in parallel; write them sequentially to
+   // preserve the original output and Windows text-mode newline conversion.
+   auto const hardwareThreads = std::max<std::size_t>(
+      1u, std::thread::hardware_concurrency());
+   auto const blockCount = std::min<std::size_t>(
+      hardwareThreads, std::max<std::size_t>(1u, vData.size()));
 
-   using itDataType = data_vector<ty>::const_iterator;
-   using tplData = std::tuple<itDataType, itDataType, std::string>;
+   std::vector<std::string> buffers(blockCount);
 
-   static auto constexpr WritePart = [](itDataType begin, itDataType end, std::string& strBuffer) {
-      std::for_each(begin, end, [&strBuffer](auto const& val) {
-         std::format_to(std::back_inserter(strBuffer), "{0:s} {1:s} - {2:s}{3:<{4}s} {5:s} {6:<{7}s}={8:s}m / {9:s}°\n",
-            val.first.ZipCode(), val.first.City(), val.first.District(), ","s, 71 - val.first.City().size() - val.first.District().size(),
-            val.first.Street(), val.first.StreetNumber(), 64 - val.first.Street().size(),
-            my_Double_to_String_G(val.second.first, 3), my_Double_to_String_G(val.second.second, 3));
+   oneapi::tbb::parallel_for(
+      oneapi::tbb::blocked_range<std::size_t>(0u, blockCount, 1u),
+      [&](auto const& range) {
+         for (std::size_t i = range.begin(); i != range.end(); ++i) {
+            auto const first = vData.cbegin()
+               + static_cast<std::ptrdiff_t>(vData.size() * i / blockCount);
+            auto const last = vData.cbegin()
+               + static_cast<std::ptrdiff_t>(vData.size() * (i + 1u) / blockCount);
+            auto& strBuffer = buffers[i];
+            strBuffer.reserve(171u * static_cast<std::size_t>(last - first));
+
+            std::for_each(first, last, [&strBuffer](auto const& val) {
+               std::format_to(std::back_inserter(strBuffer),
+                  "{0:s} {1:s} - {2:s}{3:<{4}s} {5:s} {6:<{7}s}={8:s}m / {9:s}°\n",
+                  val.first.ZipCode(), val.first.City(), val.first.District(),
+                  ","s, 71 - val.first.City().size() - val.first.District().size(),
+                  val.first.Street(), val.first.StreetNumber(),
+                  64 - val.first.Street().size(),
+                  my_Double_to_String_G(val.second.first, 3),
+                  my_Double_to_String_G(val.second.second, 3));
+               });
+            }
          });
-      return true;
-   };
-
-   const size_t maxP = 16u;
-   size_t pos = 0, count = vData.size() / maxP;
-   std::vector<std::pair<std::future<bool>, tplData>> procs(maxP);
-   for (int i : std::ranges::iota_view{ 0u, maxP }) {
-      std::get<0>(procs[i].second) = vData.cbegin() + i * count;
-      std::get<1>(procs[i].second) = i < maxP - 1 ? vData.cbegin() + (i + 1) * count : vData.cend();
-      if (i < maxP - 1) std::get<2>(procs[i].second).reserve(171 * count);
-      else {
-         size_t c = std::distance(std::get<0>(procs[i].second), std::get<1>(procs[i].second));
-         std::get<2>(procs[i].second).reserve(171 * c);
-      }
-      procs[i].first = std::async(WritePart, std::get<0>(procs[i].second), std::get<1>(procs[i].second),
-         std::ref(std::get<2>(procs[i].second)));
-   }
 
    std::ofstream of(strFile);
-   for (auto& part : procs) {
-      bool test = part.first.get();
-      of << std::get<2>(part.second);
-   }
+   for (auto const& buffer : buffers) {
+      of.write(buffer.data(), static_cast<std::streamsize>(buffer.size()));
+      }
 }
 
 
