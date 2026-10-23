@@ -21,6 +21,11 @@ target_compile_definitions(OpenGLSDL2EarthDemo PRIVATE
  SDL_MAIN_HANDLED WIN32_LEAN_AND_MEAN NOMINMAX)
 target_link_libraries(OpenGLSDL2EarthDemo PRIVATE
  SDL2::SDL2 GLEW::GLEW SOIL2::SOIL2 opengl32)
+# BCC64X needs an explicit PE GUI subsystem; WIN32 alone is not sufficient
+# with the BuildEngine native linker rule override. Do not open a console.
+if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+   target_link_options(OpenGLSDL2EarthDemo PRIVATE "-Wl,--subsystem,windows")
+endif()
 adecc_test_install(OpenGLSDL2EarthDemo
  PACKAGE_ROOTS "${SDL2_PACKAGE}" "${GLEW_PACKAGE}" "${SOIL2_PACKAGE}" "${OPENGL_PACKAGE}"
  TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll)
