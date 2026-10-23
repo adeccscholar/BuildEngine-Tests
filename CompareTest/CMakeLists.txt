@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../bootstrap/PrepareToolchain.cmake")
 project(BuildEngineCompareTest LANGUAGES CXX)
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/BuildEngineTests.cmake")
 set(BUILDENGINE_INSTALL_ROOT "${BUILDENGINE_ROOT}/install" CACHE PATH "BuildEngine install root")
