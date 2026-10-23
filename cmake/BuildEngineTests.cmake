@@ -19,17 +19,14 @@ function(adecc_test_install target)
    adecc_stage_runtime(${target} PACKAGE_ROOTS ${ARG_PACKAGE_ROOTS}
      TOOLCHAIN_DLLS ${ARG_TOOLCHAIN_DLLS} EXCLUDE_DLLS ${ARG_EXCLUDE_DLLS})
  endif()
- # One executable and only top-level staged DLL files, never CMakeFiles/.
- install(TARGETS ${target} RUNTIME DESTINATION ".")
- install(CODE "
-    file(GLOB _adecc_runtime_dlls LIST_DIRECTORIES FALSE
-      \"$<TARGET_FILE_DIR:${target}>/*.dll\"
-      \"$<TARGET_FILE_DIR:${target}>/*.DLL\")
-    foreach(_adecc_dll IN LISTS _adecc_runtime_dlls)
-      file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}\" TYPE FILE
-        FILES \"\${_adecc_dll}\")
-    endforeach()
- ")
+ # Install a self-contained application in its own target directory.
+ # The same exact staged DLLs that are validated in the build tree are
+ # installed beside the executable; no PATH lookup or library-wide copy.
+ install(TARGETS ${target} RUNTIME DESTINATION "${target}")
+ install(DIRECTORY "$<TARGET_FILE_DIR:${target}>/"
+    DESTINATION "${target}"
+    FILES_MATCHING PATTERN "*.dll" PATTERN "*.DLL")
+
 endfunction()
 function(adecc_package_root output id version)
  set(root "${BUILDENGINE_INSTALL_ROOT}/packages/${id}/${version}")
