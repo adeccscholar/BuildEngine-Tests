@@ -8,7 +8,22 @@ adecc_package_root(PUGIXML_PACKAGE pugixml 1.16)
 adecc_package_root(OPENSSL_PACKAGE openssl 3.5.8)
 list(PREPEND CMAKE_PREFIX_PATH "${PUGIXML_PACKAGE}" "${OPENSSL_PACKAGE}" "${BOOST_PACKAGE}")
 find_package(pugixml CONFIG REQUIRED)
-find_package(OpenSSL CONFIG REQUIRED)
+# The upstream OpenSSL CONFIG package exports a broken include path under
+# lib/win64/include. BuildEngine installs headers at the package's include/.
+# Use CMake's FindOpenSSL module with exact BuildEngine package artifacts.
+set(OPENSSL_ROOT_DIR "${OPENSSL_PACKAGE}")
+set(OPENSSL_INCLUDE_DIR "${OPENSSL_PACKAGE}/include")
+set(OPENSSL_SSL_LIBRARY "${OPENSSL_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libssl.lib")
+set(OPENSSL_CRYPTO_LIBRARY "${OPENSSL_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libcrypto.lib")
+foreach(_openssl_required IN ITEMS
+   "${OPENSSL_INCLUDE_DIR}/openssl/ssl.h"
+   "${OPENSSL_SSL_LIBRARY}"
+   "${OPENSSL_CRYPTO_LIBRARY}")
+   if(NOT EXISTS "${_openssl_required}")
+      message(FATAL_ERROR "BuildEngine OpenSSL artifact missing: ${_openssl_required}")
+   endif()
+endforeach()
+find_package(OpenSSL MODULE REQUIRED)
 
 add_executable(financial_demo
  main.cpp FinancialJson.cpp HttpsClient.cpp EcbHttpsDownload.cpp
