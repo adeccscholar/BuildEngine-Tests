@@ -1,0 +1,138 @@
+<!-- Copyright (c) 2026 adecc Systemhaus GmbH
+     SPDX-License-Identifier: MIT
+     Project: adecc Scholar -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{B3F66775-D349-4D94-8822-7429B59301B8}</ProjectGuid>
+        <ProjectVersion>20.4</ProjectVersion>
+        <FrameworkType>None</FrameworkType>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Platform Condition="'$(Platform)'==''">Win64x</Platform>
+        <TargetedPlatforms>1048576</TargetedPlatforms>
+        <ProjectName Condition="'$(ProjectName)'==''">SkiaDirectShowcase</ProjectName>
+        <AppType>Console</AppType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64x' and '$(Base)'=='true') or '$(Base_Win64x)'!=''">
+        <Base_Win64x>true</Base_Win64x>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
+        <ProjectType>CppConsoleApplication</ProjectType>
+        <SanitizedProjectName>SkiaDirectShowcase</SanitizedProjectName>
+        <_TCHARMapping>char</_TCHARMapping>
+        <Multithreaded>true</Multithreaded>
+        <DynamicRTL>true</DynamicRTL>
+        <UsePackages>false</UsePackages>
+        <BCC_wpar>false</BCC_wpar>
+        <BCC_ExtendedErrorInfo>true</BCC_ExtendedErrorInfo>
+        <IntermediateOutputDir>.\$(Platform)\$(Config)</IntermediateOutputDir>
+        <FinalOutputDir>.\$(Platform)\$(Config)</FinalOutputDir>
+        <BCC_IncludePath>..\..\install\packages\skia\2eed75b956045eb8603d3690a1e84bc582a2135d\win64\bcc64x\$(Config)\include;$(BCC_IncludePath)</BCC_IncludePath>
+        <BCC_Defines>WIN32;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;NOMINMAX;$(BCC_Defines)</BCC_Defines>
+        <ILINK_LibraryPath>..\..\install\packages\skia\2eed75b956045eb8603d3690a1e84bc582a2135d\win64\bcc64x\$(Config)\lib;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_AdditionalOptions>-luser32 -lgdi32 -lole32 -lwindowscodecs $(ILINK_AdditionalOptions)</ILINK_AdditionalOptions>
+        <PostBuildEvent>call &quot;$(MSBuildProjectDirectory)\..\..\scripts\55-deploy-skia-direct-showcase-ide.cmd&quot; &quot;$(Config)&quot; &quot;$(MSBuildProjectDirectory)\$(Platform)\$(Config)&quot;</PostBuildEvent>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64x)'!=''">
+        <BCC_EnableBatchCompilation>true</BCC_EnableBatchCompilation>
+        <BT_BuildType>Debug</BT_BuildType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <BCC_OptimizeForSpeed>false</BCC_OptimizeForSpeed>
+        <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
+        <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
+        <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+        <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+        <BCC_EnableCPPExceptions>true</BCC_EnableCPPExceptions>
+        <BCC_DisableSpellChecking>true</BCC_DisableSpellChecking>
+        <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+        <Defines>_DEBUG;$(Defines)</Defines>
+        <BT_BuildType>Debug</BT_BuildType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
+        <Defines>NDEBUG;$(Defines)</Defines>
+        <BT_BuildType>Release</BT_BuildType>
+    </PropertyGroup>
+    <ItemGroup>
+        <LibFiles Include="..\..\install\packages\skia\2eed75b956045eb8603d3690a1e84bc582a2135d\win64\bcc64x\Release\lib\skia.lib" Condition="'$(Platform)'=='Win64x'">
+            <VirtualFolder>{BBF358ED-1999-41FA-9F40-85C74CA8CF56}</VirtualFolder>
+            <BuildOrder>2</BuildOrder>
+            <IgnorePath>true</IgnorePath>
+        </LibFiles>
+        <CppCompile Include="main.cpp">
+            <BuildOrder>1</BuildOrder>
+        </CppCompile>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
+        <Borland.ProjectType>CppConsoleApplication</Borland.ProjectType>
+        <BorlandProject>
+            <CPlusPlusBuilder.Personality>
+                <ProjectProperties>
+                    <ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
+                    <ProjectProperties Name="ManagePaths">True</ProjectProperties>
+                    <ProjectProperties Name="VerifyPackages">True</ProjectProperties>
+                    <ProjectProperties Name="IndexFiles">False</ProjectProperties>
+                </ProjectProperties>
+                <VFOLDERS>
+                    <VFOLDER ID="{BBF358ED-1999-41FA-9F40-85C74CA8CF56}" name="Libraries"/>
+                </VFOLDERS>
+            </CPlusPlusBuilder.Personality>
+            <Deployment Version="5">
+                <DeployFile LocalName=".\Win64x\Debug\SkiaDirectShowcase.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64x">
+                        <RemoteName>SkiaDirectShowcase.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName=".\Win64x\Debug\SkiaDirectShowcase.pdb" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win64x">
+                        <RemoteName>SkiaDirectShowcase.pdb</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <ProjectRoot Platform="Win64x" Name="$(PROJECTNAME)"/>
+            </Deployment>
+            <Platforms>
+                <Platform value="Win64x">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Cpp.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')"/>
+    <PropertyGroup>
+        <BCC_GenerateConsoleApp>false</BCC_GenerateConsoleApp>
+        <BCC_GenerateWindowsApp>true</BCC_GenerateWindowsApp>
+        <ILINK_AppType>Windows</ILINK_AppType>
+    </PropertyGroup>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+    <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
+</Project>
