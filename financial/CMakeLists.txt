@@ -8,22 +8,32 @@ adecc_package_root(PUGIXML_PACKAGE pugixml 1.16)
 adecc_package_root(OPENSSL_PACKAGE openssl 3.5.8)
 list(PREPEND CMAKE_PREFIX_PATH "${PUGIXML_PACKAGE}" "${OPENSSL_PACKAGE}" "${BOOST_PACKAGE}")
 find_package(pugixml CONFIG REQUIRED)
-# The upstream OpenSSL CONFIG package exports a broken include path under
-# lib/win64/include. BuildEngine installs headers at the package's include/.
-# Use CMake's FindOpenSSL module with exact BuildEngine package artifacts.
-set(OPENSSL_ROOT_DIR "${OPENSSL_PACKAGE}")
-set(OPENSSL_INCLUDE_DIR "${OPENSSL_PACKAGE}/include")
-set(OPENSSL_SSL_LIBRARY "${OPENSSL_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libssl.lib")
-set(OPENSSL_CRYPTO_LIBRARY "${OPENSSL_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libcrypto.lib")
-foreach(_openssl_required IN ITEMS
-   "${OPENSSL_INCLUDE_DIR}/openssl/ssl.h"
-   "${OPENSSL_SSL_LIBRARY}"
-   "${OPENSSL_CRYPTO_LIBRARY}")
-   if(NOT EXISTS "${_openssl_required}")
-      message(FATAL_ERROR "BuildEngine OpenSSL artifact missing: ${_openssl_required}")
+# OpenSSL's exported CONFIG has an invalid include path, and FindOpenSSL
+# can discard preselected import libraries on a reused CMake cache.
+# BuildEngine's installed shared import libraries are the source of truth.
+set(_adecc_openssl_include "${OPENSSL_PACKAGE}/include")
+set(_adecc_openssl_lib_dir "${OPENSSL_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}")
+foreach(_adecc_openssl_file IN ITEMS
+   "${_adecc_openssl_include}/openssl/ssl.h"
+   "${_adecc_openssl_lib_dir}/libssl.lib"
+   "${_adecc_openssl_lib_dir}/libcrypto.lib")
+   if(NOT EXISTS "${_adecc_openssl_file}")
+      message(FATAL_ERROR "Required BuildEngine OpenSSL artifact missing: ${_adecc_openssl_file}")
    endif()
 endforeach()
-find_package(OpenSSL MODULE REQUIRED)
+if(NOT TARGET OpenSSL::Crypto)
+   add_library(OpenSSL::Crypto SHARED IMPORTED)
+   set_target_properties(OpenSSL::Crypto PROPERTIES
+      IMPORTED_IMPLIB "${_adecc_openssl_lib_dir}/libcrypto.lib"
+      INTERFACE_INCLUDE_DIRECTORIES "${_adecc_openssl_include}")
+endif()
+if(NOT TARGET OpenSSL::SSL)
+   add_library(OpenSSL::SSL SHARED IMPORTED)
+   set_target_properties(OpenSSL::SSL PROPERTIES
+      IMPORTED_IMPLIB "${_adecc_openssl_lib_dir}/libssl.lib"
+      INTERFACE_INCLUDE_DIRECTORIES "${_adecc_openssl_include}"
+      INTERFACE_LINK_LIBRARIES "OpenSSL::Crypto")
+endif()
 
 add_executable(financial_demo
  main.cpp FinancialJson.cpp HttpsClient.cpp EcbHttpsDownload.cpp
