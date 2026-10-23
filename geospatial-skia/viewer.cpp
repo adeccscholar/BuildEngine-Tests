@@ -98,7 +98,7 @@ void ChooseFile(HWND window) {
 }
 void Paint(HWND window,HDC dc) {
    RECT rect{};GetClientRect(window,&rect);
-   int const w=(std::max)(1,rect.right),h=(std::max)(1,rect.bottom);
+   int const w=(std::max)(1,static_cast<int>(rect.right)),h=(std::max)(1,static_cast<int>(rect.bottom));
    if(app.width!=w||app.height!=h) {
       app.width=w;app.height=h;
       if(app.loaded)app.Render();
@@ -136,7 +136,7 @@ LRESULT CALLBACK WindowProc(HWND window,UINT msg,WPARAM wp,LPARAM lp) {
       case WM_CREATE: {
          DragAcceptFiles(window,TRUE);
          RECT r{};GetClientRect(window,&r);
-         app.width=(std::max)(1,r.right);app.height=(std::max)(1,r.bottom);
+         app.width=(std::max)(1,static_cast<int>(r.right));app.height=(std::max)(1,static_cast<int>(r.bottom));
          return 0;
       }
       case WM_DROPFILES: {
