@@ -182,3 +182,30 @@ Diese Markdown-Datei testet **Mermaid-Flowchart und Sequence-Diagram**, MathJax 
 ## Offene Verifikation
 
 Der tatsächliche Build und die realen Berliner Adressdaten wurden in dieser Umgebung noch nicht ausgeführt. Die ersten Messwerte dürfen deshalb erst nach BCC64X-Consumer-Test und visueller QA angegeben werden. Weitere geplante Erweiterungen: Bezirksfilter aus Pfadmetadaten, metrische Dichte je km², einstellbare Gauß-Bandbreite, Höhen-Skalierung, Normalenbeleuchtung und numerische Testdaten mit bekannten Gipfelpositionen.
+
+## SDL2/OpenGL: richtige Kamera und Datenquelle zur Laufzeit wechseln
+
+Die Terrain-Darstellung nutzt eine **z-nach-oben**-Welt: x = Ost, y = Nord, z = künstliche Dichtehöhe. Der anfängliche Blick ist schräg von oben, nicht frontal auf das aufrecht stehende Raster. Die OpenGL-Projektion berechnet korrekt Tiefe und perspektivische Division; das Dreiecksnetz verwendet eine dazu passende Orientierung.
+
+Der 3D-Viewer kann **ohne Argument** gestartet werden. Die Datenquelle wird direkt in derselben SDL2/OpenGL-Anwendung gewechselt:
+
+| Taste | Aktion |
+|---|---|
+| `F` | `berlin_infos.dat` mit Windows-Dateidialog öffnen |
+| `D` | Hierarchiewurzel mit Windows-Verzeichnisdialog öffnen |
+| `L` | Aktuell ausgewählte Quelle neu laden |
+| Datei/Ordner auf Fenster ziehen | Alternative Quelle direkt laden |
+| Linke Maustaste | 3D-Ansicht drehen |
+| Mausrad | Zoom |
+| `1` | Draufsicht (z-Achse zum Betrachter) |
+| `2` | Seitenansicht |
+| `3` | Schrägansicht von oben |
+| `Esc` | Beenden |
+
+Beide Varianten rufen dieselbe `build(path)`-Pipeline auf und erneuern das GPU-Vertexbuffer nach erfolgreichem Laden. Ein fehlgeschlagener Wechsel erhält die zuvor geladene Darstellung. Der Fenstertitel nennt Datenart, Adresszahl, Render-GPU und die Rechenzeit des Reliefs.
+
+```bat
+geospatial_terrain.exe "D:/Test/berlin_infos.dat"
+geospatial_terrain.exe "D:/Test/Adressverzeichnisse"
+geospatial_terrain.exe
+```
