@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../bootstrap/PrepareToolchain.cmake")
 project(BuildEnginePdfImageExtraction LANGUAGES CXX)
 
 # Use the installed BuildEngine package instead of an arbitrary qpdf from PATH.
