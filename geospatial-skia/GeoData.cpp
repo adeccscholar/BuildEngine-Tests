@@ -54,8 +54,8 @@ Pixel Transform(Point p,Bounds b,int width,int height) {
    double const scale=(std::min)(availableX/spanX,availableY/spanY);
    double const px=width*0.5+(xx-(b.minX+b.maxX)*0.5)*scale;
    double const py=height*0.5-(p.latitude-(b.minY+b.maxY)*0.5)*scale;
-   return {(std::clamp)(static_cast<int>(px),0,width-1),
-      (std::clamp)(static_cast<int>(py),0,height-1)};
+   return {static_cast<int>((std::clamp)(px,-1000000.0,1000000.0)),
+      static_cast<int>((std::clamp)(py,-1000000.0,1000000.0))};
 }
 std::uint32_t Color(double t) {
    t=(std::clamp)(t,0.0,1.0);
@@ -176,6 +176,7 @@ Terrain BuildTerrain(std::vector<Point> const& points,Bounds bounds,
    std::vector<double> density(static_cast<std::size_t>(width)*height,0.0);
    for(auto const& p:points) {
       auto const xy=Transform(p,bounds,width,height);
+      if(xy.x<0||xy.x>=width||xy.y<0||xy.y>=height)continue;
       density[static_cast<std::size_t>(xy.y)*width+xy.x]+=1.0;
    }
    int const radius=static_cast<int>(std::ceil(sigma*3.0));
@@ -283,18 +284,23 @@ Image Rasterize(std::vector<Point> const& points,Bounds const& bounds,
          #pragma omp for schedule(static)
          for(std::int64_t i=0;i<static_cast<std::int64_t>(locations.size());++i) {
             auto const p=locations[static_cast<std::size_t>(i)];
-            ++h[static_cast<std::size_t>(p.y/cell)*cols+p.x/cell];
+            if(p.x>=0&&p.x<width&&p.y>=0&&p.y<height)
+               ++h[static_cast<std::size_t>(p.y/cell)*cols+p.x/cell];
          }
       }
       for(auto const& h:locals)
          for(std::size_t i=0;i<count;++i)histogram[i]+=h[i];
    } else {
-      for(auto const p:locations)++histogram[static_cast<std::size_t>(p.y/cell)*cols+p.x/cell];
+      for(auto const p:locations)
+         if(p.x>=0&&p.x<width&&p.y>=0&&p.y<height)
+            ++histogram[static_cast<std::size_t>(p.y/cell)*cols+p.x/cell];
    }
    std::uint32_t const peak=*(std::max_element)(histogram.begin(),histogram.end());
    Image out;
    out.width=width;out.height=height;out.peak=peak;
-   out.totalPoints=points.size();
+   out.totalPoints=0;
+   for(auto const p:locations)
+      if(p.x>=0&&p.x<width&&p.y>=0&&p.y<height)++out.totalPoints;
    out.argb.resize(static_cast<std::size_t>(width)*height,0xff071525u);
    for(int y=0;y<height;++y)for(int x=0;x<width;++x) {
       std::uint32_t const n=histogram[static_cast<std::size_t>(y/cell)*cols+x/cell];
