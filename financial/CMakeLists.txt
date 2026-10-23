@@ -65,9 +65,17 @@ set_target_properties(AdeccBoostJson PROPERTIES
 target_link_libraries(financial_demo PRIVATE
  pugixml::pugixml OpenSSL::SSL OpenSSL::Crypto AdeccBoostJson crypt32)
 
+# Explicit runtime dependency closure from the BuildEngine XML contracts:
+# OpenSSL 3.5.8 -> zlib 1.3.2, brotli 1.2.0, zstd 1.5.7;
+# Boost 1.92.0 -> zlib 1.3.2 (its OpenSSL dependency is currently 3.5.9).
+# Runtime staging does not resolve transitive dependencies automatically.
+adecc_package_root(ZLIB_PACKAGE zlib 1.3.2)
+adecc_package_root(BROTLI_PACKAGE brotli 1.2.0)
+adecc_package_root(ZSTD_PACKAGE zstd 1.5.7)
 set(FINANCIAL_RUNTIME_ROOTS
- "${PUGIXML_PACKAGE};${OPENSSL_PACKAGE};${BOOST_PACKAGE}")
-adecc_test_install(financial_demo PACKAGE_ROOTS ${FINANCIAL_RUNTIME_ROOTS}
- TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
+   "${PUGIXML_PACKAGE};${OPENSSL_PACKAGE};${BOOST_PACKAGE};${ZLIB_PACKAGE};${BROTLI_PACKAGE};${ZSTD_PACKAGE}")
+adecc_test_install(financial_demo
+   PACKAGE_ROOTS ${FINANCIAL_RUNTIME_ROOTS}
+   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Tests/" DESTINATION "Tests"
  FILES_MATCHING PATTERN "*.json")
