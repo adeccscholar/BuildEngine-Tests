@@ -3,6 +3,8 @@
 #include <windows.h>
 #include <commdlg.h>
 #include <shellapi.h>
+#include <windowsx.h>
+#include <cmath>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
@@ -21,7 +23,37 @@ struct App {
    Dataset data;
    std::wstring sourcePath;
    bool directorySource=false;
-   Bounds bounds{};
+   Bounds bounds{}, fullBounds{};
+   double zoom=1.0, centerX=0.0, centerY=0.0;
+   bool panning=false;
+   POINT lastMouse{};
+   void ResetView() {
+      zoom=1.0;
+      centerX=(fullBounds.minX+fullBounds.maxX)*0.5;
+      centerY=(fullBounds.minY+fullBounds.maxY)*0.5;
+   }
+   void RefreshViewport() {
+      double const halfX=(std::max)(1e-10,fullBounds.maxX-fullBounds.minX)*0.5/zoom;
+      double const halfY=(std::max)(1e-10,fullBounds.maxY-fullBounds.minY)*0.5/zoom;
+      bounds={centerX-halfX,centerY-halfY,centerX+halfX,centerY+halfY};
+   }
+   double Scale() const {
+      return (std::min)(width*0.94/(std::max)(1e-10,bounds.maxX-bounds.minX),
+         height*0.94/(std::max)(1e-10,bounds.maxY-bounds.minY));
+   }
+   void Pan(double dx,double dy) {
+      centerX+=dx/Scale();centerY-=dy/Scale();
+   }
+   void ZoomAt(double factor,int mouseX,int mouseY) {
+      double const previous=Scale();
+      double const pointX=centerX+(mouseX-width*0.5)/previous;
+      double const pointY=centerY-(mouseY-height*0.5)/previous;
+      zoom=(std::clamp)(zoom*factor,1.0,2048.0);
+      RefreshViewport();
+      double const updated=Scale();
+      centerX=pointX-(mouseX-width*0.5)/updated;
+      centerY=pointY+(mouseY-height*0.5)/updated;
+   }
    bool loaded=false, parallel=true;
    Mode mode=Mode::Points;
    bool relief=false;
@@ -33,7 +65,7 @@ struct App {
    void Render() {
       if(!loaded)return;
       auto const start=std::chrono::steady_clock::now();
-      bounds=ProjectBounds(data.points,parallel);
+      RefreshViewport();
       boundMs=std::chrono::duration<double,std::milli>(
          std::chrono::steady_clock::now()-start).count();
       image=Rasterize(data.points,bounds,width,height,mode,method,threads,cell);
@@ -63,6 +95,8 @@ void LoadFile(HWND window,std::wstring const& path,bool directory=false) {
       app.data=directory?LoadDirectory(Utf8(path),app.parallel):Load(Utf8(path),app.parallel);
       app.sourcePath=path;
       app.directorySource=directory;
+      app.fullBounds=ProjectBounds(app.data.points,app.parallel);
+      app.ResetView();
       app.loaded=true;
       app.Render();
       InvalidateRect(window,nullptr,FALSE);
@@ -124,10 +158,10 @@ void Paint(HWND window,HDC dc) {
       &bmi,DIB_RGB_COLORS,SRCCOPY);
    wchar_t title[600];
    if(app.loaded) {
-      swprintf_s(title,600,L"GeoSpatial Skia | %zu addresses | %s | %s | load %.1f ms | bounds %.1f ms | prep %.1f ms | cell %d | peak %u",
+      swprintf_s(title,600,L"GeoSpatial Skia | %zu addresses | %s | %s | load %.1f ms | bounds %.1f ms | prep %.1f ms | zoom %.1fx | visible %zu | cell %d | peak %u",
          app.data.points.size(),app.relief?L"relief":app.mode==Mode::Points?L"points":L"density",
          app.method==Method::Serial?L"serial":app.method==Method::Tbb?L"oneTBB":L"OpenMP",
-         app.data.readMs,app.boundMs,app.image.elapsedMs,app.cell,app.image.peak);
+         app.data.readMs,app.boundMs,app.image.elapsedMs,app.zoom,app.image.totalPoints,app.cell,app.image.peak);
    } else wcscpy_s(title,L"GeoSpatial Skia | Ctrl+O to open CompareTest berlin_infos.dat | 1 points / 2 density");
    SetWindowTextW(window,title);
 }
@@ -159,11 +193,35 @@ LRESULT CALLBACK WindowProc(HWND window,UINT msg,WPARAM wp,LPARAM lp) {
             case VK_OEM_PLUS:app.cell=(std::min)(64,app.cell+2);break;
             case VK_OEM_MINUS:app.cell=(std::max)(2,app.cell-2);break;
             case VK_F5:break;
+            case '0':app.ResetView();break;
             case VK_ESCAPE:DestroyWindow(window);return 0;
             default:refresh=false;break;
          }
          if(refresh&&app.loaded){app.Render();InvalidateRect(window,nullptr,FALSE);}
          return 0;
+      }
+      case WM_MOUSEWHEEL: {
+         if(!app.loaded)return 0;
+         POINT cursor{GET_X_LPARAM(lp),GET_Y_LPARAM(lp)};
+         ScreenToClient(window,&cursor);
+         int const turns=GET_WHEEL_DELTA_WPARAM(wp)/WHEEL_DELTA;
+         app.ZoomAt(std::pow(1.25,turns),cursor.x,cursor.y);
+         app.Render();InvalidateRect(window,nullptr,FALSE);return 0;
+      }
+      case WM_LBUTTONDOWN: {
+         app.panning=true;app.lastMouse={GET_X_LPARAM(lp),GET_Y_LPARAM(lp)};
+         SetCapture(window);return 0;
+      }
+      case WM_LBUTTONUP: {
+         app.panning=false;ReleaseCapture();return 0;
+      }
+      case WM_MOUSEMOVE: {
+         if(!app.loaded||!app.panning)return 0;
+         POINT current{GET_X_LPARAM(lp),GET_Y_LPARAM(lp)};
+         app.Pan(static_cast<double>(app.lastMouse.x-current.x),
+            static_cast<double>(app.lastMouse.y-current.y));
+         app.lastMouse=current;
+         app.Render();InvalidateRect(window,nullptr,FALSE);return 0;
       }
       case WM_SIZE:InvalidateRect(window,nullptr,FALSE);return 0;
       case WM_ERASEBKGND:return 1;
