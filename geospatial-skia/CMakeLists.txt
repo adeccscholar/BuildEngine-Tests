@@ -6,8 +6,13 @@ adecc_package_current_root(SKIA_PACKAGE skia)
 adecc_package_current_root(TBB_PACKAGE onetbb)
 adecc_package_current_root(OPENMP_PACKAGE llvm-openmp)
 adecc_package_current_root(FASTFLOAT_PACKAGE fast_float)
+adecc_package_current_root(SDL2_PACKAGE sdl2)
+adecc_package_current_root(GLEW_PACKAGE glew)
 list(PREPEND CMAKE_PREFIX_PATH "${SKIA_PACKAGE}")
 find_package(Skia CONFIG REQUIRED)
+list(PREPEND CMAKE_PREFIX_PATH "${SDL2_PACKAGE}" "${GLEW_PACKAGE}")
+find_package(SDL2 CONFIG REQUIRED)
+find_package(GLEW CONFIG REQUIRED)
 find_package(TBB CONFIG REQUIRED COMPONENTS tbb
    PATHS "${TBB_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/cmake/TBB"
    NO_DEFAULT_PATH)
@@ -36,13 +41,26 @@ target_compile_definitions(geospatial_viewer PRIVATE
 target_link_libraries(geospatial_viewer PRIVATE geospatial_core Skia::skia
    user32 gdi32 comdlg32 shell32)
 target_link_options(geospatial_viewer PRIVATE "-Wl,--subsystem,windows")
+add_executable(geospatial_terrain WIN32 terrain_viewer.cpp)
+set_property(TARGET geospatial_terrain PROPERTY CXX_SCAN_FOR_MODULES OFF)
+target_compile_features(geospatial_terrain PRIVATE cxx_std_23)
+target_compile_definitions(geospatial_terrain PRIVATE SDL_MAIN_HANDLED WIN32_LEAN_AND_MEAN NOMINMAX)
+target_link_libraries(geospatial_terrain PRIVATE geospatial_core SDL2::SDL2 GLEW::GLEW opengl32 shell32 user32)
+target_link_options(geospatial_terrain PRIVATE "-Wl,--subsystem,windows")
 foreach(_id IN ITEMS zlib bzip2 brotli libjpeg-turbo libpng harfbuzz freetype)
    adecc_package_current_root(_root "${_id}")
    list(APPEND _runtime_roots "${_root}")
 endforeach()
 list(APPEND _runtime_roots "${SKIA_PACKAGE}" "${TBB_PACKAGE}" "${OPENMP_PACKAGE}")
-foreach(_target IN ITEMS geospatial_benchmark geospatial_viewer)
-   adecc_test_install(${_target}
-      PACKAGE_ROOTS ${_runtime_roots}
-      TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
+foreach(_target IN ITEMS geospatial_benchmark geospatial_viewer geospatial_terrain)
+   if(_target STREQUAL "geospatial_terrain")
+      adecc_test_install(${_target}
+         PACKAGE_ROOTS ${_runtime_roots} "${SDL2_PACKAGE}" "${GLEW_PACKAGE}"
+         TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll
+         EXCLUDE_DLLS opengl32.dll)
+   else()
+      adecc_test_install(${_target}
+         PACKAGE_ROOTS ${_runtime_roots}
+         TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
+   endif()
 endforeach()
