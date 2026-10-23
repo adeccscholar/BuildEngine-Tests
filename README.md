@@ -22,7 +22,7 @@ cmake --install ../build/Test/CompareTest/Release/cmake
 
 For `pdfium/SDL2` use its own independent build tree, e.g. `../build/Test/pdfium-SDL2/Release/cmake`. For `pdf-image-extraction` use `../build/Test/pdf-image-extraction/Release/cmake`. Never share a CMake binary directory across different source projects. For Debug use a `Debug` build tree and `-DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug`.
 
-A CMake app is installed under `../build/Test/<project>/<configuration>/<target>/` with its executable and staged DLLs side-by-side. The shared functions `adecc_stage_runtime()` and `adecc_install_application()` originate from BuildEngine-Admin. Each app must declare **the complete exact package-root closure**, including transitive dependencies. No PATH-based newest-package probing is allowed.
+A CMake app is installed directly under `../build/Test/<project>/<configuration>/` with its executable and staged DLLs side-by-side. The shared functions `adecc_stage_runtime()` and `adecc_install_application()` originate from BuildEngine-Admin. Each app must declare **the complete exact package-root closure**, including transitive dependencies. No PATH-based newest-package probing is allowed.
 
 ## One-time cache reset after moving sources
 
