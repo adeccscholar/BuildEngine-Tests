@@ -26,9 +26,14 @@ target_link_libraries(OpenGLSDL2EarthDemo PRIVATE
 if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    target_link_options(OpenGLSDL2EarthDemo PRIVATE "-Wl,--subsystem,windows")
 endif()
+# The native Windows GPU driver is exposed through the system opengl32.dll.
+# Never bundle Mesa's opengl32.dll with this GPU demo: it selects softpipe
+# and can render entirely on the CPU. EXCLUDE_DLLS also purges an older
+# staged copy from an incremental build before installation.
 adecc_test_install(OpenGLSDL2EarthDemo
- PACKAGE_ROOTS "${SDL2_PACKAGE}" "${GLEW_PACKAGE}" "${SOIL2_PACKAGE}" "${OPENGL_PACKAGE}"
- TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll)
+ PACKAGE_ROOTS "${SDL2_PACKAGE}" "${GLEW_PACKAGE}" "${SOIL2_PACKAGE}"
+ TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll
+ EXCLUDE_DLLS opengl32.dll)
 # These five assets are required by the real demo. A missing texture or OBJ
 # is a configuration error, not an empty graphics directory at runtime.
 set(_adecc_earth_assets
