@@ -22,7 +22,7 @@ Executables and dependency DLLs are installed directly in `Release/`.
 `openmp_mandelbrot_benchmark.exe [width height iterations threads]`
 
 Compares serial, static, dynamic and guided schedules; validates complete
-pixel arrays and iteration totals, prints timings and speedup.
+pixel arrays and iteration totals, prints timings and speedup. Pass a fifth argument `julia` to benchmark the Julia set (`openmp_mandelbrot_benchmark.exe 1280 720 1400 8 julia`).
 The fixed workload and identical output are reproducible; wall-clock timings
 depend on hardware and system load.
 
@@ -30,7 +30,7 @@ depend on hardware and system load.
 
 `openmp_mandelbrot_viewer.exe` is a native GUI application without a console.
 Use mouse wheel to zoom, arrow keys to pan, 1/2/3/4 for
-serial/static/dynamic/guided, and +/- for thread count. Esc quits.
+serial/static/dynamic/guided, J to toggle Julia/Mandelbrot, PageUp/PageDown to double/halve maximum iterations, R to reset the current fractal, and +/- for thread count. Esc quits.
 The title displays CPU compute time and effective thread count.
 
 The compute kernel and SDL presentation are separate. Updates currently
