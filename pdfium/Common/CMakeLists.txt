@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../bootstrap/PrepareToolchain.cmake")
 project(PDFiumPageScrollTest LANGUAGES CXX)
 include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/BuildEngineTests.cmake")
 add_executable(pdfium-pagescroll-test PageScrollTest.cpp)
