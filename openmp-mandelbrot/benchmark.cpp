@@ -17,9 +17,11 @@ int main(int argc,char** argv) {
       c.spanX=3.0;
    }
    if(c.width<=0 || c.height<=0 || c.maxIterations<=0 || c.threads<=0) return 2;
-   auto baseline=Compute(Settings{.width=c.width,.height=c.height,.maxIterations=c.maxIterations,
-      .threads=1,.schedule=Schedule::Serial});
-   std::printf("serial %.2f ms checksum=%llu\n",baseline.milliseconds,
+   Settings reference=c;
+   reference.threads=1;
+   reference.schedule=Schedule::Serial;
+   auto baseline=Compute(reference);
+   std::printf("%s serial %.2f ms checksum=%llu\n",Name(c.fractal),baseline.milliseconds,
       static_cast<unsigned long long>(baseline.iterationTotal));
    for(auto s:{Schedule::Static,Schedule::Dynamic,Schedule::Guided}) {
       c.schedule=s;
