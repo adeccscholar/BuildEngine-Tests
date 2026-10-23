@@ -1,5 +1,6 @@
 #include "Mandelbrot.h"
-#include <SDL.h>\n#include <windows.h>
+#include <SDL.h>
+#include <windows.h>
 #include <algorithm>
 #include <cstdio>
 #include <cstdlib>
