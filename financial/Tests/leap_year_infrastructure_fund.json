@@ -1,0 +1,327 @@
+{
+  "name": "Leap-Year Infrastructure Fund 2007",
+  "cashflows": [
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Initial commitment funding",
+      "due_date": "2007-12-31",
+      "value": 1100000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "First deployment",
+      "due_date": "2008-02-29",
+      "value": 460000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2008",
+      "due_date": "2008-02-29",
+      "value": 22000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2009",
+      "due_date": "2009-02-28",
+      "value": 22000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Second deployment",
+      "due_date": "2009-03-02",
+      "value": 380000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2010",
+      "due_date": "2010-02-28",
+      "value": 22000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2010",
+      "due_date": "2010-03-01",
+      "value": 70000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2011",
+      "due_date": "2011-02-28",
+      "value": 22000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2011",
+      "due_date": "2011-03-01",
+      "value": 79000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Follow-on financing",
+      "due_date": "2012-02-29",
+      "value": 260000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2012",
+      "due_date": "2012-02-29",
+      "value": 22000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2012",
+      "due_date": "2012-03-01",
+      "value": 88000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2013",
+      "due_date": "2013-02-28",
+      "value": 22000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2013",
+      "due_date": "2013-03-01",
+      "value": 97000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2014",
+      "due_date": "2014-02-28",
+      "value": 22000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Periodic refinancing proceeds 2014",
+      "due_date": "2014-02-28",
+      "value": 180000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2014",
+      "due_date": "2014-03-01",
+      "value": 106000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2015",
+      "due_date": "2015-02-28",
+      "value": 22000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2015",
+      "due_date": "2015-03-01",
+      "value": 115000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Long-term asset refurbishment",
+      "due_date": "2016-02-29",
+      "value": 190000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2016",
+      "due_date": "2016-02-29",
+      "value": 22000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2016",
+      "due_date": "2016-03-01",
+      "value": 124000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2017",
+      "due_date": "2017-02-28",
+      "value": 14000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2017",
+      "due_date": "2017-03-01",
+      "value": 133000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2018",
+      "due_date": "2018-02-28",
+      "value": 14000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Periodic refinancing proceeds 2018",
+      "due_date": "2018-02-28",
+      "value": 228000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2018",
+      "due_date": "2018-03-01",
+      "value": 142000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2019",
+      "due_date": "2019-02-28",
+      "value": 14000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2019",
+      "due_date": "2019-03-01",
+      "value": 151000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2020",
+      "due_date": "2020-02-29",
+      "value": 14000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2020",
+      "due_date": "2020-03-01",
+      "value": 160000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2021",
+      "due_date": "2021-02-28",
+      "value": 14000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2021",
+      "due_date": "2021-03-01",
+      "value": 169000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2022",
+      "due_date": "2022-02-28",
+      "value": 14000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Periodic refinancing proceeds 2022",
+      "due_date": "2022-02-28",
+      "value": 276000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2022",
+      "due_date": "2022-03-01",
+      "value": 178000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2023",
+      "due_date": "2023-02-28",
+      "value": 14000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2023",
+      "due_date": "2023-03-01",
+      "value": 187000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual administration fee 2024",
+      "due_date": "2024-02-29",
+      "value": 14000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2024",
+      "due_date": "2024-03-01",
+      "value": 196000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2025",
+      "due_date": "2025-03-01",
+      "value": 205000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Periodic refinancing proceeds 2026",
+      "due_date": "2026-02-28",
+      "value": 324000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2026",
+      "due_date": "2026-03-01",
+      "value": 214000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Annual infrastructure yield 2027",
+      "due_date": "2027-03-01",
+      "value": 223000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Final concession sale",
+      "due_date": "2028-02-29",
+      "value": 1750000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Final reserve release",
+      "due_date": "2028-12-31",
+      "value": 180000.0
+    }
+  ]
+}

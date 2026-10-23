@@ -1,0 +1,173 @@
+{
+  "name": "European Mid-Market Buyout Fund 2020",
+  "cashflows": [
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Initial closing capital call",
+      "due_date": "2020-01-15",
+      "value": 420000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Establishment expenses and first management fee",
+      "due_date": "2020-02-03",
+      "value": 35000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Acquisition funding for Platform Alpha",
+      "due_date": "2020-05-20",
+      "value": 280000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Acquisition funding for Platform Beta",
+      "due_date": "2020-10-12",
+      "value": 210000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2020",
+      "due_date": "2020-12-18",
+      "value": 26000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Follow-on investment in Platform Alpha",
+      "due_date": "2021-03-31",
+      "value": 120000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Add-on acquisition for Platform Beta",
+      "due_date": "2021-09-15",
+      "value": 95000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2021",
+      "due_date": "2021-12-20",
+      "value": 24000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Dividend recapitalization from Platform Alpha",
+      "due_date": "2022-04-14",
+      "value": 105000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Growth investment in Platform Gamma",
+      "due_date": "2022-06-30",
+      "value": 85000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2022",
+      "due_date": "2022-12-19",
+      "value": 21000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Partial exit proceeds from Platform Beta",
+      "due_date": "2023-03-28",
+      "value": 240000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Operating income distribution",
+      "due_date": "2023-07-17",
+      "value": 70000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Follow-on funding for Platform Gamma",
+      "due_date": "2023-09-29",
+      "value": 45000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2023",
+      "due_date": "2023-12-18",
+      "value": 18000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Secondary sale proceeds from Platform Alpha",
+      "due_date": "2024-02-26",
+      "value": 310000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Dividend distribution from remaining portfolio",
+      "due_date": "2024-06-28",
+      "value": 95000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Portfolio monitoring and administration fee",
+      "due_date": "2024-12-16",
+      "value": 12000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Final exit proceeds from Platform Gamma",
+      "due_date": "2025-01-15",
+      "value": 590000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Escrow release from Platform Beta sale",
+      "due_date": "2025-04-30",
+      "value": 80000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Warranty reserve release",
+      "due_date": "2025-09-30",
+      "value": 35000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "correction",
+      "description": "Final audit and liquidation expenses",
+      "due_date": "2025-11-28",
+      "value": 9000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Residual cash distribution",
+      "due_date": "2025-12-19",
+      "value": 22000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Final liquidation distribution",
+      "due_date": "2026-03-31",
+      "value": 165000.0
+    }
+  ]
+}

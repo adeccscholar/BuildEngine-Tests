@@ -1,0 +1,131 @@
+{
+  "name": "Multiple Root Fund - Expanded Transaction Detail",
+  "cashflows": [
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Initial acquisition funding",
+      "due_date": "2020-01-01",
+      "value": 112473.64
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Fund formation and advisory costs",
+      "due_date": "2020-01-01",
+      "value": 17183.47
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Working capital reserve",
+      "due_date": "2020-01-01",
+      "value": 26556.28
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Dividend recapitalization proceeds",
+      "due_date": "2020-12-31",
+      "value": 175812.96
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Partial asset sale proceeds",
+      "due_date": "2020-12-31",
+      "value": 149058.82
+    },
+    {
+      "direction": "inflow",
+      "category": "correction",
+      "description": "Tax escrow release",
+      "due_date": "2020-12-31",
+      "value": 57330.31
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Follow-on investment in core holding",
+      "due_date": "2021-12-31",
+      "value": 270799.55
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Restructuring capital contribution",
+      "due_date": "2021-12-31",
+      "value": 126061.86
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and transaction fees",
+      "due_date": "2021-12-31",
+      "value": 70034.37
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Exit proceeds from first portfolio company",
+      "due_date": "2022-12-31",
+      "value": 709658.8
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Refinancing distribution",
+      "due_date": "2022-12-31",
+      "value": 361280.84
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Operating cash distribution",
+      "due_date": "2022-12-31",
+      "value": 219349.09
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Late-stage reinvestment program",
+      "due_date": "2023-12-31",
+      "value": 1247449.92
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Rescue financing for remaining holding",
+      "due_date": "2023-12-31",
+      "value": 531699.97
+    },
+    {
+      "direction": "outflow",
+      "category": "correction",
+      "description": "Warranty and indemnity reserve funding",
+      "due_date": "2023-12-31",
+      "value": 265849.98
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Final company sale proceeds",
+      "due_date": "2024-12-30",
+      "value": 720000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Escrow and retention release",
+      "due_date": "2024-12-30",
+      "value": 180000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Residual liquidation distribution",
+      "due_date": "2024-12-30",
+      "value": 100000.0
+    }
+  ]
+}

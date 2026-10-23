@@ -1,0 +1,292 @@
+{
+  "name": "Global Diversified Growth Fund 2026",
+  "currency": "EUR",
+  "cashflows": [
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "US institutional investor first capital contribution",
+      "currency": "USD",
+      "due_date": "2026-04-08",
+      "actual_date": "2026-04-08",
+      "value_date": "2026-04-08",
+      "booking_date": "2026-04-08",
+      "value": 1755905.7
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "UK pension investor first capital contribution",
+      "currency": "GBP",
+      "due_date": "2026-04-14",
+      "actual_date": "2026-04-14",
+      "value_date": "2026-04-14",
+      "booking_date": "2026-04-14",
+      "value": 434563.44
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Swiss family office first capital contribution",
+      "currency": "CHF",
+      "due_date": "2026-04-21",
+      "actual_date": "2026-04-21",
+      "value_date": "2026-04-21",
+      "booking_date": "2026-04-21",
+      "value": 687903.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "European insurance investor capital contribution",
+      "currency": "EUR",
+      "due_date": "2026-04-24",
+      "actual_date": "2026-04-24",
+      "value_date": "2026-04-24",
+      "booking_date": "2026-04-24",
+      "value": 1250000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "other",
+      "description": "Initial investment in US software platform",
+      "currency": "USD",
+      "due_date": "2026-04-28",
+      "actual_date": "2026-04-28",
+      "value_date": "2026-04-28",
+      "booking_date": "2026-04-28",
+      "value": 2336011.96
+    },
+    {
+      "direction": "outflow",
+      "category": "other",
+      "description": "Initial investment in UK healthcare company",
+      "currency": "GBP",
+      "due_date": "2026-05-05",
+      "actual_date": "2026-05-05",
+      "value_date": "2026-05-05",
+      "booking_date": "2026-05-05",
+      "value": 1295146.65
+    },
+    {
+      "direction": "outflow",
+      "category": "other",
+      "description": "Initial investment in Swiss industrial technology company",
+      "currency": "CHF",
+      "due_date": "2026-05-12",
+      "actual_date": "2026-05-12",
+      "value_date": "2026-05-12",
+      "booking_date": "2026-05-12",
+      "value": 1146504.99
+    },
+    {
+      "direction": "outflow",
+      "category": "other",
+      "description": "Initial investment in German energy company",
+      "currency": "EUR",
+      "due_date": "2026-05-15",
+      "actual_date": "2026-05-15",
+      "value_date": "2026-05-15",
+      "booking_date": "2026-05-15",
+      "value": 1000000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "US institutional investor follow-on contribution",
+      "currency": "USD",
+      "due_date": "2026-05-19",
+      "actual_date": "2026-05-19",
+      "value_date": "2026-05-19",
+      "booking_date": "2026-05-19",
+      "value": 1161993.52
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "UK pension investor follow-on contribution",
+      "currency": "GBP",
+      "due_date": "2026-05-27",
+      "actual_date": "2026-05-27",
+      "value_date": "2026-05-27",
+      "booking_date": "2026-05-27",
+      "value": 649637.5
+    },
+    {
+      "direction": "outflow",
+      "category": "other",
+      "description": "Follow-on investment in Swiss industrial technology company",
+      "currency": "CHF",
+      "due_date": "2026-06-03",
+      "actual_date": "2026-06-03",
+      "value_date": "2026-06-03",
+      "booking_date": "2026-06-03",
+      "value": 687524.64
+    },
+    {
+      "direction": "outflow",
+      "category": "other",
+      "description": "Follow-on investment in US software platform",
+      "currency": "USD",
+      "due_date": "2026-06-10",
+      "actual_date": "2026-06-10",
+      "value_date": "2026-06-10",
+      "booking_date": "2026-06-10",
+      "value": 1442368.72
+    },
+    {
+      "direction": "outflow",
+      "category": "other",
+      "description": "Follow-on investment in UK healthcare company",
+      "currency": "GBP",
+      "due_date": "2026-06-16",
+      "actual_date": "2026-06-16",
+      "value_date": "2026-06-16",
+      "booking_date": "2026-06-16",
+      "value": 907943.21
+    },
+    {
+      "direction": "outflow",
+      "category": "other",
+      "description": "Fund operating and transaction costs",
+      "currency": "EUR",
+      "due_date": "2026-06-19",
+      "actual_date": "2026-06-19",
+      "value_date": "2026-06-19",
+      "booking_date": "2026-06-19",
+      "value": 250000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "other",
+      "description": "Acquisition financing for Swiss add-on",
+      "currency": "CHF",
+      "due_date": "2026-06-24",
+      "actual_date": "2026-06-24",
+      "value_date": "2026-06-24",
+      "booking_date": "2026-06-24",
+      "value": 460799.76
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Dividend from US software platform",
+      "currency": "USD",
+      "due_date": "2026-07-02",
+      "actual_date": "2026-07-02",
+      "value_date": "2026-07-02",
+      "booking_date": "2026-07-02",
+      "value": 854924.94
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Dividend from UK healthcare company",
+      "currency": "GBP",
+      "due_date": "2026-07-08",
+      "actual_date": "2026-07-08",
+      "value_date": "2026-07-08",
+      "booking_date": "2026-07-08",
+      "value": 427175.18
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Dividend from Swiss industrial technology company",
+      "currency": "CHF",
+      "due_date": "2026-07-14",
+      "actual_date": "2026-07-14",
+      "value_date": "2026-07-14",
+      "booking_date": "2026-07-14",
+      "value": 462851.54
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Partial exit of German energy company",
+      "currency": "EUR",
+      "due_date": "2026-07-17",
+      "actual_date": "2026-07-17",
+      "value_date": "2026-07-17",
+      "booking_date": "2026-07-17",
+      "value": 1250000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Partial exit of US software platform",
+      "currency": "USD",
+      "due_date": "2026-07-20",
+      "actual_date": "2026-07-20",
+      "value_date": "2026-07-20",
+      "booking_date": "2026-07-20",
+      "value": 2570840.95
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Partial exit of UK healthcare company",
+      "currency": "GBP",
+      "due_date": "2026-07-23",
+      "actual_date": "2026-07-23",
+      "value_date": "2026-07-23",
+      "booking_date": "2026-07-23",
+      "value": 1493059.41
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Partial exit of Swiss industrial technology company",
+      "currency": "CHF",
+      "due_date": "2026-07-30",
+      "actual_date": "2026-07-30",
+      "value_date": "2026-07-30",
+      "booking_date": "2026-07-30",
+      "value": 1398601.4
+    },
+    {
+      "direction": "inflow",
+      "category": "valuation",
+      "description": "Residual valuation of US software platform",
+      "currency": "USD",
+      "due_date": "2026-07-20",
+      "actual_date": "2026-07-20",
+      "value_date": "2026-07-20",
+      "booking_date": "2026-07-20",
+      "value": 3142138.94
+    },
+    {
+      "direction": "inflow",
+      "category": "valuation",
+      "description": "Residual valuation of UK healthcare company",
+      "currency": "GBP",
+      "due_date": "2026-07-23",
+      "actual_date": "2026-07-23",
+      "value_date": "2026-07-23",
+      "booking_date": "2026-07-23",
+      "value": 1919647.81
+    },
+    {
+      "direction": "inflow",
+      "category": "valuation",
+      "description": "Residual valuation of Swiss industrial technology company",
+      "currency": "CHF",
+      "due_date": "2026-07-30",
+      "actual_date": "2026-07-30",
+      "value_date": "2026-07-30",
+      "booking_date": "2026-07-30",
+      "value": 1911421.91
+    },
+    {
+      "direction": "inflow",
+      "category": "valuation",
+      "description": "Residual valuation of German energy company",
+      "currency": "EUR",
+      "due_date": "2026-07-31",
+      "actual_date": "2026-07-31",
+      "value_date": "2026-07-31",
+      "booking_date": "2026-07-31",
+      "value": 1500000.0
+    }
+  ]
+}

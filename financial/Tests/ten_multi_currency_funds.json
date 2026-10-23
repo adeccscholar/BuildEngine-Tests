@@ -1,0 +1,724 @@
+{
+  "funds": [
+    {
+      "name": "Atlantic Growth Fund",
+      "currency": "USD",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial investor capital contribution",
+          "currency": "EUR",
+          "due_date": "2021-12-06",
+          "actual_date": "2021-12-06",
+          "value_date": "2021-12-06",
+          "booking_date": "2021-12-06",
+          "value": 885975.01550456
+        },
+        {
+          "direction": "outflow",
+          "category": "other",
+          "description": "Initial portfolio investment",
+          "currency": "GBP",
+          "due_date": "2024-02-09",
+          "actual_date": "2024-02-09",
+          "value_date": "2024-02-09",
+          "booking_date": "2024-02-09",
+          "value": 475900.48271873
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Follow-on capital contribution",
+          "currency": "USD",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 300000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution",
+          "currency": "GBP",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 190348.97156395
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial realization",
+          "currency": "EUR",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 873786.40776699
+        },
+        {
+          "direction": "inflow",
+          "category": "valuation",
+          "description": "Residual portfolio valuation",
+          "currency": "USD",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1250000.0
+        }
+      ]
+    },
+    {
+      "name": "Pacific Innovation Fund",
+      "currency": "USD",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial investor capital contribution",
+          "currency": "GBP",
+          "due_date": "2021-12-06",
+          "actual_date": "2021-12-06",
+          "value_date": "2021-12-06",
+          "booking_date": "2021-12-06",
+          "value": 905055.37554915
+        },
+        {
+          "direction": "outflow",
+          "category": "other",
+          "description": "Initial portfolio investment",
+          "currency": "USD",
+          "due_date": "2024-02-09",
+          "actual_date": "2024-02-09",
+          "value_date": "2024-02-09",
+          "booking_date": "2024-02-09",
+          "value": 700000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Follow-on capital contribution",
+          "currency": "GBP",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 266488.56475779
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution",
+          "currency": "EUR",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 271223.21670735
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial realization",
+          "currency": "USD",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1100000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "valuation",
+          "description": "Residual portfolio valuation",
+          "currency": "EUR",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1456310.67961165
+        }
+      ]
+    },
+    {
+      "name": "North America Infrastructure Fund",
+      "currency": "USD",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial investor capital contribution",
+          "currency": "USD",
+          "due_date": "2021-12-06",
+          "actual_date": "2021-12-06",
+          "value_date": "2021-12-06",
+          "booking_date": "2021-12-06",
+          "value": 850000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "other",
+          "description": "Initial portfolio investment",
+          "currency": "GBP",
+          "due_date": "2024-02-09",
+          "actual_date": "2024-02-09",
+          "value_date": "2024-02-09",
+          "booking_date": "2024-02-09",
+          "value": 396583.73559894
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Follow-on capital contribution",
+          "currency": "EUR",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 226019.34725613
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution",
+          "currency": "USD",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 200000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial realization",
+          "currency": "EUR",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 728155.33980583
+        },
+        {
+          "direction": "inflow",
+          "category": "valuation",
+          "description": "Residual portfolio valuation",
+          "currency": "GBP",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 859501.4556453
+        }
+      ]
+    },
+    {
+      "name": "Global Technology Fund",
+      "currency": "USD",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial investor capital contribution",
+          "currency": "GBP",
+          "due_date": "2021-12-06",
+          "actual_date": "2021-12-06",
+          "value_date": "2021-12-06",
+          "booking_date": "2021-12-06",
+          "value": 1055897.93688369
+        },
+        {
+          "direction": "outflow",
+          "category": "other",
+          "description": "Initial portfolio investment",
+          "currency": "EUR",
+          "due_date": "2024-02-09",
+          "actual_date": "2024-02-09",
+          "value_date": "2024-02-09",
+          "booking_date": "2024-02-09",
+          "value": 789082.80727813
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Follow-on capital contribution",
+          "currency": "USD",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 400000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution",
+          "currency": "EUR",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 316427.08615858
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial realization",
+          "currency": "GBP",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1023216.02174385
+        },
+        {
+          "direction": "inflow",
+          "category": "valuation",
+          "description": "Residual portfolio valuation",
+          "currency": "USD",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1750000.0
+        }
+      ]
+    },
+    {
+      "name": "Britannia Healthcare Fund",
+      "currency": "GBP",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial investor capital contribution",
+          "currency": "EUR",
+          "due_date": "2021-12-06",
+          "actual_date": "2021-12-06",
+          "value_date": "2021-12-06",
+          "booking_date": "2021-12-06",
+          "value": 1057231.45835378
+        },
+        {
+          "direction": "outflow",
+          "category": "other",
+          "description": "Initial portfolio investment",
+          "currency": "GBP",
+          "due_date": "2024-02-09",
+          "actual_date": "2024-02-09",
+          "value_date": "2024-02-09",
+          "booking_date": "2024-02-09",
+          "value": 550000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Follow-on capital contribution",
+          "currency": "EUR",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 296848.65844352
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution",
+          "currency": "USD",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 262675.43826926
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial realization",
+          "currency": "GBP",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 800000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "valuation",
+          "description": "Residual portfolio valuation",
+          "currency": "USD",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1343802.26220213
+        }
+      ]
+    },
+    {
+      "name": "UK Mid-Market Fund",
+      "currency": "GBP",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial investor capital contribution",
+          "currency": "GBP",
+          "due_date": "2021-12-06",
+          "actual_date": "2021-12-06",
+          "value_date": "2021-12-06",
+          "booking_date": "2021-12-06",
+          "value": 1100000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "other",
+          "description": "Initial portfolio investment",
+          "currency": "EUR",
+          "due_date": "2024-02-09",
+          "actual_date": "2024-02-09",
+          "value_date": "2024-02-09",
+          "booking_date": "2024-02-09",
+          "value": 760767.79026217
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Follow-on capital contribution",
+          "currency": "USD",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 459682.01368768
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution",
+          "currency": "GBP",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 300000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial realization",
+          "currency": "USD",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1221638.42240484
+        },
+        {
+          "direction": "inflow",
+          "category": "valuation",
+          "description": "Residual portfolio valuation",
+          "currency": "EUR",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1660479.39956449
+        }
+      ]
+    },
+    {
+      "name": "Sterling Income Fund",
+      "currency": "GBP",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial investor capital contribution",
+          "currency": "EUR",
+          "due_date": "2021-12-06",
+          "actual_date": "2021-12-06",
+          "value_date": "2021-12-06",
+          "booking_date": "2021-12-06",
+          "value": 881026.21921057
+        },
+        {
+          "direction": "outflow",
+          "category": "other",
+          "description": "Initial portfolio investment",
+          "currency": "USD",
+          "due_date": "2024-02-09",
+          "actual_date": "2024-02-09",
+          "value_date": "2024-02-09",
+          "booking_date": "2024-02-09",
+          "value": 567345.50563349
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Follow-on capital contribution",
+          "currency": "GBP",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 200000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution",
+          "currency": "USD",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 262675.43826926
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial realization",
+          "currency": "EUR",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 830239.69978224
+        },
+        {
+          "direction": "inflow",
+          "category": "valuation",
+          "description": "Residual portfolio valuation",
+          "currency": "GBP",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 950000.0
+        }
+      ]
+    },
+    {
+      "name": "Continental Energy Fund",
+      "currency": "EUR",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial investor capital contribution",
+          "currency": "GBP",
+          "due_date": "2021-12-06",
+          "actual_date": "2021-12-06",
+          "value_date": "2021-12-06",
+          "booking_date": "2021-12-06",
+          "value": 851281.17739644
+        },
+        {
+          "direction": "outflow",
+          "category": "other",
+          "description": "Initial portfolio investment",
+          "currency": "EUR",
+          "due_date": "2024-02-09",
+          "actual_date": "2024-02-09",
+          "value_date": "2024-02-09",
+          "booking_date": "2024-02-09",
+          "value": 600000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Follow-on capital contribution",
+          "currency": "GBP",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 252654.98545947
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution",
+          "currency": "USD",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 276524.20139811
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial realization",
+          "currency": "EUR",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 900000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "valuation",
+          "description": "Residual portfolio valuation",
+          "currency": "USD",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1287505.02126958
+        }
+      ]
+    },
+    {
+      "name": "Eurozone Industrial Fund",
+      "currency": "EUR",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial investor capital contribution",
+          "currency": "EUR",
+          "due_date": "2021-12-06",
+          "actual_date": "2021-12-06",
+          "value_date": "2021-12-06",
+          "booking_date": "2021-12-06",
+          "value": 1300000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "other",
+          "description": "Initial portfolio investment",
+          "currency": "GBP",
+          "due_date": "2024-02-09",
+          "actual_date": "2024-02-09",
+          "value_date": "2024-02-09",
+          "booking_date": "2024-02-09",
+          "value": 683521.15925189
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Follow-on capital contribution",
+          "currency": "USD",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 442438.72223697
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution",
+          "currency": "EUR",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 300000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial realization",
+          "currency": "USD",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1184504.61956802
+        },
+        {
+          "direction": "inflow",
+          "category": "valuation",
+          "description": "Residual portfolio valuation",
+          "currency": "GBP",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1349004.26761645
+        }
+      ]
+    },
+    {
+      "name": "European Sustainability Fund",
+      "currency": "EUR",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial investor capital contribution",
+          "currency": "GBP",
+          "due_date": "2021-12-06",
+          "actual_date": "2021-12-06",
+          "value_date": "2021-12-06",
+          "booking_date": "2021-12-06",
+          "value": 681024.94361967
+        },
+        {
+          "direction": "outflow",
+          "category": "other",
+          "description": "Initial portfolio investment",
+          "currency": "USD",
+          "due_date": "2024-02-09",
+          "actual_date": "2024-02-09",
+          "value_date": "2024-02-09",
+          "booking_date": "2024-02-09",
+          "value": 538601.574871
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Follow-on capital contribution",
+          "currency": "EUR",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 250000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution",
+          "currency": "USD",
+          "due_date": "2024-09-02",
+          "actual_date": "2024-09-02",
+          "value_date": "2024-09-02",
+          "booking_date": "2024-09-02",
+          "value": 221219.36111849
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial realization",
+          "currency": "GBP",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 590189.36919009
+        },
+        {
+          "direction": "inflow",
+          "category": "valuation",
+          "description": "Residual portfolio valuation",
+          "currency": "EUR",
+          "due_date": "2025-01-15",
+          "actual_date": "2025-01-15",
+          "value_date": "2025-01-15",
+          "booking_date": "2025-01-15",
+          "value": 1000000.0
+        }
+      ]
+    }
+  ]
+}

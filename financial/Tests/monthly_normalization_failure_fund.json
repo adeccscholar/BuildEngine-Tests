@@ -1,0 +1,47 @@
+{
+  "name": "Thirty-Day Bridge Opportunity Fund",
+  "currency": "EUR",
+  "fund_type": "Short-term bridge opportunity",
+  "fund_stage": "Realized",
+  "vintage_year": 2026,
+  "first_closing": "2026-01-02",
+  "final_closing": "2026-01-02",
+  "investment_start_date": "2026-01-02",
+  "investment_end_date": "2026-01-31",
+  "terms_end_date": "2026-01-31",
+  "commitment": 1000000.0,
+  "fund_volume": 1000000.0,
+  "hurdle_rate": 0.08,
+  "carry_rate": 0.20,
+  "management_fee_base": "commitment",
+  "management_fee_rate": 0.0,
+  "clawback_applicable": false,
+  "recycling_allowed": false,
+  "valuation_date": "2026-01-31",
+  "residual_value": 0.0,
+  "initial_rate": 0.10,
+  "cashflows": [
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Bridge investment capital call",
+      "currency": "EUR",
+      "due_date": "2026-01-02",
+      "actual_date": "2026-01-02",
+      "value_date": "2026-01-02",
+      "booking_date": "2026-01-02",
+      "value": 1000000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Bridge investment repayment and profit",
+      "currency": "EUR",
+      "due_date": "2026-01-31",
+      "actual_date": "2026-01-31",
+      "value_date": "2026-01-31",
+      "booking_date": "2026-01-31",
+      "value": 1200000.0
+    }
+  ]
+}

@@ -1,0 +1,243 @@
+{
+  "name": "Long-Term European Buyout Fund 2011",
+  "cashflows": [
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Initial closing and first platform acquisition",
+      "due_date": "2011-02-14",
+      "value": 1250000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Second closing and acquisition funding",
+      "due_date": "2011-07-14",
+      "value": 720000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and administration fee 2011",
+      "due_date": "2011-12-18",
+      "value": 85000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Add-on acquisition I",
+      "due_date": "2012-03-15",
+      "value": 560000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Add-on acquisition II",
+      "due_date": "2012-10-11",
+      "value": 430000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and administration fee 2012",
+      "due_date": "2012-12-18",
+      "value": 79500.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "New platform investment",
+      "due_date": "2013-05-15",
+      "value": 610000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Follow-on growth capital",
+      "due_date": "2013-12-11",
+      "value": 280000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and administration fee 2013",
+      "due_date": "2013-12-18",
+      "value": 74000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Operational transformation program",
+      "due_date": "2014-06-14",
+      "value": 390000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Operating dividend from Platform A",
+      "due_date": "2014-06-25",
+      "value": 120000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and administration fee 2014",
+      "due_date": "2014-12-18",
+      "value": 68500.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Final primary investment",
+      "due_date": "2015-02-14",
+      "value": 310000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Dividend recapitalization Platform B",
+      "due_date": "2015-11-09",
+      "value": 210000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and administration fee 2015",
+      "due_date": "2015-12-18",
+      "value": 63000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Portfolio support reserve",
+      "due_date": "2016-04-14",
+      "value": 180000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Partial realization Platform A",
+      "due_date": "2016-04-28",
+      "value": 340000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and administration fee 2016",
+      "due_date": "2016-12-18",
+      "value": 57500.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Operating distribution",
+      "due_date": "2017-09-15",
+      "value": 180000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and administration fee 2017",
+      "due_date": "2017-12-18",
+      "value": 52000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Sale of Platform B",
+      "due_date": "2018-03-22",
+      "value": 760000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Escrow release Platform B",
+      "due_date": "2018-12-05",
+      "value": 145000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and administration fee 2018",
+      "due_date": "2018-12-18",
+      "value": 46500.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Secondary sale Platform C",
+      "due_date": "2019-07-17",
+      "value": 520000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and administration fee 2019",
+      "due_date": "2019-12-18",
+      "value": 41000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Dividend recapitalization Platform D",
+      "due_date": "2020-02-27",
+      "value": 290000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Sale of Platform A",
+      "due_date": "2020-10-12",
+      "value": 940000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and administration fee 2020",
+      "due_date": "2020-12-18",
+      "value": 41000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Partial realization Platform D",
+      "due_date": "2021-05-21",
+      "value": 420000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Sale of Platform C",
+      "due_date": "2022-01-31",
+      "value": 1380000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Escrow and earn-out proceeds",
+      "due_date": "2022-11-18",
+      "value": 190000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Final sale Platform D",
+      "due_date": "2023-06-30",
+      "value": 1650000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Final escrow release",
+      "due_date": "2024-03-15",
+      "value": 260000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Liquidation distribution",
+      "due_date": "2025-09-30",
+      "value": 115000.0
+    }
+  ]
+}

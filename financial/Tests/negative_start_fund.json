@@ -1,0 +1,110 @@
+{
+  "name": "Negative Start Required Fund - Expanded Transaction Detail",
+  "cashflows": [
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Initial acquisition capital call",
+      "due_date": "2020-01-01",
+      "value": 370000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Formation and transaction costs",
+      "due_date": "2020-01-01",
+      "value": 60000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Opening liquidity reserve",
+      "due_date": "2020-01-01",
+      "value": 70000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Early asset disposal proceeds",
+      "due_date": "2020-12-31",
+      "value": 1224000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Dividend recapitalization",
+      "due_date": "2020-12-31",
+      "value": 378000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "correction",
+      "description": "Working capital adjustment received",
+      "due_date": "2020-12-31",
+      "value": 198000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Follow-on acquisition funding",
+      "due_date": "2021-12-31",
+      "value": 944000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Operational expansion capital",
+      "due_date": "2021-12-31",
+      "value": 432000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Financing and advisory costs",
+      "due_date": "2021-12-31",
+      "value": 224000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Restructuring capital contribution",
+      "due_date": "2022-12-31",
+      "value": 572000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Liquidity support facility",
+      "due_date": "2022-12-31",
+      "value": 363000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Restructuring and legal fees",
+      "due_date": "2022-12-31",
+      "value": 165000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Final sale proceeds",
+      "due_date": "2023-12-31",
+      "value": 852000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Escrow release",
+      "due_date": "2023-12-31",
+      "value": 216000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Residual liquidation distribution",
+      "due_date": "2023-12-31",
+      "value": 132000.0
+    }
+  ]
+}

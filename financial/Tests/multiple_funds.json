@@ -1,0 +1,512 @@
+{
+  "funds": [
+    {
+      "name": "Growth Fund A - Software and Digital Services",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial closing capital call",
+          "due_date": "2019-11-15",
+          "value": 650000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "fee",
+          "description": "Establishment and due diligence expenses",
+          "due_date": "2019-12-06",
+          "value": 32000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Platform acquisition funding",
+          "due_date": "2020-03-20",
+          "value": 480000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "First add-on acquisition",
+          "due_date": "2020-10-30",
+          "value": 190000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "fee",
+          "description": "Management fee 2020",
+          "due_date": "2020-12-18",
+          "value": 28000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Product development growth capital",
+          "due_date": "2021-05-14",
+          "value": 140000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "International expansion funding",
+          "due_date": "2021-11-19",
+          "value": 110000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "First dividend recapitalization",
+          "due_date": "2022-06-30",
+          "value": 175000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "fee",
+          "description": "Management and monitoring fee 2022",
+          "due_date": "2022-12-19",
+          "value": 22000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial secondary sale",
+          "due_date": "2023-04-28",
+          "value": 420000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating dividend",
+          "due_date": "2023-10-31",
+          "value": 95000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Final follow-on investment",
+          "due_date": "2024-02-29",
+          "value": 60000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Majority exit proceeds",
+          "due_date": "2025-01-17",
+          "value": 1050000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Escrow release",
+          "due_date": "2025-09-30",
+          "value": 85000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Residual liquidation proceeds",
+          "due_date": "2026-03-31",
+          "value": 45000.0
+        }
+      ]
+    },
+    {
+      "name": "Income Fund B - Renewable Infrastructure",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial wind portfolio acquisition",
+          "due_date": "2020-02-14",
+          "value": 420000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "fee",
+          "description": "Technical and legal due diligence",
+          "due_date": "2020-03-10",
+          "value": 18000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Solar park construction drawdown",
+          "due_date": "2020-08-31",
+          "value": 260000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Grid connection funding",
+          "due_date": "2021-02-26",
+          "value": 90000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution 2021",
+          "due_date": "2021-12-20",
+          "value": 55000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution H1 2022",
+          "due_date": "2022-06-30",
+          "value": 42000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution H2 2022",
+          "due_date": "2022-12-19",
+          "value": 48000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Battery storage extension",
+          "due_date": "2023-03-31",
+          "value": 75000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution 2023",
+          "due_date": "2023-12-18",
+          "value": 105000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution H1 2024",
+          "due_date": "2024-06-28",
+          "value": 62000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution H2 2024",
+          "due_date": "2024-12-16",
+          "value": 68000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Refinancing distribution",
+          "due_date": "2025-04-30",
+          "value": 180000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Operating distribution 2025",
+          "due_date": "2025-12-18",
+          "value": 115000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Portfolio sale proceeds",
+          "due_date": "2027-06-30",
+          "value": 610000.0
+        }
+      ]
+    },
+    {
+      "name": "Special Situations Fund C - Industrial Turnaround",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial distressed debt purchase",
+          "due_date": "2020-07-01",
+          "value": 310000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "fee",
+          "description": "Legal and restructuring advisory fees",
+          "due_date": "2020-07-31",
+          "value": 24000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Debtor-in-possession financing",
+          "due_date": "2020-11-30",
+          "value": 185000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Operational stabilization funding",
+          "due_date": "2021-04-30",
+          "value": 135000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "First debt repayment",
+          "due_date": "2021-12-15",
+          "value": 90000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Restructuring plan contribution",
+          "due_date": "2022-03-31",
+          "value": 115000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Asset sale distribution",
+          "due_date": "2022-10-31",
+          "value": 210000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "fee",
+          "description": "Litigation and monitoring expenses",
+          "due_date": "2023-02-28",
+          "value": 26000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Second debt repayment",
+          "due_date": "2023-09-29",
+          "value": 145000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Equity realization proceeds",
+          "due_date": "2024-05-31",
+          "value": 330000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "correction",
+          "description": "Warranty claim settlement",
+          "due_date": "2024-11-29",
+          "value": 35000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Escrow release",
+          "due_date": "2025-06-30",
+          "value": 70000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Final liquidation distribution",
+          "due_date": "2026-01-30",
+          "value": 105000.0
+        }
+      ]
+    },
+    {
+      "name": "Venture Fund D - Deep Technology",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial commitment drawdown",
+          "due_date": "2021-01-29",
+          "value": 240000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "fee",
+          "description": "Formation and first management fee",
+          "due_date": "2021-02-26",
+          "value": 22000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Seed portfolio investments",
+          "due_date": "2021-06-30",
+          "value": 180000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Series A follow-on investments",
+          "due_date": "2022-02-28",
+          "value": 160000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "fee",
+          "description": "Management fee 2022",
+          "due_date": "2022-12-19",
+          "value": 20000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Series B reserve deployment",
+          "due_date": "2023-04-28",
+          "value": 130000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "First secondary realization",
+          "due_date": "2023-11-30",
+          "value": 85000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Bridge financing for core holding",
+          "due_date": "2024-03-29",
+          "value": 95000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Partial exit from robotics company",
+          "due_date": "2024-10-31",
+          "value": 190000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "fee",
+          "description": "Portfolio support and legal expenses",
+          "due_date": "2025-02-28",
+          "value": 18000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Biotechnology licensing proceeds",
+          "due_date": "2025-07-31",
+          "value": 125000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Major AI portfolio exit",
+          "due_date": "2026-09-30",
+          "value": 620000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Final residual realization",
+          "due_date": "2028-03-31",
+          "value": 210000.0
+        }
+      ]
+    },
+    {
+      "name": "Real Estate Fund E - Urban Logistics",
+      "cashflows": [
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Initial property acquisition",
+          "due_date": "2019-06-28",
+          "value": 530000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "fee",
+          "description": "Acquisition taxes and transaction costs",
+          "due_date": "2019-07-15",
+          "value": 47000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Refurbishment program drawdown",
+          "due_date": "2020-01-31",
+          "value": 145000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Rental income distribution 2020",
+          "due_date": "2020-12-18",
+          "value": 38000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Rental income distribution 2021",
+          "due_date": "2021-12-17",
+          "value": 52000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Energy efficiency modernization",
+          "due_date": "2022-04-29",
+          "value": 70000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Rental income distribution 2022",
+          "due_date": "2022-12-19",
+          "value": 61000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Rental income distribution 2023",
+          "due_date": "2023-12-18",
+          "value": 69000.0
+        },
+        {
+          "direction": "outflow",
+          "category": "capital_call",
+          "description": "Tenant improvement program",
+          "due_date": "2024-03-29",
+          "value": 45000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Rental income distribution 2024",
+          "due_date": "2024-12-16",
+          "value": 76000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Refinancing proceeds",
+          "due_date": "2025-05-30",
+          "value": 165000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Rental income distribution 2025",
+          "due_date": "2025-12-18",
+          "value": 82000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Property portfolio sale",
+          "due_date": "2027-09-30",
+          "value": 690000.0
+        },
+        {
+          "direction": "inflow",
+          "category": "distribution",
+          "description": "Retention release and final distribution",
+          "due_date": "2028-03-31",
+          "value": 55000.0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,222 @@
+{
+  "name": "Long-Horizon Venture Capital Fund 2013",
+  "cashflows": [
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Initial portfolio construction",
+      "due_date": "2013-03-15",
+      "value": 700000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Seed portfolio expansion",
+      "due_date": "2013-10-08",
+      "value": 450000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2013",
+      "due_date": "2013-12-16",
+      "value": 56000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Series A reserve funding",
+      "due_date": "2014-06-19",
+      "value": 520000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2014",
+      "due_date": "2014-12-16",
+      "value": 56000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Follow-on round I",
+      "due_date": "2015-04-02",
+      "value": 390000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2015",
+      "due_date": "2015-12-16",
+      "value": 56000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Follow-on round II",
+      "due_date": "2016-07-27",
+      "value": 460000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2016",
+      "due_date": "2016-12-16",
+      "value": 56000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Small secondary sale",
+      "due_date": "2017-02-10",
+      "value": 90000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Opportunity investment",
+      "due_date": "2017-11-13",
+      "value": 310000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2017",
+      "due_date": "2017-12-16",
+      "value": 56000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "First portfolio exit",
+      "due_date": "2018-09-04",
+      "value": 180000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2018",
+      "due_date": "2018-12-16",
+      "value": 56000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Late-stage support",
+      "due_date": "2019-05-06",
+      "value": 240000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2019",
+      "due_date": "2019-12-16",
+      "value": 32000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Secondary transaction",
+      "due_date": "2019-12-19",
+      "value": 260000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Partial liquidity event",
+      "due_date": "2020-03-23",
+      "value": 120000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Bridge financing reserve",
+      "due_date": "2020-08-24",
+      "value": 180000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2020",
+      "due_date": "2020-12-16",
+      "value": 32000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Strategic sale Company A",
+      "due_date": "2021-06-14",
+      "value": 780000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2021",
+      "due_date": "2021-12-16",
+      "value": 32000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Earn-out Company A",
+      "due_date": "2022-01-28",
+      "value": 350000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "IPO distribution Company B",
+      "due_date": "2022-10-07",
+      "value": 1450000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2022",
+      "due_date": "2022-12-16",
+      "value": 32000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Post-lockup sale Company B",
+      "due_date": "2023-05-26",
+      "value": 620000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual management fee 2023",
+      "due_date": "2023-12-16",
+      "value": 32000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Strategic sale Company C",
+      "due_date": "2024-02-12",
+      "value": 2100000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Escrow release Company C",
+      "due_date": "2024-11-22",
+      "value": 440000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Final portfolio realization",
+      "due_date": "2025-07-18",
+      "value": 980000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Liquidation and reserve release",
+      "due_date": "2026-04-30",
+      "value": 135000.0
+    }
+  ]
+}

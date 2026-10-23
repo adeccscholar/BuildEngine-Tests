@@ -1,0 +1,229 @@
+{
+  "name": "Early Distribution Growth Fund 2012",
+  "cashflows": [
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Initial acquisition capital",
+      "due_date": "2012-01-20",
+      "value": 900000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Second platform acquisition",
+      "due_date": "2012-05-09",
+      "value": 480000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Add-on investment",
+      "due_date": "2012-10-26",
+      "value": 360000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual fund expenses 2012",
+      "due_date": "2012-12-20",
+      "value": 42000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Growth financing",
+      "due_date": "2013-06-23",
+      "value": 290000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual fund expenses 2013",
+      "due_date": "2013-12-20",
+      "value": 39500.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Early-year portfolio distribution 2014",
+      "due_date": "2014-01-08",
+      "value": 170000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Final follow-on capital",
+      "due_date": "2014-04-19",
+      "value": 180000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Mid-year operating dividend 2014",
+      "due_date": "2014-05-12",
+      "value": 30600.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual fund expenses 2014",
+      "due_date": "2014-12-20",
+      "value": 37000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Early-year portfolio distribution 2015",
+      "due_date": "2015-01-08",
+      "value": 260000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Mid-year operating dividend 2015",
+      "due_date": "2015-05-12",
+      "value": 46800.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual fund expenses 2015",
+      "due_date": "2015-12-20",
+      "value": 34500.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Early-year portfolio distribution 2016",
+      "due_date": "2016-01-08",
+      "value": 390000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Mid-year operating dividend 2016",
+      "due_date": "2016-05-12",
+      "value": 70200.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual fund expenses 2016",
+      "due_date": "2016-12-20",
+      "value": 32000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Early-year portfolio distribution 2017",
+      "due_date": "2017-01-08",
+      "value": 520000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Mid-year operating dividend 2017",
+      "due_date": "2017-05-12",
+      "value": 93600.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual fund expenses 2017",
+      "due_date": "2017-12-20",
+      "value": 29500.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Early-year portfolio distribution 2018",
+      "due_date": "2018-01-08",
+      "value": 610000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Mid-year operating dividend 2018",
+      "due_date": "2018-05-12",
+      "value": 109800.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual fund expenses 2018",
+      "due_date": "2018-12-20",
+      "value": 27000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Early-year portfolio distribution 2019",
+      "due_date": "2019-01-08",
+      "value": 720000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Mid-year operating dividend 2019",
+      "due_date": "2019-05-12",
+      "value": 129600.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual fund expenses 2019",
+      "due_date": "2019-12-20",
+      "value": 24500.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Early-year portfolio distribution 2020",
+      "due_date": "2020-01-08",
+      "value": 840000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Mid-year operating dividend 2020",
+      "due_date": "2020-05-12",
+      "value": 151200.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Annual fund expenses 2020",
+      "due_date": "2020-12-20",
+      "value": 22000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Early-year portfolio distribution 2021",
+      "due_date": "2021-01-08",
+      "value": 620000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Early-year portfolio distribution 2022",
+      "due_date": "2022-01-08",
+      "value": 410000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Final residual realization",
+      "due_date": "2023-02-03",
+      "value": 330000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Liquidation distribution",
+      "due_date": "2024-01-09",
+      "value": 75000.0
+    }
+  ]
+}

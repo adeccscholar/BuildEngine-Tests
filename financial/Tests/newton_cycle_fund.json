@@ -1,0 +1,173 @@
+{
+  "name": "Newton Cycle Fund - Expanded Transaction Detail",
+  "cashflows": [
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Transferred opening cash balance",
+      "due_date": "2020-01-01",
+      "value": 572000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Pre-closing dividend proceeds",
+      "due_date": "2020-01-01",
+      "value": 341000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "correction",
+      "description": "Purchase price adjustment received",
+      "due_date": "2020-01-01",
+      "value": 187000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Acquisition purchase price funding",
+      "due_date": "2020-12-31",
+      "value": 1188000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Initial working capital contribution",
+      "due_date": "2020-12-31",
+      "value": 378000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Transaction and financing fees",
+      "due_date": "2020-12-31",
+      "value": 234000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Operational turnaround funding",
+      "due_date": "2021-12-31",
+      "value": 513000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Add-on acquisition funding",
+      "due_date": "2021-12-31",
+      "value": 252000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Management and advisory fees",
+      "due_date": "2021-12-31",
+      "value": 135000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "First realization proceeds",
+      "due_date": "2022-12-31",
+      "value": 882000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Debt refinancing distribution",
+      "due_date": "2022-12-31",
+      "value": 350000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Current income distribution",
+      "due_date": "2022-12-31",
+      "value": 168000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Operating dividend",
+      "due_date": "2023-12-31",
+      "value": 62000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Excess cash distribution",
+      "due_date": "2023-12-31",
+      "value": 23000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "correction",
+      "description": "Tax refund received",
+      "due_date": "2023-12-31",
+      "value": 15000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Major portfolio exit proceeds",
+      "due_date": "2024-12-30",
+      "value": 1406000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Management rollover redemption",
+      "due_date": "2024-12-30",
+      "value": 304000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Escrow release",
+      "due_date": "2024-12-30",
+      "value": 190000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Additional realization proceeds",
+      "due_date": "2025-12-30",
+      "value": 488000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Deferred purchase price receipt",
+      "due_date": "2025-12-30",
+      "value": 208000.0
+    },
+    {
+      "direction": "inflow",
+      "category": "distribution",
+      "description": "Warranty reserve release",
+      "due_date": "2025-12-30",
+      "value": 104000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "capital_call",
+      "description": "Late restructuring contribution",
+      "due_date": "2026-12-30",
+      "value": 260000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "correction",
+      "description": "Warranty settlement payment",
+      "due_date": "2026-12-30",
+      "value": 155000.0
+    },
+    {
+      "direction": "outflow",
+      "category": "fee",
+      "description": "Final legal and liquidation costs",
+      "due_date": "2026-12-30",
+      "value": 85000.0
+    }
+  ]
+}
