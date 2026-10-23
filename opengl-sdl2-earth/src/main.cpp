@@ -567,7 +567,16 @@ void DrawUi(GLuint const uProgram, UiBuffer const& aBuffer,
  \returns EXIT_SUCCESS bei regulaerer Beendigung, sonst EXIT_FAILURE.
  \throw Nichts.
  */
+// GUI logging: no output to the inherited console/stderr.
+void SDLCALL GuiLogOutput([[maybe_unused]] void* context,
+   [[maybe_unused]] int category, SDL_LogPriority priority, const char* message) {
+   std::string const line = std::format("SDL [{}] {}\n",
+      SDL_GetPriorityName(priority), message ? message : "");
+   OutputDebugStringA(line.c_str());
+}
+
 int RunApplication() {
+   SDL_LogSetOutputFunction(GuiLogOutput, nullptr);
    SDL_SetMainReady();
 
    SdlRuntime aSdlRuntime;
@@ -745,6 +754,13 @@ int RunApplication() {
  \returns Rueckgabecode der Anwendung.
  \throw Nichts.
  */
+// NVIDIA Optimus and AMD switchable-graphics hints. Windows and the GPU
+// driver retain final authority over the selected adapter.
+extern "C" {
+   __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001UL;
+   __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+
 int WINAPI WinMain([[maybe_unused]] HINSTANCE const hInstance,
    [[maybe_unused]] HINSTANCE const hPrevInstance,
    [[maybe_unused]] LPSTR const pszCommandLine,
