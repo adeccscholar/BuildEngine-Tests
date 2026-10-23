@@ -3,7 +3,9 @@
 # Project: adecc Scholar
 
 cmake_minimum_required(VERSION 3.30)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../bootstrap/PrepareToolchain.cmake")
 project(ThirdPartyShowcase VERSION 1.0.0 LANGUAGES CXX RC)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/BuildEngineTests.cmake")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,42 +13,64 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/Bcc64xVcl.cmake")
 
-if(DEFINED ENV{ADECC_BOOST_PROJECT_INCLUDE} AND NOT "$ENV{ADECC_BOOST_PROJECT_INCLUDE}" STREQUAL "")
-   if(NOT EXISTS "$ENV{ADECC_BOOST_PROJECT_INCLUDE}")
-     message(FATAL_ERROR "Resolved Boost project include is missing: $ENV{ADECC_BOOST_PROJECT_INCLUDE}")
-   endif()
-   include("$ENV{ADECC_BOOST_PROJECT_INCLUDE}")
-endif()
+# Resolve unique active BuildEngine packages instead of host/Catalog variables.
+foreach(_id IN ITEMS boost openssl curl zlib libzip nlohmann-json brotli zstd xz)
+   string(REPLACE "-" "_" _key "${_id}")
+   string(TOUPPER "${_key}" _key)
+   adecc_package_current_root(${_key}_PACKAGE "${_id}")
+endforeach()
 
-set(ADECC_BOOST_ROOT "" CACHE PATH "Boost root containing boost/version.hpp")
-set(_boost_hints)
-if(ADECC_BOOST_ROOT)
-   list(APPEND _boost_hints "${ADECC_BOOST_ROOT}")
+# The installed OpenSSL CMake export has an invalid include path;
+# use the actual native shared-library import artifacts, as in Financial.
+set(_variant "${BUILDENGINE_CONFIGURATION}")
+set(_openssl_include "${OPENSSL_PACKAGE}/include")
+set(_openssl_lib "${OPENSSL_PACKAGE}/lib/win64/${_variant}")
+if(_variant STREQUAL "Debug")
+   set(_curl_import "libcurld_imp.lib")
+   set(_zlib_import "libzd.lib")
+else()
+   set(_curl_import "libcurl_imp.lib")
+   set(_zlib_import "libz.lib")
 endif()
-foreach(_env ADECC_BOOST_ROOT CG_64X_BOOST_ROOT CG_64_BOOST_ROOT BOOST_ROOT)
-   if(DEFINED ENV{${_env}} AND NOT "$ENV{${_env}}" STREQUAL "")
-      list(APPEND _boost_hints "$ENV{${_env}}")
+foreach(_file IN ITEMS
+   "${_openssl_include}/openssl/ssl.h"
+   "${_openssl_lib}/libssl.lib"
+   "${_openssl_lib}/libcrypto.lib"
+   "${CURL_PACKAGE}/lib/win64/${_variant}/${_curl_import}"
+   "${ZLIB_PACKAGE}/lib/win64/${_variant}/${_zlib_import}"
+   "${LIBZIP_PACKAGE}/lib/win64/${_variant}/libzip.lib"
+   "${NLOHMANN_JSON_PACKAGE}/include/nlohmann/json.hpp")
+   if(NOT EXISTS "${_file}")
+      message(FATAL_ERROR "Required BuildEngine DLL import/header missing: ${_file}")
    endif()
 endforeach()
-if(DEFINED ENV{BDS} AND NOT "$ENV{BDS}" STREQUAL "")
-   list(APPEND _boost_hints
-      "$ENV{BDS}/include/boost_1_89"
-      "$ENV{BDS}/include")
-endif()
+add_library(OpenSSL::Crypto SHARED IMPORTED)
+set_target_properties(OpenSSL::Crypto PROPERTIES
+   IMPORTED_IMPLIB "${_openssl_lib}/libcrypto.lib"
+   INTERFACE_INCLUDE_DIRECTORIES "${_openssl_include}")
+add_library(OpenSSL::SSL SHARED IMPORTED)
+set_target_properties(OpenSSL::SSL PROPERTIES
+   IMPORTED_IMPLIB "${_openssl_lib}/libssl.lib"
+   INTERFACE_INCLUDE_DIRECTORIES "${_openssl_include}"
+   INTERFACE_LINK_LIBRARIES "OpenSSL::Crypto")
+add_library(AdeccCurl SHARED IMPORTED)
+set_target_properties(AdeccCurl PROPERTIES
+   IMPORTED_IMPLIB "${CURL_PACKAGE}/lib/win64/${_variant}/${_curl_import}"
+   INTERFACE_INCLUDE_DIRECTORIES "${CURL_PACKAGE}/include")
+add_library(AdeccZlib SHARED IMPORTED)
+set_target_properties(AdeccZlib PROPERTIES
+   IMPORTED_IMPLIB "${ZLIB_PACKAGE}/lib/win64/${_variant}/${_zlib_import}"
+   INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_PACKAGE}/include")
+add_library(AdeccLibzip SHARED IMPORTED)
+set_target_properties(AdeccLibzip PROPERTIES
+   IMPORTED_IMPLIB "${LIBZIP_PACKAGE}/lib/win64/${_variant}/libzip.lib"
+   INTERFACE_INCLUDE_DIRECTORIES "${LIBZIP_PACKAGE}/include")
 
-find_path(ADECC_BOOST_INCLUDE_DIR
-   NAMES boost/version.hpp
-   HINTS ${_boost_hints})
-if(NOT ADECC_BOOST_INCLUDE_DIR)
-   message(FATAL_ERROR
-      "Boost headers were not found. Set -DADECC_BOOST_ROOT=<path> to the C++Builder Boost root.")
+# The managed native BCC64X Boost configuration overlay is mandatory.
+set(_boost_overlay "${BUILDENGINE_ROOT}/admin/cmake/boost/bcc64x-native-clang")
+if(NOT EXISTS "${_boost_overlay}/boost/config/user.hpp")
+   message(FATAL_ERROR "Missing managed BCC64X Boost overlay: ${_boost_overlay}")
 endif()
-
-find_package(OpenSSL CONFIG REQUIRED)
-find_package(CURL CONFIG REQUIRED)
-find_package(ZLIB CONFIG REQUIRED)
-find_package(libzip CONFIG REQUIRED)
-find_package(nlohmann_json CONFIG REQUIRED)
 
 add_executable(ThirdPartyShowcase WIN32
    ThirdPartyShowcase.cpp
@@ -83,7 +107,10 @@ else()
    target_compile_features(ThirdPartyShowcase PRIVATE cxx_std_23)
 endif()
 
-target_include_directories(ThirdPartyShowcase PRIVATE "${ADECC_BOOST_INCLUDE_DIR}")
+target_include_directories(ThirdPartyShowcase BEFORE PRIVATE
+   "${_boost_overlay}" "${BOOST_PACKAGE}/include")
+target_include_directories(ThirdPartyShowcase PRIVATE
+   "${NLOHMANN_JSON_PACKAGE}/include")
 target_compile_definitions(ThirdPartyShowcase PRIVATE
    BOOST_ALL_NO_LIB
    BOOST_SYSTEM_NO_LIB
@@ -92,21 +119,16 @@ target_compile_definitions(ThirdPartyShowcase PRIVATE
 target_link_libraries(ThirdPartyShowcase PRIVATE
    OpenSSL::SSL
    OpenSSL::Crypto
-   CURL::libcurl
-   ZLIB::ZLIB
-   libzip::zip
-   nlohmann_json::nlohmann_json
+   AdeccCurl
+   AdeccZlib
+   AdeccLibzip
    Crypt32)
 
-foreach(theDllTarget IN ITEMS
-   OpenSSL::SSL
-   OpenSSL::Crypto
-   CURL::libcurl
-   ZLIB::ZLIB
-   libzip::zip)
-   add_custom_command(TARGET ThirdPartyShowcase POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-         "$<TARGET_FILE:${theDllTarget}>"
-         "$<TARGET_FILE_DIR:ThirdPartyShowcase>"
-      VERBATIM)
-endforeach()
+# Complete runtime closure from the BuildEngine XML dependency declarations.
+# Runtime staging retains PE/COFF, SHA256 and collision checks.
+adecc_test_install(ThirdPartyShowcase
+   PACKAGE_ROOTS
+      "${BOOST_PACKAGE}" "${OPENSSL_PACKAGE}" "${CURL_PACKAGE}"
+      "${ZLIB_PACKAGE}" "${LIBZIP_PACKAGE}" "${BROTLI_PACKAGE}"
+      "${ZSTD_PACKAGE}" "${XZ_PACKAGE}"
+   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
