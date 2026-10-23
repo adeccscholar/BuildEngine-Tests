@@ -447,11 +447,12 @@ inline void WriteToDirectory(
 
    fs::path oldPath;
 
+   // 2048 elements yield about 188 chunks for 384860 records / 20 cores.
    // Compare neighbouring keys independently; each worker writes to its own
    // boundary flag. File grouping and directory creation stay ordered.
    std::vector<unsigned char> boundaries(vData.size(), 0u);
    oneapi::tbb::parallel_for(
-      oneapi::tbb::blocked_range<std::size_t>(1u, vData.size(), 4096u),
+      oneapi::tbb::blocked_range<std::size_t>(1u, vData.size(), 2048u),
       [&](auto const& range) {
          for (std::size_t i = range.begin(); i != range.end(); ++i) {
             auto const& left = vData[i - 1u].first;
