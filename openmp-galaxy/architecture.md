@@ -207,3 +207,28 @@ The BuildEngine documentation server should verify all of the following in this 
 | Print layout | Complete formulas and diagrams, no sidebar artifacts |
 
 This file is a **secondary, real-world integration test** for the documentation server; the primary application is the simulation itself.
+
+## 10. Telemetry aggregation and stable UI
+
+The viewer reports a **non-overlapping two-second window**, measured with
+`SDL_GetPerformanceCounter()`. The title changes only at the end of each
+window. Let `F` be rendered frames, `K` completed simulation steps, `T`
+the elapsed wall-clock seconds, and `t_k` each OpenMP `Step()` duration:
+
+$$
+\mathrm{FPS}=\frac{F}{T},\qquad
+\mathrm{steps/s}=\frac{K}{T},\qquad
+\overline{t}_{\mathrm{step}}=\frac{1}{K}\sum_{k=1}^{K}t_k.
+$$
+
+When `K=0`, the title reports zero for average step duration rather than
+dividing by zero. Total star integrations are also reported as:
+
+$$
+\mathrm{M\ body\ updates/s}=\frac{N\cdot K}{10^6 T}.
+$$
+
+**A body update is not an N-body interaction.** In Phase 1 each star samples
+the prescribed central potential once per integration step. The OpenMP timing
+includes the scheduler overhead of `Step()`, but excludes VBO upload, shader
+drawing and buffer swap. The FPS includes those rendering stages (and VSync).
