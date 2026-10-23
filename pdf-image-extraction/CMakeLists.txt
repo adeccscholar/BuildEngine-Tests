@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../bootstrap/PrepareToolchain.cmake")
 project(BuildEnginePdfImageExtraction LANGUAGES CXX)
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/BuildEngineTests.cmake")
 adecc_package_root(QPDF_PACKAGE qpdf 12.4.1)
