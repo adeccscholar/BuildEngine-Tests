@@ -6,6 +6,7 @@
 #include <omp.h>
 #include <algorithm>
 #include <charconv>
+#include <fast_float/fast_float.h>
 #include <chrono>
 #include <cmath>
 #include <fstream>
@@ -19,7 +20,7 @@ double Millis(Clock::time_point a) {
    return std::chrono::duration<double,std::milli>(Clock::now()-a).count();
 }
 bool ParseCoord(std::string_view s,double& d) {
-   auto r=std::from_chars(s.data(),s.data()+s.size(),d,std::chars_format::general);
+   auto r=fast_float::from_chars(s.data(),s.data()+s.size(),d);
    return r.ec==std::errc{} && r.ptr==s.data()+s.size() && std::isfinite(d);
 }
 bool Parse(std::string_view line,Point& p) {
