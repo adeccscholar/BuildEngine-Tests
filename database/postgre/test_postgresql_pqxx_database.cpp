@@ -7,6 +7,7 @@
 */
 
 #include "database.h"
+#include "database_checks.h"
 #include "diagnostic_text.h"
 #include "pqxx_database.h"
 
@@ -29,6 +30,7 @@
 namespace {
 
 using namespace std::chrono;
+namespace common = buildengine_tests::database::common;
 
 using physical_database_ty = adecc::db::postgres::postgres_database;
 using database_ty = adecc::db::logical_database<
@@ -59,46 +61,11 @@ struct test_config {
    bool          boIntegrated{ true };
    };
 
-[[noreturn]] void Fail(std::string const& strMessage) {
-   throw std::runtime_error{ strMessage };
-   }
+using common::Fail;
+using common::Require;
 
-
-void Require(bool const boCondition, std::string const& strMessage) {
-   if (!boCondition) {
-      Fail(strMessage);
-      }
-   }
-
-
-std::string GetEnvironment(char const* const szName, std::string_view const svFallback = {}) {
-   if (char const* const szValue = std::getenv(szName);
-       szValue != nullptr && *szValue != '\0') {
-      return std::string{ szValue };
-      }
-
-   return std::string{ svFallback };
-   }
-
-
-bool ParseBoolean(std::string_view const svValue, bool const boDefault) {
-   if (svValue.empty()) {
-      return boDefault;
-      }
-
-   if (svValue == "1" || svValue == "true" || svValue == "TRUE" ||
-       svValue == "yes" || svValue == "YES" || svValue == "on" || svValue == "ON") {
-      return true;
-      }
-
-   if (svValue == "0" || svValue == "false" || svValue == "FALSE" ||
-       svValue == "no" || svValue == "NO" || svValue == "off" || svValue == "OFF") {
-      return false;
-      }
-
-   Fail(std::format("invalid boolean value '{}'", svValue));
-   }
-
+using common::GetEnvironment;
+using common::ParseBoolean;
 
 std::uint16_t ParsePort(std::string_view const svValue) {
    unsigned int uPort{};
@@ -205,14 +172,7 @@ test_config ParseArguments(int const iArgc, char* const* const argv) {
    }
 
 
-std::string MakeSuffix() {
-   auto const iNow = duration_cast<microseconds>(
-      system_clock::now().time_since_epoch()
-      ).count();
-
-   return std::to_string(static_cast<unsigned long long>(iNow));
-   }
-
+using common::MakeSuffix;
 
 struct database_object_guard {
    database_ty* pDatabase{};
@@ -232,86 +192,11 @@ struct database_object_guard {
    };
 
 
-adecc::date_ty MakeDate(int const iYear, unsigned const uMonth, unsigned const uDay) {
-   adecc::date_ty const aDate{
-      year{ iYear },
-      month{ uMonth },
-      day{ uDay }
-      };
-
-   Require(aDate.ok(), "test constructed an invalid date");
-   return aDate;
-   }
-
-
-adecc::timestamp_ty MakeTimestamp(
-   adecc::date_ty const& aDate,
-   hours const aHours,
-   minutes const aMinutes,
-   seconds const aSeconds
-) {
-   return time_point_cast<system_clock::duration>(
-      sys_days{ aDate } + aHours + aMinutes + aSeconds
-      );
-   }
-
-
-adecc::time_ty MakeTime(
-   hours const aHours,
-   minutes const aMinutes,
-   seconds const aSeconds
-) {
-   return adecc::time_ty{
-      duration_cast<seconds>(aHours + aMinutes + aSeconds)
-      };
-   }
-
-
-template <class... Args>
-std::tuple<Args...> RequireOne(
-   std::expected<std::tuple<Args...>, adecc::db::SingleRowError> const& aResult,
-   std::string_view const svContext
-) {
-   if (!aResult) {
-      switch (aResult.error()) {
-      case adecc::db::SingleRowError::NotFound:
-         Fail(std::format("{}: row not found", svContext));
-      case adecc::db::SingleRowError::TooMany:
-         Fail(std::format("{}: more than one row returned", svContext));
-         }
-      }
-
-   return *aResult;
-   }
-
-
-void CheckRow(row_ty const& aActual, row_ty const& aExpected) {
-   Require(std::get<0>(aActual) == std::get<0>(aExpected), "Id differs");
-   Require(std::get<1>(aActual) == std::get<1>(aExpected), "Name differs");
-   Require(std::get<2>(aActual) == std::get<2>(aExpected), "AlternateName differs");
-   Require(std::get<3>(aActual) == std::get<3>(aExpected), "WideName differs");
-
-   Require(
-      std::abs(std::get<4>(aActual).Get() - std::get<4>(aExpected).Get()) < 0.000001,
-      "Amount differs"
-      );
-
-   Require(
-      std::abs(std::get<5>(aActual) - std::get<5>(aExpected)) < 0.000000001,
-      "Ratio differs"
-      );
-
-   Require(std::get<6>(aActual) == std::get<6>(aExpected), "timestamp differs");
-   Require(std::get<7>(aActual) == std::get<7>(aExpected), "date differs");
-
-   Require(
-      std::get<8>(aActual).to_duration() == std::get<8>(aExpected).to_duration(),
-      "time differs"
-      );
-
-   Require(std::get<9>(aActual) == std::get<9>(aExpected), "bool differs");
-   Require(std::get<10>(aActual) == std::get<10>(aExpected), "ParentId differs");
-   }
+using common::MakeDate;
+using common::MakeTimestamp;
+using common::MakeTime;
+using common::RequireOne;
+using common::CheckRow;
 
 } // namespace
 
@@ -331,7 +216,7 @@ int main(int const iArgc, char* const* const argv) {
          .strGssEncMode = "disable",
          .strKrbSrvName = "postgres",
          .strGssLib = {},
-         .strApplicationName = "DeckKernel-PostgreSQL-Backend-Test",
+         .strApplicationName = "BuildEngineTest-PostgreSQL-Backend-Test",
          .iConnectTimeout = 30
          };
 
@@ -416,16 +301,7 @@ int main(int const iArgc, char* const* const argv) {
          );
 
       auto fnInsertOne = [&](row_ty const& aInput) -> row_ty {
-         std::array<row_ty, 1> arrInput{ aInput };
-         std::optional<row_ty> optOutput;
-
-         for (auto const& aOutput : theOutput(arrInput)) {
-            Require(!optOutput.has_value(), "single-row output range returned more than one row");
-            optOutput = aOutput;
-            }
-
-         Require(optOutput.has_value(), "single-row output range returned no row");
-         return *optOutput;
+         return common::InsertOne(theOutput, aInput);
          };
 
       adecc::date_ty const aDate1 = MakeDate(2026, 10, 8);
@@ -490,42 +366,8 @@ int main(int const iArgc, char* const* const argv) {
       CheckRow(aRead1, aInput1);
       std::cout << "[PASS] narrow, wide, NULL, numeric, timestamp, date, time and bool roundtrip\n";
 
-      std::wstring const strWideValue{
-         L"\u00C4\u00D6\u00DC \u20AC \u6771\u4EAC"
-         };
-
-      auto const [strWideResult] = RequireOne(
-         theDatabase.ExecuteOne<std::wstring>(
-            "SELECT CAST(:Value AS text) AS Value",
-            database_ty::Params(database_ty::Param("Value", strWideValue))
-            ),
-         "wstring parameter roundtrip"
-         );
-      Require(strWideResult == strWideValue, "std::wstring parameter differs");
-
-      std::wstring_view const svWideValue{ strWideValue };
-      auto const [strWideViewResult] = RequireOne(
-         theDatabase.ExecuteOne<std::wstring>(
-            "SELECT CAST(:Value AS text) AS Value",
-            database_ty::Params(database_ty::Param("Value", svWideValue))
-            ),
-         "wstring_view parameter roundtrip"
-         );
-      Require(strWideViewResult == strWideValue, "std::wstring_view parameter differs");
-
-      wchar_t const* const szWideValue = L"M\u00FCnchen";
-      auto const [strWidePointerResult] = RequireOne(
-         theDatabase.ExecuteOne<std::wstring>(
-            "SELECT CAST(:Value AS text) AS Value",
-            database_ty::Params(database_ty::Param("Value", szWideValue))
-            ),
-         "wchar_t pointer parameter roundtrip"
-         );
-      Require(
-         strWidePointerResult == std::wstring{ szWideValue },
-         "wchar_t const* parameter differs"
-         );
-      std::cout << "[PASS] wstring, wstring_view and wchar_t const* parameter roundtrip\n";
+      common::CheckWideParameters(theDatabase,
+         "SELECT CAST(:Value AS text) AS Value");
 
       adecc::date_ty const aDate2 = MakeDate(2026, 10, 9);
       row_ty aInput2{
@@ -548,137 +390,16 @@ int main(int const iArgc, char* const* const argv) {
       std::get<0>(aInput2) = iId2;
       CheckRow(aInserted2, aInput2);
 
-      std::vector<std::tuple<long long, std::string>> vecRepeatedParameterRows;
+      common::CheckRepeatedParameters(theDatabase,
+         strTable, iId1, iId2);
 
-      for (auto const& aRow : theDatabase.Execute<long long, std::string>(
-              std::format(
-                 "SELECT Id, Name FROM {} "
-                 "WHERE Id = :Id OR ParentId = :Id ORDER BY Id",
-                 strTable
-                 ),
-              database_ty::Params(database_ty::Param("Id", iId1)))) {
-         vecRepeatedParameterRows.emplace_back(aRow);
-         }
+      common::CheckTransactions(theDatabase, theOutput, aInput1,
+         strTable, MakeSuffix(), "COUNT(*)");
 
-      Require(
-         vecRepeatedParameterRows.size() == 2,
-         "repeated logical parameter query did not return two rows"
-         );
-      Require(
-         std::get<0>(vecRepeatedParameterRows[0]) == iId1,
-         "repeated parameter query returned wrong first row"
-         );
-      Require(
-         std::get<0>(vecRepeatedParameterRows[1]) == iId2,
-         "repeated parameter query returned wrong second row"
-         );
-      std::cout << "[PASS] repeated :Id parameter supplied once and reused by PostgreSQL\n";
-
-      std::string const strRollbackName = "Rollback_" + MakeSuffix();
-
-      {
-         auto theTransaction = theDatabase.Transaction();
-
-         row_ty aRollbackRow{
-            0LL,
-            strRollbackName,
-            std::nullopt,
-            L"Rollback",
-            adecc::money_ty{ 1.00 },
-            1.0,
-            aTimestamp1,
-            aDate1,
-            aTime1,
-            true,
-            std::nullopt
-            };
-
-         [[maybe_unused]] row_ty const aInsertedRollback = fnInsertOne(aRollbackRow);
-         }
-
-      auto const [iRollbackCount] = RequireOne(
-         theDatabase.ExecuteOne<long long>(
-            std::format(
-               "SELECT COUNT(*) FROM {} WHERE Name = :Name",
-               strTable
-               ),
-            database_ty::Params(database_ty::Param("Name", strRollbackName))
-            ),
-         "check automatic rollback"
-         );
-      Require(iRollbackCount == 0, "TransactionScope destructor did not roll back");
-      std::cout << "[PASS] transaction automatic rollback\n";
-
-      std::string const strCommitName = "Commit_" + MakeSuffix();
-
-      {
-         auto theTransaction = theDatabase.Transaction();
-
-         row_ty aCommitRow{
-            0LL,
-            strCommitName,
-            std::nullopt,
-            L"Commit",
-            adecc::money_ty{ 2.00 },
-            2.0,
-            aTimestamp1,
-            aDate1,
-            aTime1,
-            true,
-            std::nullopt
-            };
-
-         [[maybe_unused]] row_ty const aInsertedCommit = fnInsertOne(aCommitRow);
-         theTransaction.CommitAndClose();
-         }
-
-      auto const [iCommitCount] = RequireOne(
-         theDatabase.ExecuteOne<long long>(
-            std::format(
-               "SELECT COUNT(*) FROM {} WHERE Name = :Name",
-               strTable
-               ),
-            database_ty::Params(database_ty::Param("Name", strCommitName))
-            ),
-         "check committed transaction"
-         );
-      Require(iCommitCount == 1, "committed transaction is not visible");
-      std::cout << "[PASS] transaction commit\n";
-
-      bool boDiagnosticException{ false };
-
-      try {
-         row_ty aDuplicate{
-            0LL,
-            std::get<1>(aInput1),
-            std::nullopt,
-            L"Fehler \u00DC \u2013 \u6771\u4EAC",
-            adecc::money_ty{ 9.99 },
-            9.0,
-            aTimestamp1,
-            aDate1,
-            aTime1,
-            true,
-            std::nullopt
-            };
-
-         [[maybe_unused]] row_ty const aShouldFail = fnInsertOne(aDuplicate);
-         }
-      catch (std::exception const& ex) {
-         boDiagnosticException = true;
-         std::string const strWhat{ ex.what() };
-
-         Require(!strWhat.empty(), "constraint error lost PostgreSQL diagnostics");
-         std::cout << "[PASS] PostgreSQL constraint diagnostics retained\n";
-         adecc::diagnostic::WriteUtf8(std::cout, "[DIAGNOSTIC SAMPLE]\n");
-         adecc::diagnostic::WriteUtf8(std::cout, strWhat);
-         adecc::diagnostic::WriteUtf8(std::cout, "\n[END DIAGNOSTIC SAMPLE]\n");
-         }
-
-      Require(
-         boDiagnosticException,
-         "duplicate UNIQUE(Name) insert unexpectedly succeeded"
-         );
+      common::CheckConstraintError(theOutput, aInput1,
+         [](std::string const& strWhat) {
+            Require(!strWhat.empty(), "missing PostgreSQL diagnostic");
+            });
 
       std::cout << "\nALL POSTGRESQL LIBPQXX TESTS PASSED\n";
       return 0;
