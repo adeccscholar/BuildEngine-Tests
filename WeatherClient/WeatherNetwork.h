@@ -15,6 +15,9 @@
 #include <optional>
 #include <system_error>
 #include <memory>
+#include <mutex>
+#include <chrono>
+#include <thread>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -110,6 +113,14 @@ namespace weather_client {
       }
       // Nominatim policy: explicit application identity, user-initiated only,
       // max one query per second. Never use it for autocomplete.
+      // The public instance is not a bulk geocoder. Serialize searches
+      // with a process-wide minimum 1-second interval on the I/O worker.
+      static std::mutex geocodingMutex;
+      static auto nextRequest=std::chrono::steady_clock::time_point{};
+      std::unique_lock guard{geocodingMutex};
+      auto const now=std::chrono::steady_clock::now();
+      if(now<nextRequest) std::this_thread::sleep_until(nextRequest);
+      nextRequest=std::chrono::steady_clock::now()+std::chrono::seconds{1};
       auto const url = "https://nominatim.openstreetmap.org/search?q="
          + Escape(address) + "&format=jsonv2&limit=1";
       return ParseAddressLocation(Json::parse(GetHttps(url,
