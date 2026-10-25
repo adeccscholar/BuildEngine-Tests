@@ -40,6 +40,7 @@ namespace weather_client {
       std::optional<double> apparent_temperature;
       std::optional<double> pressure_msl;
       std::optional<double> wind_speed_10m;
+      std::optional<double> wind_gusts_10m;
       std::optional<double> wind_direction_10m;
       std::optional<double> precipitation;
       std::optional<double> cloud_cover;
@@ -50,6 +51,9 @@ namespace weather_client {
    struct WeatherHour {
       std::string time;
       std::optional<double> temperature_2m;
+      std::optional<double> apparent_temperature;
+      std::optional<double> relative_humidity_2m;
+      std::optional<double> cloud_cover;
       std::optional<double> precipitation_probability;
       std::optional<double> precipitation;
       std::optional<double> wind_speed_10m;
@@ -61,7 +65,12 @@ namespace weather_client {
       std::optional<double> temperature_2m_max;
       std::optional<double> temperature_2m_min;
       std::optional<double> precipitation_sum;
+      std::optional<double> precipitation_probability_max;
       std::optional<double> wind_speed_10m_max;
+      std::optional<double> wind_gusts_10m_max;
+      std::optional<double> uv_index_max;
+      std::string sunrise;
+      std::string sunset;
       std::optional<int> weather_code;
    };
 
@@ -158,6 +167,7 @@ namespace weather_client {
       data.current.apparent_temperature = GetNumber(current, "apparent_temperature");
       data.current.pressure_msl = GetNumber(current, "pressure_msl");
       data.current.wind_speed_10m = GetNumber(current, "wind_speed_10m");
+      data.current.wind_gusts_10m = GetNumber(current, "wind_gusts_10m");
       data.current.wind_direction_10m = GetNumber(current, "wind_direction_10m");
       data.current.precipitation = GetNumber(current, "precipitation");
       data.current.cloud_cover = GetNumber(current, "cloud_cover");
@@ -179,6 +189,9 @@ namespace weather_client {
                   continue;
                }
                hour.temperature_2m = SeriesValue(series, "temperature_2m", i);
+               hour.apparent_temperature = SeriesValue(series, "apparent_temperature", i);
+               hour.relative_humidity_2m = SeriesValue(series, "relative_humidity_2m", i);
+               hour.cloud_cover = SeriesValue(series, "cloud_cover", i);
                hour.precipitation_probability = SeriesValue(series, "precipitation_probability", i);
                hour.precipitation = SeriesValue(series, "precipitation", i);
                hour.wind_speed_10m = SeriesValue(series, "wind_speed_10m", i);
@@ -201,6 +214,15 @@ namespace weather_client {
                day.temperature_2m_max = SeriesValue(series, "temperature_2m_max", i);
                day.temperature_2m_min = SeriesValue(series, "temperature_2m_min", i);
                day.precipitation_sum = SeriesValue(series, "precipitation_sum", i);
+               day.precipitation_probability_max = SeriesValue(series, "precipitation_probability_max", i);
+               day.wind_gusts_10m_max = SeriesValue(series, "wind_gusts_10m_max", i);
+               day.uv_index_max = SeriesValue(series, "uv_index_max", i);
+               if(series.contains("sunrise") && series["sunrise"].is_array() &&
+                  i<series["sunrise"].size() && series["sunrise"][i].is_string())
+                  day.sunrise=series["sunrise"][i].get<std::string>();
+               if(series.contains("sunset") && series["sunset"].is_array() &&
+                  i<series["sunset"].size() && series["sunset"][i].is_string())
+                  day.sunset=series["sunset"][i].get<std::string>();
                day.wind_speed_10m_max = SeriesValue(series, "wind_speed_10m_max", i);
                day.weather_code = SeriesInteger(series, "weather_code", i);
                data.days.push_back(std::move(day));
