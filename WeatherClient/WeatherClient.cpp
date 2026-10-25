@@ -472,7 +472,7 @@ int main(int argc,char** argv) {
             Render(previewSurface->getCanvas(),1200,780,preview,1.f);
             SkPixmap pixels;
             if(previewSurface->peekPixels(&pixels)) {
-               overviewDrawn=SkColorGetR(*pixels.addr32(60,90))!=
+               overviewDrawn=SkColorGetR(*pixels.addr32(1000,85))!=
                   SkColorGetR(*pixels.addr32(60,550));
             }
          }
