@@ -4,6 +4,9 @@
 # WeatherClient – CycloneDX
 
 - [WeatherClient application SBOM](SBOM-WeatherClient.cdx.json)
+- [ThirdParty.md](ThirdParty.md): BuildEngine-Katalog, direkte und
+  mögliche transitive Bibliotheken, Staging, Lizenzen, Verifikationsgrenzen
+- [REST.md](REST.md): externe Dienste (keine binären Dependencies)
 
 Deklarative Komponenten. Die tatsächliche DLL-Closure, Versionen und Lizenztexte müssen nach einem realen BCC64X-Build geprüft werden.
 
