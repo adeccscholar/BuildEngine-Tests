@@ -242,34 +242,79 @@ namespace weather_client::view {
       }
    }
 
+   inline void DrawMoonSymbol(SkCanvas* canvas,float x,float y) {
+      SkPaint paint;
+      Color(paint,0xffe8e8d2);
+      // Tiny original crescent silhouette: do not obscure with the cloud.
+      SkPathBuilder crescent;
+      crescent.moveTo(x+4,y-10);
+      crescent.cubicTo(x-10,y-12,x-12,y+8,x+2,y+10);
+      crescent.cubicTo(x-5,y+3,x-4,y-7,x+4,y-10);
+      crescent.close();
+      canvas->drawPath(crescent.detach(),paint);
+   }
+
    inline void DrawSkySymbol(
       SkCanvas* canvas,float x,float y,int code,bool isDay
    ) {
-      SkPaint p;
-      bool const clear=code==0||code==1;
-      bool const precipitation=(code>=51&&code<=86)||code>=95;
-      Color(p,isDay?0xffe9bb69:0xffb6c9dd);
-      if(clear||code==2) {
-         canvas->drawCircle(x-9,y-5,7,p);
-         p.setStrokeWidth(2);
+      SkPaint paint;
+      bool const clear=code<=1;
+      bool const rain=(code>=51&&code<=67)||(code>=80&&code<=82)||code>=95;
+      bool const snow=(code>=71&&code<=77)||code==85||code==86;
+      bool const storm=code==95||code==96||code==99;
+      if(isDay) {
+         Color(paint,0xffefc56b);
+         canvas->drawCircle(x-10,y-8,7,paint);
+         paint.setStrokeWidth(1.6f);
          for(int i=0;i<8;++i) {
             float const a=static_cast<float>(i)*Pi/4.f;
-            canvas->drawLine(x-9+std::cos(a)*11,y-5+std::sin(a)*11,
-               x-9+std::cos(a)*14,y-5+std::sin(a)*14,p);
+            canvas->drawLine(x-10+std::cos(a)*10,y-8+std::sin(a)*10,
+               x-10+std::cos(a)*14,y-8+std::sin(a)*14,paint);
          }
+      } else {
+         DrawMoonSymbol(canvas,x-10,y-8);
       }
       if(!clear) {
-         Color(p,0xffb5c8d5);
-         canvas->drawCircle(x,y+1,8,p);
-         canvas->drawCircle(x+11,y-3,10,p);
-         canvas->drawCircle(x+20,y+2,7,p);
-         canvas->drawRect(SkRect::MakeXYWH(x-1,y,21,10),p);
-         if(precipitation) {
-            Color(p,0xff71b5d8);p.setStrokeWidth(2);
-            canvas->drawLine(x+2,y+13,x-2,y+20,p);
-            canvas->drawLine(x+12,y+13,x+8,y+20,p);
+         Color(paint,0xffb9c9d5);
+         canvas->drawCircle(x,y+1,8,paint);
+         canvas->drawCircle(x+11,y-3,10,paint);
+         canvas->drawCircle(x+20,y+2,7,paint);
+         canvas->drawRect(SkRect::MakeXYWH(x-1,y,21,10),paint);
+         if(rain) {
+            Color(paint,0xff7cc9ed);
+            paint.setStrokeWidth(2.f);
+            canvas->drawLine(x+3,y+12,x-1,y+20,paint);
+            canvas->drawLine(x+13,y+12,x+9,y+20,paint);
+         }
+         if(snow) {
+            Color(paint,0xffecf7ff);
+            canvas->drawCircle(x+3,y+16,2.3f,paint);
+            canvas->drawCircle(x+15,y+19,2.3f,paint);
+         }
+         if(storm) {
+            SkPathBuilder bolt;
+            bolt.moveTo(x+9,y+10).lineTo(x+3,y+19)
+               .lineTo(x+9,y+17).lineTo(x+5,y+26)
+               .lineTo(x+19,y+13).lineTo(x+13,y+15).close();
+            Color(paint,0xffffd179);
+            canvas->drawPath(bolt.detach(),paint);
          }
       }
+   }
+
+   inline void DrawSolarEvent(SkCanvas* canvas,float x,float y,
+      bool sunrise,std::string_view time) {
+      SkPaint paint;
+      Color(paint,0xffeac27c);
+      canvas->drawCircle(x+7,y-4,5,paint);
+      paint.setColor(0xff183344);
+      canvas->drawRect(SkRect::MakeXYWH(x-1,y-1,18,7),paint);
+      paint.setColor(0xffebce9a);
+      paint.setStrokeWidth(1.5f);
+      canvas->drawLine(x-2,y+1,x+19,y+1,paint);
+      canvas->drawLine(x+7,sunrise?y+8:y-15,
+         x+7,sunrise?y+3:y-9,paint);
+      font::Draw(canvas,x+22,y+5,time,12,0xffb5d3d9,55);
    }
 
    struct Point {
@@ -279,6 +324,8 @@ namespace weather_client::view {
       std::optional<double> rain;
       std::optional<int> code;
       bool daylight{true};
+      std::string sunrise;
+      std::string sunset;
    };
 
    inline void DrawForecast(
@@ -311,6 +358,8 @@ namespace weather_client::view {
             point.rain=day.precipitation_sum?
                std::optional<double>{Precipitation(*day.precipitation_sum,units)}:std::nullopt;
             point.code=day.weather_code;
+            point.sunrise=ClockText(day.sunrise);
+            point.sunset=ClockText(day.sunset);
          } else {
             auto const& hour=weather->hours[i];
             point.label=hour.time.size()>=16?hour.time.substr(11,5):hour.time;
@@ -379,7 +428,8 @@ namespace weather_client::view {
       for(std::size_t i=0;i<points.size();++i) {
          float const x=xAt(i);
          font::Draw(canvas,x-30,510,points[i].label,14,0xffc9d9df,91);
-         DrawSkySymbol(canvas,x-7,532,points[i].code.value_or(-1),points[i].daylight);
+         DrawSkySymbol(canvas,x-7,daily?502.f:532.f,
+            points[i].code.value_or(-1),points[i].daylight);
          if(points[i].rain) {
             float const portion=static_cast<float>(
                std::clamp(*points[i].rain/rainMax,0.0,1.0));
@@ -393,6 +443,11 @@ namespace weather_client::view {
                std::format("{:.1f} mm",*points[i].rain)):
                std::format("{:.0f} %",*points[i].rain))
             :"--",13,0xff9ccfda,96);
+         if(daily && !points[i].sunrise.empty() && !points[i].sunset.empty()) {
+            // Sunrise and sunset for each daily column below its caption.
+            DrawSolarEvent(canvas,x-39,527,true,points[i].sunrise);
+            DrawSolarEvent(canvas,x-39,550,false,points[i].sunset);
+         }
          if(points[i].high) {
             std::string const label=daily && points[i].low
                ? std::format("{:.0f}/{:.0f} {}",*points[i].low,*points[i].high,TempUnit(units))
