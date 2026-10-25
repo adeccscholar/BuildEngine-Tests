@@ -13,6 +13,7 @@
 #include "WeatherText.h"
 #include "WeatherFont.h"
 #include "WeatherMetrics.h"
+#include "WeatherHazards.h"
 #include "WeatherUnits.h"
 #include "WeatherMoon.h"
 #include "WeatherDiagnostics.h"
@@ -433,8 +434,21 @@ namespace weather_client::application {
       wc::diagnostics::Trace("Render: details");
       view::DrawConditionDetails(canvas,current,s.units);
       if(s.weather) {
-         font::Draw(canvas,60,475,wc::StormLabel(wc::StormOutlook(*s.weather)),
-            13,0xffe6c0a5,245);
+         auto const hazard=wc::EvaluateHazards(*s.weather);
+         SkColor const color=hazard.level==wc::HazardLevel::High?0xffffa08c:
+            hazard.level==wc::HazardLevel::Elevated?0xffffca84:
+            hazard.level==wc::HazardLevel::Advisory?0xfff0d9a3:0xff9bcbb7;
+         font::Draw(canvas,60,475,
+            std::string{"48H MODEL / "}+wc::HazardLevelName(hazard.level),
+            13,color,260);
+         if(s.error.empty()) {
+            std::string const detail=hazard.modelSignal?
+               std::string{"FORECAST SIGNAL: "}+hazard.summary+
+                  (hazard.at.empty()?"":std::string{" / " }+hazard.at):
+               std::string{"FORECAST SIGNAL: DATA UNAVAILABLE"};
+            font::Draw(canvas,55,753,detail+
+               "  /  NOT AN OFFICIAL WARNING",12,color,510);
+         }
       }
       font::Draw(canvas,365,475,
          s.daily?"DAILY OUTLOOK":"NEXT HOURS",16,0xfff0e3ce,360);
@@ -532,6 +546,21 @@ int main(int argc,char** argv) {
          auto const fullMoon=wc::CalculateMoonPhase("2000-01-21T04:00");
          auto const waxing=wc::CalculateMoonPhase("2000-01-13T12:00");
          auto const waning=wc::CalculateMoonPhase("2000-01-28T12:00");
+         auto hazardData=data;
+         for(auto& hour:hazardData.hours) {
+            hour.precipitation=0.;
+            hour.cape=0.;
+            hour.wind_gusts_10m=20.;
+            hour.weather_code=2;
+         }
+         auto const quietHazard=wc::EvaluateHazards(hazardData);
+         hazardData.hours[2].precipitation=17.;
+         auto const rainHazard=wc::EvaluateHazards(hazardData);
+         hazardData.hours[3].weather_code=99;
+         auto const thunderHazard=wc::EvaluateHazards(hazardData);
+         hazardData.hours[3].weather_code=2;
+         hazardData.hours[3].wind_gusts_10m=110.;
+         auto const gustHazard=wc::EvaluateHazards(hazardData);
          auto stormData=data;
          stormData.hours.front().weather_code=95;
          Station preview;
@@ -583,6 +612,19 @@ int main(int argc,char** argv) {
          check((usRange.find('/')!=std::string::npos &&
             usRange.find(wc::TempUnit(wc::UnitSystem::US))!=std::string::npos),
             "US range formatting");
+         check((quietHazard.level==wc::HazardLevel::None),
+            "no hazard for quiet conditions");
+         check((rainHazard.kind==wc::HazardKind::HeavyRain &&
+            rainHazard.level==wc::HazardLevel::Elevated),
+            "strong rain forecast detection");
+         check((thunderHazard.kind==wc::HazardKind::Thunderstorm &&
+            thunderHazard.level==wc::HazardLevel::High),
+            "hail thunderstorm forecast detection");
+         check((gustHazard.kind==wc::HazardKind::Wind &&
+            gustHazard.level==wc::HazardLevel::High),
+            "severe gust forecast detection");
+         check((wc::EvaluateHazards(wc::WeatherData{}).level==wc::HazardLevel::Unknown),
+            "no source must not mean low risk");
          check((wc::Temperature(0.,wc::UnitSystem::US)==32.),"model condition 14");
          check((wc::Temperature(100.,wc::UnitSystem::US)==212.),"model condition 15");
          check((std::abs(wc::WindSpeed(100.,wc::UnitSystem::US)-62.137119)<0.001),"model condition 16");
