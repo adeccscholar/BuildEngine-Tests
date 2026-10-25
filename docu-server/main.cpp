@@ -125,7 +125,7 @@ int main(
       // Resolve the test checkout from the known production layout first.
       std::filesystem::path aRepositoryRoot =
          aExecutableDirectory.parent_path().parent_path()
-         .parent_path().parent_path().parent_path() / L"tests";
+         .parent_path().parent_path() / L"tests";
 
       if(!std::filesystem::is_regular_file(
          aRepositoryRoot / L"Docs" / L"Documentation.xml")) {
