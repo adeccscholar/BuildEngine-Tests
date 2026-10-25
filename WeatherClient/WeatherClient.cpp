@@ -14,6 +14,7 @@
 #include "WeatherFont.h"
 #include "WeatherMetrics.h"
 #include "WeatherUnits.h"
+#include "WeatherMoon.h"
 
 #include <SDL.h>
 #include <boost/statechart/state_machine.hpp>
@@ -350,7 +351,9 @@ namespace weather_client::application {
       auto const* current=s.weather?&s.weather->current:nullptr;
       int const code=current?current->weather_code.value_or(-1):-1;
       bool const daytime=!s.weather||wc::CurrentDaylight(*s.weather);
-      artwork::Atmosphere(canvas,code,daytime,animationTime);
+      auto const moon=s.weather?wc::CalculateMoonPhase(s.weather->current.time):
+         std::optional<wc::MoonPhase>{};
+      artwork::Atmosphere(canvas,code,daytime,animationTime,moon);
       font::Draw(canvas,57,59,"ADECC / WEATHER OBSERVATORY",
          23,0xfff5f1e8,790);
       std::string label=s.location?s.location->address:"Locating your region...";
@@ -374,6 +377,12 @@ namespace weather_client::application {
             today?wc::ClockText(today->sunrise):"--:--",
             today?wc::ClockText(today->sunset):"--:--");
          font::Draw(canvas,58,184,sun,14,0xfff0d8b0,796);
+         if(!daytime && moon) {
+            font::Draw(canvas,800,184,
+               std::string{wc::MoonStageName(moon->stage)}+
+                  std::format("  {:.0f}% LIT",moon->illumination*100.),
+               12,0xffd7e3f3,315);
+         }
       } else {
          font::Draw(canvas,58,116,"Waiting for weather observations...",
             22,0xffe5d2b9,790);
@@ -470,6 +479,10 @@ int main(int argc,char** argv) {
                }
             }
          }
+         auto const newMoon=wc::CalculateMoonPhase("2000-01-06T18:14");
+         auto const fullMoon=wc::CalculateMoonPhase("2000-01-21T04:00");
+         auto const waxing=wc::CalculateMoonPhase("2000-01-13T12:00");
+         auto const waning=wc::CalculateMoonPhase("2000-01-28T12:00");
          auto stormData=data;
          stormData.hours.front().weather_code=95;
          Station preview;
@@ -489,6 +502,12 @@ int main(int argc,char** argv) {
             }
          }
          bool const valid=glyphVisible && overviewDrawn &&
+            newMoon && newMoon->illumination<0.001 &&
+            newMoon->stage==wc::MoonStage::New &&
+            fullMoon && fullMoon->illumination>0.98 &&
+            waxing && waxing->waxing && waxing->illumination>0.25 &&
+            waning && !waning->waxing && waning->illumination>0.20 &&
+            !wc::CalculateMoonPhase("2026-02-30T12:00") &&
             font::Width(font::Fit("A long address with Unicode \u00e4 and more",
                16.f,170.f),16.f)<=170.1f &&
             VerifyStatechart() &&
