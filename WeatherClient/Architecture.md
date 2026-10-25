@@ -90,7 +90,7 @@ Der FSM-Test prüft definierte Zustandswechsel. Das allein ist **kein** Nachweis
 
 ## Viertelstunden, Fehler und Datenalter
 
-Der Zielzeitpunkt einer erfolgreichen Aktualisierung wird mit `NextQuarterHour(system_clock::now())` berechnet, **nicht** als `now + 15 Minuten`. Geplante Grenzen sind `:00`, `:15`, `:30`, `:45`; die Grenze selbst ist exklusiv: Erfolg um 19:15:00 plant 19:30:00. Beim Fehler folgt eine neue Anfrage nach ungefähr einer Minute oder an einer vorher eintretenden Viertelstundengrenze. Bei laufendem Request wird kein zweiter HTTP-Aufruf parallel gestarted.
+Der Zielzeitpunkt einer erfolgreichen Aktualisierung wird mit `NextQuarterHour(system_clock::now())` berechnet, **nicht** als `now + 15 Minuten`. Geplante Grenzen sind `:00`, `:15`, `:30`, `:45`; die Grenze selbst ist exklusiv: Erfolg um 19:15:00 plant 19:30:00. Beim Fehler folgt eine neue Anfrage nach ungefähr einer Minute oder an einer vorher eintretenden Viertelstundengrenze. Bei laufendem Request wird kein zweiter HTTP-Aufruf parallel gestartet.
 
 Der Abruf kann später abgeschlossen werden als der Grenzzeitpunkt. Angezeigt werden das lokale Status-Update und die vom Provider gelieferten Mess-/Forecast-Zeitstempel. **Ein neuer Abruf garantiert keine neue Modellrechnung des Wetterdienstes.** Die analoge Uhr basiert auf der lokalen Rechnerzeit; `timezone=auto` bezeichnet dagegen die Zeitzone der Wetterkoordinaten. Diese Zeiten dürfen bei entfernten Standorten voneinander abweichen.
 
