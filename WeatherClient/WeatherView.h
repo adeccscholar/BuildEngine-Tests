@@ -388,7 +388,9 @@ namespace weather_client::view {
                portion*19.f),paint);
          }
          font::Draw(canvas,x-27,652,points[i].rain?
-            (daily?std::format(units==UnitSystem::US?"{:.2f} in":"{:.1f} mm",*points[i].rain):
+            (daily?(units==UnitSystem::US?
+               std::format("{:.2f} in",*points[i].rain):
+               std::format("{:.1f} mm",*points[i].rain)):
                std::format("{:.0f} %",*points[i].rain))
             :"--",13,0xff9ccfda,96);
          if(points[i].high) {
