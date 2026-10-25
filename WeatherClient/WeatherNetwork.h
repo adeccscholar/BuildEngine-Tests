@@ -7,6 +7,8 @@
 */
 #include "WeatherModel.h"
 #include <curl/curl.h>
+#include <array>
+#include <cstdlib>
 #include <format>
 #include <filesystem>
 #include <fstream>
@@ -28,34 +30,65 @@ namespace weather_client {
       return bytes;
    }
 
-   [[nodiscard]] inline std::string GetHttps(
-      std::string const& url, std::string_view agent = "adecc-Scholar-WeatherClient/1.0"
-   ) {
-      if(!url.starts_with("https://")) {
-         throw std::runtime_error{ "Only HTTPS endpoints are accepted" };
+   [[nodiscard]] inline std::string SelectCaBundle(std::string_view explicitBundle = {}) {
+      if(!explicitBundle.empty()) return std::string{explicitBundle};
+      for(char const* name : {"WEATHERCLIENT_CA_BUNDLE","CURL_CA_BUNDLE","SSL_CERT_FILE"}) {
+         if(char const* value=std::getenv(name);value&&*value)
+            return std::string{value};
       }
+      return {};
+   }
+
+   [[nodiscard]] inline std::string GetHttps(
+      std::string const& url,
+      std::string_view agent = "adecc-Scholar-WeatherClient/1.1 (+https://github.com/adeccscholar/BuildEngine-Tests)",
+      std::string_view caBundle = {}
+   ) {
+      if(!url.starts_with("https://"))
+         throw std::runtime_error{"Only HTTPS endpoints are accepted"};
       using Handle = std::unique_ptr<CURL, decltype(&curl_easy_cleanup)>;
-      Handle handle{curl_easy_init(), &curl_easy_cleanup};
-      if(!handle) throw std::runtime_error{ "curl_easy_init failed" };
+      Handle handle{curl_easy_init(),&curl_easy_cleanup};
+      if(!handle) throw std::runtime_error{"curl_easy_init failed"};
       std::string result;
       std::string const userAgent{agent};
-      curl_easy_setopt(handle.get(), CURLOPT_URL, url.c_str());
-      curl_easy_setopt(handle.get(), CURLOPT_USERAGENT, userAgent.c_str());
-      curl_easy_setopt(handle.get(), CURLOPT_WRITEFUNCTION, &CurlWrite);
-      curl_easy_setopt(handle.get(), CURLOPT_WRITEDATA, &result);
-      curl_easy_setopt(handle.get(), CURLOPT_FOLLOWLOCATION, 0L);
-      curl_easy_setopt(handle.get(), CURLOPT_CONNECTTIMEOUT, 7L);
-      curl_easy_setopt(handle.get(), CURLOPT_TIMEOUT, 16L);
-      curl_easy_setopt(handle.get(), CURLOPT_SSL_VERIFYPEER, 1L);
-      curl_easy_setopt(handle.get(), CURLOPT_SSL_VERIFYHOST, 2L);
-      curl_easy_setopt(handle.get(), CURLOPT_PROTOCOLS_STR, "https");
-      auto const error = curl_easy_perform(handle.get());
-      if(error != CURLE_OK) {
-         throw std::runtime_error{std::format("HTTPS: {}", curl_easy_strerror(error))};
+      std::array<char,CURL_ERROR_SIZE> errorBuffer{};
+      curl_easy_setopt(handle.get(),CURLOPT_ERRORBUFFER,errorBuffer.data());
+      curl_easy_setopt(handle.get(),CURLOPT_URL,url.c_str());
+      curl_easy_setopt(handle.get(),CURLOPT_USERAGENT,userAgent.c_str());
+      curl_easy_setopt(handle.get(),CURLOPT_WRITEFUNCTION,&CurlWrite);
+      curl_easy_setopt(handle.get(),CURLOPT_WRITEDATA,&result);
+      curl_easy_setopt(handle.get(),CURLOPT_FOLLOWLOCATION,0L);
+      curl_easy_setopt(handle.get(),CURLOPT_CONNECTTIMEOUT,7L);
+      curl_easy_setopt(handle.get(),CURLOPT_TIMEOUT,18L);
+      curl_easy_setopt(handle.get(),CURLOPT_SSL_VERIFYPEER,1L);
+      curl_easy_setopt(handle.get(),CURLOPT_SSL_VERIFYHOST,2L);
+      curl_easy_setopt(handle.get(),CURLOPT_PROTOCOLS_STR,"https");
+      // The BCC64X OpenSSL build has no guaranteed CA bundle path.
+      // On Windows use the OS trust roots without any Windows API calls.
+#if defined(_WIN32)
+      if(curl_easy_setopt(handle.get(),CURLOPT_SSL_OPTIONS,
+         static_cast<long>(CURLSSLOPT_NATIVE_CA))!=CURLE_OK) {
+         throw std::runtime_error{"libcurl cannot use the native CA store; specify a PEM CA bundle"};
+      }
+#endif
+      std::string const bundle=SelectCaBundle(caBundle);
+      if(!bundle.empty()) {
+         if(!std::filesystem::is_regular_file(std::filesystem::path{bundle}))
+            throw std::runtime_error{"CA bundle does not exist: "+bundle};
+         if(curl_easy_setopt(handle.get(),CURLOPT_CAINFO,bundle.c_str())!=CURLE_OK)
+            throw std::runtime_error{"Cannot configure CA bundle"};
+      }
+      auto const error=curl_easy_perform(handle.get());
+      if(error!=CURLE_OK) {
+         std::string const detail=errorBuffer[0]
+            ? std::string{errorBuffer.data()} : std::string{curl_easy_strerror(error)};
+         if(error==CURLE_PEER_FAILED_VERIFICATION)
+            throw std::runtime_error{"TLS trust failed. Check OS trusted CAs or use --ca-bundle / WEATHERCLIENT_CA_BUNDLE (PEM). "+detail};
+         throw std::runtime_error{"HTTPS request failed: "+detail};
       }
       long code{};
-      curl_easy_getinfo(handle.get(), CURLINFO_RESPONSE_CODE, &code);
-      if(code != 200) throw std::runtime_error{std::format("HTTP {}", code)};
+      curl_easy_getinfo(handle.get(),CURLINFO_RESPONSE_CODE,&code);
+      if(code!=200) throw std::runtime_error{std::format("Weather/location provider returned HTTP {}",code)};
       return result;
    }
 
@@ -71,7 +104,7 @@ namespace weather_client {
       return result;
    }
 
-   [[nodiscard]] inline Location ResolveAddress(std::string const& address) {
+   [[nodiscard]] inline Location ResolveAddress(std::string const& address,std::string_view caBundle = {}) {
       if(address.empty() || address.size() > 300U) {
          throw std::runtime_error{ "Address must contain 1..300 characters" };
       }
@@ -79,18 +112,22 @@ namespace weather_client {
       // max one query per second. Never use it for autocomplete.
       auto const url = "https://nominatim.openstreetmap.org/search?q="
          + Escape(address) + "&format=jsonv2&limit=1";
-      return ParseAddressLocation(Json::parse(GetHttps(url)), address);
+      return ParseAddressLocation(Json::parse(GetHttps(url,
+         "adecc-Scholar-WeatherClient/1.1 (+https://github.com/adeccscholar/BuildEngine-Tests)",
+         caBundle)),address);
    }
 
-   [[nodiscard]] inline Location ResolveIp() {
+   [[nodiscard]] inline Location ResolveIp(std::string_view caBundle = {}) {
       // City/region-level approximation, NEVER a house number.
-      auto const json = Json::parse(GetHttps("https://ipapi.co/json/"));
+      auto const json = Json::parse(GetHttps("https://ipapi.co/json/",
+         "adecc-Scholar-WeatherClient/1.1 (+https://github.com/adeccscholar/BuildEngine-Tests)",
+         caBundle));
       if(json.contains("error") && json["error"] == true)
          throw std::runtime_error{"IP location rate limited"};
       return ParseIpLocation(json);
    }
 
-   [[nodiscard]] inline WeatherData FetchWeather(Location const& location) {
+   [[nodiscard]] inline WeatherData FetchWeather(Location const& location,std::string_view caBundle = {}) {
       if(!ValidCoordinates(location.latitude, location.longitude))
          throw std::runtime_error{ "Cannot fetch weather for invalid coordinates" };
       auto const url = std::format(
@@ -98,14 +135,17 @@ namespace weather_client {
          "latitude={:.7f}&longitude={:.7f}&timezone=auto"
          "&forecast_days=7"
          "&current=temperature_2m,relative_humidity_2m,apparent_temperature,"
-         "pressure_msl,wind_speed_10m,wind_direction_10m,precipitation,"
-         "cloud_cover,weather_code,is_day"
-         "&hourly=temperature_2m,precipitation_probability,precipitation,"
-         "wind_speed_10m,weather_code"
+         "pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,"
+         "precipitation,cloud_cover,weather_code,is_day"
+         "&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,"
+         "precipitation_probability,precipitation,wind_speed_10m,cloud_cover,weather_code"
          "&daily=weather_code,temperature_2m_max,temperature_2m_min,"
-         "precipitation_sum,wind_speed_10m_max",
+         "precipitation_sum,precipitation_probability_max,wind_speed_10m_max,"
+         "wind_gusts_10m_max,uv_index_max,sunrise,sunset",
          location.latitude, location.longitude);
-      return ParseWeather(Json::parse(GetHttps(url)));
+      return ParseWeather(Json::parse(GetHttps(url,
+         "adecc-Scholar-WeatherClient/1.1 (+https://github.com/adeccscholar/BuildEngine-Tests)",
+         caBundle)));
    }
 
    [[nodiscard]] inline std::optional<Location> LoadLocation(
