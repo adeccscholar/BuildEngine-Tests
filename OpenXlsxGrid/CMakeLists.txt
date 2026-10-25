@@ -14,7 +14,7 @@ target_compile_definitions(adecc_openxlsx_grid_test PRIVATE CHRONO_WORK_AROUND C
 target_compile_options(adecc_openxlsx_grid_test PRIVATE "-fborland-exec-code-page=65001")
 adecc_test_use_core(adecc_openxlsx_grid_test openxlsx)
 target_link_libraries(adecc_openxlsx_grid_test PRIVATE OpenXLSX::OpenXLSX)
-adecc_test_install(adecc_openxlsx_grid_test PACKAGE_ROOTS
+adecc_test_install(adecc_openxlsx_grid_test RUNTIME_CLOSURE PACKAGE_ROOTS
  "${OPENXLSX_PACKAGE}" "${PUGIXML_PACKAGE}" "${LIBZIP_PACKAGE}" "${BOOST_PACKAGE}" "${ZLIB_PACKAGE}"
  TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
 enable_testing()
