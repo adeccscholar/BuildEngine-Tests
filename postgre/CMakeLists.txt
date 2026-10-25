@@ -10,8 +10,20 @@ endforeach()
 set(PostgreSQL_INCLUDE_DIR "${LIBPQ_PACKAGE}/include")
 set(PostgreSQL_LIBRARY "${LIBPQ_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libpq.lib")
 find_package(PostgreSQL REQUIRED)
-list(PREPEND CMAKE_PREFIX_PATH "${LIBPQXX_PACKAGE}" "${LIBPQXX_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}")
-find_package(libpqxx CONFIG REQUIRED PATHS "${LIBPQXX_PACKAGE}" "${LIBPQXX_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}" NO_DEFAULT_PATH)
+# Use the precise exported CMake config directory verified by the
+# BuildEngine-Admin libpqxx consumer smoke. The package is installed under
+# lib/win64/<configuration>/cmake/libpqxx, not at the package root.
+set(_pqxx_config_dir
+ "${LIBPQXX_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/cmake/libpqxx")
+if(NOT EXISTS "${_pqxx_config_dir}/libpqxx-config.cmake" AND
+   NOT EXISTS "${_pqxx_config_dir}/libpqxxConfig.cmake")
+ message(FATAL_ERROR
+  "BuildEngine libpqxx CMake export is missing: ${_pqxx_config_dir}. "
+  "The package's install/publish phase must provide the official export.")
+endif()
+set(libpqxx_DIR "${_pqxx_config_dir}" CACHE PATH
+ "BuildEngine-managed libpqxx package config" FORCE)
+find_package(libpqxx CONFIG REQUIRED PATHS "${_pqxx_config_dir}" NO_DEFAULT_PATH)
 if(TARGET libpqxx::pqxx)
  set(_pqxx_target libpqxx::pqxx)
 elseif(TARGET pqxx)
