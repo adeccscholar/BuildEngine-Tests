@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 #include "MyConvert.h"
 #include "MyType_Traits.h"
 
@@ -49,7 +52,7 @@ size_t parse(string_type const& source, std::string const& del, container& list)
 
 
 
-// wir fangen mit Thüringen an
+// wir fangen mit ThÃ¼ringen an
 data_type read_keys(std::string const& strFile) {
    /*
    static std::map<std::string, int> key_bridge = { { "L", 1}, { "R", 2}, { "K", 3}, { "G", 4 } };
@@ -235,42 +238,42 @@ void Read_Bb(std::string const& strKeyFile, std::string strFile, std::ostream& o
 
 
 Der Wechsel eines Landkreises in ein anderes Bundesland ist eine komplexe Angelegenheit und erfordert in der 
-Regel eine Änderung der Landesgrenze und damit eine Veränderung des Staatsgebiets. Dafür gibt es in Deutschland 
+Regel eine Ã„nderung der Landesgrenze und damit eine VerÃ¤nderung des Staatsgebiets. DafÃ¼r gibt es in Deutschland 
 spezielle Regelungen, die im Grundgesetz (GG) und im Staatsvertragsrecht festgelegt sind.
 
-Gemäß Artikel 29 Absatz 2 GG ist die Änderung der Grenzen zwischen Bundesländern nur aufgrund eines 
-Staatsvertrags zulässig. Ein solcher Staatsvertrag muss von den beteiligten Ländern ausgehandelt und 
+GemÃ¤ÃŸ Artikel 29 Absatz 2 GG ist die Ã„nderung der Grenzen zwischen BundeslÃ¤ndern nur aufgrund eines 
+Staatsvertrags zulÃ¤ssig. Ein solcher Staatsvertrag muss von den beteiligten LÃ¤ndern ausgehandelt und 
 von den jeweiligen Landesparlamenten ratifiziert werden. Der Staatsvertrag muss auch vom Bundestag 
 und Bundesrat genehmigt werden.
 
-Wenn die Änderung der Landesgrenzen durch einen Staatsvertrag beschlossen wurde, muss dies auch im 
-Bundesgesetzblatt veröffentlicht werden. Anschließend müssen die betroffenen Kommunen und Bürger über 
-den Wechsel informiert werden und es müssen Verwaltungsstrukturen aufgebaut werden, um die Umsetzung 
+Wenn die Ã„nderung der Landesgrenzen durch einen Staatsvertrag beschlossen wurde, muss dies auch im 
+Bundesgesetzblatt verÃ¶ffentlicht werden. AnschlieÃŸend mÃ¼ssen die betroffenen Kommunen und BÃ¼rger Ã¼ber 
+den Wechsel informiert werden und es mÃ¼ssen Verwaltungsstrukturen aufgebaut werden, um die Umsetzung 
 des Wechsels zu organisieren.
 
 Der Wechsel eines Landkreises in ein anderes Bundesland ist in der Regel ein komplexer und langwieriger 
-Prozess, der sorgfältig geplant und vorbereitet werden muss. Es muss sichergestellt werden, dass alle 
-betroffenen Stellen und Bürger ausreichend informiert sind und dass die Verwaltungsstrukturen in beiden 
-beteiligten Bundesländern angepasst werden, um einen reibungslosen Übergang zu gewährleisten.
+Prozess, der sorgfÃ¤ltig geplant und vorbereitet werden muss. Es muss sichergestellt werden, dass alle 
+betroffenen Stellen und BÃ¼rger ausreichend informiert sind und dass die Verwaltungsstrukturen in beiden 
+beteiligten BundeslÃ¤ndern angepasst werden, um einen reibungslosen Ãœbergang zu gewÃ¤hrleisten.
 
 ----------------------------------------------------------------------------------------------------------------
 
-Die rechtliche Grundlage für den Wechsel von Ortschaften und Städten zu einem anderen Landkreis in Deutschland 
-ist das Bundeslandesplanungsgesetz (BauGB). Das BauGB ist ein Bundesgesetz, das die Voraussetzungen für die 
-räumliche Planung und die Bauleitplanung in Deutschland regelt. In §1 Absatz 3 BauGB heißt es, dass die räumliche 
+Die rechtliche Grundlage fÃ¼r den Wechsel von Ortschaften und StÃ¤dten zu einem anderen Landkreis in Deutschland 
+ist das Bundeslandesplanungsgesetz (BauGB). Das BauGB ist ein Bundesgesetz, das die Voraussetzungen fÃ¼r die 
+rÃ¤umliche Planung und die Bauleitplanung in Deutschland regelt. In Â§1 Absatz 3 BauGB heiÃŸt es, dass die rÃ¤umliche 
 Entwicklung bundesweit und regional abgestimmt werden soll und dabei die Anforderungen an eine nachhaltige 
-Entwicklung und die demographische, wirtschaftliche, ökologische und soziale Entwicklung berücksichtigt werden 
+Entwicklung und die demographische, wirtschaftliche, Ã¶kologische und soziale Entwicklung berÃ¼cksichtigt werden 
 sollen.
 
-In den Landesplanungsgesetzen der einzelnen Bundesländer wird die Aufteilung des Landes in Landkreise und Gemeinden 
-geregelt. Diese Gesetze enthalten auch Bestimmungen darüber, wie und unter welchen Voraussetzungen Gemeinden und 
-Städte den Landkreis wechseln können. In der Regel ist dazu ein Verfahren vorgesehen, das mit einer Antragstellung 
+In den Landesplanungsgesetzen der einzelnen BundeslÃ¤nder wird die Aufteilung des Landes in Landkreise und Gemeinden 
+geregelt. Diese Gesetze enthalten auch Bestimmungen darÃ¼ber, wie und unter welchen Voraussetzungen Gemeinden und 
+StÃ¤dte den Landkreis wechseln kÃ¶nnen. In der Regel ist dazu ein Verfahren vorgesehen, das mit einer Antragstellung 
 durch die betreffende Gemeinde oder Stadt beginnt. Der Wechsel muss dann von den beteiligten Landkreisen und 
-gegebenenfalls auch von anderen Beteiligten wie Nachbargemeinden oder Behörden genehmigt werden.
+gegebenenfalls auch von anderen Beteiligten wie Nachbargemeinden oder BehÃ¶rden genehmigt werden.
 
-In vielen Fällen ist der Wechsel auch an bestimmte Voraussetzungen geknüpft, wie zum Beispiel eine 
+In vielen FÃ¤llen ist der Wechsel auch an bestimmte Voraussetzungen geknÃ¼pft, wie zum Beispiel eine 
 Mindesteinwohnerzahl oder eine bestimmte geografische Lage. Die konkreten Voraussetzungen und Verfahrensregeln 
-können von Bundesland zu Bundesland unterschiedlich sein und sind in den jeweiligen Landesplanungsgesetzen festgelegt.
+kÃ¶nnen von Bundesland zu Bundesland unterschiedlich sein und sind in den jeweiligen Landesplanungsgesetzen festgelegt.
 
 https://www.gesetze-im-internet.de/gr_ndstvtr_mv_nd/Gr%C3%84ndStVtr_MV_ND.pdf
 file:///C:/Users/vhill/Downloads/V37_Aenderung-01-11-2014_GVBl_2014-06_23.pdf

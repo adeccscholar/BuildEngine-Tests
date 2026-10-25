@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 #pragma once
 
 #include <string>
@@ -23,8 +26,8 @@ class TAddress {
    friend void swap(TAddress& lhs, TAddress& rhs) noexcept { lhs.swap(rhs); }
 private:
    std::string strCity = "";           ///< Stadt, an der sich die Adresse befindet
-   std::string strStreet = "";         ///< Straße zu dieser Adresse
-   std::string strStreetNumber = "";   ///< Hausnummer zu dieser Straße
+   std::string strStreet = "";         ///< StraÃŸe zu dieser Adresse
+   std::string strStreetNumber = "";   ///< Hausnummer zu dieser StraÃŸe
    std::string strZipCode = "";        ///< Postleitzahl
    std::string strUrbanUnit = "";      ///< Stadtbezirk
    std::string strUrbanUnit_Old = "";  ///< Stadtbezirk (alte Aufteilung)
