@@ -314,21 +314,6 @@ namespace weather_client::view {
       }
    }
 
-   inline void DrawSolarEvent(SkCanvas* canvas,float x,float y,
-      bool sunrise,std::string_view time) {
-      SkPaint paint;
-      Color(paint,0xffeac27c);
-      canvas->drawCircle(x+7,y-4,5,paint);
-      paint.setColor(0xff183344);
-      canvas->drawRect(SkRect::MakeXYWH(x-1,y-1,18,7),paint);
-      paint.setColor(0xffebce9a);
-      paint.setStrokeWidth(1.5f);
-      canvas->drawLine(x-2,y+1,x+19,y+1,paint);
-      canvas->drawLine(x+7,sunrise?y+8:y-15,
-         x+7,sunrise?y+3:y-9,paint);
-      font::Draw(canvas,x+22,y+5,time,12,0xffb5d3d9,55);
-   }
-
    struct Point {
       std::string label;
       std::optional<double> high;
@@ -337,8 +322,6 @@ namespace weather_client::view {
       std::optional<int> code;
       bool daylight{true};
       std::optional<MoonPhase> moon;
-      std::string sunrise;
-      std::string sunset;
    };
 
    inline void DrawForecast(
@@ -372,8 +355,6 @@ namespace weather_client::view {
             point.rain=day.precipitation_sum?
                std::optional<double>{Precipitation(*day.precipitation_sum,units)}:std::nullopt;
             point.code=day.weather_code;
-            point.sunrise=ClockText(day.sunrise);
-            point.sunset=ClockText(day.sunset);
          } else {
             auto const& hour=weather->hours[i];
             point.label=hour.time.size()>=16?hour.time.substr(11,5):hour.time;
@@ -443,7 +424,7 @@ namespace weather_client::view {
       for(std::size_t i=0;i<points.size();++i) {
          float const x=xAt(i);
          font::Draw(canvas,x-30,510,points[i].label,14,0xffc9d9df,91);
-         DrawSkySymbol(canvas,daily?x+37:x-7,daily?511.f:532.f,
+         DrawSkySymbol(canvas,x-7,daily?526.f:532.f,
             points[i].code.value_or(-1),points[i].daylight,points[i].moon);
          if(points[i].rain) {
             float const portion=static_cast<float>(
@@ -458,11 +439,6 @@ namespace weather_client::view {
                std::format("{:.1f} mm",*points[i].rain)):
                std::format("{:.0f} %",*points[i].rain))
             :"--",13,0xff9ccfda,96);
-         if(daily && !points[i].sunrise.empty() && !points[i].sunset.empty()) {
-            // Sunrise and sunset for each daily column below its caption.
-            DrawSolarEvent(canvas,x-39,527,true,points[i].sunrise);
-            DrawSolarEvent(canvas,x-39,550,false,points[i].sunset);
-         }
          if(points[i].high) {
             std::string const label=daily && points[i].low
                ? std::format("{:.0f}/{:.0f} {}",*points[i].low,*points[i].high,TempUnit(units))
