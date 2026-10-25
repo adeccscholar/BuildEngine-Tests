@@ -13,6 +13,7 @@
 #include "WeatherText.h"
 #include "WeatherFont.h"
 #include "WeatherMetrics.h"
+#include "WeatherTime.h"
 #include "WeatherHazards.h"
 #include "WeatherUnits.h"
 #include "WeatherMoon.h"
@@ -54,8 +55,7 @@ namespace mpl = boost::mpl;
 // Boost.Statechart transition<Event,...> needs Event types with external linkage.
 // Keep the states and events in this named namespace for simple FSM extensions.
 namespace weather_client::application {
-   constexpr auto refresh = std::chrono::minutes{15};
-   constexpr auto retry = std::chrono::minutes{1};
+
 
    [[nodiscard]] inline std::string LocalClock() {
       std::time_t const now=std::time(nullptr);
@@ -106,7 +106,7 @@ namespace weather_client::application {
       bool fullscreen{};
       std::size_t offset{};
       std::uint64_t generation{};
-      std::chrono::steady_clock::time_point next{std::chrono::steady_clock::now()};
+      std::chrono::system_clock::time_point next{std::chrono::system_clock::now()};
       std::filesystem::path config{"weather-location.json"};
       std::jthread worker;
 
@@ -187,6 +187,8 @@ namespace weather_client::application {
          data.current.time="2026-10-25T13:00";
          data.current.temperature_2m=18.4;
          data.current.relative_humidity_2m=64;
+          data.current.dew_point_2m=11.4;
+          data.current.uv_index=3.2;
          data.current.apparent_temperature=17.1;
          data.current.wind_gusts_10m=24;
          data.current.pressure_msl=1015;
@@ -202,6 +204,8 @@ namespace weather_client::application {
             hour.temperature_2m=18.4+4*std::sin(i*0.26);
             hour.apparent_temperature=*hour.temperature_2m-1.3;
             hour.relative_humidity_2m=64.0;
+             hour.dew_point_2m=10.5;
+             hour.uv_index=2.8;
             hour.cloud_cover=48.0;
             hour.precipitation_probability=static_cast<double>((i*11)%80);
             hour.wind_speed_10m=11.0+5*std::cos(i*0.2);
@@ -361,8 +365,19 @@ namespace weather_client::application {
          std::optional<wc::MoonPhase>{};
       wc::diagnostics::Trace("Render: atmosphere");
       artwork::Atmosphere(canvas,code,daytime,animationTime,moon);
-      wc::diagnostics::Trace("Render: header font");
-      font::Draw(canvas,57,59,"ADECC / WEATHER OBSERVATORY",
+      {
+          std::time_t const now=std::time(nullptr);
+          std::tm local{};
+#if defined(_WIN32)
+          if(localtime_s(&local,&now)==0)
+#else
+          if(localtime_r(&now,&local))
+#endif
+             artwork::AnalogClock(canvas,1084.f,96.f,58.f,
+                local.tm_hour,local.tm_min,local.tm_sec);
+       }
+       wc::diagnostics::Trace("Render: header font");
+      font::Draw(canvas,57,59,"ADECC / WEATHER DASHBOARD",
          23,0xfff5f1e8,790);
       std::string label=s.location?s.location->address:"Locating your region...";
       if(s.location && s.location->approximate)
@@ -433,6 +448,15 @@ namespace weather_client::application {
       }
       wc::diagnostics::Trace("Render: details");
       view::DrawConditionDetails(canvas,current,s.units);
+       font::Draw(canvas,62,423,
+          std::string{"DEW POINT "}+(current&&current->dew_point_2m?
+             wc::TempText(*current->dew_point_2m,s.units):"--"),
+          13,0xffbadde8,245);
+       std::optional<double> const uv=current?current->uv_index:std::nullopt;
+       font::Draw(canvas,338,423,
+          uv?std::format("UV {:.1f} / {}",*uv,wc::UvCategory(*uv)):
+             std::string{"UV --"},
+          13,0xffeacb88,250);
       if(s.weather) {
          auto const hazard=wc::EvaluateHazards(*s.weather);
          SkColor const color=hazard.level==wc::HazardLevel::High?0xffffa08c:
@@ -643,6 +667,26 @@ int main(int argc,char** argv) {
          check((!brief.headline.empty()),"model condition 29");
          check((brief.outlook.starts_with("Next 6h:")),"model condition 30");
          check((wc::CardinalDirection(270)=="W"),"model condition 31");
+         check((wc::CardinalDirection(wc::WindToDirection(270))=="E"),
+            "west wind travels east");
+         using namespace std::chrono;
+         auto const t0=sys_days{2026y/October/25}+19h+7min+12s;
+         check((wc::NextQuarterHour(t0)==sys_days{2026y/October/25}+19h+15min),
+            "wall-clock quarter hour");
+         check((wc::NextQuarterHour(sys_days{2026y/October/25}+19h+15min)==
+            sys_days{2026y/October/25}+19h+30min),
+            "exclusive quarter-hour boundary");
+         check((wc::NextQuarterHour(sys_days{2026y/October/25}+19h+52min)==
+            sys_days{2026y/October/25}+20h),
+            "quarter-hour rolls over the hour");
+         check((wc::NextWeatherAttempt(t0,true)==t0+1min),
+            "failed request retries after a minute");
+         check((wc::AnalogClockAngles(3,30,0).flHourDegrees==105.),
+            "analog hour hand continuous");
+         check((wc::UvCategory(2.)=="LOW"&&wc::UvCategory(6.)=="HIGH"),
+            "UV index categories");
+         check((data.current.dew_point_2m==11.4&&data.current.uv_index==3.2),
+            "dew point and UV model");
          check((wc::WeatherDescription(61)=="Rain"),"model condition 32");
          check((view::HitTest(75,680,1200,780,false)==view::Action::Address),"model condition 33");
          check((view::HitTest(1100,680,1200,780,false)==view::Action::Units),"model condition 34");
@@ -809,7 +853,7 @@ int main(int argc,char** argv) {
          if(!result.error.empty()) {
             station.error=result.error;
             fsm.process_event(EvFailure{});
-            station.next=std::chrono::steady_clock::now()+retry;
+            station.next=wc::NextWeatherAttempt(std::chrono::system_clock::now(),true);
          } else if(result.location) {
             {
                std::lock_guard lock{station.mutex};
@@ -830,10 +874,10 @@ int main(int argc,char** argv) {
             if(station.location) station.location->timezone=station.weather->timezone;
             station.error.clear();
             fsm.process_event(EvWeather{});
-            station.next=std::chrono::steady_clock::now()+refresh;
+            station.next=wc::NextWeatherAttempt(std::chrono::system_clock::now(),false);
          }
       }
-      if(!station.loading&&std::chrono::steady_clock::now()>=station.next) {
+      if(!station.loading&&std::chrono::system_clock::now()>=station.next) {
          if(station.location) {
             fsm.process_event(EvRefresh{});
             station.Start(Request::Weather);
@@ -841,18 +885,18 @@ int main(int argc,char** argv) {
             fsm.process_event(EvStart{});
             station.Start(Request::Ip);
          }
-         station.next=std::chrono::steady_clock::now()+
-            (station.error.empty()?refresh:retry);
+         station.next=wc::NextWeatherAttempt(std::chrono::system_clock::now(),
+            !station.error.empty());
       }
       } catch(std::exception const& e) {
          station.error=std::string{"Weather update: "}+e.what();
          station.loading=false;
-         station.next=std::chrono::steady_clock::now()+retry;
+         station.next=wc::NextWeatherAttempt(std::chrono::system_clock::now(),true);
          try { fsm.process_event(EvFailure{}); } catch(...) { }
       } catch(...) {
          station.error="Unexpected failure while processing weather update";
          station.loading=false;
-         station.next=std::chrono::steady_clock::now()+retry;
+         station.next=wc::NextWeatherAttempt(std::chrono::system_clock::now(),true);
       }
       int width{},height{};
       SDL_GetRendererOutputSize(renderer,&width,&height);
