@@ -525,7 +525,8 @@ using tcp = asio::ip::tcp;
       std::string const strExtension =
          Lower(aEntry.path().extension().string());
 
-      if(strExtension == ".md") {
+      if(strExtension == ".md" &&
+         aEntry.path().lexically_normal().string().find("\\.bootstrap\\") == std::string::npos) {
          vecDocuments.emplace_back(
             std::filesystem::relative(
                aEntry.path(),
@@ -820,7 +821,7 @@ void DocuServer::Run() {
                      aSocket,
                      aRequest,
                      http::status::not_found,
-                     "documentation file not found"
+                     "test document not found"
                      );
                   }
                else if(Lower(aFile.extension().string()) == ".md") {
