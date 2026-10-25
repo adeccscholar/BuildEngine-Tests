@@ -307,3 +307,27 @@ To verify after fetching this branch, run the existing independent build
 and CTest commands listed above. In addition, open the installed GUI in
 `--demo` and check the clock's separation from the weather illustration,
 the dew/UV labels, weather direction, dial readability and the METRIC button.
+
+## Temperature graphics regression isolation (2026-10-25)
+
+The extra temperature-only `font::Draw(..., maxWidth)` call was removed
+because it introduced an additional `SkFont::measureText` / `Fit` path
+not used by the barometer readout. Temperature, pressure and humidity now
+use the same transparent `view::Text` rendering call in `Dial`.
+The dark plate and pixel glyphs remain removed. Render tracing now surrounds
+the temperature-value draw with `Dial: temperature value begin` and
+`Dial: temperature value complete`. This is a targeted regression isolation,
+**not a verified fix** until the Windows BCC64X graphics test passes.
+
+To locate a remaining native crash in the CTest working directory:
+
+```bat
+set WEATHERCLIENT_TRACE_RENDER=1
+ctest --test-dir ../build/Test/WeatherClient/Release/cmake -R WeatherClientGraphics --output-on-failure
+ type ..\build\Test\WeatherClient\Release\cmake\weather-client-render.log
+```
+
+If the trace stops before `Dial: temperature value complete`, investigate
+Skia's font provider with a native debugger; otherwise follow the next
+`Render: ...` phase. A test passing with the fallback environment variable
+is diagnostic and does not establish that the default Segoe UI path is safe.
