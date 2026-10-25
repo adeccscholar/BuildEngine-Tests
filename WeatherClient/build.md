@@ -3,16 +3,9 @@
 
 # WeatherClient – BCC64X Build
 
-Die projektbezogenen Details sind getrennt dokumentiert:
-[Architecture.md](Architecture.md) (Ablauf, Zustandsautomat und Worker),
-[REST.md](REST.md) (vollständige HTTPS-GET-Anfragen mit `curl.exe`),
-[ThirdParty.md](ThirdParty.md) (direkte und transitive BuildEngine-Pakete)
-sowie [WeatherServices.md](WeatherServices.md) (Providerbedingungen).
-Die hier aufgeführten Kommandos arbeiten mit dem Produktionsroot der
-BuildEngine und **installierten dynamischen** Bibliotheken.
+Related documentation: [Architecture.md](Architecture.md) explains the execution workflow, FSM, and worker; [REST.md](REST.md) lists actual HTTPS GET endpoints and independent `curl.exe` tests; [ThirdParty.md](ThirdParty.md) documents BuildEngine packages and runtime dependencies; [WeatherServices.md](WeatherServices.md) covers provider terms. Commands below assume that this test repository resides inside the production BuildEngine root and consumes **installed dynamic libraries**.
 
-
-Aus `BuildEngine/tests` mit der produktiven Installation:
+From `BuildEngine/tests`, using the production installation:
 
 ```bat
 git pull
@@ -21,28 +14,18 @@ cmake --build ../build/Test/WeatherClient/Release/cmake
 cmake --install ../build/Test/WeatherClient/Release/cmake
 ```
 
-Die CMake-Datei bezieht alle **aktiven** Versionen aus
-`admin/build-libraries.xml`: Skia, SDL2, curl, OpenSSL, Boost,
-nlohmann-json und die Skia-/HTTP-Laufzeitpakete. Es wird **ausschließlich
-dynamisch** gelinkt; das selektive PE-Import-Staging kopiert nur
-tatsächlich importierte DLLs.
+CMake selects active versions from `admin/build-libraries.xml`, including Skia, SDL2, curl, OpenSSL, Boost, nlohmann-json, and their runtime dependencies. The application uses **dynamic linking only**; selective PE-import staging copies just the DLLs required by the resulting binary.
 
 ```bat
 ..\build\Test\WeatherClient\Release\WeatherClient.exe --demo
 ..\build\Test\WeatherClient\Release\WeatherClient.exe
 ```
 
-Zum Testen des Datensatzes und der plattformneutralen SDL-/Skia-Steuerlogik `--self-test` verwenden. Die Schaltflächen lassen sich anklicken; `F`/`F11` schaltet Vollbild. Für Mausbedienung mit hoher Pixeldichte wird die Fenstergröße von SDL2 verwendet.
-Die reale Standortsuche benötigt HTTPS, gültige CA-Zertifikate sowie
-Netzzugriff auf die konfigurierten Anbieter. Die Anwendung erzeugt
-`weather-location.json` nur nach Eingabe einer Adresse; für
-reproduzierbare Tests den Demo-Modus verwenden.
+Use `--self-test` to validate model logic without a GUI. The window provides clickable controls; `F`/`F11` toggles fullscreen. SDL2 handles window dimensions and high-DPI pointer coordinates. Live location discovery requires HTTPS, trusted CA certificates, and access to the configured providers. WeatherClient saves `weather-location.json` only after explicit address entry (or a units-only preference update); the demo provides reproducible offline weather.
 
-Der bisherige `WeatherAPIServer` nutzt CORBA/TAO und ältere
-`BoostTools` und wird in diesem SDL2-Programm **nicht benötigt**.
-Die gelieferten Originaldateien wurden nicht verändert.
+The legacy `WeatherAPIServer` uses CORBA/TAO and older `BoostTools`, neither of which is required by this SDL2 application. The supplied original archives remain unchanged.
 
-[Beschreibung](Description.md) · [Lizenzen](LICENSE.md) · [SBOM](SBOM.md)
+[Description](Description.md) · [Licenses](LICENSE.md) · [SBOM](SBOM.md)
 
 ## Visual quality and portability checks
 
