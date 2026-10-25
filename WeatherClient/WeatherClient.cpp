@@ -7,6 +7,7 @@
     performs blocking HTTPS work and posts immutable results to the UI queue.
 */
 #include "WeatherNetwork.h"
+#include "WeatherView.h"
 
 #include <SDL.h>
 #include <boost/statechart/state_machine.hpp>
@@ -79,6 +80,7 @@ namespace weather_client::application {
       bool demo{};
       bool loading{};
       bool shutdown{};
+      bool fullscreen{};
       std::size_t offset{};
       std::uint64_t generation{};
       std::chrono::steady_clock::time_point next{std::chrono::steady_clock::now()};
@@ -299,39 +301,10 @@ namespace weather_client::application {
       Gauge(canvas,510,300,122,"LUFTDRUCK",c?c->pressure_msl:std::nullopt,950,1050,"hPa");
       Gauge(canvas,810,300,122,"FEUCHTE",c?c->relative_humidity_2m:std::nullopt,0,100,"%");
       Gauge(canvas,1060,300,80,"WIND",c?c->wind_speed_10m:std::nullopt,0,100,"km/h");
-      Text(canvas,55,480,s.daily?"7-TAGE-VORSCHAU":"STUNDENVORSCHAU",22,0xfff1e7cc);
-      Text(canvas,800,480,"[H] Stunden   [D] Tage",14);
-      if(s.weather) {
-         if(s.daily) {
-            for(std::size_t i=s.offset;i<s.weather->days.size()&&i<s.offset+6;++i) {
-               auto const& d=s.weather->days[i];
-               float x=65+(i-s.offset)*185.f;
-               Text(canvas,x,530,d.date,16);
-               Text(canvas,x,560,std::format("{:.0f}/{:.0f} C",
-                  d.temperature_2m_max.value_or(0),d.temperature_2m_min.value_or(0)),20,0xfff0d28b);
-               Text(canvas,x,590,std::format("Regen {:.1f} mm",
-                  d.precipitation_sum.value_or(0)),15);
-               Text(canvas,x,618,wc::WeatherDescription(d.weather_code.value_or(-1)),13);
-            }
-         } else {
-            for(std::size_t i=s.offset;i<s.weather->hours.size()&&i<s.offset+8;++i) {
-               auto const& h=s.weather->hours[i];
-               float x=55+(i-s.offset)*140.f;
-               Text(canvas,x,530,h.time.size()>=16?h.time.substr(11,5):h.time,19);
-               Text(canvas,x,562,std::format("{:.1f} C",h.temperature_2m.value_or(0)),21,0xfff0d28b);
-               Text(canvas,x,594,std::format("{:.0f}% Regen",
-                  h.precipitation_probability.value_or(0)),15);
-               Text(canvas,x,622,wc::WeatherDescription(h.weather_code.value_or(-1)),12);
-            }
-         }
-      }
-      if(s.editing) {
-         SetColor(p,0xff102631);
-         canvas->drawRoundRect(SkRect::MakeXYWH(45,661,1100,46),8,8,p);
-         Text(canvas,59,691,"Adresse: "+s.input+"_",18,0xfff1e7cc);
-      } else {
-         Text(canvas,55,692,"[A] Adresse   [I] IP-Ortung   [R] Aktualisieren   [< >] Blaettern   [ESC] Ende",16);
-      }
+      view::DrawConditionDetails(canvas,c);
+      Text(canvas,55,477,s.daily?"7-TAGE-VORSCHAU":"STUNDENVORSCHAU",19,0xfff1e7cc);
+      view::DrawForecast(canvas,s.weather?&*s.weather:nullptr,s.daily,s.offset);
+      view::DrawControls(canvas,s.editing,s.daily,s.demo,s.input);
       Text(canvas,55,729,s.error.empty()
          ? (s.loading?"FSM: LADE DATEN ...":s.demo?"DEMO / OFFLINE":"FSM: BEREIT")
          : std::format("FSM: FEHLER  {}",s.error.substr(0,105)),14,
@@ -387,43 +360,95 @@ int main(int argc,char** argv) {
       station.error=e.what();fsm.process_event(EvFailure{});
    }
    bool running=true;
+   auto submitAddress = [&] {
+      station.editing=false;
+      SDL_StopTextInput();
+      if(!station.input.empty()) {
+         station.query=station.input;
+         fsm.process_event(EvStart{});
+         station.Start(Request::Address,station.input);
+      }
+   };
+   auto execute = [&](view::Action action) {
+      switch(action) {
+         case view::Action::Address:
+            station.editing=true;
+            station.input=station.location?station.location->address:"";
+            SDL_StartTextInput();
+            break;
+         case view::Action::Ip:
+            if(!station.demo) {
+               fsm.process_event(EvStart{});
+               station.Start(Request::Ip);
+            }
+            break;
+         case view::Action::Refresh:
+            if(station.location) {
+               fsm.process_event(EvRefresh{});
+               station.Start(Request::Weather);
+            }
+            break;
+         case view::Action::Hours:
+            station.daily=false;station.offset=0;
+            break;
+         case view::Action::Days:
+            station.daily=true;station.offset=0;
+            break;
+         case view::Action::Previous:
+            station.offset=view::MoveOffset(station.weather?&*station.weather:nullptr,
+               station.daily,station.offset,false);
+            break;
+         case view::Action::Next:
+            station.offset=view::MoveOffset(station.weather?&*station.weather:nullptr,
+               station.daily,station.offset,true);
+            break;
+         case view::Action::Fullscreen:
+            station.fullscreen=!station.fullscreen;
+            SDL_SetWindowFullscreen(window,station.fullscreen?SDL_WINDOW_FULLSCREEN_DESKTOP:0);
+            break;
+         case view::Action::Apply:
+            submitAddress();
+            break;
+         case view::Action::Cancel:
+            station.editing=false;SDL_StopTextInput();
+            break;
+         default: break;
+      }
+   };
    while(running) {
       SDL_Event event;
       while(SDL_PollEvent(&event)) {
          if(event.type==SDL_QUIT) running=false;
-         if(event.type==SDL_TEXTINPUT&&station.editing)
+         if(event.type==SDL_MOUSEBUTTONDOWN&&event.button.button==SDL_BUTTON_LEFT) {
+            int winWidth{},winHeight{};
+            SDL_GetWindowSize(window,&winWidth,&winHeight);
+            execute(view::HitTest(static_cast<float>(event.button.x),
+               static_cast<float>(event.button.y),winWidth,winHeight,station.editing));
+         }
+         if(event.type==SDL_MOUSEWHEEL&&!station.editing) {
+            execute(event.wheel.y<0?view::Action::Next:view::Action::Previous);
+         }
+         if(event.type==SDL_TEXTINPUT&&station.editing &&
+            station.input.size()+SDL_strlen(event.text.text)<301U) {
             station.input+=event.text.text;
+         }
          if(event.type!=SDL_KEYDOWN) continue;
          auto const key=event.key.keysym.sym;
          if(station.editing) {
-            if(key==SDLK_ESCAPE) { station.editing=false;SDL_StopTextInput(); }
-            else if(key==SDLK_BACKSPACE&&!station.input.empty()) station.input.pop_back();
-            else if(key==SDLK_RETURN) {
-               station.editing=false;SDL_StopTextInput();
-               if(!station.input.empty()) {
-                  station.query=station.input;
-                  fsm.process_event(EvStart{});
-                  station.Start(Request::Address,station.input);
-               }
-            }
+            if(key==SDLK_ESCAPE) execute(view::Action::Cancel);
+            else if(key==SDLK_BACKSPACE) view::BackspaceUtf8(station.input);
+            else if(key==SDLK_RETURN||key==SDLK_KP_ENTER) execute(view::Action::Apply);
             continue;
          }
          if(key==SDLK_ESCAPE) running=false;
-         if(key==SDLK_a) {
-            station.editing=true;station.input=station.location?station.location->address:"";
-            SDL_StartTextInput();
-         }
-         if(key==SDLK_i&&!station.demo) {
-            fsm.process_event(EvStart{});station.Start(Request::Ip);
-         }
-         if(key==SDLK_r&&station.location) {
-            fsm.process_event(EvRefresh{});station.Start(Request::Weather);
-         }
-         if(key==SDLK_h) { station.daily=false;station.offset=0; }
-         if(key==SDLK_d) { station.daily=true;station.offset=0; }
-         if(key==SDLK_RIGHT) station.offset+=(station.daily?3:4);
-         if(key==SDLK_LEFT) station.offset=station.offset>(station.daily?3U:4U)
-            ? station.offset-(station.daily?3U:4U):0U;
+         if(key==SDLK_a) execute(view::Action::Address);
+         if(key==SDLK_i) execute(view::Action::Ip);
+         if(key==SDLK_r) execute(view::Action::Refresh);
+         if(key==SDLK_h) execute(view::Action::Hours);
+         if(key==SDLK_d) execute(view::Action::Days);
+         if(key==SDLK_f||key==SDLK_F11) execute(view::Action::Fullscreen);
+         if(key==SDLK_RIGHT) execute(view::Action::Next);
+         if(key==SDLK_LEFT) execute(view::Action::Previous);
       }
       station.TickWorker();
       std::deque<Completion> done;
