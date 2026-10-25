@@ -236,10 +236,28 @@ namespace weather_client::artwork {
          std::string const valueText=unit=="inHg"
             ? std::format("{:.2f} {}",*value,unit)
             : std::format("{:.1f} {}",*value,unit);
-         view::Text(canvas,cx-radius*.41f,cy+radius*.47f,
-            valueText,radius<100?13.f:19.f,0xffebf6f9);
+         if(title=="TEMPERATURE") {
+            // The needle and scale must never obscure the live reading.
+            // Keep this independent of Skia font metrics/centering calls:
+            // the pre-redesign dial is already verified with Segoe UI.
+            SkPaint plate;
+            view::Color(plate,0xe6091d2b);
+            canvas->drawRoundRect(SkRect::MakeXYWH(
+               cx-radius*.70f,cy+radius*.20f,
+               radius*1.40f,radius*.33f),7.f,7.f,plate);
+            view::Text(canvas,cx-radius*.55f,cy+radius*.44f,
+               valueText,21.f,0xffffe4b0);
+         } else {
+            view::Text(canvas,cx-radius*.41f,cy+radius*.47f,
+               valueText,radius<100?13.f:19.f,0xffebf6f9);
+         }
       } else {
-         view::Text(canvas,cx-12,cy+radius*.47f,"--",18);
+         if(title=="TEMPERATURE") {
+            view::Text(canvas,cx-radius*.39f,cy+radius*.47f,
+               "NO DATA",16,0xffffc1a8);
+         } else {
+            view::Text(canvas,cx-12,cy+radius*.47f,"--",18);
+         }
       }
       view::Color(paint,0xfff0d3a1);
       canvas->drawCircle(cx,cy,5.f,paint);
