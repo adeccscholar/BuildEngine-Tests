@@ -216,7 +216,7 @@ namespace weather_client::artwork {
          canvas->drawLine(cx+std::cos(angle)*inner,cy+std::sin(angle)*inner,
             cx+std::cos(angle)*outer,cy+std::sin(angle)*outer,paint);
       }
-      view::font::Draw(canvas,cx-view::font::Width(title,14)*.5f,
+      font::Draw(canvas,cx-font::Width(title,14)*.5f,
          cy-radius*.39f,title,14,0xffa9c7d0,radius*1.42f);
       if(value) {
          float const a=(135.f+static_cast<float>(ratio)*270.f)*Pi/180.f;
@@ -233,10 +233,10 @@ namespace weather_client::artwork {
             std::format("{:.2f} {}",*value,unit):
             std::format("{:.1f} {}",*value,unit);
          float const size=unit=="inHg"?17.f:19.f;
-         view::font::Draw(canvas,cx-view::font::Width(measured,size)*.5f,
+         font::Draw(canvas,cx-font::Width(measured,size)*.5f,
             cy+radius*.47f,measured,size,0xffebf6f9,radius*1.58f);
       } else {
-         view::font::Draw(canvas,cx-view::font::Width("--",18)*.5f,
+         font::Draw(canvas,cx-font::Width("--",18)*.5f,
             cy+radius*.47f,"--",18,0xffebf6f9);
       }
       view::Color(paint,0xfff0d3a1);
