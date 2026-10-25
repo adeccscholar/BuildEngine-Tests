@@ -6,6 +6,7 @@
     \brief HTTPS transfers and address lookup, isolated from SDL and the FSM.
 */
 #include "WeatherModel.h"
+#include "WeatherUnits.h"
 #include <curl/curl.h>
 #include <array>
 #include <cstdlib>
@@ -186,6 +187,15 @@ namespace weather_client {
          caBundle)));
    }
 
+   [[nodiscard]] inline UnitSystem LoadUnits(std::filesystem::path const& file) {
+      if(!std::filesystem::is_regular_file(file)) return UnitSystem::Metric;
+      std::ifstream input{file,std::ios::binary};
+      if(!input) return UnitSystem::Metric;
+      auto const json=Json::parse(input,nullptr,false);
+      return json.is_object()?ParseUnits(json.value("units",std::string{"metric"})):
+         UnitSystem::Metric;
+   }
+
    [[nodiscard]] inline std::optional<Location> LoadLocation(
       std::filesystem::path const& file
    ) {
@@ -207,11 +217,40 @@ namespace weather_client {
       return location;
    }
 
-   inline void SaveLocation(std::filesystem::path const& file, Location const& location) {
+   inline void SaveUnits(std::filesystem::path const& file,UnitSystem units) {
+      Json settings=Json::object();
+      if(std::filesystem::is_regular_file(file)) {
+         std::ifstream input{file,std::ios::binary};
+         if(input) {
+            Json const old=Json::parse(input,nullptr,false);
+            if(old.is_object()) settings=old;
+         }
+      }
+      settings["units"]=UnitsId(units);
+      auto const temporary=std::filesystem::path{file.string()+".tmp"};
+      {
+         std::ofstream output{temporary,std::ios::binary|std::ios::trunc};
+         if(!output) throw std::runtime_error{"Cannot write unit preferences"};
+         output<<settings.dump(2)<<'\n';
+         output.flush();
+         if(!output) throw std::runtime_error{"Cannot flush unit preferences"};
+      }
+      std::error_code error;
+      std::filesystem::rename(temporary,file,error);
+      if(error) {
+         std::filesystem::remove(file,error);
+         error.clear();
+         std::filesystem::rename(temporary,file,error);
+         if(error) throw std::runtime_error{"Cannot replace unit preferences"};
+      }
+   }
+
+   inline void SaveLocation(std::filesystem::path const& file, Location const& location,
+      UnitSystem units=UnitSystem::Metric) {
       if(!ValidCoordinates(location.latitude,location.longitude))
          throw std::runtime_error{"Invalid location"};
       Json const json{
-         {"schema",1},{"label",location.label},{"address",location.address},
+         {"schema",1},{"units",UnitsId(units)},{"label",location.label},{"address",location.address},
          {"timezone",location.timezone},{"latitude",location.latitude},
          {"longitude",location.longitude},{"approximate",location.approximate}
       };
