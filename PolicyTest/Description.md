@@ -27,6 +27,16 @@ No local copy of any adecc implementation is compiled. The current SEPA characte
 
 Tests are deterministic, independent of the network, clock-dependent only for rejecting the year 2999, and use no database server.
 
+## Raw IBAN value versus formatted output
+
+`adecc::Iban::Value()` contains the normalized, ungrouped IBAN.
+`adecc::Iban::str()` and `std::format("{}", iban)` apply
+`IbanGroupedStringPolicy`. Because the underlying `value_type` is also
+`std::string`, `static_cast<std::string>(iban)` may resolve to the
+raw-value conversion; it is not a reliable assertion of the presentation
+contract. The acceptance test verifies `str()` and `std::format`
+for both `Iban` and `CheckedIban`.
+
 ## Validation scope
 
 IBAN checks validate **generic length 15–34, characters and modulo 97**. They do **not** implement country-specific BBAN lengths, an authoritative country registry or bank-account existence. BIC/URL/email/UUID regex policies validate their explicitly implemented **syntactic** contracts, not business deliverability. The positive IBAN dataset was independently checked with a reference modulo-97 calculation prior to migration.
