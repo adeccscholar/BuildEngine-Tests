@@ -12,6 +12,7 @@
 #include "WeatherFont.h"
 #include "WeatherMetrics.h"
 #include "WeatherUnits.h"
+#include "WeatherMoon.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
@@ -242,20 +243,29 @@ namespace weather_client::view {
       }
    }
 
-   inline void DrawMoonSymbol(SkCanvas* canvas,float x,float y) {
+   inline void DrawMoonSymbol(SkCanvas* canvas,float x,float y,
+      MoonPhase const& phase) {
+      constexpr float radius=9.f;
       SkPaint paint;
+      Color(paint,0xff253d52);
+      canvas->drawCircle(x,y,radius,paint);
       Color(paint,0xffe8e8d2);
-      // Tiny original crescent silhouette: do not obscure with the cloud.
-      SkPathBuilder crescent;
-      crescent.moveTo(x+4,y-10);
-      crescent.cubicTo(x-10,y-12,x-12,y+8,x+2,y+10);
-      crescent.cubicTo(x-5,y+3,x-4,y-7,x+4,y-10);
-      crescent.close();
-      canvas->drawPath(crescent.detach(),paint);
+      for(int row=0;row<24;++row) {
+         float const yy=-radius+2.f*radius*(row+.5f)/24.f;
+         float const half=std::sqrt((std::max)(0.f,radius*radius-yy*yy));
+         float const terminator=std::cos(2.f*Pi*static_cast<float>(phase.cycle))*half;
+         float const left=phase.waxing?terminator:-half;
+         float const right=phase.waxing?half:-terminator;
+         if(right>left) {
+            canvas->drawRect(SkRect::MakeXYWH(x+left,y+yy-.5f,
+               right-left,2.f*radius/24.f+.6f),paint);
+         }
+      }
    }
 
    inline void DrawSkySymbol(
-      SkCanvas* canvas,float x,float y,int code,bool isDay
+      SkCanvas* canvas,float x,float y,int code,bool isDay,
+      std::optional<MoonPhase> const& moon=std::nullopt
    ) {
       SkPaint paint;
       bool const clear=code>=0&&code<=1;
@@ -272,7 +282,8 @@ namespace weather_client::view {
                x-10+std::cos(a)*14,y-8+std::sin(a)*14,paint);
          }
       } else {
-         DrawMoonSymbol(canvas,x-10,y-8);
+         DrawMoonSymbol(canvas,x-10,y-8,moon.value_or(MoonPhase{.cycle=.25,
+            .illumination=.5,.stage=MoonStage::FirstQuarter,.waxing=true}));
       }
       if(!clear) {
          Color(paint,0xffb9c9d5);
@@ -324,6 +335,7 @@ namespace weather_client::view {
       std::optional<double> rain;
       std::optional<int> code;
       bool daylight{true};
+      std::optional<MoonPhase> moon;
       std::string sunrise;
       std::string sunset;
    };
@@ -365,6 +377,7 @@ namespace weather_client::view {
             auto const& hour=weather->hours[i];
             point.label=hour.time.size()>=16?hour.time.substr(11,5):hour.time;
             point.daylight=IsDayAt(hour.time,*weather).value_or(true);
+            point.moon=CalculateMoonPhase(hour.time);
             point.high=hour.temperature_2m?
                std::optional<double>{Temperature(*hour.temperature_2m,units)}:std::nullopt;
             point.rain=hour.precipitation_probability;
@@ -430,7 +443,7 @@ namespace weather_client::view {
          float const x=xAt(i);
          font::Draw(canvas,x-30,510,points[i].label,14,0xffc9d9df,91);
          DrawSkySymbol(canvas,daily?x+37:x-7,daily?511.f:532.f,
-            points[i].code.value_or(-1),points[i].daylight);
+            points[i].code.value_or(-1),points[i].daylight,points[i].moon);
          if(points[i].rain) {
             float const portion=static_cast<float>(
                std::clamp(*points[i].rain/rainMax,0.0,1.0));
