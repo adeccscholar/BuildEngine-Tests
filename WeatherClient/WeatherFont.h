@@ -24,8 +24,20 @@
 #include <string_view>
 
 namespace weather_client::font {
+   [[nodiscard]] inline sk_sp<SkTypeface>& CachedTypeface() {
+      static sk_sp<SkTypeface> cached;
+      return cached;
+   }
+
+   [[nodiscard]] inline bool& TypefaceAttempted() {
+      static bool attempted=false;
+      return attempted;
+   }
+
    [[nodiscard]] inline sk_sp<SkTypeface> UiTypeface() {
-      static sk_sp<SkTypeface> const loaded=[] {
+      if(!TypefaceAttempted()) {
+         TypefaceAttempted()=true;
+         CachedTypeface()=[] {
          // Skia 153 no longer provides SkFontMgr::RefDefault().
          // BuildEngine Skia enables DirectWrite; use its public factory.
 #if defined(SK_BUILD_FOR_WIN)
@@ -50,8 +62,15 @@ namespace weather_client::font {
          }
 #endif
          return sk_sp<SkTypeface>{};
-      }();
-      return loaded;
+         }();
+      }
+      return CachedTypeface();
+   }
+
+   // Release DirectWrite/COM-backed resources before SDL shuts down.
+   inline void ReleaseFonts() {
+      CachedTypeface().reset();
+      TypefaceAttempted()=false;
    }
 
    [[nodiscard]] inline SkFont Make(float size) {
