@@ -17,3 +17,7 @@ The accompanying `BuildEngine-Tests-additional-MSSQL.zip` provides the full orig
 ## Einrichtung
 
 Siehe [Configure.md](Configure.md) für Windows-Login, Datenbankbenutzer, Rechte und SQL-Server-Dienst.
+
+## Additional shared database executable
+
+`adecc_mssql_additional_test` instantiates [common/additional_tests.h](../common/additional_tests.h) against this backend's `logical_database`. The common suite currently covers source-derived tuple OutputRange, NULL, named parameters, lazy Execute ranges, primary key and CHECK failures. Only [additional_dialect.h](additional_dialect.h) creates the native schema. The complete supplied original headers are archived unchanged under [common/original](../common/original/) for further migration; not all original cases are enabled yet. No JSON/XML fixture is required by the currently enabled tests.

@@ -3,3 +3,5 @@
 - [adecc_postgresql_pqxx_test](SBOM-adecc_postgresql_pqxx_test.cdx.json)
 
 These are declared-only manifests until the built DLL import closure and verified BuildEngine package licenses are resolved.
+
+- [adecc_postgresql_additional_test](SBOM-adecc_postgresql_additional_test.cdx.json) — shared second test executable (declared-only-unverified)

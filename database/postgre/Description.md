@@ -13,3 +13,7 @@ The attached `tests.zip` contains an additional SQL-Server-oriented suite, impor
 ## Einrichtung
 
 Siehe [Configure.md](Configure.md) für Windows-SSPI, Benutzerzuordnung über pg_hba.conf/pg_ident.conf und die getrennten Datenbankrollen.
+
+## Additional shared database executable
+
+`adecc_postgresql_additional_test` instantiates [common/additional_tests.h](../common/additional_tests.h) against this backend's `logical_database`. The common suite currently covers source-derived tuple OutputRange, NULL, named parameters, lazy Execute ranges, primary key and CHECK failures. Only [additional_dialect.h](additional_dialect.h) creates the native schema. The complete supplied original headers are archived unchanged under [common/original](../common/original/) for further migration; not all original cases are enabled yet. No JSON/XML fixture is required by the currently enabled tests.

@@ -31,3 +31,13 @@ Extract `BuildEngine-Tests-additional-MSSQL.zip` into the test repository root; 
 ## One-time migration from the former source location
 
 If this build directory was configured before the move from `tests/mssql` to `tests/database/mssql`, the existing CMake cache contains the old absolute source path. Run the configure command from above **once with `--fresh`** (immediately after `cmake`) to discard only `CMakeCache.txt` and its associated `CMakeFiles` directory. This does not remove BuildEngine package installations, test sources, or the test database. Subsequent normal configure/build invocations do not require `--fresh`.
+
+## Second program: shared Test.zip cases
+
+After building and installing, run from the BuildEngine-Tests root:
+
+```bat
+..\build\Test\mssql\Release\adecc_mssql_additional_test.exe --server localhost --database BuildEngineTest --integrated
+```
+
+The backend must be running and BuildEngineTest configured. The test temporarily owns the named test table; do not run it concurrently or against production databases. The original headers remain visible in `database/common/original`. The second suite only enables the already portable subset while backend differences are validated.

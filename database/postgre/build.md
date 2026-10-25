@@ -26,3 +26,13 @@ Results, license file and CycloneDX per-target records are accessible from the B
 ## One-time migration from the former source location
 
 If this build directory was configured before the move from `tests/postgre` to `tests/database/postgre`, the existing CMake cache contains the old absolute source path. Run the configure command from above **once with `--fresh`** (immediately after `cmake`) to discard only `CMakeCache.txt` and its associated `CMakeFiles` directory. This does not remove BuildEngine package installations, test sources, or the test database. Subsequent normal configure/build invocations do not require `--fresh`.
+
+## Second program: shared Test.zip cases
+
+After building and installing, run from the BuildEngine-Tests root:
+
+```bat
+..\build\Test\postgre\Release\adecc_postgresql_additional_test.exe --host localhost --database BuildEngineTest --user buildenginetest_user --integrated
+```
+
+The backend must be running and BuildEngineTest configured. The test temporarily owns the named test table; do not run it concurrently or against production databases. The original headers remain visible in `database/common/original`. The second suite only enables the already portable subset while backend differences are validated.
