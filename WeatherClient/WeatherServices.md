@@ -5,6 +5,18 @@
 
 [TOC]
 
+## Implementierung und manuelle API-Tests
+
+Die vollständigen, an `WeatherNetwork.h` abgeglichenen REST-Aufrufe
+stehen in **[REST.md](REST.md)**. Dort sind für Open-Meteo, Nominatim,
+ipapi.co und ipwho.is die exakten Anfragen mit `curl.exe`, erwartete
+JSON-Strukturen, Fehlerfälle, TLS-Optionen und Abgrenzungen zum
+eingebetteten `libcurl` dokumentiert. Für den asynchronen Ablauf,
+FSM, Viertelstunden-Aktualisierung und lokale Berechnungen siehe
+[Architecture.md](Architecture.md). Die Software-Abhängigkeiten sind
+separat in [ThirdParty.md](ThirdParty.md) beschrieben.
+
+
 ## Scope
 
 WeatherClient is an **educational, non-commercial example**. Its PolyForm
