@@ -21,3 +21,7 @@ set ADECC_MSSQL_DATABASE=BuildEngineTest
 
 **Server dependency:** A running database server and correctly configured driver, account, network and authentication are required. A successful CMake build alone cannot validate the integration.
 Results, license file and CycloneDX per-target records are accessible from the BuildEngine-Tests Markdown documentation server at `http://127.0.0.1:8781/docs/`.
+
+### Additional user-supplied tests.zip suite
+
+Extract `BuildEngine-Tests-additional-MSSQL.zip` into the test repository root; then follow `mssql/additional-tests/build.md`. The archive contains all 13 original headers and a separate executable for the existing SQL Server error scenarios.
