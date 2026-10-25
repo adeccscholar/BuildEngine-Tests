@@ -35,6 +35,19 @@ namespace weather_client {
       return std::string{names[index]};
    }
 
+   /** \brief Convert meteorological wind origin into motion direction.
+       \details An origin of 270 degrees (west wind) blows toward 90
+       degrees (east). The original observation remains unchanged.
+       \param flFromDegrees Wind origin in clockwise degrees from north.
+       \returns Direction of travel in the range [0, 360), or the input
+       if it is non-finite.
+       \throw Nothing.
+   */
+   [[nodiscard]] inline double WindToDirection(double flFromDegrees) noexcept {
+      if(!std::isfinite(flFromDegrees)) return flFromDegrees;
+      return std::fmod(std::fmod(flFromDegrees+180.0,360.0)+360.0,360.0);
+   }
+
    [[nodiscard]] inline WeatherBrief ComposeWeatherBrief(WeatherData const& data,UnitSystem units=UnitSystem::Metric) {
       WeatherBrief result;
       result.headline = data.current.weather_code
@@ -52,7 +65,7 @@ namespace weather_client {
       }
       if(data.current.wind_speed_10m) {
          if(!result.conditions.empty()) result.conditions += "  /  ";
-         result.conditions += std::format("{} wind at {}",
+         result.conditions += std::format("Wind from {} at {}",
             data.current.wind_direction_10m
                ? CardinalDirection(*data.current.wind_direction_10m)
                : "Local",
