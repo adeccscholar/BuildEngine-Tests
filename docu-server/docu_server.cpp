@@ -16,6 +16,8 @@
 #include <cctype>
 #include <cstdint>
 #include <filesystem>
+#include <fstream>
+#include <iterator>
 #include <print>
 #include <ranges>
 #include <sstream>
@@ -511,6 +513,33 @@ using tcp = asio::ip::tcp;
    }
 
 
+/** Read-only view of the database examples' C++ and SQL source. */
+[[nodiscard]] std::string SourcePage(std::filesystem::path const& aFile) {
+   if(std::filesystem::file_size(aFile) > 1024U * 1024U) {
+      throw std::runtime_error{ "source file exceeds 1 MiB" };
+      }
+   std::ifstream isFile{ aFile, std::ios::binary };
+   if(!isFile) {
+      throw std::runtime_error{ "cannot open test source: " + aFile.string() };
+      }
+   std::string const strSource{
+      std::istreambuf_iterator<char>{ isFile },
+      std::istreambuf_iterator<char>{}
+      };
+   std::string const strLanguage =
+      Lower(aFile.extension().string()) == ".sql" ? "sql" : "cpp";
+   std::ostringstream osBody;
+   osBody << "<section class=\"hero\"><h1>"
+      << HtmlEscape(aFile.filename().string())
+      << "</h1><p>Read-only test source; not executed by the server.</p>"
+      << "</section><article class=\"markdown\"><pre><code class=\"language-"
+      << strLanguage << "\">" << HtmlEscape(strSource)
+      << "</code></pre></article>";
+   return Page(aFile.filename().string(), osBody.str(),
+      MarkdownFeature::syntaxHighlighting, true);
+   }
+
+
 [[nodiscard]] std::string IndexPage(
    std::filesystem::path const& aDocsRoot
 ) {
@@ -546,13 +575,30 @@ using tcp = asio::ip::tcp;
    osBody << "<section class=\"doc-list\"><h2>Start here</h2><ul>"
       << "<li><a href=\"/docs/Docs/start/README.md\">Test documentation overview</a></li>"
       << "</ul></section>";
-   // Project compliance index sourced from the test directories.
+   // Database is a parent category, not an executable project.
+    if(std::filesystem::is_regular_file(
+       aDocsRoot / "database" / "README.md")) {
+       osBody << "<section class=\"doc-list\"><h2>Database tests</h2><ul>"
+          << "<li><a href=\"/docs/database/README.md\">Database overview</a></li>"
+          << "<li><a href=\"/docs/database/common/README.md\">Shared C++23 tests</a></li>"
+          << "<li><a href=\"/docs/database/common/original/README.md\">Original Test.zip sources</a></li>"
+          << "<li><a href=\"/docs/database/mssql/Description.md\">MSSQL</a></li>"
+          << "<li><a href=\"/docs/database/postgre/Description.md\">PostgreSQL</a></li>"
+          << "</ul></section>";
+       }
+
     osBody << "<section class=\"doc-list\"><h2>Project licenses and SBOMs</h2><ul>";
     for(std::filesystem::path const& aDocument : vecDocuments) {
        if(aDocument.filename() != "Description.md") {
           continue;
           }
        std::filesystem::path const aProject = aDocument.parent_path();
+       // A directory category is not an executable and must not generate
+       // non-existent LICENSE.md or SBOM.md links.
+       if(!std::filesystem::is_regular_file(aDocsRoot / aProject / "LICENSE.md") ||
+          !std::filesystem::is_regular_file(aDocsRoot / aProject / "SBOM.md")) {
+          continue;
+          }
        osBody << "<li><strong>" << HtmlEscape(aProject.generic_string())
           << "</strong>: <a href=\"/docs/"
           << PercentEncode((aProject / "LICENSE.md").generic_string())
@@ -850,7 +896,15 @@ void DocuServer::Run() {
                         )
                      );
                   }
-               else if(svPath.starts_with("/docs/Docs/js/") ||
+               else if(svPath.starts_with("/docs/database/") &&
+                        (Lower(aFile.extension().string()) == ".cpp" ||
+                         Lower(aFile.extension().string()) == ".h" ||
+                         Lower(aFile.extension().string()) == ".hpp" ||
+                         Lower(aFile.extension().string()) == ".sql")) {
+                   WriteHtml(aSocket, aRequest, http::status::ok,
+                      SourcePage(aFile));
+                   }
+                else if(svPath.starts_with("/docs/Docs/js/") ||
                        svPath.starts_with("/docs/Docs/images/") ||
                        (Lower(aFile.extension().string()) == ".json" &&
                         aFile.filename().string().starts_with("SBOM-"))) {
