@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <ctime>
 #include <cmath>
 #include <condition_variable>
 #include <cstdint>
@@ -51,6 +52,16 @@ namespace mpl = boost::mpl;
 namespace weather_client::application {
    constexpr auto refresh = std::chrono::minutes{15};
    constexpr auto retry = std::chrono::minutes{1};
+
+   [[nodiscard]] inline std::string LocalClock() {
+      std::time_t const now=std::time(nullptr);
+      auto const* local=std::localtime(&now);
+      if(!local) return "--:--:--";
+      char formatted[16]{};
+      if(!std::strftime(formatted,sizeof(formatted),"%H:%M:%S",local))
+         return "--:--:--";
+      return formatted;
+   }
 
    enum class Request { Ip, Address, Weather };
    struct Completion {
@@ -370,7 +381,7 @@ namespace weather_client::application {
       view::DrawControls(canvas,s.editing,s.daily,s.demo,s.input);
 
       std::string status=s.demo?"OFFLINE DEMO":
-         "LIVE WEATHER / "+(s.lastSuccessfulRefresh.empty()
+         "LIVE WEATHER "+LocalClock()+"  /  "+(s.lastSuccessfulRefresh.empty()
             ? std::string{"AWAITING FIRST UPDATE"}
             : std::string{"UPDATED "+s.lastSuccessfulRefresh});
       if(s.loading) status+=" / UPDATING";
@@ -586,7 +597,7 @@ int main(int argc,char** argv) {
             station.Start(Request::Weather);
          } else if(result.weather) {
             station.weather=std::move(result.weather);
-            station.lastSuccessfulRefresh=station.weather->current.time;
+            station.lastSuccessfulRefresh=LocalClock();
             if(station.location) station.location->timezone=station.weather->timezone;
             station.error.clear();
             fsm.process_event(EvWeather{});
