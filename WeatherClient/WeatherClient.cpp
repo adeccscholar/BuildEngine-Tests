@@ -13,6 +13,7 @@
 #include "WeatherText.h"
 #include "WeatherFont.h"
 #include "WeatherMetrics.h"
+#include "WeatherUnits.h"
 
 #include <SDL.h>
 #include <boost/statechart/state_machine.hpp>
@@ -93,6 +94,7 @@ namespace weather_client::application {
       std::string input;
       bool editing{};
       bool daily{};
+      wc::UnitSystem units{wc::UnitSystem::Metric};
       bool demo{};
       std::string caBundle;
       std::string lastSuccessfulRefresh;
@@ -356,7 +358,7 @@ namespace weather_client::application {
          label=s.location->label+" (approximate)";
       font::Draw(canvas,58,85,label,17,0xffb3d9e6,760.f);
       if(s.weather) {
-         auto const brief=wc::ComposeWeatherBrief(*s.weather);
+         auto const brief=wc::ComposeWeatherBrief(*s.weather,s.units);
          font::Draw(canvas,58,117,
             brief.headline+(daytime?"  /  DAYLIGHT":"  /  NIGHT"),
             24,0xfff9d19c,790);
@@ -368,7 +370,7 @@ namespace weather_client::application {
          std::string const period=s.daily && today
             ? today->date : std::string{"TODAY"};
          std::string const sun=std::format("{} {}   SUNRISE {}   SUNSET {}",
-            period,wc::RangeText(today),
+            period,wc::RangeText(today,s.units),
             today?wc::ClockText(today->sunrise):"--:--",
             today?wc::ClockText(today->sunset):"--:--");
          font::Draw(canvas,58,184,sun,14,0xfff0d8b0,796);
@@ -382,31 +384,40 @@ namespace weather_client::application {
       }
 
       artwork::Dial(canvas,208,305,104,"TEMPERATURE",
-         current?current->temperature_2m:std::nullopt,
-         -25,45,"C",0xfff7b76a,animationTime);
+         current&&current->temperature_2m?
+            std::optional<double>{wc::Temperature(*current->temperature_2m,s.units)}:
+            std::nullopt,
+         s.units==wc::UnitSystem::US?-13.f:-25.f,
+         s.units==wc::UnitSystem::US?113.f:45.f,
+         s.units==wc::UnitSystem::US?"°F":"°C",0xfff7b76a,animationTime);
       artwork::Dial(canvas,486,305,104,"BAROMETER",
-         current?current->pressure_msl:std::nullopt,
-         950,1050,"hPa",0xff83d2ed,animationTime);
+         current&&current->pressure_msl?
+            std::optional<double>{wc::Pressure(*current->pressure_msl,s.units)}:
+            std::nullopt,
+         s.units==wc::UnitSystem::US?wc::Pressure(950,wc::UnitSystem::US):950.,
+         s.units==wc::UnitSystem::US?wc::Pressure(1050,wc::UnitSystem::US):1050.,
+         s.units==wc::UnitSystem::US?"inHg":"hPa",0xff83d2ed,animationTime);
       artwork::Dial(canvas,764,305,104,"HUMIDITY",
          current?current->relative_humidity_2m:std::nullopt,
          0,100,"%",0xff80d5be,animationTime);
       artwork::WindRose(canvas,1041,305,86,
          current?current->wind_direction_10m:std::nullopt,animationTime);
       if(current&&current->wind_speed_10m) {
-         Text(canvas,994,415,std::format("WIND {:.0f} km/h",
-            *current->wind_speed_10m),15,0xffdbeaf0);
+         font::Draw(canvas,959,415,
+            "WIND "+wc::WindText(*current->wind_speed_10m,s.units),
+            15,0xffdbeaf0,175);
       } else {
          Text(canvas,1010,415,"WIND --",15,0xffdbeaf0);
       }
-      view::DrawConditionDetails(canvas,current);
+      view::DrawConditionDetails(canvas,current,s.units);
       if(s.weather) {
          font::Draw(canvas,60,475,wc::StormLabel(wc::StormOutlook(*s.weather)),
             13,0xffe6c0a5,245);
       }
       font::Draw(canvas,365,475,
          s.daily?"DAILY OUTLOOK":"NEXT HOURS",16,0xfff0e3ce,360);
-      view::DrawForecast(canvas,s.weather?&*s.weather:nullptr,s.daily,s.offset);
-      view::DrawControls(canvas,s.editing,s.daily,s.demo,s.input);
+      view::DrawForecast(canvas,s.weather?&*s.weather:nullptr,s.daily,s.offset,s.units);
+      view::DrawControls(canvas,s.editing,s.daily,s.demo,s.input,s.units);
 
       std::string status=s.demo?"OFFLINE DEMO":
          "LIVE WEATHER "+LocalClock()+"  /  "+(s.lastSuccessfulRefresh.empty()
@@ -517,6 +528,7 @@ int main(int argc,char** argv) {
       if(std::string_view(argv[i])=="--ca-bundle" && i+1<argc) station.caBundle=argv[++i];
 
    }
+   station.units=wc::LoadUnits(station.config);
    SDL_Window* window=SDL_CreateWindow("adecc Scholar Weather Station",
       SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,1200,780,
       SDL_WINDOW_RESIZABLE|SDL_WINDOW_ALLOW_HIGHDPI);
@@ -584,6 +596,12 @@ int main(int argc,char** argv) {
             station.offset=view::MoveOffset(station.weather?&*station.weather:nullptr,
                station.daily,station.offset,true);
             break;
+         case view::Action::Units:
+            station.units=station.units==wc::UnitSystem::Metric?
+               wc::UnitSystem::US:wc::UnitSystem::Metric;
+            try { wc::SaveUnits(station.config,station.units); }
+            catch(std::exception const& e) { station.error=e.what(); }
+            break;
          case view::Action::Fullscreen:
             station.fullscreen=!station.fullscreen;
             SDL_SetWindowFullscreen(window,station.fullscreen?SDL_WINDOW_FULLSCREEN_DESKTOP:0);
@@ -628,6 +646,7 @@ int main(int argc,char** argv) {
          if(key==SDLK_r) execute(view::Action::Refresh);
          if(key==SDLK_h) execute(view::Action::Hours);
          if(key==SDLK_d) execute(view::Action::Days);
+         if(key==SDLK_u) execute(view::Action::Units);
          if(key==SDLK_f||key==SDLK_F11) execute(view::Action::Fullscreen);
          if(key==SDLK_RIGHT) execute(view::Action::Next);
          if(key==SDLK_LEFT) execute(view::Action::Previous);
@@ -654,7 +673,7 @@ int main(int argc,char** argv) {
             station.weather.reset();
             station.offset=0;
             if(result.kind==Request::Address) {
-               try { wc::SaveLocation(station.config,*station.location); }
+               try { wc::SaveLocation(station.config,*station.location,station.units); }
                catch(std::exception const& e) { station.error=e.what(); }
             }
             fsm.process_event(EvLocation{});
