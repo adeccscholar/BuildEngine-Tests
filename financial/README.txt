@@ -30,7 +30,8 @@ Important documentation:
   docs\VCL_RESOURCE_MIGRATION.md
 
 License:
-  Project-authored files: MIT, adecc Systemhaus GmbH, project adecc Scholar.
+  Current project-authored files: PolyForm Noncommercial License 1.0.0.
+  Earlier MIT-licensed revisions retain their previously granted permissions.
   Third-party/vendor files retain their own licenses; see THIRD_PARTY_NOTICES.md.
 
 
