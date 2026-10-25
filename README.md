@@ -48,3 +48,26 @@ BuildEngine's original `Test/` copies should not be considered deleted or migrat
 ## Historical examples (Demo.zip, 2026-10-22)
 
 The uploaded archive was inspected and contains these independent legacy projects: `financial` (including `financial/test`, `test/vcl`, and `test/vcl-skia`), `opengl-sdl2-earth`, `skia-direct-showcase`, and `thirdparty-showcase`. Their original C++ files are not yet imported into GitHub. The archive also lacks graphics assets referenced by the OpenGL Earth and Skia showcase projects, and a `MainForm.dfm`/`app.ico` referenced by the third-party showcase. The old CMake definitions use `TP_CMAKE` and local vendor build folders, which must be replaced with BuildEngine installed dependencies before declaring them buildable. Do not run the old local third-party CMake scripts as part of the BuildEngine tests.
+
+
+## License and adecc-core-lib
+
+Project-authored sources and documentation in this repository are released under
+[PolyForm Noncommercial License 1.0.0](LICENSE), from the date of this update.
+Earlier revisions distributed under MIT retain the rights granted for those
+revisions; this change does not revoke previous grants. Third-party materials
+and code with separate author or vendor licenses remain under their own terms.
+
+The reusable header-only [adecc-core-lib](https://github.com/adeccscholar/adecc-core-lib)
+is a **separate project**, not automatically relicensed by BuildEngine-Tests.
+Its public license is PolyForm Noncommercial 1.0.0. Qualifying purchasers of
+*Rethinking C++ (C++ neu denken)* may also use its adecc-owned sources under
+the additional [adecc Book License](https://github.com/adeccscholar/adecc-core-lib/blob/main/adecc/ADECC_BOOK_LICENSE.md),
+a custom MIT-like grant. The Book License remains a draft pending legal review.
+It is specific to adecc-core-lib and does not grant commercial rights to
+BuildEngine-Tests.
+
+The library is header-only. When used in these examples it should be obtained
+as a separately pinned Git dependency or submodule and its own copyright and
+license notices must be preserved. Teaching and demonstration sources are
+provided **AS IS**, without warranty or assurance of fitness for production.
