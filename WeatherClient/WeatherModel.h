@@ -37,6 +37,8 @@ namespace weather_client {
       std::string time;
       std::optional<double> temperature_2m;
       std::optional<double> relative_humidity_2m;
+      std::optional<double> dew_point_2m;
+      std::optional<double> uv_index;
       std::optional<double> apparent_temperature;
       std::optional<double> pressure_msl;
       std::optional<double> wind_speed_10m;
@@ -53,6 +55,8 @@ namespace weather_client {
       std::optional<double> temperature_2m;
       std::optional<double> apparent_temperature;
       std::optional<double> relative_humidity_2m;
+      std::optional<double> dew_point_2m;
+      std::optional<double> uv_index;
       std::optional<double> cloud_cover;
       std::optional<double> cape;
       std::optional<double> precipitation_probability;
@@ -166,6 +170,8 @@ namespace weather_client {
       }
       data.current.temperature_2m = GetNumber(current, "temperature_2m");
       data.current.relative_humidity_2m = GetNumber(current, "relative_humidity_2m");
+      data.current.dew_point_2m = GetNumber(current, "dew_point_2m");
+      data.current.uv_index = GetNumber(current, "uv_index");
       data.current.apparent_temperature = GetNumber(current, "apparent_temperature");
       data.current.pressure_msl = GetNumber(current, "pressure_msl");
       data.current.wind_speed_10m = GetNumber(current, "wind_speed_10m");
@@ -193,6 +199,8 @@ namespace weather_client {
                hour.temperature_2m = SeriesValue(series, "temperature_2m", i);
                hour.apparent_temperature = SeriesValue(series, "apparent_temperature", i);
                hour.relative_humidity_2m = SeriesValue(series, "relative_humidity_2m", i);
+               hour.dew_point_2m = SeriesValue(series, "dew_point_2m", i);
+               hour.uv_index = SeriesValue(series, "uv_index", i);
                hour.cloud_cover = SeriesValue(series, "cloud_cover", i);
                hour.cape = SeriesValue(series, "cape", i);
                hour.precipitation_probability = SeriesValue(series, "precipitation_probability", i);
