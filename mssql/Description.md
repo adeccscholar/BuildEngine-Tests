@@ -9,3 +9,7 @@ The business test algorithm is **unchanged**: only build paths, backend test con
 Database engines and drivers are services or installed OS dependencies, **not** copied into this repository. The backend test uses `BuildEngineTest` only; do not run the tests against a productive database. Tests create/drop their own objects. OpenXLSX generates its own XLSX output.
 
 The attached `tests.zip` contains an additional SQL-Server-oriented suite, imported separately in `mssql/additional-tests` without changing the original logic. It is not PostgreSQL SQL dialect-neutral.
+
+## Supplementary MSSQL headers
+
+The accompanying `BuildEngine-Tests-additional-MSSQL.zip` provides the full original 13-header SQL Server exercise suite supplied with this migration. Extract its `mssql/additional-tests/` directory into this checkout to enable the additional standalone test. The core error scenario is exercised by its `main.cpp`; all other source headers remain available unchanged. This supplementary archive has not yet been merged into GitHub and must not be counted as an already committed test.
