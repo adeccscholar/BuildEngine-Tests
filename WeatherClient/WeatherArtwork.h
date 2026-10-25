@@ -172,6 +172,41 @@ namespace weather_client::artwork {
       }
    }
 
+   /** \brief Render the temperature reading independently of installed fonts.
+       \details Numeric vector glyphs and a Skia degree circle are rendered
+       after all dial highlights, preventing occlusion by the needle.
+       \param canvas Destination Skia canvas.
+       \param cx Horizontal dial center.
+       \param cy Vertical dial center.
+       \param radius Dial radius.
+       \param flTemperature Temperature in the selected display units.
+       \param strUnit The unit text.
+       \returns Nothing.
+       \throw std::format_error if numeric formatting fails.
+   */
+   inline void DrawTemperatureReading(SkCanvas* canvas,float cx,float cy,
+      float radius,double flTemperature,std::string const& strUnit) {
+      float constexpr flFontSize=21.f;
+      float constexpr flAdvance=flFontSize*6.f/8.5f;
+      std::string const strNumber=std::format("{:.1f}",flTemperature);
+      float const flNumberWidth=static_cast<float>(strNumber.size())*flAdvance;
+      float const flTotalWidth=flNumberWidth+13.f+flAdvance;
+      float const flLeft=cx-flTotalWidth*.5f;
+      float const flBaseline=cy+radius*.44f;
+      lettering::Draw(canvas,flLeft,flBaseline,strNumber,
+         flFontSize,0xffffe4b0);
+      SkPaint paint;
+      paint.setAntiAlias(true);
+      paint.setStyle(SkPaint::kStroke_Style);
+      paint.setStrokeWidth(1.7f);
+      paint.setColor(0xffffe4b0);
+      canvas->drawCircle(flLeft+flNumberWidth+6.f,
+         flBaseline-flFontSize*.68f,2.8f,paint);
+      std::string const strLetter=strUnit=="°F"?"F":"C";
+      lettering::Draw(canvas,flLeft+flNumberWidth+13.f,
+         flBaseline,strLetter,flFontSize,0xffffe4b0);
+   }
+
    inline void Dial(SkCanvas* canvas,float cx,float cy,float radius,
       std::string const& title,std::optional<double> value,
       float minimum,float maximum,std::string const& unit,SkColor accent,
@@ -247,8 +282,8 @@ namespace weather_client::artwork {
             canvas->drawRoundRect(SkRect::MakeXYWH(
                cx-radius*.70f,cy+radius*.20f,
                radius*1.40f,radius*.33f),7.f,7.f,plate);
-            view::Text(canvas,cx-radius*.55f,cy+radius*.44f,
-               valueText,21.f,0xffffe4b0);
+            // The temperature glyphs are drawn on top of all highlights,
+            // after the dial has been completed.
          } else {
             view::Text(canvas,cx-radius*.41f,cy+radius*.47f,
                valueText,radius<100?13.f:19.f,0xffebf6f9);
@@ -266,6 +301,8 @@ namespace weather_client::artwork {
       // Small animated light glint follows the clock, not weather data.
       Glow(canvas,cx-radius*.28f+std::sin(phase)*2,
          cy-radius*.40f,radius*.35f,0x0ff9fbff);
+      if(title=="TEMPERATURE" && value)
+         DrawTemperatureReading(canvas,cx,cy,radius,*value,unit);
    }
 
    inline void AnalogClock(SkCanvas* canvas,float cx,float cy,float radius,
