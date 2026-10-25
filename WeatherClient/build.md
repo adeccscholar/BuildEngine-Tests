@@ -352,3 +352,18 @@ and its lower unit band contain visible pixels in the offline preview.
 A successful pixel test does not fully validate the visual center
 alignment for every installed font, locale or numeric range. A Windows
 BCC64X/Skia CTest and visual review remain necessary.
+
+## Wind-panel layout correction (2026-10-25)
+
+The wind rose and its information now share one `DrawWindPanel` layout:
+rose center (1041,292), radius 80; direction baseline 400;
+wind-speed baseline 421; gust baseline 446. Compile-time assertions
+check vertical spacing against the circle and adjacent text bands.
+The redundant small wind-direction compass and the separate gust readout
+in `DrawConditionDetails` are removed. The wind arrow continues to point
+in the direction of travel, whereas the caption identifies FROM and TO.
+No external weather request, parsing, FSM or unit-conversion logic changed.
+
+A BCC64X `WeatherClientGraphics` run and actual visual inspection are
+still required; static layout assertions do not verify proportional-font
+widths or runtime font-manager stability.
