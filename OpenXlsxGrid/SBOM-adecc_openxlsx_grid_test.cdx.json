@@ -1,0 +1,121 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "adecc_openxlsx_grid_test",
+      "bom-ref": "app:OpenXlsxGrid:adecc_openxlsx_grid_test",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:source",
+        "value": "DeckKernel 893f9247264c27a2d938b587f4b7315f26a74973"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "BuildEngine active admin/build-libraries.xml"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "adecc-core-lib",
+      "bom-ref": "pkg:OpenXlsxGrid:0",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial 1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "OpenXLSX",
+      "bom-ref": "pkg:OpenXlsxGrid:1",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "pugixml",
+      "bom-ref": "pkg:OpenXlsxGrid:2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "libzip",
+      "bom-ref": "pkg:OpenXlsxGrid:3",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Boost",
+      "bom-ref": "pkg:OpenXlsxGrid:4",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSL-1.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "zlib",
+      "bom-ref": "pkg:OpenXlsxGrid:5",
+      "licenses": [
+        {
+          "license": {
+            "id": "Zlib"
+          }
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:OpenXlsxGrid:adecc_openxlsx_grid_test",
+      "dependsOn": [
+        "pkg:OpenXlsxGrid:0",
+        "pkg:OpenXlsxGrid:1",
+        "pkg:OpenXlsxGrid:2",
+        "pkg:OpenXlsxGrid:3",
+        "pkg:OpenXlsxGrid:4",
+        "pkg:OpenXlsxGrid:5"
+      ]
+    }
+  ]
+}

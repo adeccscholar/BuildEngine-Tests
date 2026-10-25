@@ -1,0 +1,23 @@
+# Build mssql (RAD Studio 13 Developer Command Prompt)
+
+From `BuildEngine/tests`, use the productive BuildEngine root, existing installed libraries, and checked-out `adecc-core-lib` submodule:
+
+```bat
+git submodule update --init --recursive
+cmake -P bootstrap/Bootstrap.cmake
+cmake -S mssql -B ../build/Test/mssql/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/mssql/Release
+cmake --build ../build/Test/mssql/Release/cmake
+cmake --install ../build/Test/mssql/Release/cmake
+```
+
+For Debug substitute `Debug` consistently. No local third-party bootstrap, no static archive or package-version guessing.
+
+```bat
+sqlcmd -S localhost -E -i mssql\sql\create-database.sql
+..\build\Test\mssql\Release\adecc_mssql_odbc_test.exe --server localhost --database BuildEngineTest --integrated
+set ADECC_MSSQL_DATABASE=BuildEngineTest
+..\build\Test\mssql\Release\adecc_mssql_csv_pipeline.exe
+```
+
+**Server dependency:** A running database server and correctly configured driver, account, network and authentication are required. A successful CMake build alone cannot validate the integration.
+Results, license file and CycloneDX per-target records are accessible from the BuildEngine-Tests Markdown documentation server at `http://127.0.0.1:8781/docs/`.

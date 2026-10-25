@@ -34,6 +34,38 @@ function(adecc_test_use_boost target package_root)
  message(STATUS "BuildEngine Boost.Config policy: production BCC64X native Clang")
 endfunction()
 
+
+# Use the already checked-out, separately licensed adecc-core-lib as true
+# CMake INTERFACE targets (no copied sources, and no static core archive).
+set(BUILDENGINE_TESTS_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." CACHE INTERNAL "BuildEngine tests checkout")
+
+function(adecc_test_use_core target component)
+   set(_source "${BUILDENGINE_TESTS_ROOT}/adecc-core-lib")
+   if(NOT EXISTS "${_source}/CMakeLists.txt")
+      message(FATAL_ERROR
+         "adecc-core-lib submodule missing: ${_source}; run git submodule update --init --recursive")
+   endif()
+   if(NOT TARGET adecc::core)
+      add_subdirectory("${_source}" "${CMAKE_CURRENT_BINARY_DIR}/adecc-core-lib" EXCLUDE_FROM_ALL)
+   endif()
+   if(NOT TARGET adecc::${component})
+      message(FATAL_ERROR "adecc-core-lib does not provide INTERFACE target adecc::${component}")
+   endif()
+   target_link_libraries(${target} PRIVATE adecc::${component})
+   # Legacy exercises use short public header names; the include paths are
+   # provided as an INTERFACE adapter rather than editing the exercises.
+   if(NOT TARGET buildengine_adecc_header_paths)
+      add_library(buildengine_adecc_header_paths INTERFACE)
+      target_include_directories(buildengine_adecc_header_paths INTERFACE
+         "${_source}/adecc/cpp_core"
+         "${_source}/adecc/cpp_domain"
+         "${_source}/adecc/mssql"
+         "${_source}/adecc/postgre"
+         "${_source}/adecc/openXlsxTools")
+   endif()
+   target_link_libraries(${target} PRIVATE buildengine_adecc_header_paths)
+endfunction()
+
 # Explicit per-target package closures. CMake does not guess libraries from PATH.
 function(adecc_test_install target)
  cmake_parse_arguments(ARG "" "" "PACKAGE_ROOTS;TOOLCHAIN_DLLS;EXCLUDE_DLLS" ${ARGN})

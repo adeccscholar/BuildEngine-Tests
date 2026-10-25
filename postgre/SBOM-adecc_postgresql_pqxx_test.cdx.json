@@ -1,0 +1,134 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "adecc_postgresql_pqxx_test",
+      "bom-ref": "app:postgre:adecc_postgresql_pqxx_test",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:source",
+        "value": "DeckKernel 893f9247264c27a2d938b587f4b7315f26a74973"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "BuildEngine active admin/build-libraries.xml"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "adecc-core-lib",
+      "bom-ref": "pkg:postgre:0",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial 1.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "libpqxx",
+      "bom-ref": "pkg:postgre:1",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "libpq",
+      "bom-ref": "pkg:postgre:2",
+      "licenses": [
+        {
+          "license": {
+            "id": "PostgreSQL"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "OpenSSL",
+      "bom-ref": "pkg:postgre:3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "zlib",
+      "bom-ref": "pkg:postgre:4",
+      "licenses": [
+        {
+          "license": {
+            "id": "Zlib"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "brotli",
+      "bom-ref": "pkg:postgre:5",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "zstd",
+      "bom-ref": "pkg:postgre:6",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:postgre:adecc_postgresql_pqxx_test",
+      "dependsOn": [
+        "pkg:postgre:0",
+        "pkg:postgre:1",
+        "pkg:postgre:2",
+        "pkg:postgre:3",
+        "pkg:postgre:4",
+        "pkg:postgre:5",
+        "pkg:postgre:6"
+      ]
+    }
+  ]
+}

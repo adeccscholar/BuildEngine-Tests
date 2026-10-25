@@ -44,3 +44,13 @@ The examples are educational and supplied AS IS.
 ## License and SBOM navigation
 
 The documentation server index offers a license and CycloneDX SBOM index per project. License files reproduce the complete PolyForm Noncommercial 1.0.0 text, with a source-declared third-party license register. SBOMs are explicitly declared-only and require installed package and PE/DLL verification before distribution.
+
+## Database and Excel consumer tests
+
+| Test | Source | Server required |
+| --- | --- | --- |
+| [SQL Server ODBC](/docs/mssql/Description.md) | [CMake and setup](/docs/mssql/build.md), [License](/docs/mssql/LICENSE.md), [SBOM](/docs/mssql/SBOM.md) | Microsoft SQL Server + ODBC Driver 18 |
+| [PostgreSQL libpqxx](/docs/postgre/Description.md) | [CMake and setup](/docs/postgre/build.md), [License](/docs/postgre/LICENSE.md), [SBOM](/docs/postgre/SBOM.md) | PostgreSQL server + configured SSPI/GSSAPI or password authentication |
+| [OpenXLSX Grid](/docs/OpenXlsxGrid/Description.md) | [CMake and build](/docs/OpenXlsxGrid/build.md), [License](/docs/OpenXlsxGrid/LICENSE.md), [SBOM](/docs/OpenXlsxGrid/SBOM.md) | No database server; Excel optional for manual inspection |
+
+All database examples use **BuildEngineTest** and never operate on DeckKernel's production database. The original backend tests retain their logical C++ API and use the already integrated **adecc-core-lib CMake INTERFACE targets**. Integration tests should not run automatically unless a matching server has been provisioned; source tests may be built without a running server.
