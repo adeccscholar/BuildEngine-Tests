@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 #pragma once
 #define _USE_MATH_DEFINES
 #include <cmath>
