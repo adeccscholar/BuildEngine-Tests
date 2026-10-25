@@ -46,8 +46,9 @@ The Skia weather artwork is entirely procedural and original.
 At night a constructed crescent **moon** replaces the daytime sun;
 clouds, rain, snow and thunderstorm layers appear over either sky.
 Every hourly forecast symbol chooses sun or moon using that date's
-local sunrise and sunset. Daily forecast columns show original
-sunrise/sunset pictograms with the local times.
+local sunrise and sunset. Daily forecast columns retain the weather
+symbol, temperature range and precipitation; sunrise/sunset times
+are displayed once in the header for the selected day.
 
 The analog instruments intentionally have different surface treatments:
 a warm enamel thermometer, a machined blue barometer with a secondary
@@ -339,7 +340,9 @@ Thresholds are documented in [WeatherServices.md](WeatherServices.md).
 This does not introduce a new weather service, third-party dependency,
 non-commercial-use exception or additional HTTP connection.
 
-The temperature dial restores a prominent **high-contrast current
-temperature readout**, always drawn over the dial needle and ticks.
-The rest of the proven pre-redesign gauge is left unchanged; no
-font manager or text renderer is replaced.
+The temperature dial displays its current reading in the same
+anti-aliased system font, transparent background and color treatment
+as the other instruments, over the dial needle and highlights.
+The temporary dark readout plate and hardwired 5x7 pixel digits
+were removed. The instrument geometry and font-provider selection
+remain unchanged.
