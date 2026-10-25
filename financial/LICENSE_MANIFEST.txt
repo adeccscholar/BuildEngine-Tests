@@ -1,8 +1,15 @@
 adecc Scholar license manifest
 Copyright (c) 2026 adecc Systemhaus GmbH
-SPDX-License-Identifier: MIT
+SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
-Each line: SHA-256  path  classification
+HISTORICAL MANIFEST — DO NOT USE TO VERIFY CURRENT FILES.
+The recorded SHA-256 hashes and MIT classifications describe an earlier source
+package and are preserved as historical provenance. Current BuildEngine-Tests
+project-authored sources use PolyForm Noncommercial License 1.0.0, as noted in
+the repository LICENSE. Prior MIT grants remain valid for past revisions.
+Third-party/vendor classifications continue to refer to their own licenses.
+
+Each historical line: SHA-256  path  classification
 
 69af2d1babaa2c232d0f99822545983df3347c64b20eeabd32aa30af529ab9a2  LICENSE  [adecc Scholar project-authored/package file; Copyright (c) 2026 adecc Systemhaus GmbH; MIT]
 5ae88de51811c29f83f21c92858189d6782a7bbf1d3ded713ef91d3717552b38  NOTICE.md  [adecc Scholar project-authored/package file; Copyright (c) 2026 adecc Systemhaus GmbH; MIT]
