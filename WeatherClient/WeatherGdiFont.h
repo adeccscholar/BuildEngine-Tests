@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <tuple>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -42,7 +43,7 @@ namespace weather_client::gdi_font {
    };
 
    class Renderer {
-      std::map<std::pair<std::wstring,int>,GlyphImage> cache_;
+      std::map<std::tuple<std::wstring,int,SkColor>,GlyphImage> cache_;
       HDC dc_{};
       HBITMAP bitmap_{};
       HGDIOBJ originalBitmap_{};
@@ -110,9 +111,9 @@ namespace weather_client::gdi_font {
          }
       }
 
-      [[nodiscard]] GlyphImage const* Raster(std::wstring const& text,int px) {
+      [[nodiscard]] GlyphImage const* Raster(std::wstring const& text,int px,SkColor color) {
          if(text.empty()||px<=0) return nullptr;
-         auto const key=std::pair{text,px};
+         auto const key=std::tuple{text,px,color};
          if(auto it=cache_.find(key);it!=cache_.end()) return &it->second;
          if(cache_.size()>192) cache_.clear();
          if(!Prepare(16,16,px)) return nullptr;
@@ -139,25 +140,26 @@ namespace weather_client::gdi_font {
             for(int col=0;col<width;++col) {
                auto const pixel=src+4*(static_cast<std::size_t>(row)*bitmapWidth_+col);
                unsigned const a=pixel[0];
-               dst[col]=SkPreMultiplyARGB(a,255,255,255);
+               dst[col]=SkPreMultiplyARGB(a,SkColorGetR(color),
+                  SkColorGetG(color),SkColorGetB(color));
             }
          }
          return &cache_.emplace(key,std::move(glyph)).first->second;
       }
 
       [[nodiscard]] float Width(std::wstring const& text,int size) {
-         if(auto glyph=Raster(text,size)) return glyph->width;
+         if(auto glyph=Raster(text,size,SK_ColorWHITE)) return glyph->width;
          return static_cast<float>(text.size()*size)*.6f;
       }
 
       [[nodiscard]] bool Draw(SkCanvas* canvas,float x,float baseline,
          std::wstring const& text,int size,SkColor color) {
-         auto glyph=Raster(text,size);
+         auto glyph=Raster(text,size,color);
          if(!glyph) return false;
          auto image=SkImages::RasterFromBitmap(glyph->pixels);
          if(!image) return false;
          SkPaint paint;
-         paint.setColor(color);
+         paint.setColor(SK_ColorWHITE);
          paint.setAntiAlias(true);
          canvas->drawImage(image,x-2,baseline-glyph->top,SkSamplingOptions(),&paint);
          return true;
