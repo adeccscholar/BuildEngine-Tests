@@ -83,3 +83,11 @@ separately into `Docs/js/`; test-owned images belong in `Docs/images/`.
 The server does not execute builds over HTTP. See
 [server setup and commands](Docs/start/BUILD.md). Default URL:
 `http://127.0.0.1:8781/docs/`.
+
+## Database backends
+
+Shared C++23 logical-database checks are under `database/common/database_checks.h`.
+`database/mssql` and `database/postgre` instantiate the same test functions;
+only connection setup, SQL dialect, and driver-specific diagnostics differ.
+SQL Server and PostgreSQL require running database services and a dedicated
+`BuildEngineTest` database. See their `build.md` and `sql/` directories.

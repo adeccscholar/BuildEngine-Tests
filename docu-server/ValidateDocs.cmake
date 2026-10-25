@@ -6,7 +6,7 @@ set(_projects CompareTest financial geospatial-skia opengl-sdl2-earth
    openmp-galaxy openmp-mandelbrot pdf-image-extraction
    pdfium/Common pdfium/SDL2 pdfium/VCL skia-direct-showcase
    tests/pdf-image-extraction thirdparty-showcase docu-server
-   mssql postgre OpenXlsxGrid)
+   database/mssql database/postgre OpenXlsxGrid)
 file(READ "${ROOT}/LICENSE" _polyform)
 string(STRIP "${_polyform}" _polyform)
 foreach(_project IN LISTS _projects)

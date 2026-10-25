@@ -5,7 +5,7 @@ From `BuildEngine/tests`, use the productive BuildEngine root, existing installe
 ```bat
 git submodule update --init --recursive
 cmake -P bootstrap/Bootstrap.cmake
-cmake -S mssql -B ../build/Test/mssql/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/mssql/Release
+cmake -S database/mssql -B ../build/Test/mssql/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/mssql/Release
 cmake --build ../build/Test/mssql/Release/cmake
 cmake --install ../build/Test/mssql/Release/cmake
 ```
@@ -13,7 +13,7 @@ cmake --install ../build/Test/mssql/Release/cmake
 For Debug substitute `Debug` consistently. No local third-party bootstrap, no static archive or package-version guessing.
 
 ```bat
-sqlcmd -S localhost -E -i mssql\sql\create-database.sql
+sqlcmd -S localhost -E -i database\mssql\sql\create-database.sql
 ..\build\Test\mssql\Release\adecc_mssql_odbc_test.exe --server localhost --database BuildEngineTest --integrated
 set ADECC_MSSQL_DATABASE=BuildEngineTest
 ..\build\Test\mssql\Release\adecc_mssql_csv_pipeline.exe

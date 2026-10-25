@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
-include("${CMAKE_CURRENT_SOURCE_DIR}/../bootstrap/PrepareToolchain.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../bootstrap/PrepareToolchain.cmake")
 project(BuildEnginePostgreTests LANGUAGES CXX)
-include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/BuildEngineTests.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/BuildEngineTests.cmake")
 foreach(_id IN ITEMS libpq libpqxx openssl zlib brotli zstd)
  string(REPLACE "-" "_" _key "${_id}")
  string(TOUPPER "${_key}" _key)
@@ -35,6 +35,7 @@ add_executable(adecc_postgresql_pqxx_test test_postgresql_pqxx_database.cpp)
 set_target_properties(adecc_postgresql_pqxx_test PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF CXX_SCAN_FOR_MODULES OFF)
 target_compile_definitions(adecc_postgresql_pqxx_test PRIVATE CHRONO_WORK_AROUND CHRONO_MISSED_ZONEDB)
 adecc_test_use_core(adecc_postgresql_pqxx_test postgre)
+target_include_directories(adecc_postgresql_pqxx_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../common")
 target_link_libraries(adecc_postgresql_pqxx_test PRIVATE PostgreSQL::PostgreSQL ${_pqxx_target})
 adecc_test_install(adecc_postgresql_pqxx_test PACKAGE_ROOTS
  "${LIBPQ_PACKAGE}" "${LIBPQXX_PACKAGE}" "${OPENSSL_PACKAGE}" "${ZLIB_PACKAGE}"
