@@ -37,7 +37,7 @@ target_compile_definitions(adecc_postgresql_pqxx_test PRIVATE CHRONO_WORK_AROUND
 adecc_test_use_core(adecc_postgresql_pqxx_test postgre)
 target_include_directories(adecc_postgresql_pqxx_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../common")
 target_link_libraries(adecc_postgresql_pqxx_test PRIVATE PostgreSQL::PostgreSQL ${_pqxx_target})
-adecc_test_install(adecc_postgresql_pqxx_test PACKAGE_ROOTS
+adecc_test_install(adecc_postgresql_pqxx_test RUNTIME_CLOSURE PACKAGE_ROOTS
  "${LIBPQ_PACKAGE}" "${LIBPQXX_PACKAGE}" "${OPENSSL_PACKAGE}" "${ZLIB_PACKAGE}"
  "${BROTLI_PACKAGE}" "${ZSTD_PACKAGE}"
  TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
