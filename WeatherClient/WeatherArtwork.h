@@ -115,8 +115,11 @@ namespace weather_client::artwork {
          SkColor4f::FromColor(0xffa0bdc6)
       };
       SkScalar const stops[]{0,0.53f,1};
-      paint.setShader(SkShaders::LinearGradient(
-         {SkPoint::Make(cx-radius,cy-radius),SkPoint::Make(cx+radius,cy+radius)},
+      SkPoint const rimPoints[]{
+         SkPoint::Make(cx-radius,cy-radius),
+         SkPoint::Make(cx+radius,cy+radius)
+      };
+      paint.setShader(SkShaders::LinearGradient(rimPoints,
          {{rim,stops,SkTileMode::kClamp},{}}));
       canvas->drawCircle(cx,cy,radius+7,paint);
       paint.setShader(nullptr);
