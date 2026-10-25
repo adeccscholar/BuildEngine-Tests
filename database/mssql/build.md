@@ -13,7 +13,7 @@ cmake --install ../build/Test/mssql/Release/cmake
 For Debug substitute `Debug` consistently. No local third-party bootstrap, no static archive or package-version guessing.
 
 ```bat
-sqlcmd -S localhost -E -i database\mssql\sql\create-database.sql
+sqlcmd -S localhost -E -i database\database\mssql\sql\create-database.sql
 ..\build\Test\mssql\Release\adecc_mssql_odbc_test.exe --server localhost --database BuildEngineTest --integrated
 set ADECC_MSSQL_DATABASE=BuildEngineTest
 ..\build\Test\mssql\Release\adecc_mssql_csv_pipeline.exe
