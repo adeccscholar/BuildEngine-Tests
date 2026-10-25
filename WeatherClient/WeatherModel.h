@@ -54,6 +54,7 @@ namespace weather_client {
       std::optional<double> apparent_temperature;
       std::optional<double> relative_humidity_2m;
       std::optional<double> cloud_cover;
+      std::optional<double> cape;
       std::optional<double> precipitation_probability;
       std::optional<double> precipitation;
       std::optional<double> wind_speed_10m;
@@ -192,6 +193,7 @@ namespace weather_client {
                hour.apparent_temperature = SeriesValue(series, "apparent_temperature", i);
                hour.relative_humidity_2m = SeriesValue(series, "relative_humidity_2m", i);
                hour.cloud_cover = SeriesValue(series, "cloud_cover", i);
+               hour.cape = SeriesValue(series, "cape", i);
                hour.precipitation_probability = SeriesValue(series, "precipitation_probability", i);
                hour.precipitation = SeriesValue(series, "precipitation", i);
                hour.wind_speed_10m = SeriesValue(series, "wind_speed_10m", i);
