@@ -226,3 +226,31 @@ No external font binaries are distributed. This is a conservative
 regression rollback, **not** a claim that the live-fetch problem is fixed.
 The live transport and worker recovery are still to be independently
 validated against the formerly working version.
+
+## Segoe UI text rasterizer (GDI, 2026-10-25)
+
+The earlier fallback to the custom 5x7 alphabet passed all three CTests
+but produced visibly poor typography. WeatherClient now uses the same
+Windows GDI Segoe UI mechanism already used by
+`pdfium/SDL2/ToolbarGraphics.h` (`CreateFontW`, `TextOutW`, GDI
+surface), **without using Skia's DirectWrite font manager**. GDI text is
+rasterized off-screen in gray-scale, converted into premultiplied tinted
+Skia pixels and composited onto the existing SkCanvas. The same font's
+`GetTextExtentPoint32W` measurements govern clipping, labels and centering.
+Text rasters are cached with a bounded cache. No external font file is
+included. On non-Windows platforms or GDI failure, the original 5x7
+lettering remains the fallback. The force-fallback flag remains available:
+
+```bat
+set WEATHERCLIENT_FONT_FALLBACK=1
+ctest --test-dir ../build/Test/WeatherClient/Release/cmake -R WeatherClientGraphics --output-on-failure
+set WEATHERCLIENT_FONT_FALLBACK=
+```
+
+The **unverified** legacy Skia/DirectWrite experiment can still be selected
+with `WEATHERCLIENT_USE_SEGOE=1`, but it is no longer the normal GUI
+text renderer. Because this font change uses the platform GDI font exactly
+as the existing PDFium example does, the application becomes Windows-
+specific for high-quality typography. The C++ model, FSM and weather
+network code remain unchanged. The final BCC64X build and visual check
+must still be performed on the user's system.
