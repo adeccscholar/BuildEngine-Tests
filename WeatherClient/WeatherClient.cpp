@@ -371,7 +371,7 @@ int main(int argc,char** argv) {
          bool glyphVisible=false;
          if(glyphSurface) {
             glyphSurface->getCanvas()->clear(SK_ColorTRANSPARENT);
-            lettering::Draw(glyphSurface->getCanvas(),2,18,"TEST",15,SK_ColorWHITE);
+            weather_client::lettering::Draw(glyphSurface->getCanvas(),2,18,"TEST",15,SK_ColorWHITE);
             SkPixmap glyphPixels;
             if(glyphSurface->peekPixels(&glyphPixels)) {
                for(int y=0;y<24&&!glyphVisible;++y) {
