@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 # BuildEngine-Tests bootstrap configuration.
 #
 # Keep the repro toolchain deterministic and independent of a globally

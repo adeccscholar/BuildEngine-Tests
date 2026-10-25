@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 include_guard(GLOBAL)
 get_filename_component(BUILDENGINE_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 set(BUILDENGINE_ROOT "${BUILDENGINE_ROOT}" CACHE PATH "BuildEngine workspace root")

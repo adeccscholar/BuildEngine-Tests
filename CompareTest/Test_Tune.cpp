@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 // Test_Tune.cpp : Diese Datei enthÃ¤lt die Funktion "main". Hier beginnt und endet die AusfÃ¼hrung des Programms.
 //
 

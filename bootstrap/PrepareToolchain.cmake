@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # Called before project(), including on automatic Ninja/CMake reconfiguration.
 # Rehydrate the BuildEngine BCC64X environment without guessing tool versions.
 if(NOT DEFINED ENV{CB_BDS} OR "$ENV{CB_BDS}" STREQUAL "")

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 cmake_minimum_required(VERSION 3.25)
 get_filename_component(TEST_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
 get_filename_component(BUILDENGINE_ROOT "${TEST_ROOT}/.." ABSOLUTE)
