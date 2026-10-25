@@ -40,6 +40,23 @@ Nominatim verlangt OSM-Attribution, Nutzungsbedingungen und verantwortliche
 Ratenbegrenzung; der Beispielclient sollte nicht massenhaft Adressen
 auflösen. Dienste können Rate Limits, Netzwerk- und Datenschutzvorgaben haben.
 
+## Skia fonts: reliable portable lettering
+
+The original screenshot showed **no text at all** while Skia geometry
+rendered. The default-constructed `SkFont` was not resolving usable glyphs
+on the current BCC64X/Skia configuration. The GUI now uses original,
+deterministic 5x7 pixel-vector glyphs in [WeatherText.h](WeatherText.h),
+drawn directly with Skia primitives, with no platform font manager or
+external font asset. The small alphabet is intentionally an ASCII fallback:
+non-ASCII characters render as a visible placeholder rather than silently
+disappearing. It is meant to guarantee readability, not to replace a proper
+Unicode-capable typeface system in a future release.
+
+The photographed light-ivory gauge faces are from the **older renderer**.
+The current WeatherArtwork version has dark dial faces, rim gradients,
+a graphical sky and a wind rose. Verify that the freshly built executable
+is the same path that is launched.
+
 ## Visual redesign: original Skia weather observatory
 
 The display is now an English-language, international demonstration of Skia

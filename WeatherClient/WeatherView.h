@@ -8,6 +8,7 @@
     network calls, filesystem access or FSM transitions are used here.
 */
 #include "WeatherModel.h"
+#include "WeatherText.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
@@ -145,9 +146,7 @@ namespace weather_client::view {
    inline void Text(SkCanvas* canvas,float x,float y,
       std::string const& text,float size=16,SkColor color=0xffd7e7ec
    ) {
-      SkPaint paint;Color(paint,color);
-      SkFont font;font.setSize(size);
-      canvas->drawSimpleText(text.data(),text.size(),SkTextEncoding::kUTF8,x,y,font,paint);
+      lettering::Draw(canvas,x,y,text,size,color);
    }
 
    inline void DrawButton(

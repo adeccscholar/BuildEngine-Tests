@@ -10,6 +10,7 @@
 #include "WeatherView.h"
 #include "WeatherArtwork.h"
 #include "WeatherNarrative.h"
+#include "WeatherText.h"
 
 #include <SDL.h>
 #include <boost/statechart/state_machine.hpp>
@@ -234,11 +235,7 @@ namespace weather_client::application {
    }
    void Text(SkCanvas* canvas,float x,float y,std::string const& text,
       float size=18,SkColor color=0xffd7e7ec) {
-      SkPaint paint;
-      SetColor(paint,color);
-      SkFont font;
-      font.setSize(size);
-      canvas->drawSimpleText(text.data(),text.size(),SkTextEncoding::kUTF8,x,y,font,paint);
+      lettering::Draw(canvas,x,y,text,size,color);
    }
    void Needle(SkCanvas* canvas,float cx,float cy,float radius,double percent,
       SkColor color) {
