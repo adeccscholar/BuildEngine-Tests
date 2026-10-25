@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH -->
 <!-- SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 -->
 
-# WeatherClient – analoge Skia-Wetterstation
+# WeatherClient – Skia Weather Dashboard
 
 [TOC]
 
