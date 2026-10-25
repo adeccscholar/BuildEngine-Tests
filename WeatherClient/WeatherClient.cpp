@@ -436,23 +436,8 @@ namespace weather_client::application {
       artwork::Dial(canvas,764,305,104,"HUMIDITY",
          current?current->relative_humidity_2m:std::nullopt,
          0,100,"%",0xff80d5be,animationTime);
-      wc::diagnostics::Trace("Render: wind rose");
-      artwork::WindRose(canvas,1041,305,86,
-         current?current->wind_direction_10m:std::nullopt,animationTime);
-      if(current&&current->wind_direction_10m) {
-         double const from=*current->wind_direction_10m;
-         font::Draw(canvas,963,397,std::format("FROM {} / TO {}",
-            wc::CardinalDirection(from),
-            wc::CardinalDirection(wc::WindToDirection(from))),
-            12,0xfff3d5a1,169);
-      }
-      if(current&&current->wind_speed_10m) {
-         font::Draw(canvas,959,415,
-            "WIND "+wc::WindText(*current->wind_speed_10m,s.units),
-            15,0xffdbeaf0,175);
-      } else {
-         Text(canvas,1010,415,"WIND --",15,0xffdbeaf0);
-      }
+      wc::diagnostics::Trace("Render: wind panel");
+      artwork::DrawWindPanel(canvas,current,s.units,animationTime);
       wc::diagnostics::Trace("Render: details");
       view::DrawConditionDetails(canvas,current,s.units);
        font::Draw(canvas,62,423,
