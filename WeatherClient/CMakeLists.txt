@@ -46,7 +46,7 @@ set_target_properties(WeatherSSL PROPERTIES
    INTERFACE_INCLUDE_DIRECTORIES "${OPENSSL_PACKAGE}/include"
    INTERFACE_LINK_LIBRARIES WeatherCrypto)
 
-add_executable(WeatherClient WIN32 WeatherClient.cpp WeatherNetwork.h WeatherModel.h WeatherView.h WeatherArtwork.h WeatherNarrative.h WeatherText.h WeatherFont.h WeatherMetrics.h WeatherUnits.h)
+add_executable(WeatherClient WIN32 WeatherClient.cpp WeatherNetwork.h WeatherModel.h WeatherView.h WeatherArtwork.h WeatherNarrative.h WeatherText.h WeatherFont.h WeatherMetrics.h WeatherUnits.h WeatherMoon.h)
 set_target_properties(WeatherClient PROPERTIES
    CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF
    CXX_SCAN_FOR_MODULES OFF)
