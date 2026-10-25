@@ -257,6 +257,30 @@ namespace weather_client::application {
       explicit Error(my_context c):my_base(c) {}
    };
 
+   [[nodiscard]] bool VerifyStatechart() {
+      Station station;
+      Machine fsm{station};
+      fsm.initiate();
+      bool ok=fsm.state_cast<Off const*>()!=nullptr;
+      fsm.process_event(EvStart{});
+      ok=ok && fsm.state_cast<Resolving const*>()!=nullptr;
+      fsm.process_event(EvLocation{});
+      ok=ok && fsm.state_cast<Fetching const*>()!=nullptr;
+      fsm.process_event(EvWeather{});
+      ok=ok && fsm.state_cast<Ready const*>()!=nullptr;
+      fsm.process_event(EvRefresh{});
+      ok=ok && fsm.state_cast<Fetching const*>()!=nullptr;
+      fsm.process_event(EvFailure{});
+      ok=ok && fsm.state_cast<Error const*>()!=nullptr;
+      fsm.process_event(EvStart{});
+      ok=ok && fsm.state_cast<Resolving const*>()!=nullptr;
+      fsm.process_event(EvLocation{});
+      fsm.process_event(EvWeather{});
+      ok=ok && fsm.state_cast<Ready const*>()!=nullptr;
+      fsm.terminate();
+      return ok && fsm.terminated();
+   }
+
    void SetColor(SkPaint& paint, SkColor color) {
       paint.setAntiAlias(true);
       paint.setColor(color);
@@ -400,6 +424,11 @@ int main(int argc,char** argv) {
    namespace view = weather_client::view;
    // Run the deterministic JSON/forecast smoke without initializing SDL.
    for(int i=1;i<argc;++i) {
+      if(std::string_view(argv[i])=="--fsm-test") {
+         bool const passed=VerifyStatechart();
+         std::cout << (passed?"WEATHER_FSM_TEST_PASS\n":"WEATHER_FSM_TEST_FAIL\n");
+         return passed?0:2;
+      }
       if(std::string_view(argv[i])=="--self-test") {
          auto const data=Station::DemoWeather();
          std::string text{"Müller"};
@@ -422,7 +451,16 @@ int main(int argc,char** argv) {
                }
             }
          }
+         auto stormData=data;
+         stormData.hours.front().weather_code=95;
          bool const valid=glyphVisible &&
+            VerifyStatechart() &&
+            wc::CurrentDaylight(data) &&
+            wc::IsDayAt("2026-10-25T21:00",data)==false &&
+            wc::RangeText(wc::Today(data))=="9 / 19 C" &&
+            wc::ClockText(wc::Today(data)->sunrise)=="07:30" &&
+            wc::StormOutlook(data)==wc::StormSignal::NotIndicated &&
+            wc::StormOutlook(stormData)==wc::StormSignal::Forecast &&
             data.hours.size()==48 && data.days.size()==7 &&
             data.current.temperature_2m.has_value() &&
             text=="Mülle" &&
