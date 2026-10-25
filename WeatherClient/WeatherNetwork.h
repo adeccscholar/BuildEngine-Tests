@@ -1,0 +1,157 @@
+// SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+#pragma once
+
+/** \file WeatherNetwork.h
+    \brief HTTPS transfers and address lookup, isolated from SDL and the FSM.
+*/
+#include "WeatherModel.h"
+#include <curl/curl.h>
+#include <format>
+#include <filesystem>
+#include <fstream>
+#include <optional>
+#include <system_error>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+
+namespace weather_client {
+   [[nodiscard]] inline std::size_t CurlWrite(
+      char* data, std::size_t size, std::size_t count, void* user
+   ) {
+      std::size_t const bytes = size * count;
+      auto& result = *static_cast<std::string*>(user);
+      if(result.size() + bytes > 2'000'000U) return 0U;
+      result.append(data, bytes);
+      return bytes;
+   }
+
+   [[nodiscard]] inline std::string GetHttps(
+      std::string const& url, std::string_view agent = "adecc-Scholar-WeatherClient/1.0"
+   ) {
+      if(!url.starts_with("https://")) {
+         throw std::runtime_error{ "Only HTTPS endpoints are accepted" };
+      }
+      using Handle = std::unique_ptr<CURL, decltype(&curl_easy_cleanup)>;
+      Handle handle{curl_easy_init(), &curl_easy_cleanup};
+      if(!handle) throw std::runtime_error{ "curl_easy_init failed" };
+      std::string result;
+      std::string const userAgent{agent};
+      curl_easy_setopt(handle.get(), CURLOPT_URL, url.c_str());
+      curl_easy_setopt(handle.get(), CURLOPT_USERAGENT, userAgent.c_str());
+      curl_easy_setopt(handle.get(), CURLOPT_WRITEFUNCTION, &CurlWrite);
+      curl_easy_setopt(handle.get(), CURLOPT_WRITEDATA, &result);
+      curl_easy_setopt(handle.get(), CURLOPT_FOLLOWLOCATION, 0L);
+      curl_easy_setopt(handle.get(), CURLOPT_CONNECTTIMEOUT, 7L);
+      curl_easy_setopt(handle.get(), CURLOPT_TIMEOUT, 16L);
+      curl_easy_setopt(handle.get(), CURLOPT_SSL_VERIFYPEER, 1L);
+      curl_easy_setopt(handle.get(), CURLOPT_SSL_VERIFYHOST, 2L);
+      curl_easy_setopt(handle.get(), CURLOPT_PROTOCOLS_STR, "https");
+      auto const error = curl_easy_perform(handle.get());
+      if(error != CURLE_OK) {
+         throw std::runtime_error{std::format("HTTPS: {}", curl_easy_strerror(error))};
+      }
+      long code{};
+      curl_easy_getinfo(handle.get(), CURLOPT_RESPONSE_CODE, &code);
+      if(code != 200) throw std::runtime_error{std::format("HTTP {}", code)};
+      return result;
+   }
+
+   [[nodiscard]] inline std::string Escape(std::string_view value) {
+      using Handle = std::unique_ptr<CURL, decltype(&curl_easy_cleanup)>;
+      Handle handle{curl_easy_init(), &curl_easy_cleanup};
+      if(!handle) throw std::runtime_error{ "URL encoder unavailable" };
+      std::string text{value};
+      char* const raw = curl_easy_escape(handle.get(), text.c_str(), static_cast<int>(text.size()));
+      if(!raw) throw std::runtime_error{ "Cannot encode address" };
+      std::string result{raw};
+      curl_free(raw);
+      return result;
+   }
+
+   [[nodiscard]] inline Location ResolveAddress(std::string const& address) {
+      if(address.empty() || address.size() > 300U) {
+         throw std::runtime_error{ "Address must contain 1..300 characters" };
+      }
+      // Nominatim policy: explicit application identity, user-initiated only,
+      // max one query per second. Never use it for autocomplete.
+      auto const url = "https://nominatim.openstreetmap.org/search?q="
+         + Escape(address) + "&format=jsonv2&limit=1";
+      return ParseAddressLocation(Json::parse(GetHttps(url)), address);
+   }
+
+   [[nodiscard]] inline Location ResolveIp() {
+      // City/region-level approximation, NEVER a house number.
+      auto const json = Json::parse(GetHttps("https://ipapi.co/json/"));
+      if(json.contains("error") && json["error"] == true)
+         throw std::runtime_error{"IP location rate limited"};
+      return ParseIpLocation(json);
+   }
+
+   [[nodiscard]] inline WeatherData FetchWeather(Location const& location) {
+      if(!ValidCoordinates(location.latitude, location.longitude))
+         throw std::runtime_error{ "Cannot fetch weather for invalid coordinates" };
+      auto const url = std::format(
+         "https://api.open-meteo.com/v1/forecast?"
+         "latitude={:.7f}&longitude={:.7f}&timezone=auto"
+         "&forecast_days=7"
+         "&current=temperature_2m,relative_humidity_2m,apparent_temperature,"
+         "pressure_msl,wind_speed_10m,wind_direction_10m,precipitation,"
+         "cloud_cover,weather_code,is_day"
+         "&hourly=temperature_2m,precipitation_probability,precipitation,"
+         "wind_speed_10m,weather_code"
+         "&daily=weather_code,temperature_2m_max,temperature_2m_min,"
+         "precipitation_sum,wind_speed_10m_max",
+         location.latitude, location.longitude);
+      return ParseWeather(Json::parse(GetHttps(url)));
+   }
+
+   [[nodiscard]] inline std::optional<Location> LoadLocation(
+      std::filesystem::path const& file
+   ) {
+      if(!std::filesystem::is_regular_file(file)) return std::nullopt;
+      std::ifstream input{file, std::ios::binary};
+      if(!input) throw std::runtime_error{"Cannot read location JSON"};
+      Json json = Json::parse(input);
+      Location location{
+         .label = json.at("label").get<std::string>(),
+         .address = json.at("address").get<std::string>(),
+         .timezone = json.value("timezone",std::string{}),
+         .latitude = json.at("latitude").get<double>(),
+         .longitude = json.at("longitude").get<double>(),
+         .approximate = json.value("approximate",false)
+      };
+      if(!ValidCoordinates(location.latitude,location.longitude) ||
+         location.address.size() > 300U)
+         throw std::runtime_error{"Invalid saved location"};
+      return location;
+   }
+
+   inline void SaveLocation(std::filesystem::path const& file, Location const& location) {
+      if(!ValidCoordinates(location.latitude,location.longitude))
+         throw std::runtime_error{"Invalid location"};
+      Json const json{
+         {"schema",1},{"label",location.label},{"address",location.address},
+         {"timezone",location.timezone},{"latitude",location.latitude},
+         {"longitude",location.longitude},{"approximate",location.approximate}
+      };
+      auto const temp = std::filesystem::path{file.string() + ".tmp"};
+      {
+         std::ofstream output{temp,std::ios::binary | std::ios::trunc};
+         if(!output) throw std::runtime_error{"Cannot save location"};
+         output << json.dump(2) << '\n';
+         output.flush();
+         if(!output) throw std::runtime_error{"Location JSON write failed"};
+      }
+      std::error_code error;
+      std::filesystem::rename(temp,file,error);
+      if(error) {
+         std::filesystem::remove(file,error);
+         error.clear();
+         std::filesystem::rename(temp,file,error);
+         if(error) throw std::runtime_error{"Cannot replace saved location JSON"};
+      }
+   }
+} // namespace weather_client
