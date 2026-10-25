@@ -6,7 +6,15 @@
     "component": {
       "type": "application",
       "name": "pdf-image-extraction",
-      "bom-ref": "app:tests/pdf-image-extraction:pdf-image-extraction"
+      "bom-ref": "app:tests/pdf-image-extraction:pdf-image-extraction",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
     },
     "properties": [
       {
@@ -16,6 +24,14 @@
       {
         "name": "adecc:evidence",
         "value": "source CMake/IDE configuration; no binary runtime validation"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "BuildEngine active package catalog; some consumer build inputs remain pinned until migrated"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
       }
     ]
   },
@@ -24,19 +40,47 @@
       "type": "library",
       "name": "qpdf",
       "version": "12.4.1",
-      "bom-ref": "lib:0:qpdf"
+      "bom-ref": "lib:0:qpdf",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "zlib",
       "version": "1.3.2",
-      "bom-ref": "lib:1:zlib"
+      "bom-ref": "lib:1:zlib",
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "libjpeg-turbo",
       "version": "3.2.0",
-      "bom-ref": "lib:2:libjpeg-turbo"
+      "bom-ref": "lib:2:libjpeg-turbo",
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "license pending verification"
+        }
+      ]
     }
   ],
   "dependencies": [

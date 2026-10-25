@@ -6,7 +6,15 @@
     "component": {
       "type": "application",
       "name": "ThirdPartyShowcase",
-      "bom-ref": "app:thirdparty-showcase:ThirdPartyShowcase"
+      "bom-ref": "app:thirdparty-showcase:ThirdPartyShowcase",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
     },
     "properties": [
       {
@@ -16,6 +24,14 @@
       {
         "name": "adecc:evidence",
         "value": "source CMake/IDE configuration; no binary runtime validation"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "BuildEngine active package catalog; some consumer build inputs remain pinned until migrated"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
       }
     ]
   },
@@ -23,47 +39,146 @@
     {
       "type": "library",
       "name": "Boost",
-      "bom-ref": "lib:0:Boost"
+      "bom-ref": "lib:0:Boost",
+      "licenses": [
+        {
+          "expression": "BSL-1.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "OpenSSL",
-      "bom-ref": "lib:1:OpenSSL"
+      "bom-ref": "lib:1:OpenSSL",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "curl",
-      "bom-ref": "lib:2:curl"
+      "bom-ref": "lib:2:curl",
+      "licenses": [
+        {
+          "expression": "curl"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "zlib",
-      "bom-ref": "lib:3:zlib"
+      "bom-ref": "lib:3:zlib",
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "libzip",
-      "bom-ref": "lib:4:libzip"
+      "bom-ref": "lib:4:libzip",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "nlohmann-json",
-      "bom-ref": "lib:5:nlohmann-json"
+      "bom-ref": "lib:5:nlohmann-json",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "brotli",
-      "bom-ref": "lib:6:brotli"
+      "bom-ref": "lib:6:brotli",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "zstd",
-      "bom-ref": "lib:7:zstd"
+      "bom-ref": "lib:7:zstd",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "xz",
-      "bom-ref": "lib:8:xz"
+      "bom-ref": "lib:8:xz",
+      "licenses": [
+        {
+          "expression": "0BSD"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     }
   ],
   "dependencies": [

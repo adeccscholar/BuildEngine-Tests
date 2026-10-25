@@ -6,7 +6,15 @@
     "component": {
       "type": "application",
       "name": "compare-tune",
-      "bom-ref": "app:CompareTest:compare-tune"
+      "bom-ref": "app:CompareTest:compare-tune",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
     },
     "properties": [
       {
@@ -15,7 +23,15 @@
       },
       {
         "name": "adecc:evidence",
-        "value": "source CMake/IDE configuration; no binary runtime validation"
+        "value": "BuildEngine-Tests CMake project contract; no executable, PE import, package hash, or installed license scan"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "Resolve active versions from BuildEngine admin/build-libraries.xml before release"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
       }
     ]
   },
@@ -23,22 +39,62 @@
     {
       "type": "library",
       "name": "fast_float",
-      "version": "8.2.3",
-      "bom-ref": "lib:0:fast_float"
+      "bom-ref": "pkg:fast_float",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/fastfloat/fast_float"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "fast_float"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0 OR MIT OR BSL-1.0"
+        }
+      ]
     },
     {
       "type": "library",
-      "name": "oneTBB",
-      "version": "2023.1.0",
-      "bom-ref": "lib:1:oneTBB"
+      "name": "onetbb",
+      "bom-ref": "pkg:onetbb",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/uxlfoundation/oneTBB"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "onetbb"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ]
     }
   ],
   "dependencies": [
     {
       "ref": "app:CompareTest:compare-tune",
       "dependsOn": [
-        "lib:0:fast_float",
-        "lib:1:oneTBB"
+        "pkg:fast_float",
+        "pkg:onetbb"
       ]
     }
   ]

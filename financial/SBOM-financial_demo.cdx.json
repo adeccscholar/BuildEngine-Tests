@@ -6,7 +6,15 @@
     "component": {
       "type": "application",
       "name": "financial_demo",
-      "bom-ref": "app:financial:financial_demo"
+      "bom-ref": "app:financial:financial_demo",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
     },
     "properties": [
       {
@@ -15,52 +23,186 @@
       },
       {
         "name": "adecc:evidence",
-        "value": "source CMake/IDE configuration; no binary runtime validation"
+        "value": "BuildEngine-Tests CMake project contract; no executable, PE import, package hash, or installed license scan"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "Resolve active versions from BuildEngine admin/build-libraries.xml before release"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
       }
     ]
   },
   "components": [
     {
       "type": "library",
-      "name": "Boost",
-      "bom-ref": "lib:0:Boost"
+      "name": "boost",
+      "bom-ref": "pkg:boost",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://www.boost.org/LICENSE_1_0.txt"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "boost"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSL-1.0"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "pugixml",
-      "bom-ref": "lib:1:pugixml"
+      "bom-ref": "pkg:pugixml",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/zeux/pugixml"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "pugixml"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
     },
     {
       "type": "library",
-      "name": "OpenSSL",
-      "bom-ref": "lib:2:OpenSSL"
+      "name": "openssl",
+      "bom-ref": "pkg:openssl",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/openssl/openssl"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "openssl"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "zlib",
-      "bom-ref": "lib:3:zlib"
+      "bom-ref": "pkg:zlib",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/madler/zlib"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "zlib"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "brotli",
-      "bom-ref": "lib:4:brotli"
+      "bom-ref": "pkg:brotli",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/google/brotli"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "brotli"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "zstd",
-      "bom-ref": "lib:5:zstd"
+      "bom-ref": "pkg:zstd",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/facebook/zstd"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "zstd"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ]
     }
   ],
   "dependencies": [
     {
       "ref": "app:financial:financial_demo",
       "dependsOn": [
-        "lib:0:Boost",
-        "lib:1:pugixml",
-        "lib:2:OpenSSL",
-        "lib:3:zlib",
-        "lib:4:brotli",
-        "lib:5:zstd"
+        "pkg:boost",
+        "pkg:pugixml",
+        "pkg:openssl",
+        "pkg:zlib",
+        "pkg:brotli",
+        "pkg:zstd"
       ]
     }
   ]

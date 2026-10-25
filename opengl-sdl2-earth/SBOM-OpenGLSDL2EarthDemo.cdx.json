@@ -6,7 +6,15 @@
     "component": {
       "type": "application",
       "name": "OpenGLSDL2EarthDemo",
-      "bom-ref": "app:opengl-sdl2-earth:OpenGLSDL2EarthDemo"
+      "bom-ref": "app:opengl-sdl2-earth:OpenGLSDL2EarthDemo",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
     },
     "properties": [
       {
@@ -15,40 +23,134 @@
       },
       {
         "name": "adecc:evidence",
-        "value": "source CMake/IDE configuration; no binary runtime validation"
+        "value": "BuildEngine-Tests CMake project contract; no executable, PE import, package hash, or installed license scan"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "Resolve active versions from BuildEngine admin/build-libraries.xml before release"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
+      },
+      {
+        "name": "adecc:system",
+        "value": "System opengl32.dll excluded from bundled runtime"
       }
     ]
   },
   "components": [
     {
       "type": "library",
-      "name": "SDL2",
-      "bom-ref": "lib:0:SDL2"
+      "name": "sdl2",
+      "bom-ref": "pkg:sdl2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/libsdl-org/SDL"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "sdl2"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ]
     },
     {
       "type": "library",
-      "name": "GLEW",
-      "bom-ref": "lib:1:GLEW"
+      "name": "glew",
+      "bom-ref": "pkg:glew",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/nigels-com/glew"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "glew"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause AND MIT"
+        }
+      ]
     },
     {
       "type": "library",
-      "name": "SOIL2",
-      "bom-ref": "lib:2:SOIL2"
+      "name": "soil2",
+      "bom-ref": "pkg:soil2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/SpartanJ/SOIL2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "soil2"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "unverified"
+        },
+        {
+          "name": "adecc:license-status",
+          "value": "NOT VERIFIED; see LICENSE.md"
+        }
+      ]
     },
     {
       "type": "library",
-      "name": "OpenGL",
-      "bom-ref": "lib:3:OpenGL"
+      "name": "opengl",
+      "bom-ref": "pkg:opengl",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://registry.khronos.org/OpenGL/"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "opengl"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "unverified"
+        },
+        {
+          "name": "adecc:license-status",
+          "value": "NOT VERIFIED; see LICENSE.md"
+        }
+      ]
     }
   ],
   "dependencies": [
     {
       "ref": "app:opengl-sdl2-earth:OpenGLSDL2EarthDemo",
       "dependsOn": [
-        "lib:0:SDL2",
-        "lib:1:GLEW",
-        "lib:2:SOIL2",
-        "lib:3:OpenGL"
+        "pkg:sdl2",
+        "pkg:glew",
+        "pkg:soil2",
+        "pkg:opengl"
       ]
     }
   ]

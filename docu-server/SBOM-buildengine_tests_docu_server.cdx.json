@@ -6,38 +6,94 @@
     "component": {
       "type": "application",
       "name": "buildengine_tests_docu_server",
-      "bom-ref": "app:docu-server"
+      "bom-ref": "app:docu-server",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
     },
     "properties": [
       {
         "name": "adecc:status",
         "value": "declared-unverified"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "BuildEngine active package catalog; some consumer build inputs remain pinned until migrated"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
       }
     ]
   },
   "components": [
     {
       "type": "library",
-      "name": "boost"
+      "name": "boost",
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "license pending verification"
+        }
+      ]
     },
     {
       "type": "library",
-      "name": "cmark-gfm"
+      "name": "cmark-gfm",
+      "licenses": [
+        {
+          "expression": "BSD-2-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "highlight.js",
-      "version": "11.12.0"
+      "version": "11.12.0",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "mermaid",
-      "version": "11.17.2"
+      "version": "11.17.2",
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "license pending verification"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "mathjax",
-      "version": "3.2.2"
+      "version": "3.2.2",
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "license pending verification"
+        }
+      ]
     }
   ]
 }

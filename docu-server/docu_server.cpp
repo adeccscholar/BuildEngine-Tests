@@ -546,7 +546,22 @@ using tcp = asio::ip::tcp;
    osBody << "<section class=\"doc-list\"><h2>Start here</h2><ul>"
       << "<li><a href=\"/docs/Docs/start/README.md\">Test documentation overview</a></li>"
       << "</ul></section>";
-   std::string strCurrentCategory;
+   // Project compliance index sourced from the test directories.
+    osBody << "<section class=\"doc-list\"><h2>Project licenses and SBOMs</h2><ul>";
+    for(std::filesystem::path const& aDocument : vecDocuments) {
+       if(aDocument.filename() != "Description.md") {
+          continue;
+          }
+       std::filesystem::path const aProject = aDocument.parent_path();
+       osBody << "<li><strong>" << HtmlEscape(aProject.generic_string())
+          << "</strong>: <a href=\"/docs/"
+          << PercentEncode((aProject / "LICENSE.md").generic_string())
+          << "\">License</a> | <a href=\"/docs/"
+          << PercentEncode((aProject / "SBOM.md").generic_string())
+          << "\">CycloneDX SBOM</a></li>";
+       }
+    osBody << "</ul></section>";
+    std::string strCurrentCategory;
 
    for(std::filesystem::path const& aDocument : vecDocuments) {
       std::string const strPath = aDocument.generic_string();

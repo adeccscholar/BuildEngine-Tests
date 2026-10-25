@@ -6,7 +6,15 @@
     "component": {
       "type": "application",
       "name": "pdfium-sdl2-viewer",
-      "bom-ref": "app:pdfium/SDL2:pdfium-sdl2-viewer"
+      "bom-ref": "app:pdfium/SDL2:pdfium-sdl2-viewer",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
     },
     "properties": [
       {
@@ -16,6 +24,14 @@
       {
         "name": "adecc:evidence",
         "value": "source CMake/IDE configuration; no binary runtime validation"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "BuildEngine active package catalog; some consumer build inputs remain pinned until migrated"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
       }
     ]
   },
@@ -24,79 +40,244 @@
       "type": "library",
       "name": "PDFium",
       "version": "2025.11.19",
-      "bom-ref": "lib:0:PDFium"
+      "bom-ref": "lib:0:PDFium",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "SDL2",
       "version": "2.32.10",
-      "bom-ref": "lib:1:SDL2"
+      "bom-ref": "lib:1:SDL2",
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "Skia",
       "version": "144",
-      "bom-ref": "lib:2:Skia"
+      "bom-ref": "lib:2:Skia",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "Abseil",
-      "bom-ref": "lib:3:Abseil"
+      "bom-ref": "lib:3:Abseil",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "fast_float",
-      "bom-ref": "lib:4:fast_float"
+      "bom-ref": "lib:4:fast_float",
+      "licenses": [
+        {
+          "expression": "Apache-2.0 OR MIT OR BSL-1.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "zlib",
-      "bom-ref": "lib:5:zlib"
+      "bom-ref": "lib:5:zlib",
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "JPEG",
-      "bom-ref": "lib:6:JPEG"
+      "bom-ref": "lib:6:JPEG",
+      "licenses": [
+        {
+          "expression": "IJG AND BSD-3-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "PNG",
-      "bom-ref": "lib:7:PNG"
+      "bom-ref": "lib:7:PNG",
+      "licenses": [
+        {
+          "expression": "libpng-2.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "FreeType",
-      "bom-ref": "lib:8:FreeType"
+      "bom-ref": "lib:8:FreeType",
+      "licenses": [
+        {
+          "expression": "FTL OR GPL-2.0-or-later"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "ICU",
-      "bom-ref": "lib:9:ICU"
+      "bom-ref": "lib:9:ICU",
+      "licenses": [
+        {
+          "expression": "Unicode-3.0"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "LCMS2",
-      "bom-ref": "lib:10:LCMS2"
+      "bom-ref": "lib:10:LCMS2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "OpenJPEG",
-      "bom-ref": "lib:11:OpenJPEG"
+      "bom-ref": "lib:11:OpenJPEG",
+      "licenses": [
+        {
+          "expression": "BSD-2-Clause"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "bzip2",
-      "bom-ref": "lib:12:bzip2"
+      "bom-ref": "lib:12:bzip2",
+      "licenses": [
+        {
+          "expression": "bzip2-1.0.6"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "brotli",
-      "bom-ref": "lib:13:brotli"
+      "bom-ref": "lib:13:brotli",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "HarfBuzz",
-      "bom-ref": "lib:14:HarfBuzz"
+      "bom-ref": "lib:14:HarfBuzz",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:license-evidence",
+          "value": "source-declared, installed-package license not verified"
+        }
+      ]
     }
   ],
   "dependencies": [

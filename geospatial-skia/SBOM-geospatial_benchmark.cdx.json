@@ -6,7 +6,15 @@
     "component": {
       "type": "application",
       "name": "geospatial_benchmark",
-      "bom-ref": "app:geospatial-skia:geospatial_benchmark"
+      "bom-ref": "app:geospatial-skia:geospatial_benchmark",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
     },
     "properties": [
       {
@@ -15,94 +23,324 @@
       },
       {
         "name": "adecc:evidence",
-        "value": "source CMake/IDE configuration; no binary runtime validation"
+        "value": "BuildEngine-Tests CMake project contract; no executable, PE import, package hash, or installed license scan"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "Resolve active versions from BuildEngine admin/build-libraries.xml before release"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
+      },
+      {
+        "name": "adecc:stage",
+        "value": "Skia closure staged by build even when not linked"
       }
     ]
   },
   "components": [
     {
       "type": "library",
-      "name": "Skia",
-      "bom-ref": "lib:0:Skia"
-    },
-    {
-      "type": "library",
-      "name": "oneTBB",
-      "bom-ref": "lib:1:oneTBB"
+      "name": "onetbb",
+      "bom-ref": "pkg:onetbb",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/uxlfoundation/oneTBB"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "onetbb"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "llvm-openmp",
-      "bom-ref": "lib:2:llvm-openmp"
+      "bom-ref": "pkg:llvm-openmp",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/llvm/llvm-project"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "llvm-openmp"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0 WITH LLVM-exception"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "fast_float",
-      "bom-ref": "lib:3:fast_float"
+      "bom-ref": "pkg:fast_float",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/fastfloat/fast_float"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "fast_float"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Apache-2.0 OR MIT OR BSL-1.0"
+        }
+      ]
     },
     {
       "type": "library",
-      "name": "SDL2",
-      "bom-ref": "lib:4:SDL2"
-    },
-    {
-      "type": "library",
-      "name": "GLEW",
-      "bom-ref": "lib:5:GLEW"
+      "name": "skia",
+      "bom-ref": "pkg:skia",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/google/skia"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "skia"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "zlib",
-      "bom-ref": "lib:6:zlib"
+      "bom-ref": "pkg:zlib",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/madler/zlib"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "zlib"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "bzip2",
-      "bom-ref": "lib:7:bzip2"
+      "bom-ref": "pkg:bzip2",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://sourceware.org/bzip2/"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "bzip2"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "bzip2-1.0.6"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "brotli",
-      "bom-ref": "lib:8:brotli"
+      "bom-ref": "pkg:brotli",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/google/brotli"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "brotli"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
     },
     {
       "type": "library",
-      "name": "JPEG",
-      "bom-ref": "lib:9:JPEG"
+      "name": "libjpeg-turbo",
+      "bom-ref": "pkg:libjpeg-turbo",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/libjpeg-turbo/libjpeg-turbo/blob/main/LICENSE.md"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "libjpeg-turbo"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "unverified"
+        },
+        {
+          "name": "adecc:license-status",
+          "value": "NOT VERIFIED; see LICENSE.md"
+        }
+      ]
     },
     {
       "type": "library",
       "name": "libpng",
-      "bom-ref": "lib:10:libpng"
+      "bom-ref": "pkg:libpng",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/pnggroup/libpng"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "libpng"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "libpng-2.0"
+        }
+      ]
     },
     {
       "type": "library",
-      "name": "HarfBuzz",
-      "bom-ref": "lib:11:HarfBuzz"
+      "name": "harfbuzz",
+      "bom-ref": "pkg:harfbuzz",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://github.com/harfbuzz/harfbuzz"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "harfbuzz"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
     },
     {
       "type": "library",
-      "name": "FreeType",
-      "bom-ref": "lib:12:FreeType"
+      "name": "freetype",
+      "bom-ref": "pkg:freetype",
+      "externalReferences": [
+        {
+          "type": "website",
+          "url": "https://freetype.org/license.html"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:package-contract",
+          "value": "freetype"
+        },
+        {
+          "name": "adecc:license-evidence",
+          "value": "upstream-source-identified; installed-package-terms-not-verified"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "FTL OR GPL-2.0-or-later"
+        }
+      ]
     }
   ],
   "dependencies": [
     {
       "ref": "app:geospatial-skia:geospatial_benchmark",
       "dependsOn": [
-        "lib:0:Skia",
-        "lib:1:oneTBB",
-        "lib:2:llvm-openmp",
-        "lib:3:fast_float",
-        "lib:4:SDL2",
-        "lib:5:GLEW",
-        "lib:6:zlib",
-        "lib:7:bzip2",
-        "lib:8:brotli",
-        "lib:9:JPEG",
-        "lib:10:libpng",
-        "lib:11:HarfBuzz",
-        "lib:12:FreeType"
+        "pkg:onetbb",
+        "pkg:llvm-openmp",
+        "pkg:fast_float",
+        "pkg:skia",
+        "pkg:zlib",
+        "pkg:bzip2",
+        "pkg:brotli",
+        "pkg:libjpeg-turbo",
+        "pkg:libpng",
+        "pkg:harfbuzz",
+        "pkg:freetype"
       ]
     }
   ]

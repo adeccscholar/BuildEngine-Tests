@@ -6,7 +6,15 @@
     "component": {
       "type": "application",
       "name": "pdfium-pagescroll-test",
-      "bom-ref": "app:pdfium/Common:pdfium-pagescroll-test"
+      "bom-ref": "app:pdfium/Common:pdfium-pagescroll-test",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
     },
     "properties": [
       {
@@ -16,6 +24,14 @@
       {
         "name": "adecc:evidence",
         "value": "source CMake/IDE configuration; no binary runtime validation"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "BuildEngine active package catalog; some consumer build inputs remain pinned until migrated"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
       }
     ]
   },

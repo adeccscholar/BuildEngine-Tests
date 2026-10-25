@@ -40,3 +40,7 @@ and PE/DLL dependency analysis.
 
 [Project license](/docs/LICENSE.md) and [adecc-core-lib license notice](/docs/ADECC_CORE_LIB_NOTICE.md).
 The examples are educational and supplied AS IS.
+
+## License and SBOM navigation
+
+The documentation server index offers a license and CycloneDX SBOM index per project. License files reproduce the complete PolyForm Noncommercial 1.0.0 text, with a source-declared third-party license register. SBOMs are explicitly declared-only and require installed package and PE/DLL verification before distribution.
