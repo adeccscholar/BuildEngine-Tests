@@ -6,7 +6,6 @@
     \details Boost.Statechart FSM is driven only by the SDL thread; a jthread
     performs blocking HTTPS work and posts immutable results to the UI queue.
 */
-#define SDL_MAIN_HANDLED
 #include "WeatherNetwork.h"
 
 #include <SDL.h>
