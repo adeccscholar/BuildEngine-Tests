@@ -1,0 +1,79 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "SkiaDirectShowcase",
+      "bom-ref": "app:skia-direct-showcase:SkiaDirectShowcase"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "Skia",
+      "bom-ref": "lib:0:Skia"
+    },
+    {
+      "type": "library",
+      "name": "FreeType",
+      "bom-ref": "lib:1:FreeType"
+    },
+    {
+      "type": "library",
+      "name": "zlib",
+      "bom-ref": "lib:2:zlib"
+    },
+    {
+      "type": "library",
+      "name": "bzip2",
+      "bom-ref": "lib:3:bzip2"
+    },
+    {
+      "type": "library",
+      "name": "brotli",
+      "bom-ref": "lib:4:brotli"
+    },
+    {
+      "type": "library",
+      "name": "JPEG",
+      "bom-ref": "lib:5:JPEG"
+    },
+    {
+      "type": "library",
+      "name": "PNG",
+      "bom-ref": "lib:6:PNG"
+    },
+    {
+      "type": "library",
+      "name": "HarfBuzz",
+      "bom-ref": "lib:7:HarfBuzz"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:skia-direct-showcase:SkiaDirectShowcase",
+      "dependsOn": [
+        "lib:0:Skia",
+        "lib:1:FreeType",
+        "lib:2:zlib",
+        "lib:3:bzip2",
+        "lib:4:brotli",
+        "lib:5:JPEG",
+        "lib:6:PNG",
+        "lib:7:HarfBuzz"
+      ]
+    }
+  ]
+}

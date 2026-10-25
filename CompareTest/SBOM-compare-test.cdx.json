@@ -1,0 +1,45 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "compare-test",
+      "bom-ref": "app:CompareTest:compare-test"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "fast_float",
+      "version": "8.2.3",
+      "bom-ref": "lib:0:fast_float"
+    },
+    {
+      "type": "library",
+      "name": "oneTBB",
+      "version": "2023.1.0",
+      "bom-ref": "lib:1:oneTBB"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:CompareTest:compare-test",
+      "dependsOn": [
+        "lib:0:fast_float",
+        "lib:1:oneTBB"
+      ]
+    }
+  ]
+}

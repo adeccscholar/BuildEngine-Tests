@@ -1,0 +1,85 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "ThirdPartyShowcase",
+      "bom-ref": "app:thirdparty-showcase:ThirdPartyShowcase"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "Boost",
+      "bom-ref": "lib:0:Boost"
+    },
+    {
+      "type": "library",
+      "name": "OpenSSL",
+      "bom-ref": "lib:1:OpenSSL"
+    },
+    {
+      "type": "library",
+      "name": "curl",
+      "bom-ref": "lib:2:curl"
+    },
+    {
+      "type": "library",
+      "name": "zlib",
+      "bom-ref": "lib:3:zlib"
+    },
+    {
+      "type": "library",
+      "name": "libzip",
+      "bom-ref": "lib:4:libzip"
+    },
+    {
+      "type": "library",
+      "name": "nlohmann-json",
+      "bom-ref": "lib:5:nlohmann-json"
+    },
+    {
+      "type": "library",
+      "name": "brotli",
+      "bom-ref": "lib:6:brotli"
+    },
+    {
+      "type": "library",
+      "name": "zstd",
+      "bom-ref": "lib:7:zstd"
+    },
+    {
+      "type": "library",
+      "name": "xz",
+      "bom-ref": "lib:8:xz"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:thirdparty-showcase:ThirdPartyShowcase",
+      "dependsOn": [
+        "lib:0:Boost",
+        "lib:1:OpenSSL",
+        "lib:2:curl",
+        "lib:3:zlib",
+        "lib:4:libzip",
+        "lib:5:nlohmann-json",
+        "lib:6:brotli",
+        "lib:7:zstd",
+        "lib:8:xz"
+      ]
+    }
+  ]
+}

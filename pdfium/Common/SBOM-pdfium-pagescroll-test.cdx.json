@@ -1,0 +1,29 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "pdfium-pagescroll-test",
+      "bom-ref": "app:pdfium/Common:pdfium-pagescroll-test"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [],
+  "dependencies": [
+    {
+      "ref": "app:pdfium/Common:pdfium-pagescroll-test",
+      "dependsOn": []
+    }
+  ]
+}

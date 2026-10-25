@@ -1,0 +1,43 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "openmp_mandelbrot_viewer",
+      "bom-ref": "app:openmp-mandelbrot:openmp_mandelbrot_viewer"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "llvm-openmp",
+      "bom-ref": "lib:0:llvm-openmp"
+    },
+    {
+      "type": "library",
+      "name": "SDL2",
+      "bom-ref": "lib:1:SDL2"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:openmp-mandelbrot:openmp_mandelbrot_viewer",
+      "dependsOn": [
+        "lib:0:llvm-openmp",
+        "lib:1:SDL2"
+      ]
+    }
+  ]
+}

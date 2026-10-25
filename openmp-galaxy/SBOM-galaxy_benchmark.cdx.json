@@ -1,0 +1,49 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "galaxy_benchmark",
+      "bom-ref": "app:openmp-galaxy:galaxy_benchmark"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "llvm-openmp",
+      "bom-ref": "lib:0:llvm-openmp"
+    },
+    {
+      "type": "library",
+      "name": "SDL2",
+      "bom-ref": "lib:1:SDL2"
+    },
+    {
+      "type": "library",
+      "name": "GLEW",
+      "bom-ref": "lib:2:GLEW"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:openmp-galaxy:galaxy_benchmark",
+      "dependsOn": [
+        "lib:0:llvm-openmp",
+        "lib:1:SDL2",
+        "lib:2:GLEW"
+      ]
+    }
+  ]
+}

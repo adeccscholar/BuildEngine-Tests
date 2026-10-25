@@ -1,0 +1,124 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "pdfium-sdl2-viewer",
+      "bom-ref": "app:pdfium/SDL2:pdfium-sdl2-viewer"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "PDFium",
+      "version": "2025.11.19",
+      "bom-ref": "lib:0:PDFium"
+    },
+    {
+      "type": "library",
+      "name": "SDL2",
+      "version": "2.32.10",
+      "bom-ref": "lib:1:SDL2"
+    },
+    {
+      "type": "library",
+      "name": "Skia",
+      "version": "144",
+      "bom-ref": "lib:2:Skia"
+    },
+    {
+      "type": "library",
+      "name": "Abseil",
+      "bom-ref": "lib:3:Abseil"
+    },
+    {
+      "type": "library",
+      "name": "fast_float",
+      "bom-ref": "lib:4:fast_float"
+    },
+    {
+      "type": "library",
+      "name": "zlib",
+      "bom-ref": "lib:5:zlib"
+    },
+    {
+      "type": "library",
+      "name": "JPEG",
+      "bom-ref": "lib:6:JPEG"
+    },
+    {
+      "type": "library",
+      "name": "PNG",
+      "bom-ref": "lib:7:PNG"
+    },
+    {
+      "type": "library",
+      "name": "FreeType",
+      "bom-ref": "lib:8:FreeType"
+    },
+    {
+      "type": "library",
+      "name": "ICU",
+      "bom-ref": "lib:9:ICU"
+    },
+    {
+      "type": "library",
+      "name": "LCMS2",
+      "bom-ref": "lib:10:LCMS2"
+    },
+    {
+      "type": "library",
+      "name": "OpenJPEG",
+      "bom-ref": "lib:11:OpenJPEG"
+    },
+    {
+      "type": "library",
+      "name": "bzip2",
+      "bom-ref": "lib:12:bzip2"
+    },
+    {
+      "type": "library",
+      "name": "brotli",
+      "bom-ref": "lib:13:brotli"
+    },
+    {
+      "type": "library",
+      "name": "HarfBuzz",
+      "bom-ref": "lib:14:HarfBuzz"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:pdfium/SDL2:pdfium-sdl2-viewer",
+      "dependsOn": [
+        "lib:0:PDFium",
+        "lib:1:SDL2",
+        "lib:2:Skia",
+        "lib:3:Abseil",
+        "lib:4:fast_float",
+        "lib:5:zlib",
+        "lib:6:JPEG",
+        "lib:7:PNG",
+        "lib:8:FreeType",
+        "lib:9:ICU",
+        "lib:10:LCMS2",
+        "lib:11:OpenJPEG",
+        "lib:12:bzip2",
+        "lib:13:brotli",
+        "lib:14:HarfBuzz"
+      ]
+    }
+  ]
+}

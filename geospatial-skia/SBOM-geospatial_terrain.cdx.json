@@ -1,0 +1,109 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "geospatial_terrain",
+      "bom-ref": "app:geospatial-skia:geospatial_terrain"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "Skia",
+      "bom-ref": "lib:0:Skia"
+    },
+    {
+      "type": "library",
+      "name": "oneTBB",
+      "bom-ref": "lib:1:oneTBB"
+    },
+    {
+      "type": "library",
+      "name": "llvm-openmp",
+      "bom-ref": "lib:2:llvm-openmp"
+    },
+    {
+      "type": "library",
+      "name": "fast_float",
+      "bom-ref": "lib:3:fast_float"
+    },
+    {
+      "type": "library",
+      "name": "SDL2",
+      "bom-ref": "lib:4:SDL2"
+    },
+    {
+      "type": "library",
+      "name": "GLEW",
+      "bom-ref": "lib:5:GLEW"
+    },
+    {
+      "type": "library",
+      "name": "zlib",
+      "bom-ref": "lib:6:zlib"
+    },
+    {
+      "type": "library",
+      "name": "bzip2",
+      "bom-ref": "lib:7:bzip2"
+    },
+    {
+      "type": "library",
+      "name": "brotli",
+      "bom-ref": "lib:8:brotli"
+    },
+    {
+      "type": "library",
+      "name": "JPEG",
+      "bom-ref": "lib:9:JPEG"
+    },
+    {
+      "type": "library",
+      "name": "libpng",
+      "bom-ref": "lib:10:libpng"
+    },
+    {
+      "type": "library",
+      "name": "HarfBuzz",
+      "bom-ref": "lib:11:HarfBuzz"
+    },
+    {
+      "type": "library",
+      "name": "FreeType",
+      "bom-ref": "lib:12:FreeType"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:geospatial-skia:geospatial_terrain",
+      "dependsOn": [
+        "lib:0:Skia",
+        "lib:1:oneTBB",
+        "lib:2:llvm-openmp",
+        "lib:3:fast_float",
+        "lib:4:SDL2",
+        "lib:5:GLEW",
+        "lib:6:zlib",
+        "lib:7:bzip2",
+        "lib:8:brotli",
+        "lib:9:JPEG",
+        "lib:10:libpng",
+        "lib:11:HarfBuzz",
+        "lib:12:FreeType"
+      ]
+    }
+  ]
+}

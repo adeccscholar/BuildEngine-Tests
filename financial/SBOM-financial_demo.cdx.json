@@ -1,0 +1,67 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "financial_demo",
+      "bom-ref": "app:financial:financial_demo"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "Boost",
+      "bom-ref": "lib:0:Boost"
+    },
+    {
+      "type": "library",
+      "name": "pugixml",
+      "bom-ref": "lib:1:pugixml"
+    },
+    {
+      "type": "library",
+      "name": "OpenSSL",
+      "bom-ref": "lib:2:OpenSSL"
+    },
+    {
+      "type": "library",
+      "name": "zlib",
+      "bom-ref": "lib:3:zlib"
+    },
+    {
+      "type": "library",
+      "name": "brotli",
+      "bom-ref": "lib:4:brotli"
+    },
+    {
+      "type": "library",
+      "name": "zstd",
+      "bom-ref": "lib:5:zstd"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:financial:financial_demo",
+      "dependsOn": [
+        "lib:0:Boost",
+        "lib:1:pugixml",
+        "lib:2:OpenSSL",
+        "lib:3:zlib",
+        "lib:4:brotli",
+        "lib:5:zstd"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "pdf-image-extraction",
+      "bom-ref": "app:pdf-image-extraction:pdf-image-extraction"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "qpdf",
+      "version": "12.4.1",
+      "bom-ref": "lib:0:qpdf"
+    },
+    {
+      "type": "library",
+      "name": "zlib",
+      "version": "1.3.2",
+      "bom-ref": "lib:1:zlib"
+    },
+    {
+      "type": "library",
+      "name": "libjpeg-turbo",
+      "version": "3.2.0",
+      "bom-ref": "lib:2:libjpeg-turbo"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:pdf-image-extraction:pdf-image-extraction",
+      "dependsOn": [
+        "lib:0:qpdf",
+        "lib:1:zlib",
+        "lib:2:libjpeg-turbo"
+      ]
+    }
+  ]
+}

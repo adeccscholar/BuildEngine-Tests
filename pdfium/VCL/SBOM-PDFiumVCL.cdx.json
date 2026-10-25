@@ -1,0 +1,51 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "PDFiumVCL",
+      "bom-ref": "app:pdfium/VCL:PDFiumVCL"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "source CMake/IDE configuration; no binary runtime validation"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "PDFium",
+      "version": "2025.11.19",
+      "bom-ref": "lib:0:PDFium"
+    },
+    {
+      "type": "library",
+      "name": "Skia",
+      "version": "144",
+      "bom-ref": "lib:1:Skia"
+    },
+    {
+      "type": "library",
+      "name": "VCL",
+      "bom-ref": "lib:2:VCL"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:pdfium/VCL:PDFiumVCL",
+      "dependsOn": [
+        "lib:0:PDFium",
+        "lib:1:Skia",
+        "lib:2:VCL"
+      ]
+    }
+  ]
+}
