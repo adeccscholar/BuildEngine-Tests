@@ -28,10 +28,11 @@ namespace weather_client::artwork {
       };
       SkPoint const points[]{SkPoint::Make(rect.left(),rect.top()),
          SkPoint::Make(rect.right(),rect.bottom())};
+      SkScalar const stops[]{0.f,1.f};
       SkPaint paint;
       paint.setAntiAlias(true);
       paint.setShader(SkShaders::LinearGradient(points,
-         {{colors,nullptr,SkTileMode::kClamp},{}}));
+         {{colors,stops,SkTileMode::kClamp},{}}));
       canvas->drawRoundRect(rect,radius,radius,paint);
    }
 
@@ -40,10 +41,11 @@ namespace weather_client::artwork {
          SkColor4f::FromColor(center),
          SkColor4f::FromColor(SkColorSetA(center,0))
       };
+      SkScalar const stops[]{0.f,1.f};
       SkPaint paint;
       paint.setAntiAlias(true);
       paint.setShader(SkShaders::RadialGradient(SkPoint::Make(x,y),radius,
-         {{colors,nullptr,SkTileMode::kClamp},{}}));
+         {{colors,stops,SkTileMode::kClamp},{}}));
       canvas->drawCircle(x,y,radius,paint);
    }
 
