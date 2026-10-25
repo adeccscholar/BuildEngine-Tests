@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH -->
+<!-- SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 -->
+
 # WeatherClient – BCC64X Build
 
 Aus `BuildEngine/tests` mit der produktiven Installation:

@@ -27,6 +27,10 @@
       {
         "name": "adecc:original-input",
         "value": "WeatherAPI.zip WeatherClient.zip WeatherClient_intro.zip WeatherAPIServer.zip; original GPL sources not relabeled"
+      },
+      {
+        "name": "adecc:spdx",
+        "value": "PolyForm-Noncommercial-1.0.0"
       }
     ]
   },
