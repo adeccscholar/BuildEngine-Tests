@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 
 /**
  * \file OpenHolidaysQuery.h
@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include "FinancialBasics.h"  // für ostream concept, später verlagern
+#include "FinancialBasics.h"  // fÃ¼r ostream concept, spÃ¤ter verlagern
 
 #include "FinancialModel.h"
 

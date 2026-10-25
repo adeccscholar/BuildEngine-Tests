@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 # Remove only historical OpenSSL DLLs verified byte-for-byte against
 # the previous BuildEngine package, before ordinary strict runtime staging.
 foreach(_required IN ITEMS ADECC_DEMO_DIR ADECC_OLD_OPENSSL_ROOT

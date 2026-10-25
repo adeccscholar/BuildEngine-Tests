@@ -1,6 +1,6 @@
 ﻿adecc Scholar - BCC64X third-party buildchain
 Copyright (c) 2026 adecc Systemhaus GmbH
-SPDX-License-Identifier: MIT
+SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 Version 2026-08-10-r32
 
 Target:

@@ -1,5 +1,5 @@
 Copyright (c) 2026 adecc Systemhaus GmbH
-SPDX-License-Identifier: MIT
+SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 Project: adecc Scholar
 
 BCC64X / CMake compatibility layer - 2026-08-10-r4
