@@ -203,6 +203,9 @@ namespace weather_client {
       std::ifstream input{file, std::ios::binary};
       if(!input) throw std::runtime_error{"Cannot read location JSON"};
       Json json = Json::parse(input);
+      if(!json.is_object() || !json.contains("label") ||
+         !json.contains("address") || !json.contains("latitude") ||
+         !json.contains("longitude")) return std::nullopt;
       Location location{
          .label = json.at("label").get<std::string>(),
          .address = json.at("address").get<std::string>(),
