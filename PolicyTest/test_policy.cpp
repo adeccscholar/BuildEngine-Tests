@@ -116,7 +116,23 @@ namespace {
       }
       const adecc::Iban normalized{" de23 1000 0000 1234 5678 90 "};
       r.Check(normalized.Value()=="DE23100000001234567890","IBAN normalize whitespace/case");
-      r.Check(static_cast<std::string>(normalized)=="DE23 1000 0000 1234 5678 90","IBAN grouping");
+      // The value_type of Iban is std::string: static_cast<std::string>
+      // may select its raw-value conversion instead of the stringify policy.
+      // Presentation is explicitly defined by str() and std::formatter.
+      std::string const strExpectedGrouped{"DE23 1000 0000 1234 5678 90"};
+      std::string const strActualGrouped{normalized.str()};
+      if(strActualGrouped != strExpectedGrouped) {
+         std::cerr << std::format("[DIAGNOSTIC] IBAN grouping: expected '{}', actual '{}'\n",
+            strExpectedGrouped, strActualGrouped);
+      }
+      r.Check(strActualGrouped==strExpectedGrouped,"IBAN grouping via str()");
+      r.Check(std::format("{}",normalized)==strExpectedGrouped,
+         "IBAN grouping via std::format");
+      adecc::CheckedIban const checked{std::string{"DE23100000001234567890"}};
+      r.Check(checked.str()==strExpectedGrouped,
+         "CheckedIban grouping via str()");
+      r.Check(std::format("{}",checked)==strExpectedGrouped,
+         "CheckedIban grouping via std::format");
       r.Accept<adecc::CheckedIban>("CheckedIban valid normalized",std::string("DE23100000001234567890"));
       r.Reject<adecc::CheckedIban>("CheckedIban rejects checksum",std::string("DE24100000001234567890"));
    }
