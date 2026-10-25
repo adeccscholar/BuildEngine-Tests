@@ -201,3 +201,10 @@ project documentation are first-party code under the
 project's PolyForm Noncommercial License 1.0.0.
 No commercial weather icon artwork or Microsoft font file
 has been copied into the repository.
+
+## Moon calculation and artwork
+
+The mean-synodic-month lunar phase algorithm and original Skia
+lunar-phase illustration are new first-party source files under
+PolyForm Noncommercial 1.0.0; there is no copied moon graphic and
+no external moon-position or astronomy API required.

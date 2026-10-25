@@ -6,6 +6,40 @@
 [TOC]
 
 
+## Calculated Moon phase and nighttime forecast
+
+The night illustration no longer always uses the same crescent. The
+new pure C++23 header [WeatherMoon.h](WeatherMoon.h) calculates the
+**lunar cycle** from an ISO 8601 calendar date and time:
+
+- Reference new moon: **2000-01-06 18:14 UTC**
+- Mean synodic lunar month: **29.530588853 days**
+- Cycle fraction: **0.0** at new moon, **0.5** at full moon
+- Illuminated fraction: **(1 − cos(2π × cycle))/2**
+- Eight stages: new, waxing crescent, first quarter, waxing gibbous,
+  full, waning gibbous, last quarter and waning crescent
+
+Skia paints a dark lunar disc and its illuminated terminator directly
+with **original geometry**. Waxing phases illuminate the right half,
+waning phases the left (conventional Northern Hemisphere representation).
+Each nightly *hourly forecast* pictogram calculates the phase from its
+own hour, and the current nighttime header uses the weather observation
+time. The header displays the stage name and approximate illumination.
+
+**Accuracy boundary:** This is a mean-synodic approximation, not a
+high-precision ephemeris. Open-Meteo's timestamps are location-local;
+they do not carry the exact numeric UTC offset in this API model, so
+the local time is currently treated as an approximate UTC instant.
+Depending on timezone and lunar perturbations the displayed stage
+can be off by several hours or near a stage boundary. It is for
+educational visualization only, not navigation or astronomy research.
+No lunar API, artwork asset, telemetry or new third-party license
+is needed.
+
+The offline model test checks the reference new moon, an approximate
+full moon, representative waxing and waning dates and invalid
+calendar dates.
+
 ## Night sky, distinct instruments and US units
 
 The Skia weather artwork is entirely procedural and original.

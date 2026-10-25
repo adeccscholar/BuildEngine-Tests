@@ -127,3 +127,15 @@ computations are not a separate remote service and carry no
 external API license or recurring network charges.
 The local settings JSON stores the unit identifier but does
 not copy or convert source measurements.
+
+## Moon-phase calculation (no external provider)
+
+Unlike weather, address and IP geolocation, the lunar stage is computed
+entirely locally from a known reference new-moon date and the mean
+synodic month. No external lunar website or API is contacted. The
+algorithm uses an astronomical approximation (29.530588853 days per
+cycle, reference 2000-01-06 18:14 UTC). Its mathematical operations
+do not require any third-party licensing. The date/time in the current
+Open-Meteo response is local to the forecast location, so UTC offset
+is approximated; lunar event timings may be inaccurate by several hours
+and moonrise/moonset are **not** calculated.

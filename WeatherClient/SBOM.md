@@ -22,3 +22,10 @@ The metric/US unit conversion and original sun/moon icon work
 use first-party C++23 and Skia drawing calls; they introduce
 **no extra third-party package**. Existing Skia, SDL2, Boost,
 curl, OpenSSL and provider rights remain unchanged.
+
+## First-party Moon calculation
+
+`WeatherMoon.h` and the original waxing/waning/full/new lunar
+Skia artwork are first-party C++23/Skia code. No new dependency,
+API provider, copyrighted lunar image or external ephemeris dataset
+was added.

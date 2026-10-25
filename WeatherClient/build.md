@@ -108,3 +108,20 @@ after sunset, hourly forecast icons must show the moon.
 the US selector's SDL hit geometry. No new third-party
 packages, fonts, proprietary weather graphics or Windows APIs
 are introduced by this feature.
+
+## Lunar visualization and compile verification
+
+The `WeatherMoon.h` calculation and both Skia moon renderers use only
+the existing C++23 and Skia DLL dependencies. They neither download
+ephemeris data nor require an additional library. New/full/waxing/waning
+assertions are part of `WeatherClientOfflineModel`.
+
+The immediately preceding US-unit update introduced a signature
+mismatch: `WeatherView::DrawForecast` used `units` but still accepted
+only four parameters. This was corrected to take the fifth,
+defaulted `UnitSystem units` parameter. Test that BCC64X compiles
+again before validating the different moon phases visually.
+
+In demo mode, the fixed demonstration date yields a fixed moon phase.
+Live mode uses the current Open-Meteo observation and forecast
+timestamps, which are provided in the location's local time.
