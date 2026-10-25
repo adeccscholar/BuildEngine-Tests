@@ -49,8 +49,8 @@ The documentation server index offers a license and CycloneDX SBOM index per pro
 
 | Test | Source | Server required |
 | --- | --- | --- |
-| [SQL Server ODBC](/docs/database/mssql/Description.md) | [CMake and setup](/docs/database/mssql/build.md), [License](/docs/database/mssql/LICENSE.md), [SBOM](/docs/database/mssql/SBOM.md) | Microsoft SQL Server + ODBC Driver 18 |
-| [PostgreSQL libpqxx](/docs/database/postgre/Description.md) | [CMake and setup](/docs/database/postgre/build.md), [License](/docs/database/postgre/LICENSE.md), [SBOM](/docs/database/postgre/SBOM.md) | PostgreSQL server + configured SSPI/GSSAPI or password authentication |
+| [SQL Server ODBC](/docs/database/mssql/Description.md) | [Windows-Einrichtung](/docs/database/mssql/Configure.md), [Build](/docs/database/mssql/build.md), [License](/docs/database/mssql/LICENSE.md), [SBOM](/docs/database/mssql/SBOM.md) | Microsoft SQL Server + ODBC Driver 18 |
+| [PostgreSQL libpqxx](/docs/database/postgre/Description.md) | [SSPI-Einrichtung](/docs/database/postgre/Configure.md), [Build](/docs/database/postgre/build.md), [License](/docs/database/postgre/LICENSE.md), [SBOM](/docs/database/postgre/SBOM.md) | PostgreSQL server + configured SSPI/GSSAPI or password authentication |
 | [OpenXLSX Grid](/docs/OpenXlsxGrid/Description.md) | [CMake and build](/docs/OpenXlsxGrid/build.md), [License](/docs/OpenXlsxGrid/LICENSE.md), [SBOM](/docs/OpenXlsxGrid/SBOM.md) | No database server; Excel optional for manual inspection |
 
 All database examples use **BuildEngineTest** and never operate on DeckKernel's production database. The original backend tests retain their logical C++ API and use the already integrated **adecc-core-lib CMake INTERFACE targets**. Integration tests should not run automatically unless a matching server has been provisioned; source tests may be built without a running server.

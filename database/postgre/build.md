@@ -1,5 +1,7 @@
 # Build postgre (RAD Studio 13 Developer Command Prompt)
 
+**Datenbank, Rolle und Windows-SSPI einrichten:** [Configure.md](Configure.md). HBA- und Ident-Mapping sind serverseitige Voraussetzungen.
+
 From `BuildEngine/tests`, use the productive BuildEngine root, existing installed libraries, and checked-out `adecc-core-lib` submodule:
 
 ```bat

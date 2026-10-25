@@ -1,5 +1,7 @@
 # Build mssql (RAD Studio 13 Developer Command Prompt)
 
+**Datenbank und Windows-Konto einrichten:** [Configure.md](Configure.md). Integrierte Sicherheit ohne SQL-Kennwort.
+
 From `BuildEngine/tests`, use the productive BuildEngine root, existing installed libraries, and checked-out `adecc-core-lib` submodule:
 
 ```bat

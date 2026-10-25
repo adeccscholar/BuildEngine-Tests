@@ -9,3 +9,7 @@ The business test algorithm is **unchanged**: only build paths, backend test con
 Database engines and drivers are services or installed OS dependencies, **not** copied into this repository. The backend test uses `BuildEngineTest` only; do not run the tests against a productive database. Tests create/drop their own objects. OpenXLSX generates its own XLSX output.
 
 The attached `tests.zip` contains an additional SQL-Server-oriented suite, imported separately in `mssql/additional-tests` without changing the original logic. It is not PostgreSQL SQL dialect-neutral.
+
+## Einrichtung
+
+Siehe [Configure.md](Configure.md) für Windows-SSPI, Benutzerzuordnung über pg_hba.conf/pg_ident.conf und die getrennten Datenbankrollen.
