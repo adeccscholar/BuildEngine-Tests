@@ -494,7 +494,17 @@ int main(int argc,char** argv) {
             VerifyStatechart() &&
             wc::CurrentDaylight(data) &&
             wc::IsDayAt("2026-10-25T21:00",data)==false &&
-            wc::RangeText(wc::Today(data))=="9 / 19 C" &&
+            wc::RangeText(wc::Today(data))=="9 °C / 19 °C" &&
+            wc::RangeText(wc::Today(data),wc::UnitSystem::US)=="48 °F / 66 °F" &&
+            wc::Temperature(0.,wc::UnitSystem::US)==32. &&
+            wc::Temperature(100.,wc::UnitSystem::US)==212. &&
+            std::abs(wc::WindSpeed(100.,wc::UnitSystem::US)-62.137119)<0.001 &&
+            std::abs(wc::Pressure(1013.25,wc::UnitSystem::US)-29.92125)<0.01 &&
+            wc::Precipitation(25.4,wc::UnitSystem::US)==1. &&
+            wc::ParseUnits("us")==wc::UnitSystem::US &&
+            wc::ParseUnits("metric")==wc::UnitSystem::Metric &&
+            wc::ComposeWeatherBrief(data,wc::UnitSystem::US).conditions.find("mph")!=std::string::npos &&
+            wc::ComposeWeatherBrief(data,wc::UnitSystem::US).conditions.find("°F")!=std::string::npos &&
             wc::ClockText(wc::Today(data)->sunrise)=="07:30" &&
             wc::StormOutlook(data)==wc::StormSignal::NotIndicated &&
             wc::StormOutlook(stormData)==wc::StormSignal::Forecast &&
@@ -506,6 +516,7 @@ int main(int argc,char** argv) {
             wc::CardinalDirection(270)=="W" &&
             wc::WeatherDescription(61)=="Rain" &&
             view::HitTest(75,680,1200,780,false)==view::Action::Address &&
+            view::HitTest(1100,680,1200,780,false)==view::Action::Units &&
             view::HitTest(1080,680,1200,780,true)==view::Action::Apply &&
             view::HitTest(75,680,1200,780,true)==view::Action::None &&
             view::MoveOffset(&data,false,0,true)==4 &&

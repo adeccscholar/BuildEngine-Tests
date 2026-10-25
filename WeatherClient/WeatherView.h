@@ -258,7 +258,7 @@ namespace weather_client::view {
       SkCanvas* canvas,float x,float y,int code,bool isDay
    ) {
       SkPaint paint;
-      bool const clear=code<=1;
+      bool const clear=code>=0&&code<=1;
       bool const rain=(code>=51&&code<=67)||(code>=80&&code<=82)||code>=95;
       bool const snow=(code>=71&&code<=77)||code==85||code==86;
       bool const storm=code==95||code==96||code==99;
