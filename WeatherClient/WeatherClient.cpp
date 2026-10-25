@@ -602,6 +602,7 @@ int main(int argc,char** argv) {
          auto const previewSurface=graphics?
             SkSurfaces::Raster(SkImageInfo::MakeN32Premul(1200,780)):nullptr;
          bool overviewDrawn=false;
+         bool temperaturePixelsVisible=false;
          if(previewSurface) {
             std::cerr << "[GRAPHICS] Rendering preview" << std::endl;
             Render(previewSurface->getCanvas(),1200,780,preview,1.f);
@@ -610,6 +611,17 @@ int main(int argc,char** argv) {
             if(previewSurface->peekPixels(&pixels)) {
                overviewDrawn=SkColorGetR(*pixels.addr32(1000,85))!=
                   SkColorGetR(*pixels.addr32(60,550));
+               for(int y=344;y<358 && !temperaturePixelsVisible;++y) {
+                  for(int x=148;x<265;++x) {
+                     SkColor const color=*pixels.addr32(x,y);
+                     if(SkColorGetR(color)>=225 &&
+                        SkColorGetG(color)>=238 &&
+                        SkColorGetB(color)>=235) {
+                        temperaturePixelsVisible=true;
+                        break;
+                     }
+                  }
+               }
             }
          }
          bool valid=true;
@@ -620,6 +632,8 @@ int main(int argc,char** argv) {
             }
          };
          check(((!graphics || (glyphVisible && overviewDrawn))),"model condition 1");
+         check((!graphics || temperaturePixelsVisible),
+            "temperature readout must contain visible glyph pixels");
          check((newMoon && newMoon->illumination<0.001),"model condition 2");
          check((newMoon->stage==wc::MoonStage::New),"model condition 3");
          check((fullMoon && fullMoon->illumination>0.98),"model condition 4");
