@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+
 cmake_minimum_required(VERSION 3.25)
 if(NOT DEFINED TEST_EXE OR NOT DEFINED TEST_PDF OR NOT DEFINED TEST_OUTPUT)
   message(FATAL_ERROR "TEST_EXE, TEST_PDF and TEST_OUTPUT are required")
