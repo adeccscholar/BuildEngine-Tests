@@ -118,13 +118,40 @@ namespace weather_client {
    }
 
    [[nodiscard]] inline Location ResolveIp(std::string_view caBundle = {}) {
-      // City/region-level approximation, NEVER a house number.
-      auto const json = Json::parse(GetHttps("https://ipapi.co/json/",
-         "adecc-Scholar-WeatherClient/1.1 (+https://github.com/adeccscholar/BuildEngine-Tests)",
-         caBundle));
-      if(json.contains("error") && json["error"] == true)
-         throw std::runtime_error{"IP location rate limited"};
-      return ParseIpLocation(json);
+      // IP-based location is approximate (city / region only).
+      // If one free provider is unavailable, try a second compatible API.
+      std::string initialError;
+      try {
+         auto const json = Json::parse(GetHttps("https://ipapi.co/json/",
+            "adecc-Scholar-WeatherClient/1.1 (+https://github.com/adeccscholar/BuildEngine-Tests)",
+            caBundle));
+         return ParseIpLocation(json);
+      } catch(std::exception const& error) {
+         initialError=error.what();
+      }
+      try {
+         auto const json = Json::parse(GetHttps("https://ipwho.is/",
+            "adecc-Scholar-WeatherClient/1.1 (+https://github.com/adeccscholar/BuildEngine-Tests)",
+            caBundle));
+         if(!json.is_object() || !json.value("success",false))
+            throw std::runtime_error{"IP backup provider returned no location"};
+         Location result;
+         result.label=json.value("city",std::string{"Approximate IP region"});
+         result.address=result.label;
+         result.latitude=json.at("latitude").get<double>();
+         result.longitude=json.at("longitude").get<double>();
+         result.approximate=true;
+         if(json.contains("timezone") && json["timezone"].is_object())
+            result.timezone=GetString(json["timezone"],"id");
+         if(!ValidCoordinates(result.latitude,result.longitude))
+            throw std::runtime_error{"IP fallback returned invalid coordinates"};
+         return result;
+      } catch(std::exception const& error) {
+         throw std::runtime_error{
+            "IP location unavailable (first: "+initialError+
+            "; fallback: "+error.what()+"). Use ADDRESS to enter a location."
+         };
+      }
    }
 
    [[nodiscard]] inline WeatherData FetchWeather(Location const& location,std::string_view caBundle = {}) {
