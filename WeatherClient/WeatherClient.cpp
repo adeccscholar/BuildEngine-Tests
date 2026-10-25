@@ -460,7 +460,25 @@ int main(int argc,char** argv) {
          }
          auto stormData=data;
          stormData.hours.front().weather_code=95;
-         bool const valid=glyphVisible &&
+         Station preview;
+         preview.demo=true;
+         preview.location=wc::Location{"Example weather station",
+            "Example address","Europe/Berlin",52.5,13.4,false};
+         preview.weather=data;
+         auto const previewSurface=SkSurfaces::Raster(
+            SkImageInfo::MakeN32Premul(1200,780));
+         bool overviewDrawn=false;
+         if(previewSurface) {
+            Render(previewSurface->getCanvas(),1200,780,preview,1.f);
+            SkPixmap pixels;
+            if(previewSurface->peekPixels(&pixels)) {
+               overviewDrawn=SkColorGetR(*pixels.addr32(60,90))!=
+                  SkColorGetR(*pixels.addr32(60,550));
+            }
+         }
+         bool const valid=glyphVisible && overviewDrawn &&
+            font::Width(font::Fit("A long address with Unicode \u00e4 and more",
+               16.f,170.f),16.f)<=170.1f &&
             VerifyStatechart() &&
             wc::CurrentDaylight(data) &&
             wc::IsDayAt("2026-10-25T21:00",data)==false &&
