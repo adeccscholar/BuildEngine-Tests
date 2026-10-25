@@ -101,8 +101,10 @@ Start `--demo`, switch units repeatedly and verify temperature,
 wind, gusts, rain, pressure **hPa ↔ inHg**, daily min/max and
 narrative values all change together. The forecast graph must
 retain its shape because Fahrenheit conversion is affine.
-Switch to DAILY to inspect sunrise and sunset pictograms;
-after sunset, hourly forecast icons must show the moon.
+Switch to DAILY to inspect the reduced six-column forecast: weather
+symbol, min/max temperature and precipitation. The selected day's
+sunrise and sunset stay in the header, not in every forecast column.
+After sunset, hourly forecast icons must show the moon.
 
 `WeatherClientOfflineModel` now tests both unit systems and
 the US selector's SDL hit geometry. No new third-party
@@ -249,10 +251,11 @@ change; do not replace working subsystems on speculation.
 
 ## Targeted temperature and severe weather regression
 
-The restored temperature dial has a small dark readout plate that
-is drawn *after* the needle and tick marks. It is restricted to the
-temperature gauge; the existing Skia/Segoe UI renderer is untouched.
-Both Celsius and Fahrenheit continue to use the existing unit system.
+The temperature dial displays the current value *after* its needle
+and highlights using the same anti-aliased `font::Draw` path and
+transparent background as the barometer. The temporary dark plate
+and forced 5x7 pixel glyphs are removed. Both Celsius and Fahrenheit
+continue to use the existing unit system.
 
 The deterministic offline model CTest now also checks:
 - benign conditions -> LOW model signal
