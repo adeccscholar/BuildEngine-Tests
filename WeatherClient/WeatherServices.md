@@ -5,17 +5,9 @@
 
 [TOC]
 
-## Implementierung und manuelle API-Tests
+## Implementation and Manual API Tests
 
-Die vollständigen, an `WeatherNetwork.h` abgeglichenen REST-Aufrufe
-stehen in **[REST.md](REST.md)**. Dort sind für Open-Meteo, Nominatim,
-ipapi.co und ipwho.is die exakten Anfragen mit `curl.exe`, erwartete
-JSON-Strukturen, Fehlerfälle, TLS-Optionen und Abgrenzungen zum
-eingebetteten `libcurl` dokumentiert. Für den asynchronen Ablauf,
-FSM, Viertelstunden-Aktualisierung und lokale Berechnungen siehe
-[Architecture.md](Architecture.md). Die Software-Abhängigkeiten sind
-separat in [ThirdParty.md](ThirdParty.md) beschrieben.
-
+[REST.md](REST.md) documents the exact requests implemented in `WeatherNetwork.h` for Open-Meteo, Nominatim, ipapi.co, and ipwho.is, including reproducible `curl.exe` commands, expected JSON responses, TLS configuration, and diagnostics. See [Architecture.md](Architecture.md) for asynchronous execution, FSM, quarter-hour scheduling, and local calculations. Software dependencies are described in [ThirdParty.md](ThirdParty.md).
 
 ## Scope
 
