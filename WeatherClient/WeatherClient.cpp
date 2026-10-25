@@ -151,6 +151,8 @@ namespace weather_client::application {
                }
             } catch(std::exception const& e) {
                result.error=e.what();
+            } catch(...) {
+               result.error="Unexpected failure in network worker";
             }
             std::lock_guard lock{mutex};
             completed.push_back(std::move(result));
@@ -690,6 +692,7 @@ int main(int argc,char** argv) {
          if(key==SDLK_RIGHT) execute(view::Action::Next);
          if(key==SDLK_LEFT) execute(view::Action::Previous);
       }
+      try {
       station.TickWorker();
       std::deque<Completion> done;
       {
@@ -737,12 +740,29 @@ int main(int argc,char** argv) {
          station.next=std::chrono::steady_clock::now()+
             (station.error.empty()?refresh:retry);
       }
+      } catch(std::exception const& e) {
+         station.error=std::string{"Weather update: "}+e.what();
+         station.loading=false;
+         station.next=std::chrono::steady_clock::now()+retry;
+         try { fsm.process_event(EvFailure{}); } catch(...) { }
+      } catch(...) {
+         station.error="Unexpected failure while processing weather update";
+         station.loading=false;
+         station.next=std::chrono::steady_clock::now()+retry;
+      }
       int width{},height{};
       SDL_GetRendererOutputSize(renderer,&width,&height);
       width=(std::max)(width,1);height=(std::max)(height,1);
       auto surface=SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width,height));
       if(surface) {
-         Render(surface->getCanvas(),width,height,station,SDL_GetTicks()/1000.f);
+         try {
+            Render(surface->getCanvas(),width,height,station,SDL_GetTicks()/1000.f);
+         } catch(std::exception const& e) {
+            station.error=std::string{"Weather graphics: "}+e.what();
+            surface->getCanvas()->clear(0xff091923);
+            weather_client::lettering::Draw(surface->getCanvas(),24,50,
+               station.error,16,SK_ColorWHITE);
+         }
          SkPixmap pixmap;
          if(surface->peekPixels(&pixmap)) {
             SDL_Surface* image=SDL_CreateRGBSurfaceWithFormatFrom(
