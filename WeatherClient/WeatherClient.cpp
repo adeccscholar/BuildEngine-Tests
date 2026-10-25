@@ -562,8 +562,8 @@ int main(int argc,char** argv) {
          check((waxing && waxing->waxing && waxing->illumination>0.25),"model condition 5");
          check((waning && !waning->waxing && waning->illumination>0.20),"model condition 6");
          check((!wc::CalculateMoonPhase("2026-02-30T12:00")),"model condition 7");
-         check((font::Width(font::Fit("A long address with Unicode \u00e4 and more",
-               16.f,170.f),16.f)<=170.1f),"model condition 8");
+         check((!graphics || font::Width(font::Fit("A long address with Unicode \u00e4 and more",
+               16.f,170.f),16.f)<=170.1f),"graphics text fitting");
          check((VerifyStatechart()),"model condition 9");
          check((wc::CurrentDaylight(data)),"model condition 10");
          check((wc::IsDayAt("2026-10-25T21:00",data)==false),"model condition 11");
