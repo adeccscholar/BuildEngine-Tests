@@ -40,7 +40,9 @@
 namespace wc = weather_client;
 namespace sc = boost::statechart;
 namespace mpl = boost::mpl;
-namespace {
+// Boost.Statechart transition<Event,...> needs Event types with external linkage.
+// Keep the states and events in this named namespace for simple FSM extensions.
+namespace weather_client::application {
    constexpr auto refresh = std::chrono::minutes{15};
    constexpr auto retry = std::chrono::minutes{1};
 
@@ -336,8 +338,9 @@ namespace {
          s.error.empty()?0xff9ed7bf:0xffffc0a8);
       canvas->restore();
    }
-}
+} // namespace weather_client::application
 int main(int argc,char** argv) {
+   using namespace weather_client::application;
    // Run the deterministic JSON/forecast smoke without initializing SDL.
    for(int i=1;i<argc;++i) {
       if(std::string_view(argv[i])=="--self-test") {
