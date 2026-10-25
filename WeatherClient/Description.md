@@ -5,6 +5,25 @@
 
 [TOC]
 
+## Technische Dokumentation und Einstieg
+
+Der WeatherClient ist ein **Wetter-Dashboard** und kein Mess-Observatorium.
+Die folgenden Seiten dokumentieren den aktuellen Quelltext auf `main` und
+trennen implementiertes Verhalten von lokal noch nicht verifizierten
+Laufzeitbeobachtungen:
+
+- [Architecture.md](Architecture.md): Programmstart, Netzwerk-Worker,
+  Boost.Statechart-FSM, Zeitsteuerung, Datenmodell und Anzeige
+- [REST.md](REST.md): alle vier verwendeten HTTPS-Dienste, tatsächliche
+  GET-Parameter, JSON-Strukturen und reproduzierbare `curl.exe`-Aufrufe
+- [ThirdParty.md](ThirdParty.md): direkt verwendete Bibliotheken,
+  BuildEngine-Paketroots, DLL-Closure, Versionierung und Lizenzgrenzen
+- [build.md](build.md): CMake/Ninja/BCC64X, Installation und Testbefehle
+- [WeatherServices.md](WeatherServices.md): Anbieterbedingungen,
+  Datenattribution und Datenschutz
+- [SBOM.md](SBOM.md), [LICENSE.md](LICENSE.md): Stückliste und Lizenzen
+
+
 
 ## Calculated Moon phase and nighttime forecast
 
