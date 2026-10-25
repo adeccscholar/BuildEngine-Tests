@@ -40,10 +40,25 @@ Nominatim verlangt OSM-Attribution, Nutzungsbedingungen und verantwortliche
 Ratenbegrenzung; der Beispielclient sollte nicht massenhaft Adressen
 auflösen. Dienste können Rate Limits, Netzwerk- und Datenschutzvorgaben haben.
 
+## Portable GUI und Diagramme
+
+Der eigenständige Header [WeatherView.h](WeatherView.h) zeichnet
+Skia-Bedienelemente, stündliche Temperaturkurven, Tageshöchst- und
+Tiefsttemperaturen, Regenbalken, Wetterpiktogramme und einen
+Windrichtungskompass. Seine Funktionen benötigen weder Win32 noch
+Netzwerk und greifen nicht auf FSM-Zustände zu. SDL2 liefert Maus-,
+Tastatur- und UTF-8-Texteingaben sowie den Vollbildmodus.
+Der skaleninvariante Hit-Test wird im Offline-Self-Test geprüft.
+Das vorhandene Layout der vier Analoginstrumente und die
+Boost.Statechart-FSM wurden beibehalten.
+
 ## SDL2-Steuerung
 
 | Taste | Aktion |
 | --- | --- |
+| Linksklick | Schaltflächen direkt mit SDL2-Maussteuerung bedienen |
+| `F` / `F11` | zwischen Fenster und Vollbild umschalten |
+| Mausrad | Vorschau zurück/vorwärts |
 | `A` | Adresse eingeben und mittels Nominatim auflösen; bei Erfolg in `weather-location.json` speichern |
 | `I` | neue grobe IP-Ortung (bei Demo deaktiviert) |
 | `R` | erneuter Wetterabruf |
@@ -64,7 +79,7 @@ persistiert; das Zeitzonenfeld stammt aus dem Wetterdienst.
 ## Reproduzierbarer Test
 
 `--demo` liefert ohne Netz Testwetter mit 48 Stunden und sieben Tagen.
-`--self-test` kontrolliert diesen Beispieldatensatz ohne SDL-Fenster.
+`--self-test` kontrolliert diesen Beispieldatensatz, Schaltflächen-Hit-Tests, die Vorhersage-Navigation und UTF-8-Backspace ohne SDL-Fenster.
 Die Visualisierung und netzabhängige Live-Integration sind separate
 manuelle Prüfungen. Ein externer HTTP-Dienst ist für den Offline-Test
 nicht nötig. Keine reale Ortsadresse wird im Quellcode gespeichert.

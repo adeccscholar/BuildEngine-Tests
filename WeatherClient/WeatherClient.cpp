@@ -318,8 +318,18 @@ int main(int argc,char** argv) {
    for(int i=1;i<argc;++i) {
       if(std::string_view(argv[i])=="--self-test") {
          auto const data=Station::DemoWeather();
+         std::string text{"Müller"};
+         view::BackspaceUtf8(text);
          bool const valid=data.hours.size()==48 && data.days.size()==7 &&
-            data.current.temperature_2m.has_value();
+            data.current.temperature_2m.has_value() &&
+            text=="Mülle" &&
+            view::HitTest(75,680,1200,780,false)==view::Action::Address &&
+            view::HitTest(1080,680,1200,780,true)==view::Action::Apply &&
+            view::HitTest(75,680,1200,780,true)==view::Action::None &&
+            view::MoveOffset(&data,false,0,true)==4 &&
+            view::MoveOffset(&data,true,0,true)==1 &&
+            view::ClampOffset(&data,false,999)==40 &&
+            view::ClampOffset(&data,true,999)==1;
          std::cout << (valid?"WEATHER_CLIENT_TEST_PASS\n":"WEATHER_CLIENT_TEST_FAIL\n");
          return valid?0:2;
       }

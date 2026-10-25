@@ -23,7 +23,7 @@ tatsächlich importierte DLLs.
 ..\build\Test\WeatherClient\Release\WeatherClient.exe
 ```
 
-Zum Testen des Datensatzes `--self-test` verwenden.
+Zum Testen des Datensatzes und der plattformneutralen SDL-/Skia-Steuerlogik `--self-test` verwenden. Die Schaltflächen lassen sich anklicken; `F`/`F11` schaltet Vollbild. Für Mausbedienung mit hoher Pixeldichte wird die Fenstergröße von SDL2 verwendet.
 Die reale Standortsuche benötigt HTTPS, gültige CA-Zertifikate sowie
 Netzzugriff auf die konfigurierten Anbieter. Die Anwendung erzeugt
 `weather-location.json` nur nach Eingabe einer Adresse; für
