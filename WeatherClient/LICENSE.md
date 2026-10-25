@@ -1,37 +1,23 @@
 <!-- SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH -->
 <!-- SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 -->
 
-# WeatherClient – vollständige Projektlizenz
+# WeatherClient – Complete Project License
 
-## Eigene neue Dateien
+## Original Project Files
 
-`WeatherClient.cpp`, `WeatherModel.h`, `WeatherNetwork.h`,
-`CMakeLists.txt`, Dokumentation und Testdaten wurden unter der
-**PolyForm Noncommercial License 1.0.0** erstellt. Die vollständigen
-Lizenzbedingungen und der Required Notice folgen unverändert.
+`WeatherClient.cpp`, `WeatherModel.h`, `WeatherNetwork.h`, `CMakeLists.txt`, documentation, and original test data are provided under the **PolyForm Noncommercial License 1.0.0**. Its required notice and authoritative license text follow **unchanged**.
 
-## Web services, data licensing and system font
+## Web Services, Data Licenses, and OS Fonts
 
-The **PolyForm Noncommercial** project license applies to the *new code*,
-not to weather records, OSM address data or access to public service APIs.
-Open-Meteo weather data is **CC BY 4.0**, but its free hosted endpoint is
-for non-commercial usage. Nominatim/OSM geographic data is **ODbL 1.0**
-with attribution and strict public endpoint policy. IP geolocation providers
-are proprietary services with individual request limits and retention terms.
+The project's source license does not apply to external weather data, OSM data, or access to public APIs. Open-Meteo weather data has CC BY 4.0 attribution requirements, while the free hosted API is intended for non-commercial use. OpenStreetMap data is subject to ODbL 1.0 and the public Nominatim instance has strict operational rules. IP geolocation providers have separate proprietary terms and quotas.
 
-The PDFium/SDL2 example uses **Segoe UI**. WeatherClient references that
-operating-system font through Skia without redistributing Microsoft's font
-files. The original hand-authored Skia fallback glyphs are part of this
-project, not a copied commercial font.
+WeatherClient references the installed Segoe UI typeface through Skia without redistributing font files. Its first-party vector-glyph fallback is not copied from a commercial font. See [WeatherServices.md](WeatherServices.md) for provider terms and privacy considerations.
 
-See [WeatherServices.md](WeatherServices.md) for current third-party URLs,
-rights, operational limits and privacy guidance.
+## External Components
 
-## Externe Bestandteile
-
-| Bibliothek / Datenquelle | Lizenz / Nutzung |
+| Library or service | Declared license or usage conditions |
 | --- | --- |
-| Skia | BSD-3-Clause; eingebundene Komponenten mit eigenen Hinweisen |
+| Skia | BSD-3-Clause; component notices also apply |
 | SDL2 | Zlib |
 | Boost | BSL-1.0 |
 | libcurl | curl |
@@ -40,22 +26,17 @@ rights, operational limits and privacy guidance.
 | zlib | Zlib |
 | Brotli | MIT |
 | Zstandard | BSD-3-Clause |
-| XZ / liblzma | 0BSD (Komponenten beachten) |
+| XZ / liblzma | 0BSD; check individual components |
 | bzip2 | bzip2-1.0.6 |
 | FreeType | FTL OR GPL-2.0-or-later |
 | HarfBuzz | MIT |
 | libpng | libpng-2.0 |
-| libjpeg-turbo | IJG AND BSD-3-Clause (Komponenten beachten) |
-| Open-Meteo | Dienst-/Attributionsbedingungen prüfen |
-| OpenStreetMap/Nominatim | ODbL-Datenattribution + öffentliche API-Nutzungsbedingungen |
-| ipapi.co | API-Nutzungsbedingungen beachten |
+| libjpeg-turbo | IJG AND BSD-3-Clause; check notices |
+| Open-Meteo | Independent API terms and data attribution |
+| OpenStreetMap / Nominatim | ODbL attribution and public API usage policy |
+| ipapi.co / ipwho.is | Individual provider terms |
 
-Die tatsächlich ausgelieferten Original-Lizenz- und Notice-Texte aus
-den BuildEngine-Paketen sowie die binär verifizierte Abhängigkeitskette
-sind **vor einer Distribution** zu ergänzen. Die gelieferten alten
-`WeatherAPI`-/`WeatherAPIServer`-Quellen tragen überwiegend
-`GPL-3.0-or-later`; sie werden **nicht** in dieses neue Programm
-übernommen und nicht unter PolyForm umetikettiert.
+Before distribution, verify the original third-party license and notice files from the installed BuildEngine packages and the binary PE dependency closure. Older `WeatherAPI` and `WeatherAPIServer` example sources are generally GPL-3.0-or-later; they are **not** copied into this application or relicensed as PolyForm.
 
 ## PolyForm Noncommercial License 1.0.0
 
