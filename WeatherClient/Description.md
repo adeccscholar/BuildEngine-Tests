@@ -288,3 +288,16 @@ are shown without replacing previously displayed weather data.
 Network services may be unavailable, rate limited or require separate
 licenses for production. Successful online use must be checked on the
 actual Windows installation and is not asserted by the offline CTest.
+
+## Failure recovery and test separation
+
+The original two-test setup reported `WeatherClientOfflineModel` as
+`SEGFAULT` while `WeatherClientStatechart` passed. The offline test
+combined Skia/DirectWrite graphics with data checks before SDL2
+initialization. The three separated CTests identify whether failures
+belong to data/model logic, the initialized Skia raster path or
+Boost.Statechart. DirectWrite typefaces are released before SDL shuts
+down. The live GUI now reports C++ worker/FSM/render errors without
+intentionally terminating; fatal native access violations still require
+a native stack trace. The entire weather fetch path remains HTTPS with
+peer/hostname verification.

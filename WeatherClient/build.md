@@ -125,3 +125,38 @@ again before validating the different moon phases visually.
 In demo mode, the fixed demonstration date yields a fixed moon phase.
 Live mode uses the current Open-Meteo observation and forecast
 timestamps, which are provided in the location's local time.
+
+## Failure isolation: offline SIGSEGV and live network errors
+
+The previous `WeatherClientOfflineModel` combined value assertions with
+a full 1200x780 Skia render **without initializing SDL**. The combined test
+could terminate with an access violation without identifying the affected
+subsystem. This has been separated:
+
+- `WeatherClientOfflineModel` / `--self-test`: deterministic weather,
+  moon phase, conversions, Unicode-editing, input hit tests and FSM checks;
+  no Skia surface or OS font initialization
+- `WeatherClientGraphics` / `--graphics-test`: initializes SDL2, draws
+  original Skia fallback glyphs plus the dashboard, then releases the
+  cached DirectWrite typeface **before** `SDL_Quit()`
+- `WeatherClientStatechart` / `--fsm-test`: direct Boost.Statechart
+  transition validation, no SDL or network
+
+Because the CTest registry now includes a third test, **reconfigure once**
+before rebuilding:
+
+```bat
+cmake -S WeatherClient -B ../build/Test/WeatherClient/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/WeatherClient/Release
+cmake --build ../build/Test/WeatherClient/Release/cmake
+ctest --test-dir ../build/Test/WeatherClient/Release/cmake --output-on-failure
+```
+
+A failed HTTPS request is captured by the worker as a data error and shown
+inside the GUI; an unexpected C++ exception from completion processing or
+rendering is now caught on the SDL thread instead of propagating out of
+the main loop. A failed request schedules retry after a minute while
+preserving the last successful data. Native crashes (access violations)
+cannot be recovered by C++ exception handling; a graphics-test crash
+still requires a native stack trace or crash dump to pinpoint the faulty
+Skia/DirectWrite operation. Do not hide such crashes by disabling TLS
+verification or excluding the graphic test.
