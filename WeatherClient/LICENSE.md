@@ -10,6 +10,23 @@
 **PolyForm Noncommercial License 1.0.0** erstellt. Die vollständigen
 Lizenzbedingungen und der Required Notice folgen unverändert.
 
+## Web services, data licensing and system font
+
+The **PolyForm Noncommercial** project license applies to the *new code*,
+not to weather records, OSM address data or access to public service APIs.
+Open-Meteo weather data is **CC BY 4.0**, but its free hosted endpoint is
+for non-commercial usage. Nominatim/OSM geographic data is **ODbL 1.0**
+with attribution and strict public endpoint policy. IP geolocation providers
+are proprietary services with individual request limits and retention terms.
+
+The PDFium/SDL2 example uses **Segoe UI**. WeatherClient references that
+operating-system font through Skia without redistributing Microsoft's font
+files. The original hand-authored Skia fallback glyphs are part of this
+project, not a copied commercial font.
+
+See [WeatherServices.md](WeatherServices.md) for current third-party URLs,
+rights, operational limits and privacy guidance.
+
 ## Externe Bestandteile
 
 | Bibliothek / Datenquelle | Lizenz / Nutzung |

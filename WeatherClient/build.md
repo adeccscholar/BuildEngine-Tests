@@ -37,8 +37,9 @@ Die gelieferten Originaldateien wurden nicht verändert.
 
 ## Visual quality and portability checks
 
-The new Skia effects are procedural, with no additional resource directory
-or font dependency. Inspect the animated sky, three graded instrument faces,
+The new Skia effects are procedural. Typography uses the locally installed
+Segoe UI font if available (as in the PDFium/SDL2 example); no font file is
+copied, bundled or distributed. The original vector glyphs remain a fallback. Inspect the animated sky, three graded instrument faces,
 compass rose, forecast curve and the English summary in GUI demo mode. Use
 `ctest --test-dir ../build/Test/WeatherClient/Release/cmake --output-on-failure`
 to check the deterministic English narrative and control/forecast model.
@@ -59,3 +60,32 @@ PEM bundle if a TLS inspection proxy is present. IP geolocation is approximate;
 click ADDRESS or press A to provide a full address. Typing a new address also
 leaves --demo mode and downloads live weather. The `--demo` option itself
 always starts with synthetic offline observations.
+
+## Updated demonstration and FSM test commands
+
+The build target's EXE is staged under
+`../build/Test/WeatherClient/Release/cmake/runtime/WeatherClient/WeatherClient.exe`.
+The **installed EXE** is `../build/Test/WeatherClient/Release/WeatherClient.exe`.
+Do not confuse them: `cmake --build` does **not** update the installed EXE
+until `cmake --install` runs.
+
+```bat
+cmake --build ../build/Test/WeatherClient/Release/cmake
+ctest --test-dir ../build/Test/WeatherClient/Release/cmake --output-on-failure
+cmake --install ../build/Test/WeatherClient/Release/cmake
+..\build\Test\WeatherClient\Release\WeatherClient.exe
+```
+
+Two tests are expected: `WeatherClientOfflineModel` validates parsers,
+GUI glyph pixels, daylight, sunshine times, thunderstorm indicators and
+forecast navigation. `WeatherClientStatechart` tests the actual
+Boost.Statechart state transitions `Off -> Resolving -> Fetching -> Ready
+-> Fetching -> Error -> Resolving -> Fetching -> Ready`.
+The latter does not sleep for 15 minutes or simulate external HTTPS failures,
+so real timer intervals and transport recovery still require integration tests.
+
+On a normal launch, IP geolocation is approximate if no user-selected
+address has been stored. After typing an address in the GUI, the resolved
+postal location is saved to `weather-location.json` and is loaded next time.
+The service contracts and attribution are recorded in
+[WeatherServices.md](WeatherServices.md).

@@ -5,6 +5,42 @@
 
 [TOC]
 
+
+## Extended weather observatory (2026-10-25)
+
+The GUI now uses the **Segoe UI family** from the repository's existing
+PDFium SDL2 example through Skia's font manager. It does **not** copy or ship
+Microsoft font files; original `WeatherText.h` vector lettering is used if
+the OS cannot supply a typeface. All text is measured, truncated by physical
+width and restricted to its panel instead of truncating arbitrary bytes.
+
+The upper-left text zone is reserved for title, address, English weather
+brief, daily temperature low/high and the selected day's local
+sunrise/sunset. The upper-right area is reserved for original Skia sky
+illustrations. Weather codes combine sunlight or a nighttime sky with clouds,
+rain, snow, fog or lightning. Both the global header and hourly weather
+symbols use the correct day/night state where data permits.
+
+The forecast draws hourly or daily values in non-overlapping bands
+(time -> condition icon -> temperature -> curve -> rain).
+In daily mode, arrow navigation changes which day's sunrise, sunset and
+minimum/maximum temperatures appear in the header. The additional label
+`STORM FORECAST` means a weather-code thunderstorm signal; `ELEVATED
+CAPE` is an **instability indication, not a quantified storm probability**.
+Missing readings are explicitly reported as unavailable.
+
+The bottom line reads **LIVE WEATHER HH:MM:SS / UPDATED HH:MM:SS**.
+The first clock uses the system's local wall clock, and the second is
+recorded **only after successful weather retrieval**, not on a timer tick
+or failed request. The station timezone remains separately visible. The
+15-minute refresh and 1-minute retry are driven by Boost.Statechart events
+and the steady-clock timer, while HTTPS work stays off the SDL thread.
+
+See **[WeatherServices.md](WeatherServices.md)** for the precise endpoints,
+rate limits, permission requirements, attribution, caveats and licensing.
+The public Open-Meteo endpoint is for non-commercial use; a customer license
+or approved alternative is required for commercial operation.
+
 ## Idee und übernommene Bestandteile
 
 SDL2 behandelt Fenster, Tastatur und Adresseingabe. Skia rendert vier
@@ -145,7 +181,7 @@ nicht nötig. Keine reale Ortsadresse wird im Quellcode gespeichert.
 - [LICENSE.md](LICENSE.md), [SBOM.md](SBOM.md): Quelllizenz und
   deklarative Komponenten.
 
-**Status:** The previous WeatherClient iteration compiled and passed its offline CTest on BCC64X. The new visual redesign has not yet been compiled or visually verified on the user's machine.
+**Status:** The previous WeatherClient iteration was confirmed to compile and display live Open-Meteo results on the user's BCC64X system. The updated Segoe UI layout, daylight/storm indicators and expanded FSM tests still require a fresh local build and GUI review.
 
 ## Live services and SSL trust
 
