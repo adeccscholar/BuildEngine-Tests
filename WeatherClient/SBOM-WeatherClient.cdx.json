@@ -1,0 +1,170 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "WeatherClient",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "adecc:verification",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:runtime-selection",
+        "value": "per-executable Windows PE import closure using active XML catalog"
+      },
+      {
+        "name": "adecc:original-input",
+        "value": "WeatherAPI.zip WeatherClient.zip WeatherClient_intro.zip WeatherAPIServer.zip; original GPL sources not relabeled"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "Skia",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "SDL2",
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Boost",
+      "licenses": [
+        {
+          "expression": "BSL-1.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "curl",
+      "licenses": [
+        {
+          "expression": "curl"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "OpenSSL",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "nlohmann-json",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "zlib",
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "brotli",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "zstd",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "xz",
+      "licenses": [
+        {
+          "expression": "0BSD"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "bzip2",
+      "licenses": [
+        {
+          "expression": "bzip2-1.0.6"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "freetype",
+      "licenses": [
+        {
+          "expression": "FTL OR GPL-2.0-or-later"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "harfbuzz",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "libpng",
+      "licenses": [
+        {
+          "expression": "libpng-2.0"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "libjpeg-turbo",
+      "licenses": [
+        {
+          "expression": "IJG AND BSD-3-Clause"
+        }
+      ]
+    }
+  ]
+}

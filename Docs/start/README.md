@@ -10,6 +10,7 @@ BuildEngine, not BuildEngine's own internal administration or production service
 
 | Area | Libraries and purpose |
 | --- | --- |
+| [WeatherClient](/docs/WeatherClient/Description.md) | SDL2 + Skia analog gauges, Boost.Statechart FSM, Open-Meteo and forecast |
 | [PolicyTest](/docs/PolicyTest/Description.md) | adecc-core-lib policies, IBAN, SEPA, date, amount and negative acceptance tests |
 | [CompareTest](/docs/CompareTest/Description.md) | fast_float and oneTBB parsing/comparison |
 | [Financial](/docs/financial/Description.md) | Boost, pugixml and OpenSSL finance examples |
