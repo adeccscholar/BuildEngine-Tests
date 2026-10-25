@@ -331,3 +331,24 @@ If the trace stops before `Dial: temperature value complete`, investigate
 Skia's font provider with a native debugger; otherwise follow the next
 `Render: ...` phase. A test passing with the fallback environment variable
 is diagnostic and does not establish that the default Segoe UI path is safe.
+
+## Centered instrument values and units (2026-10-25)
+
+Temperature, barometer and humidity now use a shared two-line dial readout:
+the numeric value is horizontally centered, and the selected unit is
+centered immediately below it. The current formatter keeps one fractional
+digit except for barometric pressure in inHg, which retains two. A missing
+value shows `NO DATA` for the temperature or `--` for the other gauges;
+the unit line remains visible.
+
+The text placement uses an approximate font-dependent glyph advance,
+**not** `SkFont::measureText` or `font::Fit`, which were implicated in
+earlier BCC64X/Skia graphics regressions. For temperatures the degree sign
+is an antialiased Skia circle and C/F is drawn as a separate letter.
+The readout is transparent and drawn last, above dial effects.
+
+`WeatherClientGraphics` now checks that the current temperature value
+and its lower unit band contain visible pixels in the offline preview.
+A successful pixel test does not fully validate the visual center
+alignment for every installed font, locale or numeric range. A Windows
+BCC64X/Skia CTest and visual review remain necessary.
