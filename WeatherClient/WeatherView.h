@@ -9,6 +9,8 @@
 */
 #include "WeatherModel.h"
 #include "WeatherText.h"
+#include "WeatherFont.h"
+#include "WeatherMetrics.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
@@ -146,7 +148,7 @@ namespace weather_client::view {
    inline void Text(SkCanvas* canvas,float x,float y,
       std::string const& text,float size=16,SkColor color=0xffd7e7ec
    ) {
-      lettering::Draw(canvas,x,y,text,size,color);
+      font::Draw(canvas,x,y,text,size,color);
    }
 
    inline void DrawButton(
@@ -161,8 +163,9 @@ namespace weather_client::view {
       Color(paint,disabled?0xff64737b:active?0xffdfbe80:0xff7795a1);
       canvas->drawRoundRect(
          SkRect::MakeXYWH(button.x,button.y,button.width,button.height),7,7,paint);
-      Text(canvas,button.x+13,button.y+26,std::string(button.label),
-         button.width<100?20.f:13.f,disabled?0xff72828b:0xffeff0e7);
+      font::Draw(canvas,button.x+13,button.y+26,button.label,
+         button.width<100?17.f:14.f,disabled?0xff72828b:0xffeff0e7,
+         button.width-22.f);
    }
 
    inline void DrawControls(
@@ -175,7 +178,7 @@ namespace weather_client::view {
          Color(paint,0xffb39a66);
          paint.setStyle(SkPaint::kStroke_Style);
          canvas->drawRoundRect(SkRect::MakeXYWH(50,669,818,40),7,7,paint);
-         Text(canvas,63,695,"ADDRESS: "+ClipText(input,65)+"_",16,0xfff1e7cc);
+         font::Draw(canvas,63,695,"ADDRESS: "+std::string{input}+"_",16,0xfff1e7cc,798.f);
          DrawButton(canvas,Cancel,false,false);
          DrawButton(canvas,Apply,false,false);
       } else {
