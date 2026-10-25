@@ -34,3 +34,13 @@ Der bisherige `WeatherAPIServer` nutzt CORBA/TAO und ältere
 Die gelieferten Originaldateien wurden nicht verändert.
 
 [Beschreibung](Description.md) · [Lizenzen](LICENSE.md) · [SBOM](SBOM.md)
+
+## Visual quality and portability checks
+
+The new Skia effects are procedural, with no additional resource directory
+or font dependency. Inspect the animated sky, three graded instrument faces,
+compass rose, forecast curve and the English summary in GUI demo mode. Use
+`ctest --test-dir ../build/Test/WeatherClient/Release/cmake --output-on-failure`
+to check the deterministic English narrative and control/forecast model.
+This does **not** substitute for visually checking raster output in SDL2.
+No package versions or Windows-specific GUI APIs were added.

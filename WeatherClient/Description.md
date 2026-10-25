@@ -40,6 +40,39 @@ Nominatim verlangt OSM-Attribution, Nutzungsbedingungen und verantwortliche
 Ratenbegrenzung; der Beispielclient sollte nicht massenhaft Adressen
 auflösen. Dienste können Rate Limits, Netzwerk- und Datenschutzvorgaben haben.
 
+## Visual redesign: original Skia weather observatory
+
+The display is now an English-language, international demonstration of Skia
+rather than a collection of basic gauges. All new illustrations are generated
+at runtime from **original paths and paint operations**: no logos, stock
+weather icons, photos, proprietary typefaces or third-party artworks are used.
+
+The weather instruments use multi-stop metallic gradients, separate
+illuminated rims, sweeping dial arcs, fine scales, analog needle shadows and
+animated specular highlights. A procedural sky varies with weather code and
+day/night data (sun/moon, stylized cloud shapes, precipitation and contour
+lines). A custom compass rose visualizes wind direction.
+
+The header displays an automatically generated English
+**current-weather summary** and **next-six-hours forecast**, including
+perceived temperature, humidity, wind, rain probability and temperature trend.
+These sentences come from [WeatherNarrative.h](WeatherNarrative.h) using
+Open-Meteo observations; they are not predictions invented by the UI.
+A blank measurement remains explicitly unavailable rather than becoming
+a fabricated sensor value. Hourly and daily forecast graphics, buttons,
+address entry and the Statechart FSM are preserved.
+
+| File | Responsibility |
+| --- | --- |
+| [WeatherArtwork.h](WeatherArtwork.h) | Pure Skia gradients, arcs, original sky illustration, dials and compass |
+| [WeatherNarrative.h](WeatherNarrative.h) | Pure C++23 weather summary and forecast description |
+| [WeatherView.h](WeatherView.h) | Forecast graphs, buttons, text rendering and pointer hit-testing |
+| [WeatherClient.cpp](WeatherClient.cpp) | SDL2 window and events, presentation composition, FSM and asynchronous requests |
+
+Only SDL2 and Skia supply the GUI; there are no direct Win32 UI calls.
+The artwork uses Skia raster surfaces for portability; the application still
+needs an actual SDL GUI test on each platform.
+
 ## Portable GUI und Diagramme
 
 Der eigenständige Header [WeatherView.h](WeatherView.h) zeichnet
@@ -95,5 +128,4 @@ nicht nötig. Keine reale Ortsadresse wird im Quellcode gespeichert.
 - [LICENSE.md](LICENSE.md), [SBOM.md](SBOM.md): Quelllizenz und
   deklarative Komponenten.
 
-**Status:** Im Repository implementiert; ein erfolgreicher Windows-
-Build und der Lauf auf RAD Studio 13 sind noch nicht bestätigt.
+**Status:** The previous WeatherClient iteration compiled and passed its offline CTest on BCC64X. The new visual redesign has not yet been compiled or visually verified on the user's machine.
