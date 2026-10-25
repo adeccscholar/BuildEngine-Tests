@@ -11,6 +11,7 @@
 #include "WeatherText.h"
 #include "WeatherFont.h"
 #include "WeatherMetrics.h"
+#include "WeatherNarrative.h"
 #include "WeatherUnits.h"
 #include "WeatherMoon.h"
 
@@ -168,7 +169,7 @@ namespace weather_client::view {
       canvas->drawRoundRect(
          SkRect::MakeXYWH(button.x,button.y,button.width,button.height),7,7,paint);
       font::Draw(canvas,button.x+13,button.y+26,button.label,
-         button.width<100?17.f:14.f,disabled?0xff72828b:0xffeff0e7,
+         button.action==Action::Units?12.f:(button.width<100?17.f:14.f),disabled?0xff72828b:0xffeff0e7,
          button.width-22.f);
    }
 
@@ -227,7 +228,7 @@ namespace weather_client::view {
          14,0xffc9dbdb);
 
       if(current->wind_direction_10m) {
-         float const angle=(static_cast<float>(*current->wind_direction_10m)-90.f)*Pi/180.f;
+         float const angle=(static_cast<float>(WindToDirection(*current->wind_direction_10m))-90.f)*Pi/180.f;
          float const x=1119.f,y=444.f;
          SkPaint p;
          Color(p,0xffd7c79f);
