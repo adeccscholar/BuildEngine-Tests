@@ -72,5 +72,7 @@ adecc_test_install(WeatherClient RUNTIME_CLOSURE
 enable_testing()
 add_test(NAME WeatherClientOfflineModel COMMAND "$<TARGET_FILE:WeatherClient>" --self-test)
 set_tests_properties(WeatherClientOfflineModel PROPERTIES LABELS "weather;offline;data;graphics")
+add_test(NAME WeatherClientGraphics COMMAND "$<TARGET_FILE:WeatherClient>" --graphics-test)
+set_tests_properties(WeatherClientGraphics PROPERTIES LABELS "weather;graphics;offline")
 add_test(NAME WeatherClientStatechart COMMAND "$<TARGET_FILE:WeatherClient>" --fsm-test)
 set_tests_properties(WeatherClientStatechart PROPERTIES LABELS "weather;fsm;offline")
