@@ -121,52 +121,57 @@ int main(
       std::filesystem::path const aExecutableDirectory =
          ExecutableDirectory();
 
+      // The executable is installed under BuildEngine/build/Test/docu-server/<config>.
+      // Resolve the test checkout from the known production layout first.
+      std::filesystem::path aRepositoryRoot =
+         aExecutableDirectory.parent_path().parent_path()
+         .parent_path().parent_path().parent_path() / L"tests";
+
+      if(!std::filesystem::is_regular_file(
+         aRepositoryRoot / L"Docs" / L"Documentation.xml")) {
+         // Also support starting from the test checkout and developer builds.
+         aRepositoryRoot = std::filesystem::current_path();
+         }
+
       buildengine_tests::docu::ServerConfiguration aConfiguration{
-         .aRepositoryRoot =
-            aExecutableDirectory.parent_path().parent_path(),
+         .aRepositoryRoot = aRepositoryRoot,
          .aRuntimeDirectory = aExecutableDirectory
          };
 
-      std::filesystem::path aConfigurationFile =
-         aConfiguration.aRepositoryRoot /
-         L"Docs" /
-         L"Documentation.xml";
+      std::filesystem::path aConfigurationFile;
+      bool boConfigExplicit = false;
 
+      // First resolve paths; load XML only after --root has been processed.
       for(int iIndex = 1; iIndex < iArgc; ++iIndex) {
          std::string_view const svArgument{ argv[iIndex] };
-
-         if(svArgument == "--config") {
+         if(svArgument == "--root") {
             if(++iIndex >= iArgc) {
-               throw std::runtime_error{
-                  "--config requires a path"
-                  };
+               throw std::runtime_error{ "--root requires a path" };
                }
-
-            aConfigurationFile =
-               std::filesystem::path{ argv[iIndex] };
+            aConfiguration.aRepositoryRoot =
+               std::filesystem::absolute(std::filesystem::path{ argv[iIndex] });
+            }
+         else if(svArgument == "--config") {
+            if(++iIndex >= iArgc) {
+               throw std::runtime_error{ "--config requires a path" };
+               }
+            aConfigurationFile = std::filesystem::path{ argv[iIndex] };
+            boConfigExplicit = true;
             }
          }
 
-      LoadConfiguration(
-         aConfigurationFile,
-         aConfiguration
-         );
+      if(!boConfigExplicit) {
+         aConfigurationFile = aConfiguration.aRepositoryRoot /
+            L"Docs" / L"Documentation.xml";
+         }
+
+      LoadConfiguration(aConfigurationFile, aConfiguration);
 
       for(int iIndex = 1; iIndex < iArgc; ++iIndex) {
          std::string_view const svArgument{ argv[iIndex] };
 
-         if(svArgument == "--config") {
-            ++iIndex;
-            }
-         else if(svArgument == "--root") {
-            if(++iIndex >= iArgc) {
-               throw std::runtime_error{
-                  "--root requires a path"
-                  };
-               }
-
-            aConfiguration.aRepositoryRoot =
-               std::filesystem::path{ argv[iIndex] };
+         if(svArgument == "--config" || svArgument == "--root") {
+            ++iIndex; // Already parsed before loading the XML configuration.
             }
          else if(svArgument == "--address") {
             if(++iIndex >= iArgc) {
