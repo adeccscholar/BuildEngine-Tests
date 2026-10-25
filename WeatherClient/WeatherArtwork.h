@@ -455,4 +455,69 @@ namespace weather_client::artwork {
       canvas->drawCircle(cx,cy,3.5f,paint);
    }
 
+   /** \brief Fixed wind-panel geometry in the dashboard design space.
+       \details The rose, direction, speed and gusts have separate bands;
+       no caption may intersect the outer ring or the next caption.
+   */
+   struct WindPanelLayout {
+      static constexpr float flCenterX=1041.f;
+      static constexpr float flCenterY=292.f;
+      static constexpr float flRadius=80.f;
+      static constexpr float flDirectionBaseline=400.f;
+      static constexpr float flSpeedBaseline=421.f;
+      static constexpr float flGustBaseline=446.f;
+      static constexpr float flDirectionFontSize=12.f;
+      static constexpr float flSpeedFontSize=15.f;
+      static constexpr float flGustFontSize=14.f;
+   };
+
+   static_assert(WindPanelLayout::flCenterY+WindPanelLayout::flRadius+7.f+4.f <
+      WindPanelLayout::flDirectionBaseline-WindPanelLayout::flDirectionFontSize);
+   static_assert(WindPanelLayout::flDirectionBaseline+4.f <
+      WindPanelLayout::flSpeedBaseline-WindPanelLayout::flSpeedFontSize);
+   static_assert(WindPanelLayout::flSpeedBaseline+4.f <
+      WindPanelLayout::flGustBaseline-WindPanelLayout::flGustFontSize);
+   static_assert(WindPanelLayout::flGustBaseline<460.f);
+
+   /** \brief Draw the wind rose with three non-overlapping status lines.
+       \details The arrow points in the direction of travel, the caption
+       preserves the meteorological FROM direction, and all wind readings
+       are rendered together. No redundant miniature compass is needed.
+       \param canvas Destination Skia canvas.
+       \param aCurrent Optional current weather conditions.
+       \param theUnits Selected display unit system.
+       \param flPhase Animation time.
+       \returns Nothing.
+       \throw Any exception from formatting or Skia rendering.
+   */
+   inline void DrawWindPanel(SkCanvas* canvas,WeatherCurrent const* aCurrent,
+      UnitSystem theUnits,float flPhase) {
+      using Layout=WindPanelLayout;
+      std::optional<double> const aDirection=aCurrent?
+         aCurrent->wind_direction_10m:std::nullopt;
+      WindRose(canvas,Layout::flCenterX,Layout::flCenterY,
+         Layout::flRadius,aDirection,flPhase);
+
+      if(aDirection) {
+         std::string const strDirection=std::format("FROM {} / TO {}",
+            CardinalDirection(*aDirection),
+            CardinalDirection(WindToDirection(*aDirection)));
+         DrawCenteredDialText(canvas,Layout::flCenterX,
+            Layout::flDirectionBaseline,strDirection,
+            Layout::flDirectionFontSize,0xfff3d5a1);
+      }
+
+      std::string const strWind=aCurrent&&aCurrent->wind_speed_10m?
+         "WIND "+WindText(*aCurrent->wind_speed_10m,theUnits):"WIND --";
+      DrawCenteredDialText(canvas,Layout::flCenterX,
+         Layout::flSpeedBaseline,strWind,Layout::flSpeedFontSize,
+         0xffdbeaf0);
+
+      std::string const strGusts=aCurrent&&aCurrent->wind_gusts_10m?
+         "GUSTS "+WindText(*aCurrent->wind_gusts_10m,theUnits):"GUSTS --";
+      DrawCenteredDialText(canvas,Layout::flCenterX,
+         Layout::flGustBaseline,strGusts,Layout::flGustFontSize,
+         0xffc9dbdb);
+   }
+
 } // namespace weather_client::artwork
