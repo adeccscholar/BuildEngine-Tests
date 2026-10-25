@@ -9,6 +9,7 @@
     safe fallback when no usable SkTypeface can be loaded.
 */
 #include "WeatherText.h"
+#include "WeatherDiagnostics.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkTypeface.h"
@@ -35,6 +36,7 @@ namespace weather_client::font {
    }
 
    [[nodiscard]] inline sk_sp<SkTypeface> UiTypeface() {
+      if(diagnostics::Enabled("WEATHERCLIENT_FONT_FALLBACK")) return {};
       if(!TypefaceAttempted()) {
          TypefaceAttempted()=true;
          CachedTypeface()=[] {
