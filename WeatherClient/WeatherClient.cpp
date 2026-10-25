@@ -81,6 +81,7 @@ namespace weather_client::application {
       bool editing{};
       bool daily{};
       bool demo{};
+      std::string caBundle;
       bool loading{};
       bool shutdown{};
       bool fullscreen{};
@@ -93,11 +94,14 @@ namespace weather_client::application {
       void Start(Request kind, std::string address = {}) {
          // Stale results are discarded with a monotonically increasing ID.
          ++generation;
+         loading=true;
+         error.clear();
          auto const id = generation;
          if(worker.joinable()) {
             // Do not block the UI waiting for an ongoing network request:
             // the previous request is still owned by its jthread. New
             // requests wait for it to finish on the worker's own queue.
+            pending.clear();
             pending.emplace_back(kind,std::move(address),id);
             return;
          }
@@ -115,9 +119,9 @@ namespace weather_client::application {
                if(demo && kind==Request::Weather) {
                   result.weather=DemoWeather();
                } else if(kind==Request::Ip) {
-                  result.location=wc::ResolveIp();
+                  result.location=wc::ResolveIp(caBundle);
                } else if(kind==Request::Address) {
-                  result.location=wc::ResolveAddress(address);
+                  result.location=wc::ResolveAddress(address,caBundle);
                } else {
                   std::optional<wc::Location> at;
                   {
@@ -125,7 +129,7 @@ namespace weather_client::application {
                      at=location;
                   }
                   if(!at) throw std::runtime_error{"Missing location"};
-                  result.weather=wc::FetchWeather(*at);
+                  result.weather=wc::FetchWeather(*at,caBundle);
                }
             } catch(std::exception const& e) {
                result.error=e.what();
@@ -412,6 +416,7 @@ int main(int argc,char** argv) {
    for(int i=1;i<argc;++i) {
       if(std::string_view(argv[i])=="--demo") station.demo=true;
       if(std::string_view(argv[i])=="--config" && i+1<argc) station.config=argv[++i];
+      if(std::string_view(argv[i])=="--ca-bundle" && i+1<argc) station.caBundle=argv[++i];
 
    }
    SDL_Window* window=SDL_CreateWindow("adecc Scholar Weather Station",
@@ -444,6 +449,7 @@ int main(int argc,char** argv) {
       SDL_StopTextInput();
       if(!station.input.empty()) {
          station.query=station.input;
+         station.demo=false;
          fsm.process_event(EvStart{});
          station.Start(Request::Address,station.input);
       }
@@ -456,10 +462,9 @@ int main(int argc,char** argv) {
             SDL_StartTextInput();
             break;
          case view::Action::Ip:
-            if(!station.demo) {
-               fsm.process_event(EvStart{});
-               station.Start(Request::Ip);
-            }
+            station.demo=false;
+            fsm.process_event(EvStart{});
+            station.Start(Request::Ip);
             break;
          case view::Action::Refresh:
             if(station.location) {
@@ -548,6 +553,8 @@ int main(int argc,char** argv) {
                station.location=std::move(result.location);
             }
             station.error.clear();
+            station.weather.reset();
+            station.offset=0;
             if(result.kind==Request::Address) {
                try { wc::SaveLocation(station.config,*station.location); }
                catch(std::exception const& e) { station.error=e.what(); }
@@ -556,6 +563,7 @@ int main(int argc,char** argv) {
             station.Start(Request::Weather);
          } else if(result.weather) {
             station.weather=std::move(result.weather);
+            if(station.location) station.location->timezone=station.weather->timezone;
             station.error.clear();
             fsm.process_event(EvWeather{});
             station.next=std::chrono::steady_clock::now()+refresh;
@@ -569,7 +577,8 @@ int main(int argc,char** argv) {
             fsm.process_event(EvStart{});
             station.Start(Request::Ip);
          }
-         station.next=std::chrono::steady_clock::now()+refresh;
+         station.next=std::chrono::steady_clock::now()+
+            (station.error.empty()?refresh:retry);
       }
       int width{},height{};
       SDL_GetRendererOutputSize(renderer,&width,&height);
