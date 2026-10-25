@@ -42,6 +42,10 @@ The Open-Meteo call uses `latitude`, `longitude`, `timezone=auto`,
 `forecast_days=7`, `current`, `hourly`, and `daily` lists.
 Important fields include:
 
+- `current.dew_point_2m` — dew-point temperature, displayed in Celsius/Fahrenheit
+- `current.uv_index` — dimensionless instantaneous UV index and exposure category
+- `hourly.dew_point_2m` / `hourly.uv_index` — forecast fields retained in the model
+
 - `current.is_day` — the provider's current astronomical daylight flag
 - `daily.sunrise` and `daily.sunset` — **local ISO date-time** for each day
 - `daily.temperature_2m_min/max` — actual forecast daily low/high
@@ -101,8 +105,9 @@ Boost.Statechart manages `Off -> Resolving -> Fetching -> Ready`, error
 transitions, retries and manual refresh. HTTPS remains on the worker
 thread, never in SDL2's render thread. A successful live response records
 **the system-local retrieval clock** in the status line and schedules the
-next refresh after **15 minutes**. A failed request schedules a **1-minute**
-retry, while previously successful data can remain visible. Demo mode
+next refresh at the **next wall-clock quarter-hour boundary** (:00, :15,
+:30, :45). A failed request schedules a **1-minute** retry (or an earlier
+quarter-hour boundary), while previously successful data can remain visible. Demo mode
 shows simulated values and must not be represented as live data.
 `WeatherClientStatechart` exercises transitions without network access.
 
