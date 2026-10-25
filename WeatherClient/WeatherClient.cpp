@@ -603,6 +603,7 @@ int main(int argc,char** argv) {
             SkSurfaces::Raster(SkImageInfo::MakeN32Premul(1200,780)):nullptr;
          bool overviewDrawn=false;
          bool temperaturePixelsVisible=false;
+         bool unitPixelsVisible=false;
          if(previewSurface) {
             std::cerr << "[GRAPHICS] Rendering preview" << std::endl;
             Render(previewSurface->getCanvas(),1200,780,preview,1.f);
@@ -622,6 +623,18 @@ int main(int argc,char** argv) {
                      }
                   }
                }
+               // Units occupy a separate lower band below the number.
+               for(int y=360;y<379 && !unitPixelsVisible;++y) {
+                  for(int x=176;x<240;++x) {
+                     SkColor const color=*pixels.addr32(x,y);
+                     if(SkColorGetR(color)>=180 &&
+                        SkColorGetG(color)>=205 &&
+                        SkColorGetB(color)>=215) {
+                        unitPixelsVisible=true;
+                        break;
+                     }
+                  }
+               }
             }
          }
          bool valid=true;
@@ -634,6 +647,8 @@ int main(int argc,char** argv) {
          check(((!graphics || (glyphVisible && overviewDrawn))),"model condition 1");
          check((!graphics || temperaturePixelsVisible),
             "temperature readout must contain visible glyph pixels");
+         check((!graphics || unitPixelsVisible),
+            "temperature unit must be visible below the numeric value");
          check((newMoon && newMoon->illumination<0.001),"model condition 2");
          check((newMoon->stage==wc::MoonStage::New),"model condition 3");
          check((fullMoon && fullMoon->illumination>0.98),"model condition 4");
