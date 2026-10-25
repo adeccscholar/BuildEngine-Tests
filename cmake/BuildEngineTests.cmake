@@ -15,6 +15,25 @@ set(_SDK "${BUILDENGINE_INSTALL_ROOT}/Win64x")
 if(EXISTS "${_SDK}/lib/cmake")
  list(PREPEND CMAKE_PREFIX_PATH "${_SDK}")
 endif()
+# Use the exact Boost.Config compiler classification from the production
+# BuildEngine-Admin Boost consumer/producer contract. BCC64X must be classified
+# as Clang, not as a legacy CodeGear compiler or emulated GCC.
+function(adecc_test_use_boost target package_root)
+ if(NOT TARGET "${target}")
+   message(FATAL_ERROR "Unknown Boost consumer target: ${target}")
+ endif()
+ set(_boost_config_root "${BUILDENGINE_ROOT}/admin/cmake/boost/bcc64x-native-clang")
+ if(NOT EXISTS "${_boost_config_root}/boost/config/user.hpp")
+   message(FATAL_ERROR "Missing production BCC64X Boost.Config override: ${_boost_config_root}/boost/config/user.hpp")
+ endif()
+ if(NOT EXISTS "${package_root}/include/boost/config.hpp")
+   message(FATAL_ERROR "Missing managed Boost headers: ${package_root}/include/boost/config.hpp")
+ endif()
+ target_include_directories(${target} BEFORE PRIVATE
+   "${_boost_config_root}" "${package_root}/include")
+ message(STATUS "BuildEngine Boost.Config policy: production BCC64X native Clang")
+endfunction()
+
 # Explicit per-target package closures. CMake does not guess libraries from PATH.
 function(adecc_test_install target)
  cmake_parse_arguments(ARG "" "" "PACKAGE_ROOTS;TOOLCHAIN_DLLS;EXCLUDE_DLLS" ${ARGN})
@@ -45,6 +64,8 @@ function(adecc_package_current_root output id)
  if(NOT EXISTS "${_catalog}")
    message(FATAL_ERROR "BuildEngine library catalog missing: ${_catalog}")
  endif()
+ # A catalog update must reconfigure consumers and refresh active versions.
+ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_catalog}")
  file(STRINGS "${_catalog}" _definitions REGEX "<library id=\"${id}\" version=\"")
  set(_current_versions "")
  foreach(_line IN LISTS _definitions)
