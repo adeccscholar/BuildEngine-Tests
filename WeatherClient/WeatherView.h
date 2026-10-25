@@ -220,28 +220,7 @@ namespace weather_client::view {
       Text(canvas,565,451,
          std::format("PRECIPITATION: {}",current->precipitation?
             RainText(*current->precipitation,units):"--"),17,0xff9dcced);
-      Text(canvas,919,451,
-         current->wind_gusts_10m?
-            std::format("GUSTS: {}",WindText(*current->wind_gusts_10m,units)):
-            std::format("WIND: {}",current->wind_direction_10m?
-               std::format("{:.0f} DEG",*current->wind_direction_10m):"--"),
-         14,0xffc9dbdb);
 
-      if(current->wind_direction_10m) {
-         float const angle=(static_cast<float>(WindToDirection(*current->wind_direction_10m))-90.f)*Pi/180.f;
-         float const x=1119.f,y=444.f;
-         SkPaint p;
-         Color(p,0xffd7c79f);
-         p.setStyle(SkPaint::kStroke_Style);
-         p.setStrokeWidth(2);
-         canvas->drawCircle(x,y,19,p);
-         p.setStyle(SkPaint::kFill_Style);
-         Color(p,0xffe7aa76);
-         canvas->drawLine(x,y,x+std::cos(angle)*16,
-            y+std::sin(angle)*16,p);
-         canvas->drawCircle(x,y,3,p);
-         Text(canvas,x-5,y-24,"N",11,0xffe1e1d5);
-      }
    }
 
    inline void DrawMoonSymbol(SkCanvas* canvas,float x,float y,
