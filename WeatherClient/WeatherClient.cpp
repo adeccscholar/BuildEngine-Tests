@@ -314,6 +314,7 @@ namespace weather_client::application {
 } // namespace weather_client::application
 int main(int argc,char** argv) {
    using namespace weather_client::application;
+   namespace view = weather_client::view;
    // Run the deterministic JSON/forecast smoke without initializing SDL.
    for(int i=1;i<argc;++i) {
       if(std::string_view(argv[i])=="--self-test") {
