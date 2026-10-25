@@ -13,6 +13,9 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkFontStyle.h"
+#if defined(SK_BUILD_FOR_WIN)
+#include "include/ports/SkTypeface_win.h"
+#endif
 
 #include <algorithm>
 #include <cstdlib>
@@ -23,7 +26,13 @@
 namespace weather_client::font {
    [[nodiscard]] inline sk_sp<SkTypeface> UiTypeface() {
       static sk_sp<SkTypeface> const loaded=[] {
-         auto mgr=SkFontMgr::RefDefault();
+         // Skia 153 no longer provides SkFontMgr::RefDefault().
+         // BuildEngine Skia enables DirectWrite; use its public factory.
+#if defined(SK_BUILD_FOR_WIN)
+         auto mgr=SkFontMgr_New_DirectWrite();
+#else
+         auto mgr=SkFontMgr::RefEmpty();
+#endif
          if(mgr) {
             if(auto face=mgr->matchFamilyStyle("Segoe UI",SkFontStyle()))
                return face;
