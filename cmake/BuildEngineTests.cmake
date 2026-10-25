@@ -68,19 +68,52 @@ endfunction()
 
 # Explicit per-target package closures. CMake does not guess libraries from PATH.
 function(adecc_test_install target)
- cmake_parse_arguments(ARG "" "" "PACKAGE_ROOTS;TOOLCHAIN_DLLS;EXCLUDE_DLLS" ${ARGN})
- if(ARG_PACKAGE_ROOTS OR ARG_TOOLCHAIN_DLLS)
-   adecc_stage_runtime(${target} PACKAGE_ROOTS ${ARG_PACKAGE_ROOTS}
-     TOOLCHAIN_DLLS ${ARG_TOOLCHAIN_DLLS} EXCLUDE_DLLS ${ARG_EXCLUDE_DLLS})
+ cmake_parse_arguments(ARG "RUNTIME_CLOSURE" "" "PACKAGE_ROOTS;TOOLCHAIN_DLLS;EXCLUDE_DLLS" ${ARGN})
+ if(ARG_UNPARSED_ARGUMENTS OR ARG_KEYWORDS_MISSING_VALUES)
+    message(FATAL_ERROR "Invalid runtime arguments for ${target}")
  endif()
- # Install directly to the configured application Release/Debug prefix.
- # Keep the executable and its exact staged DLLs side-by-side.
+ if(ARG_RUNTIME_CLOSURE)
+    set_target_properties(${target} PROPERTIES
+       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/runtime/${target}")
+    set(_roots_file "${CMAKE_CURRENT_BINARY_DIR}/${target}.runtime-roots.txt")
+    set(_toolchain_file "${CMAKE_CURRENT_BINARY_DIR}/${target}.runtime-toolchain.txt")
+    string(REPLACE ";" "\n" _roots "${ARG_PACKAGE_ROOTS}")
+    string(REPLACE ";" "\n" _dlls "${ARG_TOOLCHAIN_DLLS}")
+    file(WRITE "${_roots_file}" "${_roots}\n")
+    file(WRITE "${_toolchain_file}" "${_dlls}\n")
+    if(ARG_TOOLCHAIN_DLLS)
+       if(NOT DEFINED ENV{CB_BDS} OR "$ENV{CB_BDS}" STREQUAL "")
+          message(FATAL_ERROR "BCC64X runtime requires CB_BDS")
+       endif()
+       set(_toolbin "$ENV{CB_BDS}/bin64")
+    else()
+       set(_toolbin "")
+    endif()
+    add_custom_target("buildengine-stage-${target}" ALL
+       COMMAND "${CMAKE_COMMAND}"
+          "-DADECC_RUNTIME_EXECUTABLE:FILEPATH=$<TARGET_FILE:${target}>"
+          "-DADECC_RUNTIME_OUTPUT_DIR:PATH=$<TARGET_FILE_DIR:${target}>"
+          "-DADECC_RUNTIME_ROOTS_FILE:FILEPATH=${_roots_file}"
+          "-DADECC_RUNTIME_TOOLCHAIN_DLLS_FILE:FILEPATH=${_toolchain_file}"
+          "-DADECC_RUNTIME_TOOLCHAIN_BIN:PATH=${_toolbin}"
+          "-DADECC_RUNTIME_CONFIGURATION=${BUILDENGINE_CONFIGURATION}"
+          -P "${BUILDENGINE_TESTS_ROOT}/cmake/StageRuntimeClosure.cmake"
+       COMMENT "Stage exact PE import closure for ${target}" VERBATIM)
+    add_dependencies("buildengine-stage-${target}" ${target})
+ else()
+    if(ARG_TOOLCHAIN_DLLS AND NOT ARG_PACKAGE_ROOTS)
+       message(FATAL_ERROR "Avoid SDK fallback: specify PACKAGE_ROOTS or RUNTIME_CLOSURE for ${target}")
+    endif()
+    if(ARG_PACKAGE_ROOTS)
+       adecc_stage_runtime(${target} PACKAGE_ROOTS ${ARG_PACKAGE_ROOTS}
+          TOOLCHAIN_DLLS ${ARG_TOOLCHAIN_DLLS} EXCLUDE_DLLS ${ARG_EXCLUDE_DLLS})
+    endif()
+ endif()
  install(TARGETS ${target} RUNTIME DESTINATION ".")
  install(DIRECTORY "$<TARGET_FILE_DIR:${target}>/"
-    DESTINATION "."
-    FILES_MATCHING PATTERN "*.dll" PATTERN "*.DLL")
-
+    DESTINATION "." FILES_MATCHING PATTERN "*.dll" PATTERN "*.DLL")
 endfunction()
+
 function(adecc_package_root output id version)
  set(root "${BUILDENGINE_INSTALL_ROOT}/packages/${id}/${version}")
  if(NOT IS_DIRECTORY "${root}")
