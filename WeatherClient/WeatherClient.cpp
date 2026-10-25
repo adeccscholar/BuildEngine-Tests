@@ -439,6 +439,13 @@ namespace weather_client::application {
       wc::diagnostics::Trace("Render: wind rose");
       artwork::WindRose(canvas,1041,305,86,
          current?current->wind_direction_10m:std::nullopt,animationTime);
+      if(current&&current->wind_direction_10m) {
+         double const from=*current->wind_direction_10m;
+         font::Draw(canvas,963,397,std::format("FROM {} / TO {}",
+            wc::CardinalDirection(from),
+            wc::CardinalDirection(wc::WindToDirection(from))),
+            12,0xfff3d5a1,169);
+      }
       if(current&&current->wind_speed_10m) {
          font::Draw(canvas,959,415,
             "WIND "+wc::WindText(*current->wind_speed_10m,s.units),
