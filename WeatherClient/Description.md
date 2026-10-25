@@ -313,15 +313,3 @@ trace entries in `weather-client-render.log`. The optional
 and renders using the original vector glyphs. This helps distinguish
 font-manager crashes from other Skia drawing faults. They are diagnostic
 options, not a replacement for a fully reliable GUI or worker lifecycle.
-
-## Consistent high-quality Windows font rendering
-
-On Windows, the dashboard now rasterizes installed Segoe UI through GDI,
-matching the **existing PDFium/SDL2 example's font path**. Skia composites
-and tints these premultiplied glyph bitmaps, while GDI supplies both raster
-pixels and accurate glyph widths. This addresses the oversized, uppercase
-5x7 vector lettering without relying on the previously unverified Skia
-DirectWrite font manager. A bounded glyph-image cache reduces repeated work
-in the SDL render loop. No Segoe UI font file or Windows font asset is
-redistributed. The original hand-created 5x7 font remains available via
-`WEATHERCLIENT_FONT_FALLBACK=1` and for systems without GDI.
