@@ -36,7 +36,10 @@ namespace weather_client::font {
    }
 
    [[nodiscard]] inline sk_sp<SkTypeface> UiTypeface() {
-      if(diagnostics::Enabled("WEATHERCLIENT_FONT_FALLBACK")) return {};
+      // Keep the last verified renderer as the default until the separate
+      // DirectWrite integration test passes on BCC64X. Opt in explicitly.
+      if(!diagnostics::Enabled("WEATHERCLIENT_USE_SEGOE") ||
+         diagnostics::Enabled("WEATHERCLIENT_FONT_FALLBACK")) return {};
       if(!TypefaceAttempted()) {
          TypefaceAttempted()=true;
          CachedTypeface()=[] {
