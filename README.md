@@ -71,3 +71,15 @@ The library is header-only. When used in these examples it should be obtained
 as a separately pinned Git dependency or submodule and its own copyright and
 license notices must be preserved. Teaching and demonstration sources are
 provided **AS IS**, without warranty or assurance of fitness for production.
+
+
+## Local Markdown documentation server
+
+A dedicated, read-only [BuildEngine-Tests documentation server](docu-server/)
+serves the central [test overview](Docs/start/README.md), each test's
+`Description.md`, `build.md`, license notices and CycloneDX SBOMs.
+Browser extensions (syntax highlighting, Mermaid, MathJax) are prepared
+separately into `Docs/js/`; test-owned images belong in `Docs/images/`.
+The server does not execute builds over HTTP. See
+[server setup and commands](Docs/start/BUILD.md). Default URL:
+`http://127.0.0.1:8781/docs/`.
