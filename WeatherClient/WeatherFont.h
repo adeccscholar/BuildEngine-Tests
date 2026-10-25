@@ -10,7 +10,6 @@
 */
 #include "WeatherText.h"
 #include "WeatherDiagnostics.h"
-#include "WeatherGdiFont.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkTypeface.h"
@@ -37,10 +36,8 @@ namespace weather_client::font {
    }
 
    [[nodiscard]] inline sk_sp<SkTypeface> UiTypeface() {
-      // Keep the last verified renderer as the default until the separate
-      // DirectWrite integration test passes on BCC64X. Opt in explicitly.
-      if(!diagnostics::Enabled("WEATHERCLIENT_USE_SEGOE") ||
-         diagnostics::Enabled("WEATHERCLIENT_FONT_FALLBACK")) return {};
+      // Skia Segoe UI was in use before the moon and dial changes.
+      if(diagnostics::Enabled("WEATHERCLIENT_FONT_FALLBACK")) return {};
       if(!TypefaceAttempted()) {
          TypefaceAttempted()=true;
          CachedTypeface()=[] {
@@ -87,24 +84,8 @@ namespace weather_client::font {
       return font;
    }
 
-   [[nodiscard]] inline bool UseGdi() noexcept {
-#ifdef _WIN32
-      return !diagnostics::Enabled("WEATHERCLIENT_FONT_FALLBACK") &&
-         !diagnostics::Enabled("WEATHERCLIENT_USE_SEGOE");
-#else
-      return false;
-#endif
-   }
-
    [[nodiscard]] inline float Width(std::string_view text,float size) {
       if(text.empty()) return 0.f;
-#ifdef _WIN32
-      if(UseGdi()) {
-         auto const wide=gdi_font::Utf16(text);
-         if(!wide.empty()) return gdi_font::Instance().Width(wide,
-            (std::max)(1,static_cast<int>(size+.5f)));
-      }
-#endif
       if(!UiTypeface()) return text.size()*size*6.f/8.5f;
       auto font=Make(size);
       return font.measureText(text.data(),text.size(),SkTextEncoding::kUTF8);
@@ -132,13 +113,6 @@ namespace weather_client::font {
       if(!canvas||text.empty()||size<=0) return;
       std::string const fitted=maxWidth>0?Fit(text,size,maxWidth):std::string{text};
       if(fitted.empty()) return;
-#ifdef _WIN32
-      if(UseGdi()) {
-         auto const wide=gdi_font::Utf16(fitted);
-         if(!wide.empty() && gdi_font::Instance().Draw(canvas,x,y,wide,
-            (std::max)(1,static_cast<int>(size+.5f)),color)) return;
-      }
-#endif
       if(!UiTypeface()) {
          lettering::Draw(canvas,x,y,fitted,size,color);
          return;
