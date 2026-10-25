@@ -172,6 +172,49 @@ namespace weather_client::artwork {
       }
    }
 
+   /** \brief Render the current temperature as transparent antialiased text.
+       \details The numeral and the unit letter use the same Skia font path
+       as the barometer. The degree sign is drawn with antialiased Skia
+       geometry so the measurement does not require a combined UTF-8
+       degree-and-number text run or SkFont::measureText.
+       \param canvas Destination Skia canvas.
+       \param cx Horizontal center of the gauge.
+       \param cy Vertical center of the gauge.
+       \param radius Gauge radius.
+       \param flValue Temperature already converted to the selected unit.
+       \param strUnit Celsius or Fahrenheit symbol.
+       \returns Nothing.
+       \throw std::format_error If the numeric value cannot be formatted.
+   */
+   inline void DrawTemperatureValue(SkCanvas* canvas,float cx,float cy,
+      float radius,double flValue,std::string const& strUnit) {
+      float const flSize=radius<100.f?13.f:19.f;
+      std::string const strNumber=std::format("{:.1f}",flValue);
+      // Upper-bound glyph advance also works with the built-in fallback.
+      // Do not call SkFont::measureText or font::Fit on this gauge path.
+      float const flAdvance=flSize*6.f/8.5f;
+      float const flNumberWidth=static_cast<float>(strNumber.size())*flAdvance;
+      float const flUnitWidth=flAdvance+11.f;
+      float const flLeft=cx-(flNumberWidth+flUnitWidth)*.5f;
+      float const flBaseline=cy+radius*.47f;
+      SkColor constexpr clrReading=0xffebf6f9;
+
+      diagnostics::Trace("Dial: temperature number begin");
+      view::Text(canvas,flLeft,flBaseline,strNumber,flSize,clrReading);
+      diagnostics::Trace("Dial: temperature number complete");
+
+      SkPaint paint;
+      view::Color(paint,clrReading);
+      paint.setStyle(SkPaint::kStroke_Style);
+      paint.setStrokeWidth(flSize*.09f);
+      canvas->drawCircle(flLeft+flNumberWidth+4.f,
+         flBaseline-flSize*.69f,flSize*.15f,paint);
+      diagnostics::Trace("Dial: temperature unit begin");
+      view::Text(canvas,flLeft+flNumberWidth+11.f,flBaseline,
+         strUnit=="°F"?"F":"C",flSize,clrReading);
+      diagnostics::Trace("Dial: temperature unit complete");
+   }
+
    inline void Dial(SkCanvas* canvas,float cx,float cy,float radius,
       std::string const& title,std::optional<double> value,
       float minimum,float maximum,std::string const& unit,SkColor accent,
@@ -238,14 +281,9 @@ namespace weather_client::artwork {
          std::string const valueText=unit=="inHg"
             ? std::format("{:.2f} {}",*value,unit)
             : std::format("{:.1f} {}",*value,unit);
-         // All gauges use the same transparent Skia text path, without
-         // the extra font-metrics measurement introduced by the regression.
-         if(title=="TEMPERATURE")
-            diagnostics::Trace("Dial: temperature value begin");
-         view::Text(canvas,cx-radius*.41f,cy+radius*.47f,
-            valueText,radius<100?13.f:19.f,0xffebf6f9);
-         if(title=="TEMPERATURE")
-            diagnostics::Trace("Dial: temperature value complete");
+         if(title!="TEMPERATURE")
+            view::Text(canvas,cx-radius*.41f,cy+radius*.47f,
+               valueText,radius<100?13.f:19.f,0xffebf6f9);
       } else {
          if(title=="TEMPERATURE") {
             view::Text(canvas,cx-radius*.39f,cy+radius*.47f,
@@ -259,7 +297,8 @@ namespace weather_client::artwork {
       // Small animated light glint follows the clock, not weather data.
       Glow(canvas,cx-radius*.28f+std::sin(phase)*2,
          cy-radius*.40f,radius*.35f,0x0ff9fbff);
-
+      if(title=="TEMPERATURE" && value)
+         DrawTemperatureValue(canvas,cx,cy,radius,*value,unit);
    }
 
    inline void AnalogClock(SkCanvas* canvas,float cx,float cy,float radius,
