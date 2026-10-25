@@ -329,7 +329,8 @@ namespace weather_client::view {
    };
 
    inline void DrawForecast(
-      SkCanvas* canvas,WeatherData const* weather,bool daily,std::size_t offset
+      SkCanvas* canvas,WeatherData const* weather,bool daily,std::size_t offset,
+      UnitSystem units=UnitSystem::Metric
    ) {
       SkPaint paint;
       Color(paint,0xff172f3e);
