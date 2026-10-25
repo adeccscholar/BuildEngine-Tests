@@ -139,3 +139,34 @@ do not require any third-party licensing. The date/time in the current
 Open-Meteo response is local to the forecast location, so UTC offset
 is approximated; lunar event timings may be inaccurate by several hours
 and moonrise/moonset are **not** calculated.
+
+## Local severe-weather model indicators (no extra service)
+
+The 48-hour *forecast hazard* banner is derived from the Open-Meteo
+hourly request, not from an official warning feed or external alert API.
+The program requests `wind_gusts_10m` in the hourly field list in
+addition to the existing precipitation, weather code and CAPE values.
+
+The transparent program thresholds are intended as **risk flags**:
+- >= 8 mm in any hour: WATCH (intense showers)
+- >= 15 mm in an hour or >= 20 mm in a **complete** rolling six-hour
+  window: ELEVATED (heavy rain)
+- >= 25 mm in an hour or >= 35 mm in a complete six-hour window: HIGH
+  (very heavy rain)
+- WMO 95: ELEVATED forecast thunderstorm
+- WMO 96/99: HIGH forecast thunderstorm with hail
+- CAPE >= 1500 J/kg: WATCH instability only (not thunder probability)
+- Gusts >= 65/85/105 km/h: WATCH / ELEVATED / HIGH, respectively
+
+These are **software indicator thresholds**, not authoritative
+warning classifications. Particularly the 6-hour and wind thresholds
+do not imply identical operational warning levels in every country.
+Hourly precipitation values are forecast *amounts*, while
+`precipitation_probability` represents chance of precipitation and
+is explicitly **not** an estimate of hail, lightning or severe-storm
+probability. Model outputs can understate or overstate local extreme
+weather and cannot replace an official warning.
+
+Current reference material:
+- [DWD warning criteria](https://www.dwd.de/DE/wetter/warnungen_aktuell/kriterien/warnkriterien.html)
+- [Open-Meteo API parameters](https://open-meteo.com/en/docs)

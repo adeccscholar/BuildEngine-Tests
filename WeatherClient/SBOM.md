@@ -29,3 +29,9 @@ curl, OpenSSL and provider rights remain unchanged.
 Skia artwork are first-party C++23/Skia code. No new dependency,
 API provider, copyrighted lunar image or external ephemeris dataset
 was added.
+
+## Local forecast hazard scoring
+
+`WeatherHazards.h` uses only the first-party C++23 model structures.
+There is no third-party warning service or additional library introduced.
+`wind_gusts_10m` is requested from the existing Open-Meteo API.

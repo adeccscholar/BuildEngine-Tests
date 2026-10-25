@@ -313,3 +313,33 @@ trace entries in `weather-client-render.log`. The optional
 and renders using the original vector glyphs. This helps distinguish
 font-manager crashes from other Skia drawing faults. They are diagnostic
 options, not a replacement for a fully reliable GUI or worker lifecycle.
+
+## Strong-rain and severe-weather outlook (model-based)
+
+The station now evaluates the next **48 hours of available hourly forecast
+data**, not just the six-hour narrative, through the self-contained
+[WeatherHazards.h](WeatherHazards.h). The strongest indicator is shown in
+a **48H MODEL / LOW | WATCH | ELEVATED | HIGH** label above the forecast;
+details and the triggering forecast time are displayed at the bottom
+of the screen when there is no more important network error.
+
+Inputs: hourly precipitation amount (mm/hour), complete rolling
+six-hour precipitation amounts (mm/six hours), WMO weather codes,
+convective available potential energy (CAPE) and forecast wind gusts.
+Missing fields are never silently interpreted as benign. The
+implementation selects the strongest signal and retains its time; it
+never derives a numeric thunderstorm probability from precipitation
+probability. High and elevated signals include examples such as
+heavy rainfall, thunderstorms with hail and extreme gusts.
+The **model** label and text **NOT AN OFFICIAL WARNING** are intentional:
+these are risk indicators based on forecast model data, not official
+DWD/NINA/Meteoalarm bulletins.
+
+Thresholds are documented in [WeatherServices.md](WeatherServices.md).
+This does not introduce a new weather service, third-party dependency,
+non-commercial-use exception or additional HTTP connection.
+
+The temperature dial restores a prominent **high-contrast current
+temperature readout**, always drawn over the dial needle and ticks.
+The rest of the proven pre-redesign gauge is left unchanged; no
+font manager or text renderer is replaced.

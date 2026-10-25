@@ -246,3 +246,23 @@ individual dial and the wind rose. The next BCC64X graphics CTest will
 verify whether the regression is resolved. If it still crashes, use the
 last instrument name in `weather-client-render.log` to target the next
 change; do not replace working subsystems on speculation.
+
+## Targeted temperature and severe weather regression
+
+The restored temperature dial has a small dark readout plate that
+is drawn *after* the needle and tick marks. It is restricted to the
+temperature gauge; the existing Skia/Segoe UI renderer is untouched.
+Both Celsius and Fahrenheit continue to use the existing unit system.
+
+The deterministic offline model CTest now also checks:
+- benign conditions -> LOW model signal
+- 17 mm forecast in one hour -> ELEVATED heavy-rain signal
+- WMO 99 -> HIGH hail/thunderstorm signal
+- 110 km/h forecast gust -> HIGH gust signal
+- empty forecast -> UNKNOWN, rather than falsely indicating LOW
+
+No new build targets are required. Standard CTest invocation remains:
+`ctest --test-dir ../build/Test/WeatherClient/Release/cmake --output-on-failure`.
+
+A successful offline test does not substitute for validating the actual
+weather worker/HTTPS path against the installed Windows DLL runtime.
