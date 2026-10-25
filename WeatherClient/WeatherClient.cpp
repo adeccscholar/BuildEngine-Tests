@@ -369,9 +369,14 @@ int main(int argc,char** argv) {
          auto const data=Station::DemoWeather();
          std::string text{"Müller"};
          view::BackspaceUtf8(text);
+         auto const brief=wc::ComposeWeatherBrief(data);
          bool const valid=data.hours.size()==48 && data.days.size()==7 &&
             data.current.temperature_2m.has_value() &&
             text=="Mülle" &&
+            !brief.headline.empty() &&
+            brief.outlook.starts_with("Next 6h:") &&
+            wc::CardinalDirection(270)=="W" &&
+            wc::WeatherDescription(61)=="Rain" &&
             view::HitTest(75,680,1200,780,false)==view::Action::Address &&
             view::HitTest(1080,680,1200,780,true)==view::Action::Apply &&
             view::HitTest(75,680,1200,780,true)==view::Action::None &&

@@ -42,17 +42,17 @@ namespace weather_client::view {
    };
 
    inline constexpr std::array<Button,8> Buttons{{
-      {Action::Address,   50, 669, 148, 40, "ADRESSE"},
-      {Action::Ip,       206, 669, 128, 40, "IP-ORTUNG"},
+      {Action::Address,   50, 669, 148, 40, "ADDRESS"},
+      {Action::Ip,       206, 669, 128, 40, "IP LOCATION"},
       {Action::Refresh,  342, 669, 144, 40, "UPDATE"},
-      {Action::Hours,    494, 669, 132, 40, "STUNDEN"},
-      {Action::Days,     634, 669, 115, 40, "TAGE"},
+      {Action::Hours,    494, 669, 132, 40, "HOURLY"},
+      {Action::Days,     634, 669, 115, 40, "DAILY"},
       {Action::Previous, 757, 669,  90, 40, "<"},
       {Action::Next,     855, 669,  90, 40, ">"},
-      {Action::Fullscreen,953,669, 187, 40, "VOLLBILD [F]"}
+      {Action::Fullscreen,953,669, 187, 40, "FULLSCREEN"}
    }};
    inline constexpr Button Apply{Action::Apply, 1015,669,125,40,"OK"};
-   inline constexpr Button Cancel{Action::Cancel, 878,669,129,40,"ABBRUCH"};
+   inline constexpr Button Cancel{Action::Cancel, 878,669,129,40,"CANCEL"};
 
    [[nodiscard]] inline bool Inside(Button const& button,float x,float y) noexcept {
       return x>=button.x && y>=button.y &&
@@ -176,7 +176,7 @@ namespace weather_client::view {
          Color(paint,0xffb39a66);
          paint.setStyle(SkPaint::kStroke_Style);
          canvas->drawRoundRect(SkRect::MakeXYWH(50,669,818,40),7,7,paint);
-         Text(canvas,63,695,"ADRESSE: "+ClipText(input,65)+"_",16,0xfff1e7cc);
+         Text(canvas,63,695,"ADDRESS: "+ClipText(input,65)+"_",16,0xfff1e7cc);
          DrawButton(canvas,Cancel,false,false);
          DrawButton(canvas,Apply,false,false);
       } else {
@@ -192,7 +192,7 @@ namespace weather_client::view {
       SkCanvas* canvas,WeatherCurrent const* current
    ) {
       if(!current) {
-         Text(canvas,65,449,"Messwerte werden geladen ...",16,0xff99b2bc);
+         Text(canvas,65,449,"Loading observations ...",16,0xff99b2bc);
          return;
       }
       auto number=[](std::optional<double> value,int digits=0)->std::string {
@@ -200,11 +200,11 @@ namespace weather_client::view {
          return digits==1?std::format("{:.1f}",*value):std::format("{:.0f}",*value);
       };
       Text(canvas,63,451,
-         std::format("GEFUEHLT: {} C",number(current->apparent_temperature,1)),17,0xffe6d6b7);
+         std::format("FEELS LIKE: {} C",number(current->apparent_temperature,1)),17,0xffe6d6b7);
       Text(canvas,331,451,
-         std::format("WOLKEN: {} %",number(current->cloud_cover)),17,0xffc0d4df);
+         std::format("CLOUDS: {} %",number(current->cloud_cover)),17,0xffc0d4df);
       Text(canvas,565,451,
-         std::format("NIEDERSCHLAG: {} mm",number(current->precipitation,1)),17,0xff9dcced);
+         std::format("PRECIPITATION: {} mm",number(current->precipitation,1)),17,0xff9dcced);
       Text(canvas,919,451,
          std::format("WIND: {}",
             current->wind_direction_10m?
@@ -276,7 +276,7 @@ namespace weather_client::view {
       Color(paint,0xff496372);paint.setStrokeWidth(1);
       canvas->drawRoundRect(SkRect::MakeXYWH(48,483,1104,175),11,11,paint);
       if(!weather) {
-         Text(canvas,78,559,"Die Vorhersage wird geladen ...",21);
+         Text(canvas,78,559,"Loading forecast ...",21);
          return;
       }
 
@@ -303,7 +303,7 @@ namespace weather_client::view {
          points.push_back(std::move(point));
       }
       if(points.empty()) {
-         Text(canvas,78,559,"Keine Vorhersagedaten vorhanden",20);
+         Text(canvas,78,559,"Forecast not available",20);
          return;
       }
 
