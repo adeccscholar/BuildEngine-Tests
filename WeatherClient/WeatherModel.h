@@ -58,6 +58,7 @@ namespace weather_client {
       std::optional<double> precipitation_probability;
       std::optional<double> precipitation;
       std::optional<double> wind_speed_10m;
+      std::optional<double> wind_gusts_10m;
       std::optional<int> weather_code;
    };
 
@@ -197,6 +198,7 @@ namespace weather_client {
                hour.precipitation_probability = SeriesValue(series, "precipitation_probability", i);
                hour.precipitation = SeriesValue(series, "precipitation", i);
                hour.wind_speed_10m = SeriesValue(series, "wind_speed_10m", i);
+               hour.wind_gusts_10m = SeriesValue(series, "wind_gusts_10m", i);
                hour.weather_code = SeriesInteger(series, "weather_code", i);
                data.hours.push_back(std::move(hour));
             }

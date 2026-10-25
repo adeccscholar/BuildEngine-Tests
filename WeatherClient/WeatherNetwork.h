@@ -177,7 +177,7 @@ namespace weather_client {
          "pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,"
          "precipitation,cloud_cover,weather_code,is_day"
          "&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,"
-         "precipitation_probability,precipitation,wind_speed_10m,cloud_cover,cape,weather_code"
+         "precipitation_probability,precipitation,wind_speed_10m,wind_gusts_10m,cloud_cover,cape,weather_code"
          "&daily=weather_code,temperature_2m_max,temperature_2m_min,"
          "precipitation_sum,precipitation_probability_max,wind_speed_10m_max,"
          "wind_gusts_10m_max,uv_index_max,sunrise,sunset",
