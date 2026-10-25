@@ -238,10 +238,14 @@ namespace weather_client::artwork {
          std::string const valueText=unit=="inHg"
             ? std::format("{:.2f} {}",*value,unit)
             : std::format("{:.1f} {}",*value,unit);
-         if(title!="TEMPERATURE") {
-            view::Text(canvas,cx-radius*.41f,cy+radius*.47f,
-               valueText,radius<100?13.f:19.f,0xffebf6f9);
-         }
+         // All gauges use the same transparent Skia text path, without
+         // the extra font-metrics measurement introduced by the regression.
+         if(title=="TEMPERATURE")
+            diagnostics::Trace("Dial: temperature value begin");
+         view::Text(canvas,cx-radius*.41f,cy+radius*.47f,
+            valueText,radius<100?13.f:19.f,0xffebf6f9);
+         if(title=="TEMPERATURE")
+            diagnostics::Trace("Dial: temperature value complete");
       } else {
          if(title=="TEMPERATURE") {
             view::Text(canvas,cx-radius*.39f,cy+radius*.47f,
@@ -255,13 +259,7 @@ namespace weather_client::artwork {
       // Small animated light glint follows the clock, not weather data.
       Glow(canvas,cx-radius*.28f+std::sin(phase)*2,
          cy-radius*.40f,radius*.35f,0x0ff9fbff);
-      if(title=="TEMPERATURE" && value) {
-         // Same anti-aliased, transparent font path as the barometer.
-         // Draw last to keep the temperature legible above the needle.
-         std::string const strReading=std::format("{:.1f} {}",*value,unit);
-         font::Draw(canvas,cx-radius*.41f,cy+radius*.47f,strReading,
-            radius<100?13.f:19.f,0xffebf6f9,radius*.96f);
-      }
+
    }
 
    inline void AnalogClock(SkCanvas* canvas,float cx,float cy,float radius,
