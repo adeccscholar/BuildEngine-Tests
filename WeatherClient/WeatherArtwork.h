@@ -78,16 +78,38 @@ namespace weather_client::artwork {
       int const cloudiness=code==0?0:code==1?1:code==2?2:3;
       for(int i=0;i<cloudiness;++i) {
          float const offset=std::sin(phase*.16f+i*1.9f)*14.f;
-         Cloud(canvas,575+i*120.f+offset,60+(i%2)*27.f,
-            i%2==0?.57f:.42f,0x8addf0f5);
+         Cloud(canvas,920+i*61.f+offset,60+(i%2)*24.f,
+            i%2==0?.44f:.35f,0x8addf0f5);
       }
-      if(code>=51&&code<=95) {
+      if(code>=51&&code<=99) {
          view::Color(paint,0x927ac9ea);paint.setStrokeWidth(2);
          for(int i=0;i<16;++i) {
-            float const x=640.f+(i*41)%465;
-            float const y=119.f+(i*23)%35;
+            float const x=930.f+(i*37)%193;
+            float const y=120.f+(i*19)%27;
             canvas->drawLine(x,y,x-7,y+14,paint);
          }
+      }
+      if(code==95||code==96||code==97||code==99) {
+         SkPathBuilder lightning;
+         lightning.moveTo(1020,104).lineTo(995,141).lineTo(1011,139)
+            .lineTo(1000,170).lineTo(1043,121).lineTo(1024,126).close();
+         view::Color(paint,0xffffd072);
+         canvas->drawPath(lightning.detach(),paint);
+      }
+      if(code>=71&&code<=86 && !(code>=80&&code<=82)) {
+         view::Color(paint,0xffdbecff);
+         for(int i=0;i<17;++i) {
+            float const x=940.f+static_cast<float>((i*53)%179);
+            float const y=113.f+static_cast<float>((i*23)%52);
+            canvas->drawCircle(x,y,2.f,paint);
+         }
+      }
+      if(code==45||code==48) {
+         paint.setStyle(SkPaint::kStroke_Style);
+         paint.setStrokeWidth(5.f);
+         paint.setColor(0x9ab1c9d3);
+         for(int i=0;i<3;++i)
+            canvas->drawLine(925.f,115.f+i*15.f,1122.f,115.f+i*15.f,paint);
       }
       // Contour lines make the translucent atmosphere look instrument-made.
       paint.setStyle(SkPaint::kStroke_Style);
