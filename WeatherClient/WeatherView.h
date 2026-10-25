@@ -334,9 +334,9 @@ namespace weather_client::view {
             static_cast<float>(i)*1005.f/static_cast<float>(points.size()-1));
       };
       auto const yAt=[&](double value)->float {
-         return 590.f-static_cast<float>((value-low)/(high-low))*43.f;
+         return 606.f-static_cast<float>((value-low)/(high-low))*27.f;
       };
-      for(float y:{547.f,568.f,590.f}) {
+      for(float y:{580.f,594.f,608.f}) {
          Color(paint,0xff3a5360);
          paint.setStrokeWidth(1);
          canvas->drawLine(78,y,1126,y,paint);
@@ -361,26 +361,24 @@ namespace weather_client::view {
       };
       for(std::size_t i=0;i<points.size();++i) {
          float const x=xAt(i);
-         Text(canvas,x-25,516,points[i].label,15,0xffc9d9df);
-         DrawSkySymbol(canvas,x+29,503,points[i].code.value_or(-1),true);
+         font::Draw(canvas,x-30,510,points[i].label,14,0xffc9d9df,91);
+         DrawSkySymbol(canvas,x-7,532,points[i].code.value_or(-1),true);
          if(points[i].rain) {
             float const portion=static_cast<float>(
                std::clamp(*points[i].rain/rainMax,0.0,1.0));
             Color(paint,0xff4b9eb8);
-            canvas->drawRect(SkRect::MakeXYWH(x-17,620.f-portion*21.f,34,
-               portion*21.f),paint);
+            canvas->drawRect(SkRect::MakeXYWH(x-17,636.f-portion*19.f,34,
+               portion*19.f),paint);
          }
-         Text(canvas,x-26,640,points[i].rain?
+         font::Draw(canvas,x-27,652,points[i].rain?
             (daily?std::format("{:.1f} mm",*points[i].rain):
                std::format("{:.0f} %",*points[i].rain))
-            :"--",15,0xff9ccfda);
+            :"--",13,0xff9ccfda,96);
          if(points[i].high) {
-            Text(canvas,x-22,540,std::format("{:.0f} C",*points[i].high),
-               14,0xffe8ca89);
-         }
-         if(daily&&points[i].low) {
-            Text(canvas,x-24,652,std::format("min {:.0f}",*points[i].low),
-               12,0xffa0c8ed);
+            std::string const label=daily && points[i].low
+               ? std::format("{:.0f}/{:.0f} C",*points[i].low,*points[i].high)
+               : std::format("{:.0f} C",*points[i].high);
+            font::Draw(canvas,x-28,566,label,14,0xffe8ca89,105);
          }
       }
       trace(false,0xffeabb70);
