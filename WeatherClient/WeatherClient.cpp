@@ -249,6 +249,7 @@ namespace weather_client::application {
    struct Ready:sc::state<Ready,Machine> {
       using reactions=mpl::list<
          sc::transition<EvRefresh,Fetching>,
+         sc::transition<EvFailure,Error>,
          sc::transition<EvStart,Resolving>>;
       explicit Ready(my_context c):my_base(c) {}
    };
@@ -457,12 +458,16 @@ int main(int argc,char** argv) {
          std::cout << (passed?"WEATHER_FSM_TEST_PASS\n":"WEATHER_FSM_TEST_FAIL\n");
          return passed?0:2;
       }
-      if(std::string_view(argv[i])=="--self-test") {
+      if(std::string_view(argv[i])=="--self-test" ||
+         std::string_view(argv[i])=="--graphics-test") {
+         bool const graphics=std::string_view(argv[i])=="--graphics-test";
          auto const data=Station::DemoWeather();
          std::string text{"Müller"};
          view::BackspaceUtf8(text);
          auto const brief=wc::ComposeWeatherBrief(data);
-         auto const glyphSurface=SkSurfaces::Raster(SkImageInfo::MakeN32Premul(72,24));
+         if(graphics) SDL_Init(SDL_INIT_VIDEO);
+         auto const glyphSurface=graphics?
+            SkSurfaces::Raster(SkImageInfo::MakeN32Premul(72,24)):nullptr;
          bool glyphVisible=false;
          if(glyphSurface) {
             glyphSurface->getCanvas()->clear(SK_ColorTRANSPARENT);
@@ -490,8 +495,8 @@ int main(int argc,char** argv) {
          preview.location=wc::Location{"Example weather station",
             "Example address","Europe/Berlin",52.5,13.4,false};
          preview.weather=data;
-         auto const previewSurface=SkSurfaces::Raster(
-            SkImageInfo::MakeN32Premul(1200,780));
+         auto const previewSurface=graphics?
+            SkSurfaces::Raster(SkImageInfo::MakeN32Premul(1200,780)):nullptr;
          bool overviewDrawn=false;
          if(previewSurface) {
             Render(previewSurface->getCanvas(),1200,780,preview,1.f);
@@ -501,7 +506,7 @@ int main(int argc,char** argv) {
                   SkColorGetR(*pixels.addr32(60,550));
             }
          }
-         bool const valid=glyphVisible && overviewDrawn &&
+         bool const valid=(!graphics || (glyphVisible && overviewDrawn)) &&
             newMoon && newMoon->illumination<0.001 &&
             newMoon->stage==wc::MoonStage::New &&
             fullMoon && fullMoon->illumination>0.98 &&
@@ -543,6 +548,10 @@ int main(int argc,char** argv) {
             view::ClampOffset(&data,false,999)==40 &&
             view::ClampOffset(&data,true,999)==1;
          std::cout << (valid?"WEATHER_CLIENT_TEST_PASS\n":"WEATHER_CLIENT_TEST_FAIL\n");
+         if(graphics) {
+            font::ReleaseFonts();
+            SDL_Quit();
+         }
          return valid?0:2;
       }
    }
@@ -757,6 +766,7 @@ int main(int argc,char** argv) {
    fsm.terminate();
    SDL_DestroyRenderer(renderer);
    SDL_DestroyWindow(window);
+   font::ReleaseFonts();
    SDL_Quit();
    curl_global_cleanup();
    return 0;
