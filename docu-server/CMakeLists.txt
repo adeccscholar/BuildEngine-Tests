@@ -18,6 +18,6 @@ adecc_test_install(buildengine_tests_docu_server PACKAGE_ROOTS
 include(CTest)
 if(BUILD_TESTING)
  add_test(NAME DocuServerDocumentationLayout
-    COMMAND "${CMAKE_COMMAND}" -DROOT=${BUILDENGINE_ROOT}/tests
+    COMMAND "${CMAKE_COMMAND}" -DROOT=${CMAKE_CURRENT_SOURCE_DIR}/..
     -P "${CMAKE_CURRENT_SOURCE_DIR}/ValidateDocs.cmake")
 endif()
