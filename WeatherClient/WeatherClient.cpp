@@ -467,7 +467,14 @@ int main(int argc,char** argv) {
          std::string text{"Müller"};
          view::BackspaceUtf8(text);
          auto const brief=wc::ComposeWeatherBrief(data);
-         if(graphics) SDL_Init(SDL_INIT_VIDEO);
+         if(graphics) {
+            SDL_SetMainReady();
+            if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS)!=0) {
+               std::cerr << "WEATHER_GRAPHICS_INIT_FAIL: " << SDL_GetError() << '\n';
+               return 3;
+            }
+            std::cerr << "[GRAPHICS] SDL initialized" << std::endl;
+         }
          auto const glyphSurface=graphics?
             SkSurfaces::Raster(SkImageInfo::MakeN32Premul(72,24)):nullptr;
          bool glyphVisible=false;
@@ -501,7 +508,9 @@ int main(int argc,char** argv) {
             SkSurfaces::Raster(SkImageInfo::MakeN32Premul(1200,780)):nullptr;
          bool overviewDrawn=false;
          if(previewSurface) {
+            std::cerr << "[GRAPHICS] Rendering preview" << std::endl;
             Render(previewSurface->getCanvas(),1200,780,preview,1.f);
+            std::cerr << "[GRAPHICS] Render complete" << std::endl;
             SkPixmap pixels;
             if(previewSurface->peekPixels(&pixels)) {
                overviewDrawn=SkColorGetR(*pixels.addr32(1000,85))!=
@@ -551,6 +560,7 @@ int main(int argc,char** argv) {
             view::ClampOffset(&data,true,999)==1;
          std::cout << (valid?"WEATHER_CLIENT_TEST_PASS\n":"WEATHER_CLIENT_TEST_FAIL\n");
          if(graphics) {
+            std::cerr << "[GRAPHICS] Releasing fonts" << std::endl;
             font::ReleaseFonts();
             SDL_Quit();
          }
