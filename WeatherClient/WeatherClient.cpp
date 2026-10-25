@@ -113,10 +113,11 @@ namespace weather_client::application {
 
       void Launch(Request kind, std::string address, std::uint64_t id) {
          loading=true;
-         worker = std::jthread([this,kind,address=std::move(address),id] {
+         bool const useDemo=demo;
+         worker = std::jthread([this,kind,address=std::move(address),id,useDemo] {
             Completion result{.kind=kind,.generation=id};
             try {
-               if(demo && kind==Request::Weather) {
+               if(useDemo && kind==Request::Weather) {
                   result.weather=DemoWeather();
                } else if(kind==Request::Ip) {
                   result.location=wc::ResolveIp(caBundle);
@@ -165,6 +166,8 @@ namespace weather_client::application {
          data.current.time="2026-10-25T13:00";
          data.current.temperature_2m=18.4;
          data.current.relative_humidity_2m=64;
+         data.current.apparent_temperature=17.1;
+         data.current.wind_gusts_10m=24;
          data.current.pressure_msl=1015;
          data.current.wind_speed_10m=16;
          data.current.wind_direction_10m=270;
@@ -176,6 +179,9 @@ namespace weather_client::application {
             wc::WeatherHour hour;
             hour.time=std::format("2026-10-{:02}T{:02}:00",25+i/24,i%24);
             hour.temperature_2m=18.4+4*std::sin(i*0.26);
+            hour.apparent_temperature=*hour.temperature_2m-1.3;
+            hour.relative_humidity_2m=64.0;
+            hour.cloud_cover=48.0;
             hour.precipitation_probability=static_cast<double>((i*11)%80);
             hour.wind_speed_10m=11.0+5*std::cos(i*0.2);
             hour.weather_code=(i%9==0?61:2);
@@ -187,6 +193,10 @@ namespace weather_client::application {
             day.temperature_2m_max=19.0+i*.3;
             day.temperature_2m_min=9.0+i*.2;
             day.precipitation_sum=i*.5;
+            day.precipitation_probability_max=static_cast<double>((i*13)%90);
+            day.uv_index_max=2.5;
+            day.sunrise=std::format("2026-10-{:02}T07:30",25+i);
+            day.sunset=std::format("2026-10-{:02}T17:30",25+i);
             day.weather_code= i%3==0?61:2;
             data.days.push_back(std::move(day));
          }

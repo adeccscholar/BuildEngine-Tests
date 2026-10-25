@@ -205,10 +205,11 @@ namespace weather_client::view {
       Text(canvas,565,451,
          std::format("PRECIPITATION: {} mm",number(current->precipitation,1)),17,0xff9dcced);
       Text(canvas,919,451,
-         std::format("WIND: {}",
-            current->wind_direction_10m?
-               std::format("{:.0f} deg",*current->wind_direction_10m):"--"),
-         15,0xffc9dbdb);
+         current->wind_gusts_10m?
+            std::format("GUSTS: {:.0f} KM/H",*current->wind_gusts_10m):
+            std::format("WIND: {}",current->wind_direction_10m?
+               std::format("{:.0f} DEG",*current->wind_direction_10m):"--"),
+         14,0xffc9dbdb);
 
       if(current->wind_direction_10m) {
          float const angle=(static_cast<float>(*current->wind_direction_10m)-90.f)*Pi/180.f;

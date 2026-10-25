@@ -146,3 +146,28 @@ nicht nötig. Keine reale Ortsadresse wird im Quellcode gespeichert.
   deklarative Komponenten.
 
 **Status:** The previous WeatherClient iteration compiled and passed its offline CTest on BCC64X. The new visual redesign has not yet been compiled or visually verified on the user's machine.
+
+## Live services and SSL trust
+
+The Windows BCC64X build of libcurl uses OpenSSL. Without a configured
+certificate authority, HTTPS requests failed before reaching any provider.
+The client now enables libcurl's **native CA trust-store option** on Windows,
+keeping peer and hostname verification enabled. A PEM bundle can also be
+supplied through `--ca-bundle <absolute-path>` or
+`WEATHERCLIENT_CA_BUNDLE`, `CURL_CA_BUNDLE` / `SSL_CERT_FILE`.
+Never disable `CURLOPT_SSL_VERIFYPEER` or `CURLOPT_SSL_VERIFYHOST`.
+If an organization intercepts TLS, its trusted CA must be installed in the
+system root store or supplied explicitly as a PEM file.
+
+IP location uses ipapi.co first and ipwho.is as a fallback; both estimate
+city/region rather than a postal address. Use ADDRESS for Nominatim geocoding.
+Address and IP search **leave demo mode** and fetch real Open-Meteo data.
+The saved address and its coordinates are restored at normal startup.
+Current observations include apparent temperature, gusts, clouds and wind;
+forecast parsing includes rain probability, UV, sunrise/sunset and daily
+wind gusts where supplied. The GUI remains in English; error messages
+are shown without replacing previously displayed weather data.
+
+Network services may be unavailable, rate limited or require separate
+licenses for production. Successful online use must be checked on the
+actual Windows installation and is not asserted by the offline CTest.

@@ -44,3 +44,18 @@ compass rose, forecast curve and the English summary in GUI demo mode. Use
 to check the deterministic English narrative and control/forecast model.
 This does **not** substitute for visually checking raster output in SDL2.
 No package versions or Windows-specific GUI APIs were added.
+
+## HTTPS and live location
+
+```bat
+..\build\Test\WeatherClient\Release\WeatherClient.exe
+..\build\Test\WeatherClient\Release\WeatherClient.exe --ca-bundle C:\path\to\trusted-ca-bundle.pem
+```
+
+The first command uses the Windows trusted CA roots through libcurl/OpenSSL;
+on other systems curl uses its configured trust store. CA errors are not
+suppressed. Add the organization's CA to the trust store or use an authorized
+PEM bundle if a TLS inspection proxy is present. IP geolocation is approximate;
+click ADDRESS or press A to provide a full address. Typing a new address also
+leaves --demo mode and downloads live weather. The `--demo` option itself
+always starts with synthetic offline observations.
