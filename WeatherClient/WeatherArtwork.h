@@ -10,6 +10,8 @@
 */
 #include "WeatherView.h"
 #include "WeatherMoon.h"
+#include "WeatherTime.h"
+#include "WeatherNarrative.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/effects/SkGradient.h"
 
@@ -105,12 +107,12 @@ namespace weather_client::artwork {
       GradientRect(canvas,SkRect::MakeXYWH(30,24,1140,160),
          daytime?0xff164e72:0xff1b254b,
          daytime?0xff275c71:0xff1e3c62,21);
-      Glow(canvas,990+std::sin(phase*.12f)*10,80,125,
+      Glow(canvas,885+std::sin(phase*.12f)*10,80,125,
          daytime?0x8abed9ee:0x678aa8ed);
       SkPaint paint;
       view::Color(paint,daytime?0xfff7d18a:0xffd9e2f7);
-      if(daytime) canvas->drawCircle(1000,85,28,paint);
-      else Moon(canvas,1000,85,28,moon.value_or(MoonPhase{.cycle=.25,.illumination=.5,
+      if(daytime) canvas->drawCircle(895,87,28,paint);
+      else Moon(canvas,895,87,28,moon.value_or(MoonPhase{.cycle=.25,.illumination=.5,
          .stage=MoonStage::FirstQuarter,.waxing=true}));
       if(!daytime) {
          for(int i=0;i<31;++i) {
@@ -123,28 +125,28 @@ namespace weather_client::artwork {
       int const cloudiness=code==0?0:code==1?1:code==2?2:3;
       for(int i=0;i<cloudiness;++i) {
          float const offset=std::sin(phase*.16f+i*1.9f)*14.f;
-         Cloud(canvas,920+i*61.f+offset,60+(i%2)*24.f,
+         Cloud(canvas,810+i*53.f+offset,60+(i%2)*24.f,
             i%2==0?.44f:.35f,0x8addf0f5);
       }
       if(code>=51&&code<=99) {
          view::Color(paint,0x927ac9ea);paint.setStrokeWidth(2);
          for(int i=0;i<16;++i) {
-            float const x=930.f+(i*37)%193;
+            float const x=810.f+(i*37)%156;
             float const y=120.f+(i*19)%27;
             canvas->drawLine(x,y,x-7,y+14,paint);
          }
       }
       if(code==95||code==96||code==97||code==99) {
          SkPathBuilder lightning;
-         lightning.moveTo(1020,104).lineTo(995,141).lineTo(1011,139)
-            .lineTo(1000,170).lineTo(1043,121).lineTo(1024,126).close();
+         lightning.moveTo(910,104).lineTo(885,141).lineTo(901,139)
+            .lineTo(890,170).lineTo(933,121).lineTo(914,126).close();
          view::Color(paint,0xffffd072);
          canvas->drawPath(lightning.detach(),paint);
       }
       if(code>=71&&code<=86 && !(code>=80&&code<=82)) {
          view::Color(paint,0xffdbecff);
          for(int i=0;i<17;++i) {
-            float const x=940.f+static_cast<float>((i*53)%179);
+            float const x=810.f+static_cast<float>((i*53)%156);
             float const y=113.f+static_cast<float>((i*23)%52);
             canvas->drawCircle(x,y,2.f,paint);
          }
@@ -154,7 +156,7 @@ namespace weather_client::artwork {
          paint.setStrokeWidth(5.f);
          paint.setColor(0x9ab1c9d3);
          for(int i=0;i<3;++i)
-            canvas->drawLine(925.f,115.f+i*15.f,1122.f,115.f+i*15.f,paint);
+            canvas->drawLine(815.f,115.f+i*15.f,972.f,115.f+i*15.f,paint);
       }
       // Contour lines make the translucent atmosphere look instrument-made.
       paint.setStyle(SkPaint::kStroke_Style);
@@ -266,6 +268,41 @@ namespace weather_client::artwork {
          cy-radius*.40f,radius*.35f,0x0ff9fbff);
    }
 
+   inline void AnalogClock(SkCanvas* canvas,float cx,float cy,float radius,
+      int iHour,int iMinute,int iSecond) {
+      SkPaint paint;
+      view::Color(paint,0xd50a2332);
+      canvas->drawCircle(cx,cy,radius+4.f,paint);
+      paint.setStyle(SkPaint::kStroke_Style);
+      paint.setStrokeWidth(2.f);
+      paint.setColor(0xffa9c9da);
+      canvas->drawCircle(cx,cy,radius,paint);
+      for(int i=0;i<12;++i) {
+         float const a=static_cast<float>(i)*Pi/6.f-Pi/2.f;
+         paint.setStrokeWidth(i%3==0?2.8f:1.2f);
+         canvas->drawLine(cx+std::cos(a)*radius*.80f,
+            cy+std::sin(a)*radius*.80f,
+            cx+std::cos(a)*radius*.91f,cy+std::sin(a)*radius*.91f,paint);
+      }
+      ClockAngles const angles=AnalogClockAngles(iHour,iMinute,iSecond);
+      auto const hand=[&](double degrees,float length,float width,SkColor color) {
+         float const a=static_cast<float>(degrees)*Pi/180.f-Pi/2.f;
+         paint.setColor(color);
+         paint.setStrokeWidth(width);
+         paint.setStrokeCap(SkPaint::kRound_Cap);
+         canvas->drawLine(cx,cy,cx+std::cos(a)*length,
+            cy+std::sin(a)*length,paint);
+      };
+      hand(angles.flHourDegrees,radius*.49f,4.f,0xfff7e4bc);
+      hand(angles.flMinuteDegrees,radius*.71f,2.8f,0xffe4f2f5);
+      hand(angles.flSecondDegrees,radius*.77f,1.f,0xffffa276);
+      paint.setStyle(SkPaint::kFill_Style);
+      paint.setColor(0xfff6d5a0);
+      canvas->drawCircle(cx,cy,3.f,paint);
+      view::Text(canvas,cx-radius*.65f,cy+radius+16.f,
+         "LOCAL TIME",11,0xffd5e7ed);
+   }
+
    inline void WindRose(SkCanvas* canvas,float cx,float cy,float radius,
       std::optional<double> direction,float phase=0) {
       SkPaint paint;
@@ -288,7 +325,7 @@ namespace weather_client::artwork {
       view::Text(canvas,cx-5,cy+radius*.81f,"S",12,0xffdbe6ea);
       view::Text(canvas,cx-radius*.84f,cy+4,"W",12,0xffdbe6ea);
       if(direction) {
-         float a=(static_cast<float>(*direction)-90.f)*Pi/180.f;
+         float a=(static_cast<float>(WindToDirection(*direction))-90.f)*Pi/180.f;
          SkPathBuilder arrow;
          arrow.moveTo(cx+std::cos(a)*radius*.62f,
             cy+std::sin(a)*radius*.62f);
