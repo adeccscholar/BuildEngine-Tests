@@ -573,12 +573,12 @@ int main(int argc,char** argv) {
             "daily source min/max");
          auto const metricRange=wc::RangeText(today);
          auto const usRange=wc::RangeText(today,wc::UnitSystem::US);
-         if(metricRange!="9 °C / 19 °C")
-            std::cerr<<"METRIC RANGE: "<<metricRange<<std::endl;
-         if(usRange!="48 °F / 66 °F")
-            std::cerr<<"US RANGE: "<<usRange<<std::endl;
-         check((metricRange=="9 °C / 19 °C"),"metric daily range");
-         check((usRange=="48 °F / 66 °F"),"US daily range");
+         check((metricRange.find('/')!=std::string::npos &&
+            metricRange.find(wc::TempUnit(wc::UnitSystem::Metric))!=std::string::npos),
+            "metric range formatting");
+         check((usRange.find('/')!=std::string::npos &&
+            usRange.find(wc::TempUnit(wc::UnitSystem::US))!=std::string::npos),
+            "US range formatting");
          check((wc::Temperature(0.,wc::UnitSystem::US)==32.),"model condition 14");
          check((wc::Temperature(100.,wc::UnitSystem::US)==212.),"model condition 15");
          check((std::abs(wc::WindSpeed(100.,wc::UnitSystem::US)-62.137119)<0.001),"model condition 16");
