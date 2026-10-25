@@ -13,8 +13,8 @@ cmake --install ../build/Test/postgre/Release/cmake
 For Debug substitute `Debug` consistently. No local third-party bootstrap, no static archive or package-version guessing.
 
 ```bat
-psql -U postgres -d postgres -f database\postgre\sql\create-database.sql
-psql -U postgres -d BuildEngineTest -f database\postgre\sql\configure-access.sql
+psql -U postgres -d postgres -f database\database\postgre\sql\create-database.sql
+psql -U postgres -d BuildEngineTest -f database\database\postgre\sql\configure-access.sql
 ..\build\Test\postgre\Release\adecc_postgresql_pqxx_test.exe --host localhost --database BuildEngineTest --user buildenginetest_user --integrated
 ```
 
