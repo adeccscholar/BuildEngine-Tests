@@ -40,6 +40,14 @@ foreach(_project IN LISTS _projects)
       endif()
    endforeach()
 endforeach()
+foreach(_index IN ITEMS
+   database/README.md
+   database/common/README.md
+   database/common/original/README.md)
+   if(NOT EXISTS "${ROOT}/${_index}")
+      message(FATAL_ERROR "Missing database documentation: ${_index}")
+   endif()
+endforeach()
 foreach(_backend IN ITEMS mssql postgre)
    if(NOT EXISTS "${ROOT}/database/${_backend}/Configure.md")
       message(FATAL_ERROR "Missing database/${_backend}/Configure.md")
