@@ -3,6 +3,15 @@
 
 # WeatherClient – BCC64X Build
 
+Die projektbezogenen Details sind getrennt dokumentiert:
+[Architecture.md](Architecture.md) (Ablauf, Zustandsautomat und Worker),
+[REST.md](REST.md) (vollständige HTTPS-GET-Anfragen mit `curl.exe`),
+[ThirdParty.md](ThirdParty.md) (direkte und transitive BuildEngine-Pakete)
+sowie [WeatherServices.md](WeatherServices.md) (Providerbedingungen).
+Die hier aufgeführten Kommandos arbeiten mit dem Produktionsroot der
+BuildEngine und **installierten dynamischen** Bibliotheken.
+
+
 Aus `BuildEngine/tests` mit der produktiven Installation:
 
 ```bat
