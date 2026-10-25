@@ -5,25 +5,16 @@
 
 [TOC]
 
-## Technische Dokumentation und Einstieg
+## Technical Documentation and Navigation
 
-Der WeatherClient ist ein **Wetter-Dashboard** und kein Mess-Observatorium.
-Die folgenden Seiten dokumentieren den aktuellen Quelltext auf `main` und
-trennen implementiertes Verhalten von lokal noch nicht verifizierten
-Laufzeitbeobachtungen:
+WeatherClient is a **weather dashboard**, not a measurement observatory. The following pages document implemented behavior and distinguish source-code facts from runtime checks that have not been performed locally:
 
-- [Architecture.md](Architecture.md): Programmstart, Netzwerk-Worker,
-  Boost.Statechart-FSM, Zeitsteuerung, Datenmodell und Anzeige
-- [REST.md](REST.md): alle vier verwendeten HTTPS-Dienste, tatsächliche
-  GET-Parameter, JSON-Strukturen und reproduzierbare `curl.exe`-Aufrufe
-- [ThirdParty.md](ThirdParty.md): direkt verwendete Bibliotheken,
-  BuildEngine-Paketroots, DLL-Closure, Versionierung und Lizenzgrenzen
-- [build.md](build.md): CMake/Ninja/BCC64X, Installation und Testbefehle
-- [WeatherServices.md](WeatherServices.md): Anbieterbedingungen,
-  Datenattribution und Datenschutz
-- [SBOM.md](SBOM.md), [LICENSE.md](LICENSE.md): Stückliste und Lizenzen
-
-
+- [Architecture.md](Architecture.md): startup, network worker, Boost.Statechart FSM, scheduling, model, and display
+- [REST.md](REST.md): all four HTTPS services, actual GET parameters, JSON structures, and reproducible `curl.exe` tests
+- [ThirdParty.md](ThirdParty.md): direct libraries, BuildEngine packages, DLL staging, dependency verification, and licenses
+- [build.md](build.md): BCC64X/CMake/Ninja, installation, and tests
+- [WeatherServices.md](WeatherServices.md): provider terms, attribution, and privacy
+- [SBOM.md](SBOM.md), [LICENSE.md](LICENSE.md): software bill of materials and license texts
 
 ## Calculated Moon phase and nighttime forecast
 
@@ -107,9 +98,9 @@ The headless model test covers 0°C→32°F, 100°C→212°F,
 100 km/h→62.137 mph, 25.4 mm→1 in and 1013.25 hPa→29.92 inHg,
 plus US narrative strings and SDL2 button hit-testing.
 
-## Extended weather observatory (2026-10-25)
+## Extended Weather Dashboard (2026-10-25)
 
-The GUI now uses the **Segoe UI family** from the repository's existing
+The GUI can use the **Segoe UI family** from the repository's existing
 PDFium SDL2 example through Skia's font manager. It does **not** copy or ship
 Microsoft font files; original `WeatherText.h` vector lettering is used if
 the OS cannot supply a typeface. All text is measured, truncated by physical
@@ -142,40 +133,22 @@ rate limits, permission requirements, attribution, caveats and licensing.
 The public Open-Meteo endpoint is for non-commercial use; a customer license
 or approved alternative is required for commercial operation.
 
-## Idee und übernommene Bestandteile
+## Project Concept and Reused Ideas
 
-SDL2 behandelt Fenster, Tastatur und Adresseingabe. Skia rendert vier
-analog wirkende Instrumente für Temperatur, Luftdruck, Feuchtigkeit und Wind
-sowie eine Text-/Vorhersagefläche. Die Anzeige skaliert mit dem Fenster.
-**Boost.Statechart** bildet die FSM mit den Zuständen
-`Off → Resolving → Fetching → Ready` und `Error`.
-HTTP-Aufgaben laufen in einem `std::jthread`; Ergebnisse werden auf dem
-SDL-Hauptthread konsumiert. Erfolgreiche Wetterabrufe sind nach 15 Minuten,
-Fehler nach einer Minute erneut fällig.
+SDL2 handles windows, the keyboard, and address input. Skia renders analog temperature, pressure, and humidity instruments, a wind rose, weather graphics, and forecasts. The UI scales with the window. **Boost.Statechart** models the `Off → Resolving → Fetching → Ready` and `Error` states; HTTPS requests run in a `std::jthread` and their results are consumed by the SDL main thread. Successful requests are scheduled on absolute quarter-hour boundaries; failures retry after approximately one minute.
 
-Aus den vier gelieferten Archiven wurden das Open-Meteo-Datenmodell,
-die Stunden-/Tagesvorschau, die Zeitsteuerung und die Statechart-Idee
-übernommen. Die alten Beispielprojekte verwenden jedoch weitere,
-nicht im BuildEngine-Teststack vorhandene `BoostTools`- und CORBA-
-Schnittstellen. Um diese *nicht* umzuschreiben, stellt WeatherClient
-die nötigen Adapter in neuen Dateien separat bereit.
-Die Originalarchive bleiben unverändert beim Benutzer; sie werden
-nicht unter neuer Lizenz als eigene Quellen ausgegeben.
+The supplied older archives contributed the Open-Meteo data model, hourly/daily forecasting concepts, and state-machine approach. They also contain CORBA interfaces and `BoostTools` dependencies not required by the new standalone example. The original archives remain unchanged and are not reclassified under a new license.
 
-## Datenquellen
+## Data Sources
 
-| Zweck | Quelle | API / Besonderheiten |
+| Purpose | Provider | Interface |
 | --- | --- | --- |
-| Wetter | [Open-Meteo](https://open-meteo.com/en/docs) | Current, hourly, daily; HTTPS/JSON; Ort + automatische IANA-Zeitzone |
-| Adresse → GPS | [Nominatim / OpenStreetMap](https://operations.osmfoundation.org/policies/nominatim/) | vom Benutzer ausgelöste Suchanfrage; maximal eine Anfrage/Sekunde, eindeutige User-Agent-Kennung |
-| Erste ungefähre IP-Ortung | [ipapi.co](https://ipapi.co/api/) | *nur* ungefähre Stadt/Region; keine Hausanschrift |
+| Weather | [Open-Meteo](https://open-meteo.com/en/docs) | HTTPS/JSON; current, hourly, daily, automatic time zone |
+| Address geocoding | [Nominatim / OpenStreetMap](https://operations.osmfoundation.org/policies/nominatim/) | User-initiated search; identifiable User-Agent; request-rate limits |
+| Initial IP location | [ipapi.co](https://ipapi.co/api/) | Approximate city/region, not a street address |
+| IP fallback | [ipwho.is](https://ipwhois.io/documentation) | Only if the primary IP provider fails |
 
-Es wird **keine genaue IP-Hausadresse** behauptet. Keine Ortung erfolgt
-allein beim Erstellen von Dokumenten oder beim Build. Bei Offline-Test
-`--demo` wird weder IP noch Wetterdienst abgefragt.
-Nominatim verlangt OSM-Attribution, Nutzungsbedingungen und verantwortliche
-Ratenbegrenzung; der Beispielclient sollte nicht massenhaft Adressen
-auflösen. Dienste können Rate Limits, Netzwerk- und Datenschutzvorgaben haben.
+No exact street address is inferred from an IP. Neither documentation generation nor building the project triggers geolocation. `--demo` runs without external IP or weather requests. Public endpoints have independent rate limits, privacy considerations, and terms; see [REST.md](REST.md) and [WeatherServices.md](WeatherServices.md).
 
 ## Skia fonts: reliable portable lettering
 
@@ -194,7 +167,7 @@ The current WeatherArtwork version has dark dial faces, rim gradients,
 a graphical sky and a wind rose. Verify that the freshly built executable
 is the same path that is launched.
 
-## Visual redesign: original Skia weather observatory
+## Visual Redesign: Original Skia Weather Dashboard
 
 The display is now an English-language, international demonstration of Skia
 rather than a collection of basic gauges. All new illustrations are generated
@@ -227,62 +200,42 @@ Only SDL2 and Skia supply the GUI; there are no direct Win32 UI calls.
 The artwork uses Skia raster surfaces for portability; the application still
 needs an actual SDL GUI test on each platform.
 
-## Portable GUI und Diagramme
+## Portable GUI and Forecast Charts
 
-Der eigenständige Header [WeatherView.h](WeatherView.h) zeichnet
-Skia-Bedienelemente, stündliche Temperaturkurven, Tageshöchst- und
-Tiefsttemperaturen, Regenbalken, Wetterpiktogramme und einen
-Windrichtungskompass. Seine Funktionen benötigen weder Win32 noch
-Netzwerk und greifen nicht auf FSM-Zustände zu. SDL2 liefert Maus-,
-Tastatur- und UTF-8-Texteingaben sowie den Vollbildmodus.
-Der skaleninvariante Hit-Test wird im Offline-Self-Test geprüft.
-Das vorhandene Layout der vier Analoginstrumente und die
-Boost.Statechart-FSM wurden beibehalten.
+[WeatherView.h](WeatherView.h) draws Skia controls, hourly temperature curves, daily minima/maxima, precipitation bars, and weather symbols without Win32 window APIs, networking, or direct FSM-state access. SDL2 supplies mouse, keyboard, UTF-8 text entry, and fullscreen behavior. The scale-independent hit test is covered by offline tests.
 
-## SDL2-Steuerung
+The three instruments show centered numeric values and units on separate lines. The wind panel combines the direction rose, origin/destination labels, speed, and gusts without a duplicate miniature compass.
 
-| Taste | Aktion |
+## SDL2 Controls
+
+| Input | Action |
 | --- | --- |
-| Linksklick | Schaltflächen direkt mit SDL2-Maussteuerung bedienen |
-| `F` / `F11` | zwischen Fenster und Vollbild umschalten |
-| Mausrad | Vorschau zurück/vorwärts |
-| `A` | Adresse eingeben und mittels Nominatim auflösen; bei Erfolg in `weather-location.json` speichern |
-| `I` | neue grobe IP-Ortung (bei Demo deaktiviert) |
-| `R` | erneuter Wetterabruf |
-| `H`, `D` | Stunden- oder Tagesvorschau |
-| `←`, `→` | Vorschau verschieben |
-| `Enter` | Adresse übernehmen |
-| `Backspace`, `Esc` | Text bearbeiten bzw. Eingabe/Fenster verlassen |
+| Left click | Activate a visible button |
+| `F` / `F11` | Toggle fullscreen |
+| Mouse wheel | Navigate forecast entries |
+| `A` | Enter an address, geocode through Nominatim, and save on success |
+| `I` | Request approximate IP location and switch to live data |
+| `R` | Refresh current weather |
+| `H` / `D` | Select hourly/daily forecast |
+| `←` / `→` | Previous/next forecast entries |
+| `Enter` | Confirm address input |
+| `Backspace` / `Esc` | Edit or cancel/exit |
 
-Der erste reguläre Start lädt eine gespeicherte Adresse. Ist keine
-vorhanden, beginnt die FSM mit der ungefähren IP-Ortung; erst danach
-werden Wetterdaten geladen. Eingabe und Speicherung erfolgen nach
-erfolgreicher Geokodierung in einer lokalen JSON-Datei. Das Programm
-verwendet das **Arbeitsverzeichnis**, nicht ein hartkodiertes Benutzerprofil.
-Für einen anderen Dateipfad kann `--config <pfad>` angegeben werden.
-Auch die GPS-Koordinaten und die Herkunftsart `approximate` werden
-persistiert; das Zeitzonenfeld stammt aus dem Wetterdienst.
+At startup, the client loads a previously saved valid address if available; otherwise, it resolves an approximate IP location before retrieving weather. A successfully geocoded user address is saved as a local JSON file, including coordinates and the `approximate` marker. The path is relative to the **working directory**, not a hardcoded user profile. Use `--config <path>` to change it.
 
-## Reproduzierbarer Test
+## Reproducible Tests
 
-`--demo` liefert ohne Netz Testwetter mit 48 Stunden und sieben Tagen.
-`--self-test` kontrolliert diesen Beispieldatensatz, Schaltflächen-Hit-Tests, die Vorhersage-Navigation und UTF-8-Backspace ohne SDL-Fenster.
-Die Visualisierung und netzabhängige Live-Integration sind separate
-manuelle Prüfungen. Ein externer HTTP-Dienst ist für den Offline-Test
-nicht nötig. Keine reale Ortsadresse wird im Quellcode gespeichert.
+`--demo` supplies offline synthetic weather with 48 hourly and seven daily observations. `--self-test` checks deterministic models, navigation, SDL hit testing, and UTF-8 backspace without an SDL window. `--graphics-test` exercises the initialized SDL/Skia renderer; `--fsm-test` tests state transitions. Live HTTPS and UI visual checks are separate verification activities.
 
-## Dateien und Bildungsziel
+## Project Files and Learning Goals
 
-- [WeatherModel.h](WeatherModel.h): Wetterdaten, JSON und Prüfung.
-- [WeatherNetwork.h](WeatherNetwork.h): curl HTTPS, Geocoding,
-  IP-Näherung und Konfigurationspersistenz.
-- [WeatherClient.cpp](WeatherClient.cpp): Skia-Uhren, SDL2-Steuerung,
-  Boost.Statechart-FSM und Ereignisschleife.
-- [build.md](build.md): BCC64X BuildEngine-Pakete, DLL und Laufzeit.
-- [LICENSE.md](LICENSE.md), [SBOM.md](SBOM.md): Quelllizenz und
-  deklarative Komponenten.
+- [WeatherModel.h](WeatherModel.h): weather data, JSON parsing, and validation.
+- [WeatherNetwork.h](WeatherNetwork.h): libcurl HTTPS, geocoding, IP lookup, and local settings.
+- [WeatherClient.cpp](WeatherClient.cpp): SDL2 application, rendering, FSM, and worker.
+- [build.md](build.md): BCC64X installation, dynamic libraries, and tests.
+- [LICENSE.md](LICENSE.md), [SBOM.md](SBOM.md): original license and declared dependencies.
 
-**Status:** The previous WeatherClient iteration was confirmed to compile and display live Open-Meteo results on the user's BCC64X system. The updated Segoe UI layout, daylight/storm indicators and expanded FSM tests still require a fresh local build and GUI review.
+**Verification:** Source documentation does not imply that the latest BCC64X GUI or live HTTPS regression tests have passed.
 
 ## Live services and SSL trust
 
