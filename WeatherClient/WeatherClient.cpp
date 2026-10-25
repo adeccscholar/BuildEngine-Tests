@@ -367,7 +367,25 @@ int main(int argc,char** argv) {
          std::string text{"Müller"};
          view::BackspaceUtf8(text);
          auto const brief=wc::ComposeWeatherBrief(data);
-         bool const valid=data.hours.size()==48 && data.days.size()==7 &&
+         auto const glyphSurface=SkSurfaces::Raster(SkImageInfo::MakeN32Premul(72,24));
+         bool glyphVisible=false;
+         if(glyphSurface) {
+            glyphSurface->getCanvas()->clear(SK_ColorTRANSPARENT);
+            lettering::Draw(glyphSurface->getCanvas(),2,18,"TEST",15,SK_ColorWHITE);
+            SkPixmap glyphPixels;
+            if(glyphSurface->peekPixels(&glyphPixels)) {
+               for(int y=0;y<24&&!glyphVisible;++y) {
+                  for(int x=0;x<72;++x) {
+                     if(SkColorGetA(*glyphPixels.addr32(x,y))!=0) {
+                        glyphVisible=true;
+                        break;
+                     }
+                  }
+               }
+            }
+         }
+         bool const valid=glyphVisible &&
+            data.hours.size()==48 && data.days.size()==7 &&
             data.current.temperature_2m.has_value() &&
             text=="Mülle" &&
             !brief.headline.empty() &&
