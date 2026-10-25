@@ -267,6 +267,7 @@ namespace weather_client::view {
       std::optional<double> low;
       std::optional<double> rain;
       std::optional<int> code;
+      bool daylight{true};
    };
 
    inline void DrawForecast(
@@ -299,6 +300,7 @@ namespace weather_client::view {
          } else {
             auto const& hour=weather->hours[i];
             point.label=hour.time.size()>=16?hour.time.substr(11,5):hour.time;
+            point.daylight=IsDayAt(hour.time,*weather).value_or(true);
             point.high=hour.temperature_2m;
             point.rain=hour.precipitation_probability;
             point.code=hour.weather_code;
@@ -362,7 +364,7 @@ namespace weather_client::view {
       for(std::size_t i=0;i<points.size();++i) {
          float const x=xAt(i);
          font::Draw(canvas,x-30,510,points[i].label,14,0xffc9d9df,91);
-         DrawSkySymbol(canvas,x-7,532,points[i].code.value_or(-1),true);
+         DrawSkySymbol(canvas,x-7,532,points[i].code.value_or(-1),points[i].daylight);
          if(points[i].rain) {
             float const portion=static_cast<float>(
                std::clamp(*points[i].rain/rainMax,0.0,1.0));
