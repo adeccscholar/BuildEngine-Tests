@@ -15,3 +15,10 @@ weather data, hosted free API non-commercial only), Nominatim/OSM (ODbL),
 ipapi.co and ipwho.is (proprietary APIs), and the runtime Segoe UI
 operating-system font are documented separately in
 [WeatherServices.md](WeatherServices.md). No font file is redistributed.
+
+## WeatherUnits.h (first-party only)
+
+The metric/US unit conversion and original sun/moon icon work
+use first-party C++23 and Skia drawing calls; they introduce
+**no extra third-party package**. Existing Skia, SDL2, Boost,
+curl, OpenSSL and provider rights remain unchanged.

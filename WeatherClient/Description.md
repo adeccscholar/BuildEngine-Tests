@@ -6,6 +6,53 @@
 [TOC]
 
 
+## Night sky, distinct instruments and US units
+
+The Skia weather artwork is entirely procedural and original.
+At night a constructed crescent **moon** replaces the daytime sun;
+clouds, rain, snow and thunderstorm layers appear over either sky.
+Every hourly forecast symbol chooses sun or moon using that date's
+local sunrise and sunset. Daily forecast columns show original
+sunrise/sunset pictograms with the local times.
+
+The analog instruments intentionally have different surface treatments:
+a warm enamel thermometer, a machined blue barometer with a secondary
+precision ring and a translucent jade hygrometer. Each has a centered
+heading and measured centered numeric readout. The wind rose is a
+separate compass, rather than a fourth copy of the main dial.
+
+Press **U**, or click **METRIC / US** at the bottom right, to change
+the **entire display** without contacting Open-Meteo again:
+
+| Measurement | Metric | US |
+| --- | --- | --- |
+| Air and feels-like temperature, hourly/daily forecast | Celsius (°C) | Fahrenheit (°F) |
+| Temperature change described in English | °C difference | °F difference (no +32 offset) |
+| Wind speed and gusts | km/h | mph |
+| Daily precipitation and current rainfall | mm | inches (in) |
+| Sea-level pressure / barometer | hPa | **inHg** |
+| Humidity, cloudiness, precipitation *probability*, direction | %, degrees | unchanged |
+
+The conversion functions live in
+[WeatherUnits.h](WeatherUnits.h), independent from SDL, Skia,
+HTTP and Boost.Statechart. Model data is **always stored in the
+metric units requested from Open-Meteo**. All conversions are made
+at presentation time, including the forecast chart's numerical
+values and geometry; the view change does **not** trigger a network
+request or a new FSM transition. US inches are shown with two
+decimal places, inHg with two decimal places.
+
+The chosen display system is saved as `"units": "metric"` or
+`"units": "us"` in `weather-location.json`, alongside the
+user-selected address if available. A preferences-only JSON file
+is valid before the user enters an address; in that case the
+normal first-run IP lookup still occurs. No IP-derived address
+is stored merely to preserve the units.
+
+The headless model test covers 0°C→32°F, 100°C→212°F,
+100 km/h→62.137 mph, 25.4 mm→1 in and 1013.25 hPa→29.92 inHg,
+plus US narrative strings and SDL2 button hit-testing.
+
 ## Extended weather observatory (2026-10-25)
 
 The GUI now uses the **Segoe UI family** from the repository's existing

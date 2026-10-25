@@ -89,3 +89,22 @@ address has been stored. After typing an address in the GUI, the resolved
 postal location is saved to `weather-location.json` and is loaded next time.
 The service contracts and attribution are recorded in
 [WeatherServices.md](WeatherServices.md).
+
+## Unit toggle / graphics verification (metric and US)
+
+`U` or the lower-right **METRIC/US** control switches the view
+immediately. Weather values from Open-Meteo stay in SI/metric
+form; no API parameter changes and no extra HTTPS request are
+necessary. The choice persists in the user's local
+`weather-location.json` even if no address is stored yet.
+Start `--demo`, switch units repeatedly and verify temperature,
+wind, gusts, rain, pressure **hPa ↔ inHg**, daily min/max and
+narrative values all change together. The forecast graph must
+retain its shape because Fahrenheit conversion is affine.
+Switch to DAILY to inspect sunrise and sunset pictograms;
+after sunset, hourly forecast icons must show the moon.
+
+`WeatherClientOfflineModel` now tests both unit systems and
+the US selector's SDL hit geometry. No new third-party
+packages, fonts, proprietary weather graphics or Windows APIs
+are introduced by this feature.

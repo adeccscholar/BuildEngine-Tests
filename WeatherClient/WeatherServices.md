@@ -107,3 +107,23 @@ shows simulated values and must not be represented as live data.
 `WeatherClientStatechart` exercises transitions without network access.
 
 Review of terms: 2026-10-25. This file is informational, not legal advice.
+
+## Weather data units and presentation conversion
+
+The Open-Meteo request deliberately leaves its data in the
+API's metric defaults: temperature in °C, precipitation in mm,
+wind speed in km/h and mean sea-level pressure in hPa.
+[WeatherUnits.h](WeatherUnits.h) performs the following **local**
+conversions when the user toggles US display:
+
+- °F = °C × 9/5 + 32 (temperature *changes* use only × 9/5)
+- mph = km/h × 0.621371192237334
+- inches of precipitation = mm / 25.4
+- inHg = hPa × 0.029529983071445
+
+Humidities, cloud coverage and precipitation probabilities
+remain percentages; wind direction remains degrees. These
+computations are not a separate remote service and carry no
+external API license or recurring network charges.
+The local settings JSON stores the unit identifier but does
+not copy or convert source measurements.

@@ -192,3 +192,12 @@ software under these terms.
 of your licenses.
 
 Required Notice: Copyright (c) 2026 adecc Systemhaus GmbH
+
+## Original unit conversion and icon additions
+
+`WeatherUnits.h`, vector-painted moon, sunrise/sunset icons,
+differentiated dial motifs, local unit preferences and updated
+project documentation are first-party code under the
+project's PolyForm Noncommercial License 1.0.0.
+No commercial weather icon artwork or Microsoft font file
+has been copied into the repository.
