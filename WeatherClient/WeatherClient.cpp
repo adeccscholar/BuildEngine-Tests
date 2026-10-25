@@ -417,7 +417,7 @@ namespace weather_client::application {
       if(!s.error.empty())
          font::Draw(canvas,55,753,"ERROR: "+s.error,12,0xffffb9ae,530);
       font::Draw(canvas,600,753,
-         "WEATHER: OPEN-METEO CC BY 4.0 / GEO: OSM ODbL",
+         "OPEN-METEO CC BY 4.0 / (C) OPENSTREETMAP CONTRIBUTORS ODbL",
          11,0xff8facba,540);
       font::Draw(canvas,998,733,
          s.weather?s.weather->timezone:"TIMEZONE PENDING",
