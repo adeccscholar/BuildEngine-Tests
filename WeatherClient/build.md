@@ -266,3 +266,32 @@ No new build targets are required. Standard CTest invocation remains:
 
 A successful offline test does not substitute for validating the actual
 weather worker/HTTPS path against the installed Windows DLL runtime.
+
+## Quarter-hour refresh and extended weather information (2026-10-25)
+
+Weather refresh now targets wall-clock quarter-hour boundaries at **:00,
+:15, :30 and :45**, not a 15-minute delay after the previous HTTP response.
+A failed request is retried after one minute, without losing an earlier
+quarter-hour boundary. The offline self-test checks the boundary arithmetic,
+rollover, retry timing and analog clock-hand calculation; it does not perform
+live HTTPS or replace a BCC64X GUI validation.
+
+The upper-right analog clock displays the **system-local time**, marked
+`LOCAL TIME`, independently of the weather location's timezone. The
+procedural sun/moon/weather artwork is shifted left. The interface is now
+named **WEATHER DASHBOARD**, because the application reads provider data
+instead of measuring its own weather observations.
+
+Additional Open-Meteo request fields `current.dew_point_2m`,
+`hourly.dew_point_2m`, `current.uv_index` and `hourly.uv_index` are
+parsed as optional quantities. The current dew point is formatted in the
+selected temperature unit; UV remains dimensionless with LOW, MODERATE,
+HIGH, VERY HIGH and EXTREME categories. Existing daily `uv_index_max`
+remains available in the model. Wind-origin degrees are preserved; arrows
+show the *travel* direction, i.e. a wind FROM W travels TO E. The
+METRIC/US control uses a smaller font and maintains its original hit area.
+
+To verify after fetching this branch, run the existing independent build
+and CTest commands listed above. In addition, open the installed GUI in
+`--demo` and check the clock's separation from the weather illustration,
+the dew/UV labels, weather direction, dial readability and the METRIC button.
