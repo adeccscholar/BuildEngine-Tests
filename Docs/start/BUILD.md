@@ -15,7 +15,7 @@ From the repository root, start the installed executable with the explicit
 repository root and XML configuration:
 
 ```bat
-..uildTestdocu-serverReleaseuildengine_tests_docu_server.exe --root . --config DocsDocumentation.xml
+..\build\Test\docu-server\Release\buildengine_tests_docu_server.exe --root . --config Docs\Documentation.xml
 ```
 
 Open http://127.0.0.1:8781/docs/ .
