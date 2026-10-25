@@ -1,5 +1,5 @@
 // Copyright (c) 2026 adecc Systemhaus GmbH
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 // SDL2 owns presentation/events. Windows GDI only rasterizes UI text/controls
 // off-screen into BGRA textures. No VCL or additional UI library.
 #pragma once

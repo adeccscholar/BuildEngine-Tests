@@ -1,5 +1,5 @@
 // Copyright (c) 2026 adecc Systemhaus GmbH
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 // Standalone C++ navigation regression tests; no PDFs, SDL2 or Windows needed.
 #include "PageScroll.h"
 // CHECK must remain active even with -DNDEBUG in Release.

@@ -1,5 +1,5 @@
 // Copyright (c) 2026 adecc Systemhaus GmbH
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 // SDL2-only UI. PDFium rasterizes; SDL2 draws pages, buttons and text.
 // The native Windows file picker is a system dialog, not VCL.
 #include "../Common/PdfRaster.h"

@@ -1,5 +1,5 @@
 // Copyright (c) 2026 adecc Systemhaus GmbH
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 // Pure VCL UI; PDFium document/raster and navigation are shared with SDL2.
 #pragma once
 

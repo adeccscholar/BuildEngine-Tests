@@ -1,5 +1,5 @@
 // Copyright (c) 2026 adecc Systemhaus GmbH
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 // Shared PDFium document/raster code for the SDL2 and VCL viewers.
 // No VCL, SDL2 or Skia dependencies in this file.
 #pragma once
