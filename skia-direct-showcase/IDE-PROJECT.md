@@ -1,6 +1,6 @@
 <!--
 Copyright (c) 2026 adecc Systemhaus GmbH
-SPDX-License-Identifier: MIT
+SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 Project: adecc Scholar
 -->
 # C++Builder IDE project
