@@ -57,6 +57,36 @@ namespace weather_client::artwork {
       canvas->drawCircle(x+99*scale,y+21*scale,25*scale,paint);
    }
 
+   inline void Moon(SkCanvas* canvas,float x,float y,float radius) {
+      // An original crescent silhouette, not a cut-out of the background.
+      Glow(canvas,x,y,radius*2.4f,0x458daadd);
+      SkPathBuilder crescent;
+      crescent.moveTo(x+radius*.62f,y-radius*.80f);
+      crescent.cubicTo(x-radius*1.7f,y-radius*1.05f,
+         x-radius*1.65f,y+radius*1.15f,x+radius*.35f,y+radius);
+      crescent.cubicTo(x-radius*.45f,y+radius*.58f,
+         x-radius*.41f,y-radius*.35f,x+radius*.62f,y-radius*.80f);
+      crescent.close();
+      SkPaint p;
+      view::Color(p,0xffe7ecfa);
+      canvas->drawPath(crescent.detach(),p);
+      Glow(canvas,x-radius*.42f,y-radius*.35f,radius*.38f,0x35ffffff);
+   }
+
+   inline void SunriseSunset(SkCanvas* canvas,float x,float y,
+      bool sunrise,float radius=9.f) {
+      SkPaint p;
+      view::Color(p,0xfff3c47a);
+      canvas->drawCircle(x,y,radius,p);
+      p.setColor(0xff213e51);
+      canvas->drawRect(SkRect::MakeXYWH(x-radius-5,y+2,2*radius+10,7),p);
+      p.setColor(0xffeccf9f);
+      p.setStrokeWidth(1.8f);
+      canvas->drawLine(x-radius-8,y+2,x+radius+8,y+2,p);
+      float const dir=sunrise?-1.f:1.f;
+      canvas->drawLine(x,y-15*dir,x,y-7*dir,p);
+   }
+
    inline void Atmosphere(SkCanvas* canvas,int code,bool daytime,float phase) {
       // All art is synthesized from paths and gradients. No textures/assets.
       GradientRect(canvas,SkRect::MakeXYWH(30,24,1140,160),
@@ -66,7 +96,8 @@ namespace weather_client::artwork {
          daytime?0x8abed9ee:0x678aa8ed);
       SkPaint paint;
       view::Color(paint,daytime?0xfff7d18a:0xffd9e2f7);
-      canvas->drawCircle(1000,85,daytime?28:23,paint);
+      if(daytime) canvas->drawCircle(1000,85,28,paint);
+      else Moon(canvas,1000,85,28);
       if(!daytime) {
          for(int i=0;i<31;++i) {
             float const x=62.f+static_cast<float>((i*191)%1075);
@@ -147,8 +178,19 @@ namespace weather_client::artwork {
          {{rim,stops,SkTileMode::kClamp},{}}));
       canvas->drawCircle(cx,cy,radius+7,paint);
       paint.setShader(nullptr);
-      view::Color(paint,0xff152a37);
+      // Different materials: enamel thermometer, machined barometer, glass hygrometer.
+      SkColor const surface=title=="TEMPERATURE"?0xff402921:
+         title=="BAROMETER"?0xff172d43:0xff123b3a;
+      view::Color(paint,surface);
       canvas->drawCircle(cx,cy,radius+1,paint);
+      Glow(canvas,cx-radius*.24f,cy-radius*.33f,radius*.83f,
+         title=="TEMPERATURE"?0x397c4d2f:
+            title=="BAROMETER"?0x29549ccc:0x2850d7bc);
+      view::Color(paint,SkColorSetA(accent,67));
+      paint.setStyle(SkPaint::kStroke_Style);
+      paint.setStrokeWidth(title=="BAROMETER"?3.5f:2.f);
+      canvas->drawCircle(cx,cy,radius*.90f,paint);
+      paint.setStyle(SkPaint::kFill_Style);
       Glow(canvas,cx-radius*.29f,cy-radius*.37f,radius*.78f,0x274c7d95);
       paint.setStyle(SkPaint::kStroke_Style);
       paint.setStrokeCap(SkPaint::kRound_Cap);
@@ -174,8 +216,8 @@ namespace weather_client::artwork {
          canvas->drawLine(cx+std::cos(angle)*inner,cy+std::sin(angle)*inner,
             cx+std::cos(angle)*outer,cy+std::sin(angle)*outer,paint);
       }
-      view::Text(canvas,cx-radius*.45f,cy-radius*.39f,title,
-         radius<100?11.f:14.f,0xffa9c7d0);
+      view::font::Draw(canvas,cx-view::font::Width(title,14)*.5f,
+         cy-radius*.39f,title,14,0xffa9c7d0,radius*1.42f);
       if(value) {
          float const a=(135.f+static_cast<float>(ratio)*270.f)*Pi/180.f;
          paint.setShader(nullptr);
@@ -187,14 +229,36 @@ namespace weather_client::artwork {
          paint.setStrokeWidth(3.f);
          canvas->drawLine(cx,cy,cx+std::cos(a)*radius*.64f,
             cy+std::sin(a)*radius*.64f,paint);
-         view::Text(canvas,cx-radius*.41f,cy+radius*.47f,
-            std::format("{:.1f} {}",*value,unit),radius<100?13.f:19.f,
-            0xffebf6f9);
+         std::string const measured=unit=="inHg"?
+            std::format("{:.2f} {}",*value,unit):
+            std::format("{:.1f} {}",*value,unit);
+         float const size=unit=="inHg"?17.f:19.f;
+         view::font::Draw(canvas,cx-view::font::Width(measured,size)*.5f,
+            cy+radius*.47f,measured,size,0xffebf6f9,radius*1.58f);
       } else {
-         view::Text(canvas,cx-12,cy+radius*.47f,"--",18);
+         view::font::Draw(canvas,cx-view::font::Width("--",18)*.5f,
+            cy+radius*.47f,"--",18,0xffebf6f9);
       }
       view::Color(paint,0xfff0d3a1);
       canvas->drawCircle(cx,cy,5.f,paint);
+      // Different secondary scales/markers make the gauges recognizable.
+      if(title=="TEMPERATURE") {
+         view::Color(paint,0xfff28c64);
+         canvas->drawRoundRect(SkRect::MakeXYWH(cx-radius*.45f,
+            cy+radius*.16f,radius*.9f,4),2,2,paint);
+      } else if(title=="BAROMETER") {
+         paint.setStyle(SkPaint::kStroke_Style);
+         paint.setStrokeWidth(1.2f);
+         paint.setColor(0x9cb7d5e8);
+         canvas->drawCircle(cx,cy,radius*.52f,paint);
+         paint.setStyle(SkPaint::kFill_Style);
+      } else {
+         for(int i=0;i<3;++i) {
+            view::Color(paint,SkColorSetA(accent,90-i*19));
+            canvas->drawCircle(cx-radius*.28f+i*radius*.28f,
+               cy+radius*.09f,2.3f,paint);
+         }
+      }
       // Small animated light glint follows the clock, not weather data.
       Glow(canvas,cx-radius*.28f+std::sin(phase)*2,
          cy-radius*.40f,radius*.35f,0x0ff9fbff);
