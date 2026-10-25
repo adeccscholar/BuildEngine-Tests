@@ -8,6 +8,7 @@
     probabilities of lightning or certified severe-weather warnings.
 */
 #include "WeatherModel.h"
+#include "WeatherUnits.h"
 
 #include <algorithm>
 #include <cmath>
@@ -86,10 +87,11 @@ namespace weather_client {
       }
    }
 
-   [[nodiscard]] inline std::string RangeText(WeatherDay const* day) {
+   [[nodiscard]] inline std::string RangeText(WeatherDay const* day,UnitSystem units=UnitSystem::Metric) {
       if(!day || !day->temperature_2m_min || !day->temperature_2m_max)
-         return "-- / -- C";
-      return std::format("{:.0f} / {:.0f} C",
-         *day->temperature_2m_min,*day->temperature_2m_max);
+         return units==UnitSystem::US?"-- / -- °F":"-- / -- °C";
+      return std::format("{} / {}",
+         TempText(*day->temperature_2m_min,units,true),
+         TempText(*day->temperature_2m_max,units,true));
    }
 } // namespace weather_client

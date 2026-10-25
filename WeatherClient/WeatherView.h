@@ -11,6 +11,7 @@
 #include "WeatherText.h"
 #include "WeatherFont.h"
 #include "WeatherMetrics.h"
+#include "WeatherUnits.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
@@ -35,7 +36,7 @@ namespace weather_client::view {
 
    enum class Action {
       None, Address, Ip, Refresh, Hours, Days, Previous, Next,
-      Fullscreen, Apply, Cancel
+      Fullscreen, Units, Apply, Cancel
    };
 
    struct Button {
@@ -44,7 +45,7 @@ namespace weather_client::view {
       std::string_view label;
    };
 
-   inline constexpr std::array<Button,8> Buttons{{
+   inline constexpr std::array<Button,9> Buttons{{
       {Action::Address,   50, 669, 148, 40, "ADDRESS"},
       {Action::Ip,       206, 669, 128, 40, "IP LOCATION"},
       {Action::Refresh,  342, 669, 144, 40, "UPDATE"},
@@ -52,7 +53,8 @@ namespace weather_client::view {
       {Action::Days,     634, 669, 115, 40, "DAILY"},
       {Action::Previous, 757, 669,  90, 40, "<"},
       {Action::Next,     855, 669,  90, 40, ">"},
-      {Action::Fullscreen,953,669, 187, 40, "FULLSCREEN"}
+      {Action::Fullscreen,953,669, 100, 40, "FULL"},
+      {Action::Units,1061,669, 79, 40, "UNITS"}
    }};
    inline constexpr Button Apply{Action::Apply, 1015,669,125,40,"OK"};
    inline constexpr Button Cancel{Action::Cancel, 878,669,129,40,"CANCEL"};
@@ -95,7 +97,8 @@ namespace weather_client::view {
    }
 
    [[nodiscard]] inline std::size_t ClampOffset(
-      WeatherData const* weather,bool daily,std::size_t offset
+      WeatherData const* weather,bool daily,std::size_t offset,
+      UnitSystem units=UnitSystem::Metric
    ) noexcept {
       std::size_t const count=ForecastSize(weather,daily);
       std::size_t const page=daily?6U:8U;
@@ -169,7 +172,8 @@ namespace weather_client::view {
    }
 
    inline void DrawControls(
-      SkCanvas* canvas,bool editing,bool daily,bool demo,std::string_view input
+      SkCanvas* canvas,bool editing,bool daily,bool demo,std::string_view input,
+      UnitSystem units=UnitSystem::Metric
    ) {
       SkPaint paint;
       if(editing) {
@@ -185,13 +189,18 @@ namespace weather_client::view {
          for(auto const& button:Buttons) {
             bool const active=(button.action==Action::Hours&&!daily) ||
                (button.action==Action::Days&&daily);
-            DrawButton(canvas,button,active,demo&&button.action==Action::Ip);
+            if(button.action==Action::Units) {
+               Button unitButton=button;
+               unitButton.label=units==UnitSystem::US?"US":"METRIC";
+               DrawButton(canvas,unitButton,units==UnitSystem::US,false);
+            } else DrawButton(canvas,button,active,demo&&button.action==Action::Ip);
          }
       }
    }
 
    inline void DrawConditionDetails(
-      SkCanvas* canvas,WeatherCurrent const* current
+      SkCanvas* canvas,WeatherCurrent const* current,
+      UnitSystem units=UnitSystem::Metric
    ) {
       if(!current) {
          Text(canvas,65,449,"Loading observations ...",16,0xff99b2bc);
@@ -202,14 +211,16 @@ namespace weather_client::view {
          return digits==1?std::format("{:.1f}",*value):std::format("{:.0f}",*value);
       };
       Text(canvas,63,451,
-         std::format("FEELS LIKE: {} C",number(current->apparent_temperature,1)),17,0xffe6d6b7);
+         std::format("FEELS LIKE: {}",current->apparent_temperature?
+            TempText(*current->apparent_temperature,units):"--"),17,0xffe6d6b7);
       Text(canvas,331,451,
          std::format("CLOUDS: {} %",number(current->cloud_cover)),17,0xffc0d4df);
       Text(canvas,565,451,
-         std::format("PRECIPITATION: {} mm",number(current->precipitation,1)),17,0xff9dcced);
+         std::format("PRECIPITATION: {}",current->precipitation?
+            RainText(*current->precipitation,units):"--"),17,0xff9dcced);
       Text(canvas,919,451,
          current->wind_gusts_10m?
-            std::format("GUSTS: {:.0f} KM/H",*current->wind_gusts_10m):
+            std::format("GUSTS: {}",WindText(*current->wind_gusts_10m,units)):
             std::format("WIND: {}",current->wind_direction_10m?
                std::format("{:.0f} DEG",*current->wind_direction_10m):"--"),
          14,0xffc9dbdb);
@@ -293,15 +304,19 @@ namespace weather_client::view {
          if(daily) {
             auto const& day=weather->days[i];
             point.label=day.date.size()>=10?day.date.substr(5):day.date;
-            point.high=day.temperature_2m_max;
-            point.low=day.temperature_2m_min;
-            point.rain=day.precipitation_sum;
+            point.high=day.temperature_2m_max?
+               std::optional<double>{Temperature(*day.temperature_2m_max,units)}:std::nullopt;
+            point.low=day.temperature_2m_min?
+               std::optional<double>{Temperature(*day.temperature_2m_min,units)}:std::nullopt;
+            point.rain=day.precipitation_sum?
+               std::optional<double>{Precipitation(*day.precipitation_sum,units)}:std::nullopt;
             point.code=day.weather_code;
          } else {
             auto const& hour=weather->hours[i];
             point.label=hour.time.size()>=16?hour.time.substr(11,5):hour.time;
             point.daylight=IsDayAt(hour.time,*weather).value_or(true);
-            point.high=hour.temperature_2m;
+            point.high=hour.temperature_2m?
+               std::optional<double>{Temperature(*hour.temperature_2m,units)}:std::nullopt;
             point.rain=hour.precipitation_probability;
             point.code=hour.weather_code;
          }
@@ -373,13 +388,13 @@ namespace weather_client::view {
                portion*19.f),paint);
          }
          font::Draw(canvas,x-27,652,points[i].rain?
-            (daily?std::format("{:.1f} mm",*points[i].rain):
+            (daily?std::format(units==UnitSystem::US?"{:.2f} in":"{:.1f} mm",*points[i].rain):
                std::format("{:.0f} %",*points[i].rain))
             :"--",13,0xff9ccfda,96);
          if(points[i].high) {
             std::string const label=daily && points[i].low
-               ? std::format("{:.0f}/{:.0f} C",*points[i].low,*points[i].high)
-               : std::format("{:.0f} C",*points[i].high);
+               ? std::format("{:.0f}/{:.0f} {}",*points[i].low,*points[i].high,TempUnit(units))
+               : std::format("{:.0f} {}",*points[i].high,TempUnit(units));
             font::Draw(canvas,x-28,566,label,14,0xffe8ca89,105);
          }
       }

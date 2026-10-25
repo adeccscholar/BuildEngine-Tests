@@ -7,6 +7,7 @@
     \details Pure C++23 formatting: no SDL2, Skia, networking or Windows APIs.
 */
 #include "WeatherModel.h"
+#include "WeatherUnits.h"
 
 #include <algorithm>
 #include <cmath>
@@ -34,7 +35,7 @@ namespace weather_client {
       return std::string{names[index]};
    }
 
-   [[nodiscard]] inline WeatherBrief ComposeWeatherBrief(WeatherData const& data) {
+   [[nodiscard]] inline WeatherBrief ComposeWeatherBrief(WeatherData const& data,UnitSystem units=UnitSystem::Metric) {
       WeatherBrief result;
       result.headline = data.current.weather_code
          ? WeatherDescription(*data.current.weather_code)
@@ -42,8 +43,7 @@ namespace weather_client {
 
       // Describe only observations actually supplied by the provider.
       if(data.current.apparent_temperature) {
-         result.conditions += std::format("Feels like {:.1f} C",
-            *data.current.apparent_temperature);
+         result.conditions += std::format("Feels like {}",TempText(*data.current.apparent_temperature,units));
       }
       if(data.current.relative_humidity_2m) {
          if(!result.conditions.empty()) result.conditions += "  /  ";
@@ -52,11 +52,11 @@ namespace weather_client {
       }
       if(data.current.wind_speed_10m) {
          if(!result.conditions.empty()) result.conditions += "  /  ";
-         result.conditions += std::format("{} wind at {:.0f} km/h",
+         result.conditions += std::format("{} wind at {}",
             data.current.wind_direction_10m
                ? CardinalDirection(*data.current.wind_direction_10m)
                : "Local",
-            *data.current.wind_speed_10m);
+            WindText(*data.current.wind_speed_10m,units));
       }
       if(result.conditions.empty()) {
          result.conditions = "Detailed current observations unavailable.";
@@ -93,9 +93,9 @@ namespace weather_client {
          if(firstTemperature && lastTemperature) {
             double const delta = *lastTemperature - *firstTemperature;
             if(delta >= 1.0) {
-               result.outlook += std::format("; warming by {:.1f} C",delta);
+               result.outlook += std::format("; warming by {}",TempDeltaText(delta,units));
             } else if(delta <= -1.0) {
-               result.outlook += std::format("; cooling by {:.1f} C",-delta);
+               result.outlook += std::format("; cooling by {}",TempDeltaText(-delta,units));
             } else {
                result.outlook += "; temperature fairly steady";
             }
@@ -104,9 +104,9 @@ namespace weather_client {
       }
       if(data.days.size() > 1 && data.days[1].temperature_2m_max &&
          data.days[1].temperature_2m_min) {
-         result.outlook += std::format(" Tomorrow: {:.0f} / {:.0f} C.",
-            *data.days[1].temperature_2m_max,
-            *data.days[1].temperature_2m_min);
+         result.outlook += std::format(" Tomorrow: {} / {}.",
+            TempText(*data.days[1].temperature_2m_min,units,true),
+            TempText(*data.days[1].temperature_2m_max,units,true));
       }
       return result;
    }
