@@ -363,8 +363,12 @@ namespace weather_client::application {
          font::Draw(canvas,58,142,brief.conditions,15,0xffdeedf2,796);
          font::Draw(canvas,58,164,brief.outlook,14,0xffe0e8e8,796);
          auto const* today=wc::Today(*s.weather);
-         std::string const sun=std::format("TODAY {}   SUNRISE {}   SUNSET {}",
-            wc::RangeText(today),
+         if(s.daily && s.offset<s.weather->days.size())
+            today=&s.weather->days[s.offset];
+         std::string const period=s.daily && today
+            ? today->date : std::string{"TODAY"};
+         std::string const sun=std::format("{} {}   SUNRISE {}   SUNSET {}",
+            period,wc::RangeText(today),
             today?wc::ClockText(today->sunrise):"--:--",
             today?wc::ClockText(today->sunset):"--:--");
          font::Draw(canvas,58,184,sun,14,0xfff0d8b0,796);
