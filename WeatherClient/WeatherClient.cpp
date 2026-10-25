@@ -197,7 +197,8 @@ namespace {
       using reactions=mpl::list<
          sc::transition<EvLocation,Fetching>,
          sc::transition<EvFailure,Error>,
-         sc::transition<EvRefresh,Resolving>>;
+         sc::transition<EvRefresh,Resolving>,
+         sc::transition<EvStart,Resolving>>;
       explicit Resolving(my_context c):my_base(c) {}
    };
    struct Fetching:sc::state<Fetching,Machine> {
@@ -338,6 +339,16 @@ namespace {
    }
 }
 int main(int argc,char** argv) {
+   // Run the deterministic JSON/forecast smoke without initializing SDL.
+   for(int i=1;i<argc;++i) {
+      if(std::string_view(argv[i])=="--self-test") {
+         auto const data=Station::DemoWeather();
+         bool const valid=data.hours.size()==48 && data.days.size()==7 &&
+            data.current.temperature_2m.has_value();
+         std::cout << (valid?"WEATHER_CLIENT_TEST_PASS\n":"WEATHER_CLIENT_TEST_FAIL\n");
+         return valid?0:2;
+      }
+   }
    if(curl_global_init(CURL_GLOBAL_DEFAULT)!=CURLE_OK) return 1;
    SDL_SetMainReady();
    if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS)!=0) {
@@ -347,14 +358,7 @@ int main(int argc,char** argv) {
    for(int i=1;i<argc;++i) {
       if(std::string_view(argv[i])=="--demo") station.demo=true;
       if(std::string_view(argv[i])=="--config" && i+1<argc) station.config=argv[++i];
-      if(std::string_view(argv[i])=="--self-test") {
-         try {
-            auto test=Station::DemoWeather();
-            if(test.hours.size()!=48||test.days.size()!=7) throw std::runtime_error{"demo malformed"};
-            std::cout << "WEATHER_CLIENT_TEST_PASS\n";
-         } catch(...) { SDL_Quit();curl_global_cleanup();return 2; }
-         SDL_Quit();curl_global_cleanup();return 0;
-      }
+
    }
    SDL_Window* window=SDL_CreateWindow("adecc Scholar Weather Station",
       SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,1200,780,
@@ -451,9 +455,14 @@ int main(int argc,char** argv) {
             station.next=std::chrono::steady_clock::now()+refresh;
          }
       }
-      if(!station.loading&&station.location&&std::chrono::steady_clock::now()>=station.next) {
-         fsm.process_event(EvRefresh{});
-         station.Start(Request::Weather);
+      if(!station.loading&&std::chrono::steady_clock::now()>=station.next) {
+         if(station.location) {
+            fsm.process_event(EvRefresh{});
+            station.Start(Request::Weather);
+         } else if(!station.demo) {
+            fsm.process_event(EvStart{});
+            station.Start(Request::Ip);
+         }
          station.next=std::chrono::steady_clock::now()+refresh;
       }
       int width{},height{};
