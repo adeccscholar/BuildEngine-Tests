@@ -46,7 +46,7 @@ set_target_properties(WeatherSSL PROPERTIES
    INTERFACE_INCLUDE_DIRECTORIES "${OPENSSL_PACKAGE}/include"
    INTERFACE_LINK_LIBRARIES WeatherCrypto)
 
-add_executable(WeatherClient WIN32 WeatherClient.cpp WeatherNetwork.h WeatherModel.h WeatherView.h WeatherArtwork.h WeatherNarrative.h WeatherText.h WeatherFont.h WeatherMetrics.h WeatherUnits.h WeatherMoon.h)
+add_executable(WeatherClient WIN32 WeatherClient.cpp WeatherNetwork.h WeatherModel.h WeatherView.h WeatherArtwork.h WeatherNarrative.h WeatherText.h WeatherFont.h WeatherMetrics.h WeatherUnits.h WeatherMoon.h WeatherDiagnostics.h)
 set_target_properties(WeatherClient PROPERTIES
    CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF
    CXX_SCAN_FOR_MODULES OFF)
@@ -71,7 +71,7 @@ adecc_test_install(WeatherClient RUNTIME_CLOSURE
 
 enable_testing()
 add_test(NAME WeatherClientOfflineModel COMMAND "$<TARGET_FILE:WeatherClient>" --self-test)
-set_tests_properties(WeatherClientOfflineModel PROPERTIES LABELS "weather;offline;data;graphics")
+set_tests_properties(WeatherClientOfflineModel PROPERTIES LABELS "weather;offline;data")
 add_test(NAME WeatherClientGraphics COMMAND "$<TARGET_FILE:WeatherClient>" --graphics-test)
 set_tests_properties(WeatherClientGraphics PROPERTIES LABELS "weather;graphics;offline")
 add_test(NAME WeatherClientStatechart COMMAND "$<TARGET_FILE:WeatherClient>" --fsm-test)

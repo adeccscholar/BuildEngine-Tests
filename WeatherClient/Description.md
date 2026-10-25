@@ -301,3 +301,15 @@ down. The live GUI now reports C++ worker/FSM/render errors without
 intentionally terminating; fatal native access violations still require
 a native stack trace. The entire weather fetch path remains HTTPS with
 peer/hostname verification.
+
+## Active runtime diagnostics
+
+`--weather-probe <latitude> <longitude>` performs a real HTTPS/Open-Meteo
+request without opening an SDL window, recording success or detailed
+failure in `weather-client-probe.log` and returning a nonzero exit code
+on failure. `WEATHERCLIENT_TRACE_RENDER=1` adds flushed per-stage GUI
+trace entries in `weather-client-render.log`. The optional
+`WEATHERCLIENT_FONT_FALLBACK=1` bypasses the Skia DirectWrite font manager
+and renders using the original vector glyphs. This helps distinguish
+font-manager crashes from other Skia drawing faults. They are diagnostic
+options, not a replacement for a fully reliable GUI or worker lifecycle.

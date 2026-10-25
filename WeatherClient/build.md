@@ -160,3 +160,37 @@ cannot be recovered by C++ exception handling; a graphics-test crash
 still requires a native stack trace or crash dump to pinpoint the faulty
 Skia/DirectWrite operation. Do not hide such crashes by disabling TLS
 verification or excluding the graphic test.
+
+## Executable diagnostics (enabled in repository)
+
+The diagnostic flags are now implemented in the actual WeatherClient.
+It is a **WIN32 GUI-subsystem executable**; `--weather-probe` writes a
+flushed result file instead of relying on attached console output:
+
+```bat
+..\\build\\Test\\WeatherClient\\Release\\WeatherClient.exe --weather-probe 52.52 13.405
+type weather-client-probe.log
+
+set WEATHERCLIENT_TRACE_RENDER=1
+set WEATHERCLIENT_FONT_FALLBACK=1
+ctest --test-dir ../build/Test/WeatherClient/Release/cmake -R WeatherClientGraphics --output-on-failure
+type weather-client-render.log
+```
+
+`WEATHERCLIENT_FONT_FALLBACK=1` now bypasses DirectWrite/Segoe UI and
+forces the first-party Skia-vector glyphs, allowing isolation of font
+manager faults. `WEATHERCLIENT_TRACE_RENDER=1` flushes named drawing
+phases to a persistent file before each major scene component. A native
+segmentation fault can still occur, but the last logged phase identifies
+the part to inspect with a debugger. To return to Segoe UI run
+`set WEATHERCLIENT_FONT_FALLBACK=` and repeat the graphics test.
+
+The model test prints each failed condition separately as
+`WEATHER_CHECK_FAIL: model condition N` rather than one silent failure.
+The model-only test no longer initializes DirectWrite when checking text
+fitting; that verification belongs to the graphics test.
+
+These instruments **do not** prove that live weather retrieval or the
+full worker/retry lifecycle is functioning. A transition-only FSM PASS is
+not a live transport integration PASS; a failing weather probe or a crash
+in the graphics path must be treated independently.
