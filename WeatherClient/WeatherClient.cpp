@@ -84,6 +84,7 @@ namespace weather_client::application {
       bool daily{};
       bool demo{};
       std::string caBundle;
+      std::string lastSuccessfulRefresh;
       bool loading{};
       bool shutdown{};
       bool fullscreen{};
@@ -311,24 +312,34 @@ namespace weather_client::application {
 
       auto const* current=s.weather?&s.weather->current:nullptr;
       int const code=current?current->weather_code.value_or(-1):-1;
-      bool const daytime=!current||current->is_day.value_or(1)!=0;
+      bool const daytime=!s.weather||wc::CurrentDaylight(*s.weather);
       artwork::Atmosphere(canvas,code,daytime,animationTime);
-      Text(canvas,57,59,"ADECC  /  WEATHER OBSERVATORY",25,0xfff5f1e8);
-      Text(canvas,58,84,
-         s.location?view::ClipText(s.location->label,65):"Detecting approximate location...",
-         17,0xffb3d9e6);
+      font::Draw(canvas,57,59,"ADECC / WEATHER OBSERVATORY",
+         23,0xfff5f1e8,790);
+      std::string label=s.location?s.location->address:"Locating your region...";
+      if(s.location && s.location->approximate)
+         label=s.location->label+" (approximate)";
+      font::Draw(canvas,58,85,label,17,0xffb3d9e6,760.f);
       if(s.weather) {
          auto const brief=wc::ComposeWeatherBrief(*s.weather);
-         Text(canvas,58,114,brief.headline,25,0xfff9d19c);
-         Text(canvas,58,139,view::ClipText(brief.conditions,86),
-            15,0xffdeedf2);
-         Text(canvas,58,164,view::ClipText(brief.outlook,105),
-            15,0xffe0e8e8);
+         font::Draw(canvas,58,117,
+            brief.headline+(daytime?"  /  DAYLIGHT":"  /  NIGHT"),
+            24,0xfff9d19c,790);
+         font::Draw(canvas,58,142,brief.conditions,15,0xffdeedf2,796);
+         font::Draw(canvas,58,164,brief.outlook,14,0xffe0e8e8,796);
+         auto const* today=wc::Today(*s.weather);
+         std::string const sun=std::format("TODAY {}   SUNRISE {}   SUNSET {}",
+            wc::RangeText(today),
+            today?wc::ClockText(today->sunrise):"--:--",
+            today?wc::ClockText(today->sunset):"--:--");
+         font::Draw(canvas,58,184,sun,14,0xfff0d8b0,796);
       } else {
-         Text(canvas,58,116,"Waiting for weather observations...",21,0xffe5d2b9);
-         Text(canvas,58,147,
+         font::Draw(canvas,58,116,"Waiting for weather observations...",
+            22,0xffe5d2b9,790);
+         font::Draw(canvas,58,147,
             s.loading?"Resolving location and loading the forecast.":
-               "Press ADDRESS to choose a location.",15,0xffb9d4dc);
+               "Press ADDRESS to choose a location.",
+            15,0xffb9d4dc,790);
       }
 
       artwork::Dial(canvas,208,305,104,"TEMPERATURE",
@@ -349,26 +360,26 @@ namespace weather_client::application {
          Text(canvas,1010,415,"WIND --",15,0xffdbeaf0);
       }
       view::DrawConditionDetails(canvas,current);
-      Text(canvas,55,478,s.daily?"7-DAY FORECAST":"HOURLY FORECAST",
-         18,0xfff0e3ce);
+      if(s.weather) {
+         font::Draw(canvas,60,475,wc::StormLabel(wc::StormOutlook(*s.weather)),
+            13,0xffe6c0a5,245);
+      }
+      font::Draw(canvas,365,475,
+         s.daily?"DAILY OUTLOOK":"NEXT HOURS",16,0xfff0e3ce,360);
       view::DrawForecast(canvas,s.weather?&*s.weather:nullptr,s.daily,s.offset);
       view::DrawControls(canvas,s.editing,s.daily,s.demo,s.input);
 
-      if(!s.error.empty()) {
-         Text(canvas,55,733,"ERROR  "+view::ClipText(s.error,95),
-            14,0xffffb9ae);
-      } else if(s.loading) {
-         Text(canvas,55,733,"SYNCING WEATHER DATA  /  PLEASE WAIT",
-            14,0xffa8dfed);
-      } else {
-         Text(canvas,55,733,
-            s.demo?"OFFLINE DEMO  /  SYNTHETIC DATA":
-               "LIVE WEATHER  /  OPEN-METEO  /  OSM GEOCODING",
-            14,0xff9bcbb7);
-      }
-      Text(canvas,949,733,
-         s.weather?view::ClipText(s.weather->timezone,24):"TIMEZONE PENDING",
-         13,0xff91aebb);
+      std::string status=s.demo?"OFFLINE DEMO":
+         "LIVE WEATHER / "+(s.lastSuccessfulRefresh.empty()
+            ? std::string{"AWAITING FIRST UPDATE"}
+            : std::string{"UPDATED "+s.lastSuccessfulRefresh});
+      if(s.loading) status+=" / UPDATING";
+      font::Draw(canvas,55,733,status,14,0xff9bcbb7,765);
+      if(!s.error.empty())
+         font::Draw(canvas,55,753,"ERROR: "+s.error,12,0xffffb9ae,1060);
+      font::Draw(canvas,998,733,
+         s.weather?s.weather->timezone:"TIMEZONE PENDING",
+         12,0xff91aebb,155);
       canvas->restore();
    }
 
@@ -575,6 +586,7 @@ int main(int argc,char** argv) {
             station.Start(Request::Weather);
          } else if(result.weather) {
             station.weather=std::move(result.weather);
+            station.lastSuccessfulRefresh=station.weather->current.time;
             if(station.location) station.location->timezone=station.weather->timezone;
             station.error.clear();
             fsm.process_event(EvWeather{});
