@@ -68,3 +68,7 @@ adecc_test_install(WeatherClient RUNTIME_CLOSURE
 
 # User settings are created at runtime in the working directory; never
 # overwrite a user's saved address during installation.
+
+enable_testing()
+add_test(NAME WeatherClientOfflineModel COMMAND "$<TARGET_FILE:WeatherClient>" --self-test)
+set_tests_properties(WeatherClientOfflineModel PROPERTIES LABELS "weather;offline;fsm")
