@@ -200,3 +200,29 @@ working directory. Thus the render log created by the `ctest` command is
 under `../build/Test/WeatherClient/Release/cmake/weather-client-render.log`.
 A manually launched probe writes `weather-client-probe.log` in the
 shell's current directory.
+
+## Regression stabilization (2026-10-25)
+
+The 2026-10-25 CTest evidence with `WEATHERCLIENT_FONT_FALLBACK=1`
+confirmed that **all rendering stages complete**, including the full
+forecast and controls. Both non-FSM tests failed only on exact
+formatted-string assertions (conditions 12/13), not on a graphics
+fault. The model test now checks underlying temperatures separately
+from the displayed unit labels; it does not assume a byte-for-byte
+localized formatting result.
+
+The first-party raster lettering is temporarily **the default**, because
+it is the rendering path confirmed to complete. The Segoe UI/DirectWrite
+path introduced after the functioning version must be separately verified:
+
+```bat
+set WEATHERCLIENT_USE_SEGOE=1
+set WEATHERCLIENT_FONT_FALLBACK=
+ctest --test-dir ../build/Test/WeatherClient/Release/cmake -R WeatherClientGraphics --output-on-failure
+```
+
+Without `WEATHERCLIENT_USE_SEGOE=1`, the first-party lettering is used.
+No external font binaries are distributed. This is a conservative
+regression rollback, **not** a claim that the live-fetch problem is fixed.
+The live transport and worker recovery are still to be independently
+validated against the formerly working version.
