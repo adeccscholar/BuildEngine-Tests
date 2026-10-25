@@ -15,6 +15,7 @@
 #include "WeatherMetrics.h"
 #include "WeatherUnits.h"
 #include "WeatherMoon.h"
+#include "WeatherDiagnostics.h"
 
 #include <SDL.h>
 #include <boost/statechart/state_machine.hpp>
@@ -337,6 +338,7 @@ namespace weather_client::application {
 
    void Render(SkCanvas* canvas,int width,int height,Station const& s,
       float animationTime) {
+      wc::diagnostics::Trace("Render: start");
       canvas->clear(0xff091923);
       canvas->save();
       float const scale=(std::min)(width/1200.f,height/780.f);
@@ -356,7 +358,9 @@ namespace weather_client::application {
       bool const daytime=!s.weather||wc::CurrentDaylight(*s.weather);
       auto const moon=s.weather?wc::CalculateMoonPhase(s.weather->current.time):
          std::optional<wc::MoonPhase>{};
+      wc::diagnostics::Trace("Render: atmosphere");
       artwork::Atmosphere(canvas,code,daytime,animationTime,moon);
+      wc::diagnostics::Trace("Render: header font");
       font::Draw(canvas,57,59,"ADECC / WEATHER OBSERVATORY",
          23,0xfff5f1e8,790);
       std::string label=s.location?s.location->address:"Locating your region...";
@@ -395,6 +399,7 @@ namespace weather_client::application {
             15,0xffb9d4dc,790);
       }
 
+      wc::diagnostics::Trace("Render: gauges");
       artwork::Dial(canvas,208,305,104,"TEMPERATURE",
          current&&current->temperature_2m?
             std::optional<double>{wc::Temperature(*current->temperature_2m,s.units)}:
@@ -421,6 +426,7 @@ namespace weather_client::application {
       } else {
          Text(canvas,1010,415,"WIND --",15,0xffdbeaf0);
       }
+      wc::diagnostics::Trace("Render: details");
       view::DrawConditionDetails(canvas,current,s.units);
       if(s.weather) {
          font::Draw(canvas,60,475,wc::StormLabel(wc::StormOutlook(*s.weather)),
@@ -428,7 +434,9 @@ namespace weather_client::application {
       }
       font::Draw(canvas,365,475,
          s.daily?"DAILY OUTLOOK":"NEXT HOURS",16,0xfff0e3ce,360);
+      wc::diagnostics::Trace("Render: forecast");
       view::DrawForecast(canvas,s.weather?&*s.weather:nullptr,s.daily,s.offset,s.units);
+      wc::diagnostics::Trace("Render: controls");
       view::DrawControls(canvas,s.editing,s.daily,s.demo,s.input,s.units);
 
       std::string status=s.demo?"OFFLINE DEMO":
@@ -446,6 +454,7 @@ namespace weather_client::application {
          s.weather?s.weather->timezone:"TIMEZONE PENDING",
          12,0xff91aebb,155);
       canvas->restore();
+      wc::diagnostics::Trace("Render: complete");
    }
 
 } // namespace weather_client::application
@@ -455,6 +464,27 @@ int main(int argc,char** argv) {
    namespace font = weather_client::font;
    // Run the deterministic JSON/forecast smoke without initializing SDL.
    for(int i=1;i<argc;++i) {
+      if(std::string_view(argv[i])=="--weather-probe" && i+2<argc) {
+         std::ofstream report{"weather-client-probe.log",std::ios::trunc};
+         report<<"Starting weather probe"<<std::endl;
+         if(curl_global_init(CURL_GLOBAL_DEFAULT)!=CURLE_OK) {
+            report<<"curl_global_init failed"<<std::endl; return 4;
+         }
+         int exitCode=0;
+         try {
+            wc::Location location;
+            location.latitude=std::stod(argv[i+1]);
+            location.longitude=std::stod(argv[i+2]);
+            auto weather=wc::FetchWeather(location);
+            report<<"Open-Meteo OK: "<<weather.current.time
+                  <<" / hours: "<<weather.hours.size()<<std::endl;
+         } catch(std::exception const& e) {
+            report<<"Open-Meteo FAILED: "<<e.what()<<std::endl;
+            exitCode=5;
+         }
+         curl_global_cleanup();
+         return exitCode;
+      }
       if(std::string_view(argv[i])=="--fsm-test") {
          bool const passed=VerifyStatechart();
          std::cout << (passed?"WEATHER_FSM_TEST_PASS\n":"WEATHER_FSM_TEST_FAIL\n");
@@ -468,6 +498,7 @@ int main(int argc,char** argv) {
          view::BackspaceUtf8(text);
          auto const brief=wc::ComposeWeatherBrief(data);
          if(graphics) {
+            wc::diagnostics::Trace("Graphics test: begin");
             SDL_SetMainReady();
             if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS)!=0) {
                std::cerr << "WEATHER_GRAPHICS_INIT_FAIL: " << SDL_GetError() << '\n';
