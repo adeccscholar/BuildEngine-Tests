@@ -21,6 +21,22 @@
 namespace weather_client {
    enum class StormSignal { Unavailable, NotIndicated, Instability, Forecast };
 
+   /** \brief Classify the UV index in public-health bands.
+       \details UV index is dimensionless and never converted to US units.
+       \param flIndex Open-Meteo UV index reading.
+       \returns A category label, or UNKNOWN for invalid measurements.
+       \throw Nothing.
+   */
+   [[nodiscard]] inline std::string_view UvCategory(double flIndex) noexcept {
+      if(!std::isfinite(flIndex)||flIndex<0.) return "UNKNOWN";
+      if(flIndex<3.) return "LOW";
+      if(flIndex<6.) return "MODERATE";
+      if(flIndex<8.) return "HIGH";
+      if(flIndex<11.) return "VERY HIGH";
+      return "EXTREME";
+   }
+
+
    [[nodiscard]] constexpr bool ThunderCode(int code) noexcept {
       return code==95 || code==96 || code==97 || code==99;
    }
