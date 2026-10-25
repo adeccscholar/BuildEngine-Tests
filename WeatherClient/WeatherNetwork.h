@@ -54,7 +54,7 @@ namespace weather_client {
          throw std::runtime_error{std::format("HTTPS: {}", curl_easy_strerror(error))};
       }
       long code{};
-      curl_easy_getinfo(handle.get(), CURLOPT_RESPONSE_CODE, &code);
+      curl_easy_getinfo(handle.get(), CURLINFO_RESPONSE_CODE, &code);
       if(code != 200) throw std::runtime_error{std::format("HTTP {}", code)};
       return result;
    }
