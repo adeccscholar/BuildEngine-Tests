@@ -17,6 +17,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkPathBuilder.h"
 
 #include <algorithm>
 #include <array>
@@ -97,8 +98,7 @@ namespace weather_client::view {
    }
 
    [[nodiscard]] inline std::size_t ClampOffset(
-      WeatherData const* weather,bool daily,std::size_t offset,
-      UnitSystem units=UnitSystem::Metric
+      WeatherData const* weather,bool daily,std::size_t offset
    ) noexcept {
       std::size_t const count=ForecastSize(weather,daily);
       std::size_t const page=daily?6U:8U;
@@ -428,7 +428,7 @@ namespace weather_client::view {
       for(std::size_t i=0;i<points.size();++i) {
          float const x=xAt(i);
          font::Draw(canvas,x-30,510,points[i].label,14,0xffc9d9df,91);
-         DrawSkySymbol(canvas,x-7,daily?502.f:532.f,
+         DrawSkySymbol(canvas,daily?x+37:x-7,daily?511.f:532.f,
             points[i].code.value_or(-1),points[i].daylight);
          if(points[i].rain) {
             float const portion=static_cast<float>(
