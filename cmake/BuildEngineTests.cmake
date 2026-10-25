@@ -69,7 +69,7 @@ endfunction()
 # Explicit per-target package closures. CMake does not guess libraries from PATH.
 function(adecc_test_install target)
  cmake_parse_arguments(ARG "" "" "PACKAGE_ROOTS;TOOLCHAIN_DLLS;EXCLUDE_DLLS" ${ARGN})
- if(ARG_PACKAGE_ROOTS)
+ if(ARG_PACKAGE_ROOTS OR ARG_TOOLCHAIN_DLLS)
    adecc_stage_runtime(${target} PACKAGE_ROOTS ${ARG_PACKAGE_ROOTS}
      TOOLCHAIN_DLLS ${ARG_TOOLCHAIN_DLLS} EXCLUDE_DLLS ${ARG_EXCLUDE_DLLS})
  endif()
