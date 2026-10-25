@@ -228,3 +228,21 @@ No external font binaries are distributed. This is a conservative
 regression rollback, **not** a claim that the live-fetch problem is fixed.
 The live transport and worker recovery are still to be independently
 validated against the formerly working version.
+
+## Targeted dial regression rollback (2026-10-25)
+
+The BCC64X graphics CTest runs through the day/night atmosphere and header,
+then access-violates **inside the gauges stage** when Segoe UI is enabled.
+The last known-good `Dial` source is copied specifically from revision
+`69824e9b1734f199a4818ef6ea3398bb6c83712c`, made **after** the
+measured Skia Segoe UI font was integrated and **before** the visual
+instrument upgrade. All other weather art, forecast, lunar phase and
+unit conversions remain unchanged. Only the minimum US inHg precision
+(2 decimal places) was added to the original dial body.
+
+This is a targeted rollback of the newer instrument drawing code, **not** a
+font-provider or architecture change. The render trace now identifies each
+individual dial and the wind rose. The next BCC64X graphics CTest will
+verify whether the regression is resolved. If it still crashes, use the
+last instrument name in `weather-client-render.log` to target the next
+change; do not replace working subsystems on speculation.

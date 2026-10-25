@@ -400,6 +400,7 @@ namespace weather_client::application {
       }
 
       wc::diagnostics::Trace("Render: gauges");
+      wc::diagnostics::Trace("Render: temperature dial");
       artwork::Dial(canvas,208,305,104,"TEMPERATURE",
          current&&current->temperature_2m?
             std::optional<double>{wc::Temperature(*current->temperature_2m,s.units)}:
@@ -407,6 +408,7 @@ namespace weather_client::application {
          s.units==wc::UnitSystem::US?-13.f:-25.f,
          s.units==wc::UnitSystem::US?113.f:45.f,
          s.units==wc::UnitSystem::US?"°F":"°C",0xfff7b76a,animationTime);
+      wc::diagnostics::Trace("Render: barometer dial");
       artwork::Dial(canvas,486,305,104,"BAROMETER",
          current&&current->pressure_msl?
             std::optional<double>{wc::Pressure(*current->pressure_msl,s.units)}:
@@ -414,9 +416,11 @@ namespace weather_client::application {
          s.units==wc::UnitSystem::US?wc::Pressure(950,wc::UnitSystem::US):950.,
          s.units==wc::UnitSystem::US?wc::Pressure(1050,wc::UnitSystem::US):1050.,
          s.units==wc::UnitSystem::US?"inHg":"hPa",0xff83d2ed,animationTime);
+      wc::diagnostics::Trace("Render: humidity dial");
       artwork::Dial(canvas,764,305,104,"HUMIDITY",
          current?current->relative_humidity_2m:std::nullopt,
          0,100,"%",0xff80d5be,animationTime);
+      wc::diagnostics::Trace("Render: wind rose");
       artwork::WindRose(canvas,1041,305,86,
          current?current->wind_direction_10m:std::nullopt,animationTime);
       if(current&&current->wind_speed_10m) {

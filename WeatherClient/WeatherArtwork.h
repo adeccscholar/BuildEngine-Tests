@@ -192,19 +192,8 @@ namespace weather_client::artwork {
          {{rim,stops,SkTileMode::kClamp},{}}));
       canvas->drawCircle(cx,cy,radius+7,paint);
       paint.setShader(nullptr);
-      // Different materials: enamel thermometer, machined barometer, glass hygrometer.
-      SkColor const surface=title=="TEMPERATURE"?0xff402921:
-         title=="BAROMETER"?0xff172d43:0xff123b3a;
-      view::Color(paint,surface);
+      view::Color(paint,0xff152a37);
       canvas->drawCircle(cx,cy,radius+1,paint);
-      Glow(canvas,cx-radius*.24f,cy-radius*.33f,radius*.83f,
-         title=="TEMPERATURE"?0x397c4d2f:
-            title=="BAROMETER"?0x29549ccc:0x2850d7bc);
-      view::Color(paint,SkColorSetA(accent,67));
-      paint.setStyle(SkPaint::kStroke_Style);
-      paint.setStrokeWidth(title=="BAROMETER"?3.5f:2.f);
-      canvas->drawCircle(cx,cy,radius*.90f,paint);
-      paint.setStyle(SkPaint::kFill_Style);
       Glow(canvas,cx-radius*.29f,cy-radius*.37f,radius*.78f,0x274c7d95);
       paint.setStyle(SkPaint::kStroke_Style);
       paint.setStrokeCap(SkPaint::kRound_Cap);
@@ -230,8 +219,8 @@ namespace weather_client::artwork {
          canvas->drawLine(cx+std::cos(angle)*inner,cy+std::sin(angle)*inner,
             cx+std::cos(angle)*outer,cy+std::sin(angle)*outer,paint);
       }
-      font::Draw(canvas,cx-font::Width(title,14)*.5f,
-         cy-radius*.39f,title,14,0xffa9c7d0,radius*1.42f);
+      view::Text(canvas,cx-radius*.45f,cy-radius*.39f,title,
+         radius<100?11.f:14.f,0xffa9c7d0);
       if(value) {
          float const a=(135.f+static_cast<float>(ratio)*270.f)*Pi/180.f;
          paint.setShader(nullptr);
@@ -243,36 +232,17 @@ namespace weather_client::artwork {
          paint.setStrokeWidth(3.f);
          canvas->drawLine(cx,cy,cx+std::cos(a)*radius*.64f,
             cy+std::sin(a)*radius*.64f,paint);
-         std::string const measured=unit=="inHg"?
-            std::format("{:.2f} {}",*value,unit):
-            std::format("{:.1f} {}",*value,unit);
-         float const size=unit=="inHg"?17.f:19.f;
-         font::Draw(canvas,cx-font::Width(measured,size)*.5f,
-            cy+radius*.47f,measured,size,0xffebf6f9,radius*1.58f);
+         // Keep the verified dial rendering; only pressure formatting differs.
+         std::string const valueText=unit=="inHg"
+            ? std::format("{:.2f} {}",*value,unit)
+            : std::format("{:.1f} {}",*value,unit);
+         view::Text(canvas,cx-radius*.41f,cy+radius*.47f,
+            valueText,radius<100?13.f:19.f,0xffebf6f9);
       } else {
-         font::Draw(canvas,cx-font::Width("--",18)*.5f,
-            cy+radius*.47f,"--",18,0xffebf6f9);
+         view::Text(canvas,cx-12,cy+radius*.47f,"--",18);
       }
       view::Color(paint,0xfff0d3a1);
       canvas->drawCircle(cx,cy,5.f,paint);
-      // Different secondary scales/markers make the gauges recognizable.
-      if(title=="TEMPERATURE") {
-         view::Color(paint,0xfff28c64);
-         canvas->drawRoundRect(SkRect::MakeXYWH(cx-radius*.45f,
-            cy+radius*.16f,radius*.9f,4),2,2,paint);
-      } else if(title=="BAROMETER") {
-         paint.setStyle(SkPaint::kStroke_Style);
-         paint.setStrokeWidth(1.2f);
-         paint.setColor(0x9cb7d5e8);
-         canvas->drawCircle(cx,cy,radius*.52f,paint);
-         paint.setStyle(SkPaint::kFill_Style);
-      } else {
-         for(int i=0;i<3;++i) {
-            view::Color(paint,SkColorSetA(accent,90-i*19));
-            canvas->drawCircle(cx-radius*.28f+i*radius*.28f,
-               cy+radius*.09f,2.3f,paint);
-         }
-      }
       // Small animated light glint follows the clock, not weather data.
       Glow(canvas,cx-radius*.28f+std::sin(phase)*2,
          cy-radius*.40f,radius*.35f,0x0ff9fbff);
