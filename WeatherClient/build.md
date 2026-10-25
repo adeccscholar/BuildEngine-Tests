@@ -174,7 +174,7 @@ type weather-client-probe.log
 set WEATHERCLIENT_TRACE_RENDER=1
 set WEATHERCLIENT_FONT_FALLBACK=1
 ctest --test-dir ../build/Test/WeatherClient/Release/cmake -R WeatherClientGraphics --output-on-failure
-type weather-client-render.log
+type ..\\build\\Test\\WeatherClient\\Release\\cmake\\weather-client-render.log
 ```
 
 `WEATHERCLIENT_FONT_FALLBACK=1` now bypasses DirectWrite/Segoe UI and
@@ -194,3 +194,9 @@ These instruments **do not** prove that live weather retrieval or the
 full worker/retry lifecycle is functioning. A transition-only FSM PASS is
 not a live transport integration PASS; a failing weather probe or a crash
 in the graphics path must be treated independently.
+
+Note: CTest launches its executable with the CMake build directory as
+working directory. Thus the render log created by the `ctest` command is
+under `../build/Test/WeatherClient/Release/cmake/weather-client-render.log`.
+A manually launched probe writes `weather-client-probe.log` in the
+shell's current directory.
