@@ -9,6 +9,7 @@
     SkCanvas. All positioning is independent from the windowing backend.
 */
 #include "WeatherView.h"
+#include "WeatherMoon.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/effects/SkGradient.h"
 
@@ -57,20 +58,31 @@ namespace weather_client::artwork {
       canvas->drawCircle(x+99*scale,y+21*scale,25*scale,paint);
    }
 
-   inline void Moon(SkCanvas* canvas,float x,float y,float radius) {
-      // An original crescent silhouette, not a cut-out of the background.
+   inline void Moon(SkCanvas* canvas,float x,float y,float radius,
+      MoonPhase const& phase) {
       Glow(canvas,x,y,radius*2.4f,0x458daadd);
-      SkPathBuilder crescent;
-      crescent.moveTo(x+radius*.62f,y-radius*.80f);
-      crescent.cubicTo(x-radius*1.7f,y-radius*1.05f,
-         x-radius*1.65f,y+radius*1.15f,x+radius*.35f,y+radius);
-      crescent.cubicTo(x-radius*.45f,y+radius*.58f,
-         x-radius*.41f,y-radius*.35f,x+radius*.62f,y-radius*.80f);
-      crescent.close();
-      SkPaint p;
-      view::Color(p,0xffe7ecfa);
-      canvas->drawPath(crescent.detach(),p);
-      Glow(canvas,x-radius*.42f,y-radius*.35f,radius*.38f,0x35ffffff);
+      SkPaint paint;
+      view::Color(paint,0xff142c41);
+      canvas->drawCircle(x,y,radius,paint);
+      // Illuminated portion of a sphere, with the terminator adjusted for
+      // both waxing/waning orientation and the computed illuminated fraction.
+      view::Color(paint,0xffe8edf6);
+      float const cycle=static_cast<float>(phase.cycle);
+      for(int row=0;row<80;++row) {
+         float const yy=-radius+radius*2.f*(row+.5f)/80.f;
+         float const half=std::sqrt((std::max)(0.f,radius*radius-yy*yy));
+         float const terminator=std::cos(2.f*Pi*cycle)*half;
+         float const left=phase.waxing?terminator:-half;
+         float const right=phase.waxing?half:-terminator;
+         if(right>left) {
+            canvas->drawRect(SkRect::MakeXYWH(
+               x+left,y+yy-radius/80.f,right-left,radius*2.f/80.f+1.f),paint);
+         }
+      }
+      paint.setStyle(SkPaint::kStroke_Style);
+      paint.setStrokeWidth(1.3f);
+      paint.setColor(0x95c2d2e0);
+      canvas->drawCircle(x,y,radius,paint);
    }
 
    inline void SunriseSunset(SkCanvas* canvas,float x,float y,
@@ -87,7 +99,8 @@ namespace weather_client::artwork {
       canvas->drawLine(x,y-15*dir,x,y-7*dir,p);
    }
 
-   inline void Atmosphere(SkCanvas* canvas,int code,bool daytime,float phase) {
+   inline void Atmosphere(SkCanvas* canvas,int code,bool daytime,float phase,
+      std::optional<MoonPhase> const& moon=std::nullopt) {
       // All art is synthesized from paths and gradients. No textures/assets.
       GradientRect(canvas,SkRect::MakeXYWH(30,24,1140,160),
          daytime?0xff164e72:0xff1b254b,
@@ -97,7 +110,8 @@ namespace weather_client::artwork {
       SkPaint paint;
       view::Color(paint,daytime?0xfff7d18a:0xffd9e2f7);
       if(daytime) canvas->drawCircle(1000,85,28,paint);
-      else Moon(canvas,1000,85,28);
+      else Moon(canvas,1000,85,28,moon.value_or(MoonPhase{.cycle=.25,.illumination=.5,
+         .stage=MoonStage::FirstQuarter,.waxing=true}));
       if(!daytime) {
          for(int i=0;i<31;++i) {
             float const x=62.f+static_cast<float>((i*191)%1075);
