@@ -1,0 +1,43 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "buildengine_tests_docu_server",
+      "bom-ref": "app:docu-server"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-unverified"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "boost"
+    },
+    {
+      "type": "library",
+      "name": "cmark-gfm"
+    },
+    {
+      "type": "library",
+      "name": "highlight.js",
+      "version": "11.12.0"
+    },
+    {
+      "type": "library",
+      "name": "mermaid",
+      "version": "11.17.2"
+    },
+    {
+      "type": "library",
+      "name": "mathjax",
+      "version": "3.2.2"
+    }
+  ]
+}
