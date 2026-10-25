@@ -10,6 +10,7 @@ BuildEngine, not BuildEngine's own internal administration or production service
 
 | Area | Libraries and purpose |
 | --- | --- |
+| [PolicyTest](/docs/PolicyTest/Description.md) | adecc-core-lib policies, IBAN, SEPA, date, amount and negative acceptance tests |
 | [CompareTest](/docs/CompareTest/Description.md) | fast_float and oneTBB parsing/comparison |
 | [Financial](/docs/financial/Description.md) | Boost, pugixml and OpenSSL finance examples |
 | [Geospatial Skia](/docs/geospatial-skia/Description.md) | Skia, OpenMP, oneTBB, SDL2 and OpenGL |

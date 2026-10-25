@@ -1,0 +1,62 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "adecc_policy_test",
+      "bom-ref": "app:adecc_policy_test",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "adecc:verification",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:source",
+        "value": "Migrated from user-supplied PolicyTest.zip"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "adecc-core-lib pinned submodule commit c94250ec0936a23d329ea8f14798b954773ed82d"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "adecc-core-lib",
+      "bom-ref": "lib:adecc-core-lib",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:dependency-kind",
+          "value": "header-only CMake INTERFACE"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:adecc_policy_test",
+      "dependsOn": [
+        "lib:adecc-core-lib"
+      ]
+    }
+  ]
+}

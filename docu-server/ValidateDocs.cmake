@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 if(NOT DEFINED ROOT)
    message(FATAL_ERROR "ROOT required")
 endif()
-set(_projects CompareTest financial geospatial-skia opengl-sdl2-earth
+set(_projects PolicyTest CompareTest financial geospatial-skia opengl-sdl2-earth
    openmp-galaxy openmp-mandelbrot pdf-image-extraction
    pdfium/Common pdfium/SDL2 pdfium/VCL skia-direct-showcase
    tests/pdf-image-extraction thirdparty-showcase docu-server
