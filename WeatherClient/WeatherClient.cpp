@@ -8,6 +8,8 @@
 */
 #include "WeatherNetwork.h"
 #include "WeatherView.h"
+#include "WeatherArtwork.h"
+#include "WeatherNarrative.h"
 
 #include <SDL.h>
 #include <boost/statechart/state_machine.hpp>
@@ -278,39 +280,85 @@ namespace weather_client::application {
       }
    }
 
-   void Render(SkCanvas* canvas,int width,int height,Station const& s) {
-      canvas->clear(0xff0e202d);
+   void Render(SkCanvas* canvas,int width,int height,Station const& s,
+      float animationTime) {
+      canvas->clear(0xff091923);
       canvas->save();
       float const scale=(std::min)(width/1200.f,height/780.f);
       canvas->translate((width-1200*scale)*.5f,(height-780*scale)*.5f);
       canvas->scale(scale,scale);
-      SkPaint p;SetColor(p,0xff233c4c);
-      canvas->drawRoundRect(SkRect::MakeXYWH(18,16,1164,748),24,24,p);
-      SetColor(p,0xffb39a66);p.setStyle(SkPaint::kStroke_Style);p.setStrokeWidth(3);
-      canvas->drawRoundRect(SkRect::MakeXYWH(18,16,1164,748),24,24,p);
-      Text(canvas,65,78,"ADECC   |   WEATHER STATION",30,0xfff1e7cc);
-      Text(canvas,67,112,s.location?s.location->label:"Standort wird ermittelt ...",17);
-      Text(canvas,66,140,
-         s.weather?std::format("{}  |  {}  |  {}",
-            s.weather->current.time,s.weather->timezone,
-            wc::WeatherDescription(s.weather->current.weather_code.value_or(-1)))
-            : "Wetterdaten noch nicht geladen",16,0xff9fc6d1);
 
-      auto const& c=s.weather?&s.weather->current:nullptr;
-      Gauge(canvas,210,300,122,"TEMPERATUR",c?c->temperature_2m:std::nullopt,-25,45,"C");
-      Gauge(canvas,510,300,122,"LUFTDRUCK",c?c->pressure_msl:std::nullopt,950,1050,"hPa");
-      Gauge(canvas,810,300,122,"FEUCHTE",c?c->relative_humidity_2m:std::nullopt,0,100,"%");
-      Gauge(canvas,1060,300,80,"WIND",c?c->wind_speed_10m:std::nullopt,0,100,"km/h");
-      view::DrawConditionDetails(canvas,c);
-      Text(canvas,55,477,s.daily?"7-TAGE-VORSCHAU":"STUNDENVORSCHAU",19,0xfff1e7cc);
+      SkPaint p;
+      SetColor(p,0xff182e3d);
+      canvas->drawRoundRect(SkRect::MakeXYWH(18,14,1164,750),24,24,p);
+      p.setStyle(SkPaint::kStroke_Style);
+      p.setStrokeWidth(2.f);
+      p.setColor(0xff5a8090);
+      canvas->drawRoundRect(SkRect::MakeXYWH(18,14,1164,750),24,24,p);
+
+      auto const* current=s.weather?&s.weather->current:nullptr;
+      int const code=current?current->weather_code.value_or(-1):-1;
+      bool const daytime=!current||current->is_day.value_or(1)!=0;
+      artwork::Atmosphere(canvas,code,daytime,animationTime);
+      Text(canvas,57,59,"ADECC  /  WEATHER OBSERVATORY",25,0xfff5f1e8);
+      Text(canvas,58,84,
+         s.location?view::ClipText(s.location->label,65):"Detecting approximate location...",
+         17,0xffb3d9e6);
+      if(s.weather) {
+         auto const brief=wc::ComposeWeatherBrief(*s.weather);
+         Text(canvas,58,114,brief.headline,25,0xfff9d19c);
+         Text(canvas,58,139,view::ClipText(brief.conditions,86),
+            15,0xffdeedf2);
+         Text(canvas,58,164,view::ClipText(brief.outlook,105),
+            15,0xffe0e8e8);
+      } else {
+         Text(canvas,58,116,"Waiting for weather observations...",21,0xffe5d2b9);
+         Text(canvas,58,147,
+            s.loading?"Resolving location and loading the forecast.":
+               "Press ADDRESS to choose a location.",15,0xffb9d4dc);
+      }
+
+      artwork::Dial(canvas,208,305,104,"TEMPERATURE",
+         current?current->temperature_2m:std::nullopt,
+         -25,45,"C",0xfff7b76a,animationTime);
+      artwork::Dial(canvas,486,305,104,"BAROMETER",
+         current?current->pressure_msl:std::nullopt,
+         950,1050,"hPa",0xff83d2ed,animationTime);
+      artwork::Dial(canvas,764,305,104,"HUMIDITY",
+         current?current->relative_humidity_2m:std::nullopt,
+         0,100,"%",0xff80d5be,animationTime);
+      artwork::WindRose(canvas,1041,305,86,
+         current?current->wind_direction_10m:std::nullopt,animationTime);
+      if(current&&current->wind_speed_10m) {
+         Text(canvas,994,415,std::format("WIND {:.0f} km/h",
+            *current->wind_speed_10m),15,0xffdbeaf0);
+      } else {
+         Text(canvas,1010,415,"WIND --",15,0xffdbeaf0);
+      }
+      view::DrawConditionDetails(canvas,current);
+      Text(canvas,55,478,s.daily?"7-DAY FORECAST":"HOURLY FORECAST",
+         18,0xfff0e3ce);
       view::DrawForecast(canvas,s.weather?&*s.weather:nullptr,s.daily,s.offset);
       view::DrawControls(canvas,s.editing,s.daily,s.demo,s.input);
-      Text(canvas,55,729,s.error.empty()
-         ? (s.loading?"FSM: LADE DATEN ...":s.demo?"DEMO / OFFLINE":"FSM: BEREIT")
-         : std::format("FSM: FEHLER  {}",s.error.substr(0,105)),14,
-         s.error.empty()?0xff9ed7bf:0xffffc0a8);
+
+      if(!s.error.empty()) {
+         Text(canvas,55,733,"ERROR  "+view::ClipText(s.error,95),
+            14,0xffffb9ae);
+      } else if(s.loading) {
+         Text(canvas,55,733,"SYNCING WEATHER DATA  /  PLEASE WAIT",
+            14,0xffa8dfed);
+      } else {
+         Text(canvas,55,733,
+            s.demo?"OFFLINE DEMO  /  SYNTHETIC DATA":
+               "LIVE WEATHER  /  OPEN-METEO  /  OSM GEOCODING",
+            14,0xff9bcbb7);
+      }
+      Text(canvas,949,733,
+         s.weather?view::ClipText(s.weather->timezone,24):"TIMEZONE PENDING",
+         13,0xff91aebb);
       canvas->restore();
    }
+
 } // namespace weather_client::application
 int main(int argc,char** argv) {
    using namespace weather_client::application;
@@ -508,7 +556,7 @@ int main(int argc,char** argv) {
       width=(std::max)(width,1);height=(std::max)(height,1);
       auto surface=SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width,height));
       if(surface) {
-         Render(surface->getCanvas(),width,height,station);
+         Render(surface->getCanvas(),width,height,station,SDL_GetTicks()/1000.f);
          SkPixmap pixmap;
          if(surface->peekPixels(&pixmap)) {
             SDL_Surface* image=SDL_CreateRGBSurfaceWithFormatFrom(
