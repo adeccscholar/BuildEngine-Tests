@@ -548,47 +548,54 @@ int main(int argc,char** argv) {
                   SkColorGetR(*pixels.addr32(60,550));
             }
          }
-         bool const valid=(!graphics || (glyphVisible && overviewDrawn)) &&
-            newMoon && newMoon->illumination<0.001 &&
-            newMoon->stage==wc::MoonStage::New &&
-            fullMoon && fullMoon->illumination>0.98 &&
-            waxing && waxing->waxing && waxing->illumination>0.25 &&
-            waning && !waning->waxing && waning->illumination>0.20 &&
-            !wc::CalculateMoonPhase("2026-02-30T12:00") &&
-            font::Width(font::Fit("A long address with Unicode \u00e4 and more",
-               16.f,170.f),16.f)<=170.1f &&
-            VerifyStatechart() &&
-            wc::CurrentDaylight(data) &&
-            wc::IsDayAt("2026-10-25T21:00",data)==false &&
-            wc::RangeText(wc::Today(data))=="9 °C / 19 °C" &&
-            wc::RangeText(wc::Today(data),wc::UnitSystem::US)=="48 °F / 66 °F" &&
-            wc::Temperature(0.,wc::UnitSystem::US)==32. &&
-            wc::Temperature(100.,wc::UnitSystem::US)==212. &&
-            std::abs(wc::WindSpeed(100.,wc::UnitSystem::US)-62.137119)<0.001 &&
-            std::abs(wc::Pressure(1013.25,wc::UnitSystem::US)-29.92125)<0.01 &&
-            wc::Precipitation(25.4,wc::UnitSystem::US)==1. &&
-            wc::ParseUnits("us")==wc::UnitSystem::US &&
-            wc::ParseUnits("metric")==wc::UnitSystem::Metric &&
-            wc::ComposeWeatherBrief(data,wc::UnitSystem::US).conditions.find("mph")!=std::string::npos &&
-            wc::ComposeWeatherBrief(data,wc::UnitSystem::US).conditions.find("°F")!=std::string::npos &&
-            wc::ClockText(wc::Today(data)->sunrise)=="07:30" &&
-            wc::StormOutlook(data)==wc::StormSignal::NotIndicated &&
-            wc::StormOutlook(stormData)==wc::StormSignal::Forecast &&
-            data.hours.size()==48 && data.days.size()==7 &&
-            data.current.temperature_2m.has_value() &&
-            text=="Mülle" &&
-            !brief.headline.empty() &&
-            brief.outlook.starts_with("Next 6h:") &&
-            wc::CardinalDirection(270)=="W" &&
-            wc::WeatherDescription(61)=="Rain" &&
-            view::HitTest(75,680,1200,780,false)==view::Action::Address &&
-            view::HitTest(1100,680,1200,780,false)==view::Action::Units &&
-            view::HitTest(1080,680,1200,780,true)==view::Action::Apply &&
-            view::HitTest(75,680,1200,780,true)==view::Action::None &&
-            view::MoveOffset(&data,false,0,true)==4 &&
-            view::MoveOffset(&data,true,0,true)==1 &&
-            view::ClampOffset(&data,false,999)==40 &&
-            view::ClampOffset(&data,true,999)==1;
+         bool valid=true;
+         auto check=[&](bool result,char const* name) {
+            if(!result) {
+               std::cerr<<"WEATHER_CHECK_FAIL: "<<name<<std::endl;
+               valid=false;
+            }
+         };
+         check(((!graphics || (glyphVisible && overviewDrawn))),"model condition 1");
+         check((newMoon && newMoon->illumination<0.001),"model condition 2");
+         check((newMoon->stage==wc::MoonStage::New),"model condition 3");
+         check((fullMoon && fullMoon->illumination>0.98),"model condition 4");
+         check((waxing && waxing->waxing && waxing->illumination>0.25),"model condition 5");
+         check((waning && !waning->waxing && waning->illumination>0.20),"model condition 6");
+         check((!wc::CalculateMoonPhase("2026-02-30T12:00")),"model condition 7");
+         check((font::Width(font::Fit("A long address with Unicode \u00e4 and more",
+               16.f,170.f),16.f)<=170.1f),"model condition 8");
+         check((VerifyStatechart()),"model condition 9");
+         check((wc::CurrentDaylight(data)),"model condition 10");
+         check((wc::IsDayAt("2026-10-25T21:00",data)==false),"model condition 11");
+         check((wc::RangeText(wc::Today(data))=="9 °C / 19 °C"),"model condition 12");
+         check((wc::RangeText(wc::Today(data),wc::UnitSystem::US)=="48 °F / 66 °F"),"model condition 13");
+         check((wc::Temperature(0.,wc::UnitSystem::US)==32.),"model condition 14");
+         check((wc::Temperature(100.,wc::UnitSystem::US)==212.),"model condition 15");
+         check((std::abs(wc::WindSpeed(100.,wc::UnitSystem::US)-62.137119)<0.001),"model condition 16");
+         check((std::abs(wc::Pressure(1013.25,wc::UnitSystem::US)-29.92125)<0.01),"model condition 17");
+         check((wc::Precipitation(25.4,wc::UnitSystem::US)==1.),"model condition 18");
+         check((wc::ParseUnits("us")==wc::UnitSystem::US),"model condition 19");
+         check((wc::ParseUnits("metric")==wc::UnitSystem::Metric),"model condition 20");
+         check((wc::ComposeWeatherBrief(data,wc::UnitSystem::US).conditions.find("mph")!=std::string::npos),"model condition 21");
+         check((wc::ComposeWeatherBrief(data,wc::UnitSystem::US).conditions.find("°F")!=std::string::npos),"model condition 22");
+         check((wc::ClockText(wc::Today(data)->sunrise)=="07:30"),"model condition 23");
+         check((wc::StormOutlook(data)==wc::StormSignal::NotIndicated),"model condition 24");
+         check((wc::StormOutlook(stormData)==wc::StormSignal::Forecast),"model condition 25");
+         check((data.hours.size()==48 && data.days.size()==7),"model condition 26");
+         check((data.current.temperature_2m.has_value()),"model condition 27");
+         check((text=="Mülle"),"model condition 28");
+         check((!brief.headline.empty()),"model condition 29");
+         check((brief.outlook.starts_with("Next 6h:")),"model condition 30");
+         check((wc::CardinalDirection(270)=="W"),"model condition 31");
+         check((wc::WeatherDescription(61)=="Rain"),"model condition 32");
+         check((view::HitTest(75,680,1200,780,false)==view::Action::Address),"model condition 33");
+         check((view::HitTest(1100,680,1200,780,false)==view::Action::Units),"model condition 34");
+         check((view::HitTest(1080,680,1200,780,true)==view::Action::Apply),"model condition 35");
+         check((view::HitTest(75,680,1200,780,true)==view::Action::None),"model condition 36");
+         check((view::MoveOffset(&data,false,0,true)==4),"model condition 37");
+         check((view::MoveOffset(&data,true,0,true)==1),"model condition 38");
+         check((view::ClampOffset(&data,false,999)==40),"model condition 39");
+         check((view::ClampOffset(&data,true,999)==1),"model condition 40");
          std::cout << (valid?"WEATHER_CLIENT_TEST_PASS\n":"WEATHER_CLIENT_TEST_FAIL\n");
          if(graphics) {
             std::cerr << "[GRAPHICS] Releasing fonts" << std::endl;
