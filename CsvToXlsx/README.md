@@ -48,6 +48,17 @@ ctest --test-dir ../build/Test/CsvToXlsx/Release/cmake --output-on-failure
 cmake --install ../build/Test/CsvToXlsx/Release/cmake
 ```
 
+## Running the installed converter
+
+Run from `D:\local\embarcadero\test_v3\tests` after `cmake --install`:
+
+```bat
+..\build\Test\CsvToXlsx\Release\adecc_csv_to_xlsx.exe "D:\Data\Input"
+..\build\Test\CsvToXlsx\Release\adecc_csv_to_xlsx.exe "D:\Data\Input" csv "D:\Data\Processed" "D:\Data\Excel"
+```
+
+The first invocation uses default CSV extension, does not move files, and writes workbooks beside the CSV files. The second supplies all four arguments and moves successfully converted files only after the workbook is saved. The input directory must already exist, while the move and XLSX output directories are created if necessary. To set only the output directory, use `""` for both preceding optional arguments.
+
 A Debug build is analogous with `Debug` in all three positions. The installed program and its runtime closure are located under `build/Test/CsvToXlsx/Release`.
 
 ## Dependencies
