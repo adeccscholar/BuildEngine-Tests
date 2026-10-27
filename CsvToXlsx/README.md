@@ -52,7 +52,7 @@ A Debug build is analogous with `Debug` in all three positions. The installed pr
 
 ## Dependencies
 
-Direct: OpenXLSX, its installed BuildEngine CMake package and imported target `OpenXLSX::OpenXLSX`. Runtime closure: the installed BuildEngine package roots for `openxlsx`, `pugixml`, `libzip`, `boost`, `zlib` and `xz`, plus BCC64X toolchain DLLs. Windows system import library: `shell32` for Unicode command-line processing. No static third-party linkage, no MSVC compilation, no MinGW toolchain.
+Direct: OpenXLSX, its installed BuildEngine CMake package and imported target `OpenXLSX::OpenXLSX`. Runtime closure: the installed BuildEngine package roots for `openxlsx`, `pugixml`, `libzip`, `boost`, `zlib`, `xz`, `zstd`, `openssl` and `brotli`, plus BCC64X toolchain DLLs. This is the complete declared transitive dependency set for OpenXLSX from `admin/build-libraries.xml` (OpenXLSX → libzip → zlib/xz/zstd and OpenXLSX → Boost → OpenSSL → Brotli/zstd/zlib). These roots only permit resolving imported DLLs; the staging script copies the actual PE closure, not whole package directories. Windows system import library: `shell32` for Unicode command-line processing. No static third-party linkage, no MSVC compilation, no MinGW toolchain.
 
 License details for third-party packages are supplied by their installed BuildEngine package notices and SBOMs. This project contains new source files and does not specify a distribution license; select one before external redistribution.
 

@@ -12,5 +12,8 @@ Expected external software components (upstream license identifiers; check exact
 | Boost | BSL-1.0 |
 | zlib | Zlib |
 | xz / liblzma | See installed upstream COPYING and license notices |
+| zstd / libzstd | See installed upstream LICENSE and license notices |
+| OpenSSL | Apache-2.0 (verify installed upstream notices) |
+| Brotli | MIT (verify installed upstream notices) |
 
-`OpenXLSX::OpenXLSX` is the directly linked installed dependency; the others are included in the known runtime package closure used by the sibling `OpenXlsxGrid` consumer. Actual redistribution dependencies must be established from the built import closure and their installed BuildEngine license/SBOM metadata. The BCC64X runtime and Windows SDK have separate licensing terms.
+`OpenXLSX::OpenXLSX` is the directly linked installed dependency; the others are declared transitive dependencies in the BuildEngine library catalog and are permitted PE runtime search roots; only actually imported DLLs are staged. Actual redistribution dependencies must be established from the built import closure and their installed BuildEngine license/SBOM metadata. The BCC64X runtime and Windows SDK have separate licensing terms.

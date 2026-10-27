@@ -13,3 +13,5 @@ cmake --install ../build/Test/CsvToXlsx/Release/cmake
 For Debug, replace every occurrence of `Release` by `Debug`. Package versions are selected by `adecc_package_current_root` from `admin/build-libraries.xml`, without manual version numbers, dependency downloads, static third-party archives or MSVC/MinGW.
 
 See [README.md](README.md) for argument examples.
+
+The runtime search roots include the full transitive BuildEngine dependency graph for OpenXLSX: `openxlsx`, `pugixml`, `libzip`, `boost`, `zlib`, `xz`, `zstd`, `openssl` and `brotli`. The PE staging step copies only imported DLLs. `libzstd.dll` is provided by `zstd` and imported by the `libzip` dependency.
