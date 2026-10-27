@@ -25,7 +25,7 @@ Values at the **exact** local `YYYY-MM-DDT12:00` array index are selected. Daily
 ## 3. Optional forecast archive for UV
 
 ```text
-https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=LAT&longitude=LON&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&timezone=auto&hourly=uv_index
+https://historical-forecast-api.open-meteo.com/v1/forecast?latitude=LAT&longitude=LON&start_date=YYYY-MM-DD&end_date=YYYY-MM-DD&timezone=auto&hourly=uv_index&minutely_15=temperature_2m,apparent_temperature,relative_humidity_2m,dew_point_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation,rain,weather_code
 ```
 
 This API is a different data source; UV values are marked as historical *forecast*, not historical measured UV or reanalysis. When unavailable, the UI reports that rather than inventing a value. There are no default address or IP lookups at startup.
@@ -33,3 +33,7 @@ This API is a different data source; UV values are marked as historical *forecas
 ## Provider contracts
 
 Official documentation: [Historical Weather](https://open-meteo.com/en/docs/historical-weather-api), [Historical Forecast](https://open-meteo.com/en/docs/historical-forecast-api), [Nominatim](https://operations.osmfoundation.org/policies/nominatim/). Observe Open-Meteo service restrictions and OSM attribution, and do not disable TLS verification.
+
+## 15-minute timeline
+
+Historical forecast minutely_15 fields are preferred when available. All other displayed samples carry an explicit archive provenance marker and interpolation flag. Precipitation and weather codes are never interpolated. A local civil day with a DST transition cannot be faithfully represented by a fixed 96-row list.

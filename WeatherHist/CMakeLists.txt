@@ -35,7 +35,7 @@ set_target_properties(WeatherHistCurl PROPERTIES
    INTERFACE_INCLUDE_DIRECTORIES "${CURL_PACKAGE}/include")
 
 add_executable(WeatherHist WIN32 WeatherHist.cpp MainForm.cpp MainForm.h
-   HistoryNetwork.h HistoryModel.h)
+   HistoryNetwork.h HistoryModel.h HistoryTimeline.h)
 set_target_properties(WeatherHist PROPERTIES
    CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF
    CXX_SCAN_FOR_MODULES OFF)
@@ -50,7 +50,7 @@ adecc_test_install(WeatherHist RUNTIME_CLOSURE
    PACKAGE_ROOTS ${WEATHERHIST_RUNTIME_ROOTS}
    TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
 
-add_executable(WeatherHistModelTest HistoryModelTests.cpp HistoryModel.h)
+add_executable(WeatherHistModelTest HistoryModelTests.cpp HistoryModel.h HistoryTimeline.h)
 set_target_properties(WeatherHistModelTest PROPERTIES
    CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF
    CXX_SCAN_FOR_MODULES OFF)

@@ -8,6 +8,10 @@ The project **reuses** the existing WeatherClient implementation in `../WeatherC
 
 The HTTPS request is made in a `std::jthread`. The VCL thread polls a mutex-protected result with a `TTimer`; no VCL control is accessed by a worker thread. Address lookup happens only after the user presses the button, with the same process-local Nominatim throttling used in WeatherClient. Requests are time-limited using the existing WeatherClient curl configuration. Closing the form joins the worker thread.
 
+## Tagesverlauf (15 Minuten)
+
+The second VCL tab shows 96 local time slots for the selected day, 00:00–23:45. **F15** means an original 15-minute historical forecast, **A60** an original hourly reanalysis sample, **A~** an interpolated hourly reanalysis value, **F60/F~** hourly historical-forecast UV and its interpolated value. Precipitation and categorical weather codes are not interpolated; missing values remain '-'. These are different weather model products, not measurements at a street address. Daylight-saving switch dates may contain repeated or missing local hours; the fixed 96-slot view does not resolve this ambiguity.
+
 ## Build and launch
 
 From the RAD Studio developer prompt in `D:\local\embarcadero\test_v3\tests`:

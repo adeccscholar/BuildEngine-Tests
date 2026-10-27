@@ -6,6 +6,7 @@
 \details Reuses the JSON parsing and WMO descriptions from WeatherClient.
 */
 #include "../WeatherClient/WeatherModel.h"
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <format>
@@ -30,6 +31,12 @@ struct Metric {
 /** \brief A dated report at a geocoded location.
 \details Contains local noon values and full-day aggregates.
 */
+struct TimelineRow {
+   std::string strTime;
+   std::array<std::string,13> arValues{};
+   bool bNativeQuarterHour{};
+};
+
 struct Report {
    std::string strAddress;
    std::string strDate;
@@ -37,6 +44,7 @@ struct Report {
    double flLatitude{};
    double flLongitude{};
    std::vector<Metric> vecMetrics;
+   std::vector<TimelineRow> vecTimeline;
 };
 
 /** \brief Parse and validate a user-entered calendar date.

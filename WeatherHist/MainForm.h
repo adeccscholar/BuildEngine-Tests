@@ -51,7 +51,11 @@ __published:
    TEdit* addressEdit_;
    TEdit* dateEdit_;
    TButton* loadButton_;
+   TPageControl* pages_;
+   TTabSheet* summaryTab_;
+   TTabSheet* timelineTab_;
    TListView* resultsList_;
+   TListView* timelineList_;
    TTimer* resultTimer_;
 
    /** \brief Start a user-requested historical lookup.

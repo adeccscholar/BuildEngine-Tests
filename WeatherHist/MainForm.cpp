@@ -103,6 +103,22 @@ void TWeatherHistForm::DisplayReport(weather_hist::Report const& theReport) {
       throw;
       }
    resultsList_->Items->EndUpdate();
+   timelineList_->Items->BeginUpdate();
+   try {
+      timelineList_->Items->Clear();
+      for(weather_hist::TimelineRow const& aRow : theReport.vecTimeline) {
+         TListItem* const pItem=timelineList_->Items->Add();
+         pItem->Caption=ToUnicode(aRow.strTime);
+         for(std::string const& strValue : aRow.arValues) {
+            pItem->SubItems->Add(ToUnicode(strValue));
+            }
+         }
+      }
+   catch(...) {
+      timelineList_->Items->EndUpdate();
+      throw;
+      }
+   timelineList_->Items->EndUpdate();
    sourceLabel_->Caption = ToUnicode(std::format(
       "{} ({:.5f}, {:.5f})",theReport.strAddress,
       theReport.flLatitude,theReport.flLongitude));
@@ -141,6 +157,7 @@ void __fastcall TWeatherHistForm::LoadClick(TObject*) {
             }
          });
       resultsList_->Items->Clear();
+      timelineList_->Items->Clear();
       sourceLabel_->Caption = L"";
       statusLabel_->Caption = L"Adresse wird aufgeloest und das historische Wetter abgerufen...";
       loadButton_->Enabled = false;

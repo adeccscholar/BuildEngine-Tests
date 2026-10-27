@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 #include "HistoryModel.h"
+#include "HistoryTimeline.h"
 #include <algorithm>
 #include <ranges>
 #include <stdexcept>
@@ -56,5 +57,17 @@ int main() {
    try { (void)ParseArchive(aArchive,"2026-08-04"); }
    catch(std::runtime_error const&) { bMissingNoon=true; }
    Check(bMissingNoon,"missing noon rejected");
+   Report aTimeline=ParseArchive(aArchive,"2026-08-03");
+   BuildTimeline(aTimeline,aArchive,nullptr);
+   Check(aTimeline.vecTimeline.size()==96U,"96 quarter hour rows");
+   Check(aTimeline.vecTimeline[48].strTime=="12:00","noon slot");
+   Check(aTimeline.vecTimeline[48].arValues[0].find("21.3 [A60]")!=std::string::npos,"hourly original");
+   Check(aTimeline.vecTimeline[47].arValues[0].find("[A~]")!=std::string::npos,"11:45 interpolated from 11 and 12");
+   Check(aTimeline.vecTimeline[95].arValues[0]=="-","23:45 not extrapolated without next day");
+   Json const aQuarter=Json::parse(R"json({"minutely_15":{"time":["2026-08-03T12:15"],
+      "temperature_2m":[22.5],"precipitation":[0.2]}})json");
+   BuildTimeline(aTimeline,aArchive,&aQuarter);
+   Check(aTimeline.vecTimeline[49].arValues[0].find("22.5 [F15]")!=std::string::npos,"native quarter");
+   Check(aTimeline.vecTimeline[49].arValues[9].find("0.2 [F15/15m]")!=std::string::npos,"quarter rain");
    return 0;
    }

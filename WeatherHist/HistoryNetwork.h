@@ -6,6 +6,7 @@
 \details Reuses the original libcurl HTTPS and Nominatim code, not copied clients.
 */
 #include "HistoryModel.h"
+#include "HistoryTimeline.h"
 #include "../WeatherClient/WeatherNetwork.h"
 #include <format>
 #include <stdexcept>
@@ -38,14 +39,19 @@ forecast query supplies UV when available and is labeled accordingly.
    theReport.strAddress = theLocation.label;
    theReport.flLatitude = theLocation.latitude;
    theReport.flLongitude = theLocation.longitude;
+   BuildTimeline(theReport,aArchive,nullptr);
    try {
       std::string const strUvUrl = std::format(
          "https://historical-forecast-api.open-meteo.com/v1/forecast?"
          "latitude={:.7f}&longitude={:.7f}&start_date={}&end_date={}"
-         "&timezone=auto&hourly=uv_index",
+         "&timezone=auto&hourly=uv_index"
+         "&minutely_15=temperature_2m,apparent_temperature,relative_humidity_2m,"
+         "dew_point_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m,"
+         "precipitation,rain,weather_code",
          theLocation.latitude,theLocation.longitude,strIsoDate,strIsoDate);
       Json const aUv = Json::parse(weather_client::GetHttps(strUvUrl));
       AddForecastUv(theReport,aUv);
+      BuildTimeline(theReport,aArchive,&aUv);
       }
    catch(std::exception const&) {
       AddUnavailableUv(theReport);

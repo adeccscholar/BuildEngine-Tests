@@ -77,7 +77,7 @@ object WeatherHistForm: TWeatherHistForm
       Width = 930
       Height = 20
       AutoSize = False
-      Caption = 'Stundenwerte: 12:00 Ortszeit | Tageswerte: gesamter Tag | Reanalyse statt Stationsmessung'
+      Caption = '15-Minuten-Raster: F15 Prognose original, A60 Archiv original, A~ interpoliert'
     end
   end
   object bottomPanel_: TPanel
@@ -98,27 +98,113 @@ object WeatherHistForm: TWeatherHistForm
       EllipsisPosition = epEndEllipsis
     end
   end
-  object resultsList_: TListView
+  object pages_: TPageControl
     Left = 0
     Top = 148
     Width = 970
     Height = 513
     Align = alClient
-    Columns = <
-      item
-        Caption = 'Merkmal'
-        Width = 405
-      end
-      item
-        Caption = 'Wert'
-        Width = 515
-      end>
-    ReadOnly = True
-    RowSelect = True
-    GridLines = True
-    ColumnClick = False
-    ViewStyle = vsReport
+    ActivePage = summaryTab_
     TabOrder = 2
+    object summaryTab_: TTabSheet
+      Caption = 'Uebersicht'
+      object resultsList_: TListView
+        Left = 0
+        Top = 148
+        Width = 970
+        Height = 513
+        Align = alClient
+        Columns = <
+          item
+            Caption = 'Merkmal'
+            Width = 405
+          end
+          item
+            Caption = 'Wert'
+            Width = 515
+          end>
+        ReadOnly = True
+        RowSelect = True
+        GridLines = True
+        ColumnClick = False
+        ViewStyle = vsReport
+        TabOrder = 2
+      end
+
+    end
+    object timelineTab_: TTabSheet
+      Caption = 'Tagesverlauf (15 Min.)'
+      object timelineList_: TListView
+        Left = 0
+        Top = 0
+        Width = 962
+        Height = 481
+        Align = alClient
+        Columns = <
+          item
+            Caption = 'Uhrzeit'
+            Width = 80
+          end
+          item
+            Caption = 'Temp C'
+            Width = 130
+          end
+          item
+            Caption = 'Gefuehlt C'
+            Width = 130
+          end
+          item
+            Caption = 'Feuchte %'
+            Width = 130
+          end
+          item
+            Caption = 'Tau C'
+            Width = 130
+          end
+          item
+            Caption = 'Druck hPa'
+            Width = 130
+          end
+          item
+            Caption = 'Wind km/h'
+            Width = 130
+          end
+          item
+            Caption = 'Boeen km/h'
+            Width = 130
+          end
+          item
+            Caption = 'Richtung'
+            Width = 130
+          end
+          item
+            Caption = 'Wolken %'
+            Width = 130
+          end
+          item
+            Caption = 'Nied. mm'
+            Width = 130
+          end
+          item
+            Caption = 'Regen mm'
+            Width = 130
+          end
+          item
+            Caption = 'UV'
+            Width = 130
+          end
+          item
+            Caption = 'WMO'
+            Width = 130
+          end>
+        ReadOnly = True
+        RowSelect = True
+        GridLines = True
+        ColumnClick = False
+        ViewStyle = vsReport
+        TabOrder = 0
+      end
+    end
   end
   object resultTimer_: TTimer
     Enabled = False
