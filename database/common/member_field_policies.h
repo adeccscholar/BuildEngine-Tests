@@ -35,6 +35,14 @@ using Geburtstag_ty = adecc::ConvertedPolicyValue<
 using ContributionConversion = adecc::ConversionChainPolicy<
    adecc::TrimStringConversionPolicy,
    adecc::GermanDecimalToFloatConversionPolicy<double>>;
+/** Positive individual contribution; display with German separators and 2 decimals. */
 using Beitrag_ty = adecc::ConvertedPolicyValue<
-   "Beitrag", ContributionConversion, adecc::PositiveNumberPolicy<double>>;
+   "Beitrag", ContributionConversion, adecc::PositiveNumberPolicy<double>,
+   adecc::FloatToGermanDecimalWithThousandsStringPolicy<double,2>>;
+
+/** A summed contribution may be zero for a member without bookings. */
+using Beitragssumme_ty = adecc::ConvertedPolicyValue<
+   "Beitragssumme", ContributionConversion,
+   adecc::NonNegativeFloatingPointPolicy<double>,
+   adecc::FloatToGermanDecimalWithThousandsStringPolicy<double,2>>;
 } // namespace buildengine_tests::database::members

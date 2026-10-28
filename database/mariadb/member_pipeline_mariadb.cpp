@@ -24,7 +24,17 @@ int main(int argc,char** argv) {
             "SELECT :Member, ':Literal', :Member");
          if(plan.names.size()!=2)
             throw std::runtime_error{"Parameter scanner failed"};
-         std::cout<<"SMOKE|RESULT|PASS|Member pipeline offline scanner\n";
+         using namespace buildengine_tests::database::members;
+         Geburtstag_ty const birthday{adecc::date_ty{
+            std::chrono::year{1990},std::chrono::month{10},std::chrono::day{28}}};
+         Beitrag_ty const amount{1234.5};
+         Beitragssumme_ty const emptyTotal{0.0};
+         if(birthday.str()!="28.10.1990" ||
+            amount.str()!="1.234,50" ||
+            emptyTotal.str()!="0,00")
+            throw std::runtime_error{"German birthday/contribution formatting failed"};
+         std::cout<<"SMOKE|CHECK|german-format|PASS|28.10.1990 / 1.234,50 / 0,00\n";
+         std::cout<<"SMOKE|RESULT|PASS|Member pipeline offline scanner and formatting\n";
          return 0;
       }
       if(args.integrated)

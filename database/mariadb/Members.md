@@ -25,3 +25,9 @@ cmake --install ../build/Test/database/mariadb/Release/cmake
 Use `--password YOUR_PASSWORD` if needed. Prefer `BUILDENGINE_MARIADB_PASSWORD` to avoid password exposure in command history. For remote database use TLS with verified certificate. On a normal user account, arrange database creation separately or grant limited CREATE DATABASE privileges.
 
 Expected output: counts for all three tables, at least one historical IBAN mismatch, 50-row `adecc::Grid` contribution report, and a final `SMOKE|RESULT|PASS`. The backend binary and tests have not been compiled or run on BCC64X in this session; this is **unverified** code until test logs confirm it.
+
+## German console presentation via typed policy projection
+
+The SQL generator returns `adecc::date_ty` and `adecc::money_ty`. The reusable report uses `adecc::Transform` to turn those into `Geburtstag_ty` (EUROPE formatting, e.g. `28.10.1990`) and `Beitragssumme_ty` (German thousands and decimal separators, e.g. `1.234,50`). A second typed `adecc::Transform` explicitly calls each policy's `.str()` to feed `std::string` columns into `WriteGridModel<OStreamGridBackend<>>`. The positive-only `Beitrag_ty` now uses the same German numeric formatter; a separate non-negative `Beitragssumme_ty` allows `0,00` for members without bookings. No SQL text formatting, locale-dependent iostream state or data model change is involved.
+
+The `--offline` test now asserts exact formatting for `28.10.1990`, `1.234,50` and `0,00` as a regression gate.

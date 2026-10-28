@@ -223,19 +223,51 @@ void PrintContributions(DB& db,std::size_t memberCount,std::size_t bookingCount)
    Require(changed&&std::get<0>(*changed)>0,
       "Expected at least one historical IBAN change");
 
-   using report_ty=adecc::defined_type_list<
+   // Keep the SQL result in native database types; the report is a distinct
+   // typed domain projection and only its final strings enter the text grid.
+   using report_database_ty=adecc::defined_type_list<
       std::string,std::string,std::string,adecc::date_ty,adecc::money_ty>;
-   auto result=db.template Execute<
-      std::string,std::string,std::string,adecc::date_ty,adecc::money_ty>(
+   using report_policy_ty=adecc::defined_type_list<
+      std::string,std::string,std::string,Geburtstag_ty,Beitragssumme_ty>;
+   using report_display_ty=adecc::defined_type_list<
+      std::string,std::string,std::string,std::string,std::string>;
+   auto result=report_database_ty::invoke([&]<class... T>() {
+      return db.template Execute<T...>(
       "SELECT a.Bezeichnung, m.Vorname, m.Name, m.Geburtstag, "
       "COALESCE(SUM(b.Betrag),0) AS Beitragssumme "
       "FROM Mitglied m JOIN Anreden a ON a.ID=m.Anrede "
       "LEFT JOIN Buchungen b ON b.MitgliedID=m.ID "
       "GROUP BY m.ID,a.Bezeichnung,m.Vorname,m.Name,m.Geburtstag "
       "ORDER BY m.MitgliedNr");
+   });
 
-   // Consume the logical DB generator as a typed range into the same
-   // adecc Grid abstraction also used for Excel or GUI backends.
+   // Two typed Transforms: SQL result -> validated presentation types ->
+   // German-formatted strings. The database and persistence types stay intact.
+   auto display=result | std::views::transform([](report_database_ty::type_list const& row) {
+      auto typed=adecc::Transform<report_database_ty,report_policy_ty>(
+         row,
+         adecc::BindMapping<3,report_database_ty,report_policy_ty>(
+            [](adecc::date_ty const& value) {
+               return Geburtstag_ty{value};
+            }),
+         adecc::BindMapping<4,report_database_ty,report_policy_ty>(
+            [](adecc::money_ty const& value) {
+               return Beitragssumme_ty{value.Get()};
+            }));
+      return adecc::Transform<report_policy_ty,report_display_ty>(
+         typed,
+         adecc::BindMapping<3,report_policy_ty,report_display_ty>(
+            [](Geburtstag_ty const& value) {
+               return value.str();
+            }),
+         adecc::BindMapping<4,report_policy_ty,report_display_ty>(
+            [](Beitragssumme_ty const& value) {
+               return value.str();
+            }));
+   });
+
+   // Consume the German-formatted tuples as a range in the same adecc Grid
+   // abstraction also used for Excel or GUI backends.
    using backend_ty=adecc::grid::OStreamGridBackend<>;
    using captions_ty=std::vector<std::tuple<
       std::string,int,adecc::EAlignmentType>>;
@@ -250,7 +282,7 @@ void PrintContributions(DB& db,std::size_t memberCount,std::size_t bookingCount)
    {
       adecc::grid::WriteGridModel<backend_ty> grid{
          backend_ty{std::cout,backend_ty::TableSeparators()},captions};
-      for(auto const& row:result)grid+=row;
+      for(auto const& row:display)grid+=row;
       Require(grid.rows()==memberCount,"Grid row count does not match members");
    }
    std::cout<<"\n[PASS] members="<<memberCount
