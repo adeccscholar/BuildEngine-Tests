@@ -25,3 +25,7 @@ cmake --install ../build/Test/database/mariadb/Release/cmake
 ```
 
 Offline tests verify the parameter scanner without contacting a server. Real BCC64X compile and MariaDB 11 execution remain pending; no PASS is claimed until logs are supplied.
+
+## BCC64X chrono compatibility
+
+Both `adecc_mariadb_logical_test` and `adecc_mariadb_connection_test` define `CHRONO_WORK_AROUND` and `CHRONO_MISSED_ZONEDB` at target scope, identically to the existing `database/postgre` and `database/mssql` test projects. These definitions support adecc-core-lib's chrono helpers with the RAD Studio 13 BCC64X standard library.
