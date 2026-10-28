@@ -16,6 +16,7 @@ The input files contain fabricated test records, never real member data.
 #include <adecc/cpp_core/system_data_persistent.h>
 #include <adecc/cpp_core/text_grid_wrapper.h>
 #include <adecc/cpp_domain/sepa_policies_hawkers_tray.h>
+#include "member_field_policies.h"
 #include <pugixml.hpp>
 #include <array>
 #include <chrono>
@@ -47,17 +48,17 @@ using buchung_ty = adecc::defined_type_list<
    int,int,adecc::date_ty,adecc::money_ty,std::string>;
 
 using person_csv_ty = adecc::defined_type_list<
-   std::string,std::string,std::string,std::string,adecc::date_ty,
+   std::string,std::string,std::string,std::string,Geburtstag_ty,
    std::string,std::string,std::string,std::string,
-   adecc::date_ty,adecc::money_ty,Iban_ty,Tax_ty>;
+   adecc::date_ty,Beitrag_ty,Iban_ty,Tax_ty>;
 using person_source_ty = adecc::defined_type_list<
-   int,std::string,std::string,std::string,std::string,adecc::date_ty,
+   int,std::string,std::string,std::string,std::string,Geburtstag_ty,
    std::string,std::string,std::string,std::string,
-   adecc::date_ty,adecc::money_ty,Iban_ty,Tax_ty>;
+   adecc::date_ty,Beitrag_ty,Iban_ty,Tax_ty>;
 using booking_csv_ty = adecc::defined_type_list<
-   std::string,adecc::date_ty,adecc::money_ty,Iban_ty>;
+   std::string,adecc::date_ty,Beitrag_ty,Iban_ty>;
 using booking_source_ty = adecc::defined_type_list<
-   int,std::string,adecc::date_ty,adecc::money_ty,Iban_ty>;
+   int,std::string,adecc::date_ty,Beitrag_ty,Iban_ty>;
 
 struct AnredeMeta {
    static constexpr std::string_view svTableName="Anreden";
@@ -226,11 +227,11 @@ void PrintContributions(DB& db,std::size_t memberCount,std::size_t bookingCount)
       std::string,std::string,std::string,adecc::date_ty,adecc::money_ty>;
    auto result=db.template Execute<
       std::string,std::string,std::string,adecc::date_ty,adecc::money_ty>(
-      "SELECT a.Anrede, m.Vorname, m.Name, m.Geburtstag, "
+      "SELECT a.Bezeichnung, m.Vorname, m.Name, m.Geburtstag, "
       "COALESCE(SUM(b.Betrag),0) AS Beitragssumme "
       "FROM Mitglied m JOIN Anreden a ON a.ID=m.Anrede "
       "LEFT JOIN Buchungen b ON b.MitgliedID=m.ID "
-      "GROUP BY m.ID,a.Anrede,m.Vorname,m.Name,m.Geburtstag "
+      "GROUP BY m.ID,a.Bezeichnung,m.Vorname,m.Name,m.Geburtstag "
       "ORDER BY m.MitgliedNr");
 
    // Consume the logical DB generator as a typed range into the same
@@ -239,18 +240,20 @@ void PrintContributions(DB& db,std::size_t memberCount,std::size_t bookingCount)
    using captions_ty=std::vector<std::tuple<
       std::string,int,adecc::EAlignmentType>>;
    captions_ty captions{
-      {"Anrede",27,adecc::EAlignmentType::left},
+      {"Anrede",12,adecc::EAlignmentType::left},
       {"Vorname",18,adecc::EAlignmentType::left},
       {"Name",20,adecc::EAlignmentType::left},
       {"Geburtstag",12,adecc::EAlignmentType::left},
       {"Beitragssumme",15,adecc::EAlignmentType::right}
    };
    std::cout<<"\n[REPORT] Contributions per member (EUR)\n";
-   adecc::grid::WriteGridModel<backend_ty> grid{
-      backend_ty{std::cout,backend_ty::TableSeparators()},captions};
-   for(auto const& row:result)grid+=row;
-   Require(grid.rows()==memberCount,"Grid row count does not match members");
-   std::cout<<"[PASS] members="<<memberCount
+   {
+      adecc::grid::WriteGridModel<backend_ty> grid{
+         backend_ty{std::cout,backend_ty::TableSeparators()},captions};
+      for(auto const& row:result)grid+=row;
+      Require(grid.rows()==memberCount,"Grid row count does not match members");
+   }
+   std::cout<<"\n[PASS] members="<<memberCount
       <<" bookings="<<bookingCount
       <<" historical-IBAN="<<std::get<0>(*changed)<<"\n";
 }

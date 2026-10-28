@@ -2,6 +2,8 @@
 <Anreden>
   <Eintrag><Bezeichnung>Herr</Bezeichnung><Kurztext>Hr.</Kurztext><Anrede>Sehr geehrter Herr</Anrede></Eintrag>
   <Eintrag><Bezeichnung>Frau</Bezeichnung><Kurztext>Fr.</Kurztext><Anrede>Sehr geehrte Frau</Anrede></Eintrag>
-  <Eintrag><Bezeichnung>Divers</Bezeichnung><Kurztext>Divers</Kurztext><Anrede>Guten Tag</Anrede></Eintrag>
-  <Eintrag><Bezeichnung>Allgemein</Bezeichnung><Kurztext>Alle</Kurztext><Anrede>Sehr geehrte Damen und Herren</Anrede></Eintrag>
+  <Eintrag><Bezeichnung>Firma</Bezeichnung><Kurztext>Fa.</Kurztext><Anrede>Sehr geehrte Damen und Herren</Anrede></Eintrag>
+  <Eintrag><Bezeichnung>Diverse</Bezeichnung><Kurztext>Div.</Kurztext><Anrede>Guten Tag</Anrede></Eintrag>
+  <Eintrag><Bezeichnung>Binär</Bezeichnung><Kurztext>Bin.</Kurztext><Anrede>Guten Tag</Anrede></Eintrag>
+  <Eintrag><Bezeichnung>Allgemein</Bezeichnung><Kurztext>Allg.</Kurztext><Anrede>Guten Tag</Anrede></Eintrag>
 </Anreden>
