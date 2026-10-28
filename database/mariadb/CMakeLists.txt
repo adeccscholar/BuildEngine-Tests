@@ -17,7 +17,7 @@ target_link_libraries(adecc_mariadb_logical_test PRIVATE "${_import}")
 adecc_test_install(adecc_mariadb_logical_test RUNTIME_CLOSURE
    PACKAGE_ROOTS "${MARIADB_PACKAGE}" "${ZLIB_PACKAGE}" "${ZSTD_PACKAGE}"
    TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
-add_executable(adecc_mariadb_connection_test test_mariadb_connection.cpp)
+add_executable(adecc_mariadb_connection_test test_mariadb_connection.cpp mariadb_arguments.h)
 set_target_properties(adecc_mariadb_connection_test PROPERTIES
    CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF CXX_SCAN_FOR_MODULES OFF)
 adecc_test_use_core(adecc_mariadb_connection_test mariadb)
