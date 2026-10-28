@@ -11,6 +11,7 @@ respective database server for execution, not compilation.
 | --- | --- | --- |
 | [Shared C++23 algorithms](common/README.md) | [Sources](common/database_checks.h), [additional tests](common/additional_tests.h) | Shared by MSSQL and PostgreSQL |
 | [MSSQL / ODBC](mssql/Description.md) | [Configure](mssql/Configure.md), [Build](mssql/build.md), [License](mssql/LICENSE.md), [SBOM](mssql/SBOM.md) | `adecc_mssql_odbc_test`, `adecc_mssql_additional_test`, `adecc_mssql_csv_pipeline` |
+| [MariaDB / Connector/C](mariadb/Description.md) | [Build](mariadb/build.md), [License](mariadb/LICENSE.md), [SBOM](mariadb/SBOM.md) | `adecc_mariadb_connection_test` (connection baseline only) |
 | [PostgreSQL / libpqxx](postgre/Description.md) | [Configure](postgre/Configure.md), [Build](postgre/build.md), [License](postgre/LICENSE.md), [SBOM](postgre/SBOM.md) | `adecc_postgresql_pqxx_test`, `adecc_postgresql_additional_test` |
 
 The second executable in each backend uses the **same**
