@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Anreden>
+  <Eintrag><Bezeichnung>Herr</Bezeichnung><Kurztext>Hr.</Kurztext><Anrede>Sehr geehrter Herr</Anrede></Eintrag>
+  <Eintrag><Bezeichnung>Frau</Bezeichnung><Kurztext>Fr.</Kurztext><Anrede>Sehr geehrte Frau</Anrede></Eintrag>
+  <Eintrag><Bezeichnung>Divers</Bezeichnung><Kurztext>Divers</Kurztext><Anrede>Guten Tag</Anrede></Eintrag>
+  <Eintrag><Bezeichnung>Allgemein</Bezeichnung><Kurztext>Alle</Kurztext><Anrede>Sehr geehrte Damen und Herren</Anrede></Eintrag>
+</Anreden>
