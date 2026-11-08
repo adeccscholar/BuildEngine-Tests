@@ -23,11 +23,11 @@
       },
       {
         "name": "adecc:evidence",
-        "value": "source CMake/IDE configuration; no binary runtime validation"
+        "value": "BuildEngine-Admin PDFium/Skia dependency declarations and BuildEngine-Tests CMake; PE runtime and checksums not verified"
       },
       {
         "name": "adecc:version-policy",
-        "value": "BuildEngine active package catalog; some consumer build inputs remain pinned until migrated"
+        "value": "Pinned to installed PDFium 2025.11.19 and the current BuildEngine dependency closure (Skia 153); verified as source declarations only"
       },
       {
         "name": "adecc:license-file",
@@ -73,7 +73,7 @@
     {
       "type": "library",
       "name": "Skia",
-      "version": "144",
+      "version": "153",
       "bom-ref": "lib:2:Skia",
       "licenses": [
         {
@@ -101,7 +101,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "20260817.0"
     },
     {
       "type": "library",
@@ -117,7 +118,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "8.2.3"
     },
     {
       "type": "library",
@@ -133,7 +135,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "1.4"
     },
     {
       "type": "library",
@@ -149,7 +152,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "3.2.0"
     },
     {
       "type": "library",
@@ -165,7 +169,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "1.6.59"
     },
     {
       "type": "library",
@@ -181,7 +186,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "2.15.0"
     },
     {
       "type": "library",
@@ -197,7 +203,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "78.3"
     },
     {
       "type": "library",
@@ -213,7 +220,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "2.20"
     },
     {
       "type": "library",
@@ -229,7 +237,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "2.5.4"
     },
     {
       "type": "library",
@@ -245,7 +254,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "1.0.8"
     },
     {
       "type": "library",
@@ -261,7 +271,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "1.2.1"
     },
     {
       "type": "library",
@@ -277,7 +288,8 @@
           "name": "adecc:license-evidence",
           "value": "source-declared, installed-package license not verified"
         }
-      ]
+      ],
+      "version": "15.1.0"
     }
   ],
   "dependencies": [
