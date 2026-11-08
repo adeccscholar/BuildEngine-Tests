@@ -102,7 +102,7 @@
           "value": "source-declared, installed-package license not verified"
         }
       ],
-      "version": "8.2.3"
+      "version": "8.3.3"
     },
     {
       "type": "library",

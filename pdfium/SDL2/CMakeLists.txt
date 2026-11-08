@@ -17,7 +17,7 @@ target_link_libraries(pdfium-sdl2-viewer PRIVATE PDFium::pdfium SDL2::SDL2 comdl
 # PE import closure is staged from the pinned packages, never from PATH.
 # Header-only packages may be declared without contributing runtime DLLs.
 adecc_package_root(ABSEIL_PACKAGE abseil 20260817.0)
-adecc_package_root(FAST_FLOAT_PACKAGE fast_float 8.2.3)
+adecc_package_root(FAST_FLOAT_PACKAGE fast_float 8.3.3)
 adecc_package_root(SKIA_PACKAGE skia 153)
 adecc_package_root(ZLIB_PACKAGE zlib 1.4)
 adecc_package_root(JPEG_PACKAGE libjpeg-turbo 3.2.0)

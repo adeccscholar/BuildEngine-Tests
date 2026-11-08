@@ -79,7 +79,7 @@ identity, not a substituted PE-import verification.
 
 The PDFium consumer uses **Skia 153**, not Skia 144. The exact dependency
 closure is declared in [CMakeLists.txt](CMakeLists.txt), with Abseil
-20260817.0, fast_float 8.2.3, zlib 1.4, libjpeg-turbo 3.2.0,
+20260817.0, fast_float 8.3.3, zlib 1.4, libjpeg-turbo 3.2.0,
 libpng 1.6.59, FreeType 2.15.0, ICU 78.3, LCMS2 2.20, OpenJPEG 2.5.4,
 OpenGL 26.2.1, bzip2 1.0.8, Brotli 1.2.1, and HarfBuzz 15.1.0.
 

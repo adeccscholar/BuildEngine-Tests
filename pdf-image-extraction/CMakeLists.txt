@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.25)
 include("${CMAKE_CURRENT_SOURCE_DIR}/../bootstrap/PrepareToolchain.cmake")
 project(BuildEnginePdfImageExtraction LANGUAGES CXX)
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/BuildEngineTests.cmake")
-adecc_package_root(QPDF_PACKAGE qpdf 12.4.1)
-adecc_package_root(ZLIB_PACKAGE zlib 1.3.2)
+adecc_package_root(QPDF_PACKAGE qpdf 12.4.2)
+adecc_package_root(ZLIB_PACKAGE zlib 1.4)
 adecc_package_root(JPEG_PACKAGE libjpeg-turbo 3.2.0)
 list(PREPEND CMAKE_PREFIX_PATH "${QPDF_PACKAGE}" "${ZLIB_PACKAGE}" "${JPEG_PACKAGE}")
 find_package(qpdf CONFIG REQUIRED)
@@ -11,7 +11,7 @@ add_executable(pdf-image-extraction main.cpp)
 set_property(TARGET pdf-image-extraction PROPERTY CXX_SCAN_FOR_MODULES OFF)
 target_compile_features(pdf-image-extraction PRIVATE cxx_std_23)
 target_link_libraries(pdf-image-extraction PRIVATE qpdf::libqpdf)
-# QPDF 12.4.1 BuildEngine contract: shared QPDF, zlib 1.3.2 and
+# QPDF 12.4.2 BuildEngine contract: shared QPDF, zlib 1.4 and
 # libjpeg-turbo 3.2.0. Do not resolve transitive DLLs through PATH.
 # This is a fixed dependency contract, not a cached user preference.
 # An old CMakeCache.txt may still contain a QPDF-only runtime root.
