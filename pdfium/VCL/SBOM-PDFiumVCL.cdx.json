@@ -23,11 +23,11 @@
       },
       {
         "name": "adecc:evidence",
-        "value": "source CMake/IDE configuration; no binary runtime validation"
+        "value": "BuildEngine PDFium/Skia catalog and VCL IDE project/deployment instructions; PE import, DLL hash and runtime licenses unverified"
       },
       {
         "name": "adecc:version-policy",
-        "value": "BuildEngine active package catalog; some consumer build inputs remain pinned until migrated"
+        "value": "Pinned PDFium 2025.11.19 with Skia 153 in BuildEngine-Admin; transitive dependencies in PDFium/SDL2 CMake and VCL README"
       },
       {
         "name": "adecc:license-file",
@@ -56,7 +56,7 @@
     {
       "type": "library",
       "name": "Skia",
-      "version": "144",
+      "version": "153",
       "bom-ref": "lib:1:Skia",
       "licenses": [
         {
