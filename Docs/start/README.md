@@ -19,7 +19,7 @@ BuildEngine, not BuildEngine's own internal administration or production service
 | [OpenMP Galaxy](/docs/openmp-galaxy/Description.md) | native OpenMP and SDL2 visualization |
 | [OpenMP Mandelbrot](/docs/openmp-mandelbrot/Description.md) | native OpenMP and SDL2 visualization |
 | [PDF Image Extraction](/docs/pdf-image-extraction/Description.md) | qpdf, zlib and JPEG |
-| [PDFium SDL2](/docs/pdfium/SDL2/Description.md) | PDFium, SDL2, Skia 144 and runtime closure |
+| [PDFium SDL2](/docs/pdfium/SDL2/Description.md) | PDFium 2025.11.19, SDL2 2.32.10, Skia 153; [viewer build and launch](/docs/pdfium/SDL2/build.md), headless CTest regressions |
 | [PDFium VCL](/docs/pdfium/VCL/Description.md) | RAD Studio VCL PDF viewer |
 | [PDFium Common](/docs/pdfium/Common/Description.md) | page scrolling regression |
 | [Skia Showcase](/docs/skia-direct-showcase/Description.md) | native Skia rendering |
