@@ -1,0 +1,45 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "pdfium-page-scroll-test",
+      "bom-ref": "app:pdfium/SDL2:pdfium-page-scroll-test",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "Pure C++23 navigation test from PageScrollTest.cpp; no PDFium or SDL2 linkage"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "Pinned to installed PDFium 2025.11.19 and the current BuildEngine dependency closure (Skia 153); verified as source declarations only"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
+      }
+    ]
+  },
+  "components": [],
+  "dependencies": [
+    {
+      "ref": "app:pdfium/SDL2:pdfium-page-scroll-test",
+      "dependsOn": []
+    }
+  ]
+}
