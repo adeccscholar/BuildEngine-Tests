@@ -1,5 +1,9 @@
-# SBOM — PDFium viewer SDL2
+# SBOM — PDFium / SDL2 test executables
 
-Each executable has a CycloneDX 1.6 *declared dependency* SBOM below. **Not yet verified as a complete binary/runtime SBOM**. The final package revision, transitive dependencies, DLLs, checksums and exact license conclusions must be resolved from BuildEngine lock files and an actual executable PE import/staging scan.
+The CycloneDX 1.6 files below describe the source-declared package dependencies. They are **not** verified binary/runtime SBOMs; final DLL imports, hashes and installed-package licenses require native Windows evidence.
 
 - [pdfium-sdl2-viewer](SBOM-pdfium-sdl2-viewer.cdx.json)
+- [pdfium-c-api-test](SBOM-pdfium-c-api-test.cdx.json)
+- [pdfium-page-scroll-test](SBOM-pdfium-page-scroll-test.cdx.json)
+
+The PDFium-based targets use Skia 153 and the corresponding current transitive closure. The standalone navigation test has no PDFium/SDL2 dependency.
