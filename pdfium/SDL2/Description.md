@@ -1,7 +1,9 @@
 # PDFium viewer SDL2
 
-This independent BuildEngine-Tests project exercises **PDFium 2025.11.19, SDL2 2.32.10, Skia 144, Abseil, fast_float, zlib, JPEG, PNG, FreeType, ICU, LCMS2, OpenJPEG, bzip2, brotli, HarfBuzz** with native BCC64X/C++23 consumer code. Its source and its runtime dependency closure are defined by this directory's CMake/IDE configuration and the BuildEngine package catalog.
+This independent BCC64X/C++23 BuildEngine-Tests project consumes **PDFium 2025.11.19, SDL2 2.32.10 and Skia 153**. The exact transitive runtime closure is defined in [CMakeLists.txt](CMakeLists.txt) and resolved through versioned BuildEngine packages.
 
-**Programs:** pdfium-sdl2-viewer.
+**Programs:** `pdfium-sdl2-viewer` (interactive GUI), `pdfium-c-api-test` (headless C API plus rendering regression), and `pdfium-page-scroll-test` (navigation regression without PDFium or SDL2).
 
-See [build.md](build.md), [LICENSE.md](LICENSE.md), [SBOM.md](SBOM.md) and the generated machine-readable CycloneDX declaration for each program. This page is test documentation, not a statement of verified production suitability.
+The two noninteractive executables are registered with CTest for Debug and Release. The executable runtime stage preserves exact package versions, rejects DLL collisions, excludes retired Abseil/Skia binaries, and deploys Skia 153's `icudtl.dat` to PDFium-based executables.
+
+See [README.md](README.md), [build.md](build.md), [LICENSE.md](LICENSE.md), and [SBOM.md](SBOM.md). Native Windows execution remains **[nicht verifiziert]**.
