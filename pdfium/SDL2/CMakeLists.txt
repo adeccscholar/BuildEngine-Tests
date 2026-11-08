@@ -13,8 +13,9 @@ target_compile_features(pdfium-sdl2-viewer PRIVATE cxx_std_23)
 target_compile_definitions(pdfium-sdl2-viewer PRIVATE SDL_MAIN_HANDLED WIN32_LEAN_AND_MEAN NOMINMAX)
 target_link_libraries(pdfium-sdl2-viewer PRIVATE PDFium::pdfium SDL2::SDL2 comdlg32)
 # Exact PDFium 2025.11.19 and Skia 153 closure from BuildEngine-Admin XML.
-# The shared libraries are staged next to the EXE (Release/), not found via PATH.
-# Header-only packages may be listed here without producing runtime DLLs.
+# Each test executable has its own runtime directory. Only its recursive
+# PE import closure is staged from the pinned packages, never from PATH.
+# Header-only packages may be declared without contributing runtime DLLs.
 adecc_package_root(ABSEIL_PACKAGE abseil 20260817.0)
 adecc_package_root(FAST_FLOAT_PACKAGE fast_float 8.2.3)
 adecc_package_root(SKIA_PACKAGE skia 153)
@@ -33,10 +34,9 @@ adecc_package_root(HARFBUZZ_PACKAGE harfbuzz 15.1.0)
 # Recompute on every configure; an earlier CMakeCache must not hide new DLLs.
 set(ADECC_PDFIUM_RUNTIME_ROOTS
    "${PDFIUM_PACKAGE};${SDL2_PACKAGE};${ABSEIL_PACKAGE};${FAST_FLOAT_PACKAGE};${SKIA_PACKAGE};${ZLIB_PACKAGE};${JPEG_PACKAGE};${PNG_PACKAGE};${FREETYPE_PACKAGE};${ICU_PACKAGE};${LCMS_PACKAGE};${OPENJPEG_PACKAGE};${OPENGL_PACKAGE};${BZIP2_PACKAGE};${BROTLI_PACKAGE};${HARFBUZZ_PACKAGE}")
-adecc_test_install(pdfium-sdl2-viewer
+adecc_test_install(pdfium-sdl2-viewer RUNTIME_CLOSURE
    PACKAGE_ROOTS ${ADECC_PDFIUM_RUNTIME_ROOTS}
-   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll
-   EXCLUDE_DLLS third_party_abseil-cpp_absl.dll skia144.dll)
+   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll)
 
 # Non-interactive PDFium C-API/render consumer, independent of SDL2 and VCL.
 add_executable(pdfium-c-api-test PdfiumApiTest.cpp)
@@ -45,17 +45,17 @@ target_compile_features(pdfium-c-api-test PRIVATE cxx_std_23)
 target_link_libraries(pdfium-c-api-test PRIVATE PDFium::pdfium)
 set(ADECC_PDFIUM_API_RUNTIME_ROOTS ${ADECC_PDFIUM_RUNTIME_ROOTS})
 list(REMOVE_ITEM ADECC_PDFIUM_API_RUNTIME_ROOTS "${SDL2_PACKAGE}")
-adecc_test_install(pdfium-c-api-test
+adecc_test_install(pdfium-c-api-test RUNTIME_CLOSURE
    PACKAGE_ROOTS ${ADECC_PDFIUM_API_RUNTIME_ROOTS}
-   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll
-   EXCLUDE_DLLS third_party_abseil-cpp_absl.dll skia144.dll)
+   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll)
 
 # Regression suite for viewer navigation without a GUI or PDFium input file.
 add_executable(pdfium-page-scroll-test ../Common/PageScrollTest.cpp)
 set_property(TARGET pdfium-page-scroll-test PROPERTY CXX_SCAN_FOR_MODULES OFF)
 target_compile_features(pdfium-page-scroll-test PRIVATE cxx_std_23)
-adecc_test_install(pdfium-page-scroll-test
-   PACKAGE_ROOTS ${PDFIUM_PACKAGE}
+# This pure navigation test has no PDFium, Skia or SDL2 imports.
+# Stage its actual BCC64X PE import closure without any package roots.
+adecc_test_install(pdfium-page-scroll-test RUNTIME_CLOSURE
    TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll)
 
 # Skia 153 publishes its runtime ICU data beside the configuration DLLs.
