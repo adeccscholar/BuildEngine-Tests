@@ -39,9 +39,9 @@ pans horizontally and vertically, clamped at the edges without changing pages. T
 Only the visible portion of the PDF page is rasterized at zoom scale. No
 large off-screen bitmap for the entire zoomed page is allocated. The
 navigation transitions are independently regression-tested in
-`../PDFiumCommon/PageScrollTest.cpp`.
+`../Common/PageScrollTest.cpp`.
 
-**Common PDF code:** ../PDFiumCommon/PdfRaster.h (also used by Test/PDFiumVCL).
+**Common PDF code:** `../Common/PdfRaster.h` (also used by `../VCL`).
 The PDF is loaded into memory with a 256 MiB demonstration limit so its input
 bytes remain valid for PDFium, including for Unicode Windows filenames. This
 is not a hardened viewer for untrusted PDFs.
@@ -100,33 +100,37 @@ raster output; the second runs existing page/zoom/scroll navigation
 regressions without a GUI. Both run under CTest with nonzero exit on
 failed assertions. They do not require a PDF fixture or graphical session.
 
-## Configure, build, install and test
+## Build the graphical viewer (Release and Debug)
 
-Run from the **BuildEngine-Tests checkout root**, inside a RAD Studio 13
-BCC64X developer environment. All commands are one physical line.
-Debug and Release use independent CMake binary directories.
+Run all commands from the BuildEngine-Tests root
+(`D:\local\embarcadero\test_v3\tests`) in the RAD Studio 13 BCC64X
+developer prompt. Each CMake command is a single physical `cmd.exe` line.
+Run `cmake -P bootstrap/Bootstrap.cmake` when preparing a fresh checkout.
+
+### Release
 
 ```bat
-cmake -P bootstrap/Bootstrap.cmake
 cmake -S pdfium/SDL2 -B ../build/Test/pdfium-SDL2/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/pdfium-SDL2/Release
-cmake --build ../build/Test/pdfium-SDL2/Release/cmake
-ctest --test-dir ../build/Test/pdfium-SDL2/Release/cmake --output-on-failure
-cmake --install ../build/Test/pdfium-SDL2/Release/cmake
+cmake --build ../build/Test/pdfium-SDL2/Release/cmake --target buildengine-stage-data-pdfium-sdl2-viewer
+..\build\Test\pdfium-SDL2\Release\cmake\runtime\pdfium-sdl2-viewer\pdfium-sdl2-viewer.exe
 ```
+
+### Debug
 
 ```bat
 cmake -S pdfium/SDL2 -B ../build/Test/pdfium-SDL2/Debug/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug -DCMAKE_INSTALL_PREFIX=../build/Test/pdfium-SDL2/Debug
-cmake --build ../build/Test/pdfium-SDL2/Debug/cmake
-ctest --test-dir ../build/Test/pdfium-SDL2/Debug/cmake --output-on-failure
-cmake --install ../build/Test/pdfium-SDL2/Debug/cmake
+cmake --build ../build/Test/pdfium-SDL2/Debug/cmake --target buildengine-stage-data-pdfium-sdl2-viewer
+..\build\Test\pdfium-SDL2\Debug\cmake\runtime\pdfium-sdl2-viewer\pdfium-sdl2-viewer.exe
 ```
 
-The installed binaries and configuration-specific DLLs reside together
-under `../build/Test/pdfium-SDL2/<configuration>/`. The viewer can then
-be launched interactively with a representative PDF. The VCL consumer
-has its own independent project under `../VCL`.
+The dedicated target builds only the SDL2 viewer and stages its recursive
+PDFium/SDL2 DLL closure plus the matching Skia 153 `icudtl.dat`. The two
+headless test programs do not need to be built to launch the viewer.
 
-**Evidence status:** Dependency declarations and upstream C API contracts
-have been reviewed. A native Windows BCC64X build, executable loading,
-pixel assertions and interactive rendering in this checkout remain
-**[nicht verifiziert]**.
+For the complete Debug/Release build, install and CTest commands, see
+[build.md](build.md). `ctest` executes `pdfium-c-api-render` and
+`pdfium-page-scroll`, not the interactive GUI.
+
+**Evidence status:** Build definitions and declared dependencies have
+been reviewed. Native Windows BCC64X build, executable loading, pixel tests
+and interactive rendering remain **[nicht verifiziert]**.
