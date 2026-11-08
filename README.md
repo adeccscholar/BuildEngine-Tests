@@ -36,7 +36,7 @@ Then rerun the project's configure command. Do not delete library build caches o
 
 ## Current project status
 
-- `pdfium/SDL2`: migrated C++ sources and standalone CMake target; full DLL closure needs validation.
+- `pdfium/SDL2`: updated to Skia 153; headless PDFium API/render and navigation CTest consumers added; Win64x execution pending.
 - `pdfium/Common`: shared headers and a standalone PageScroll regression source (not its own CMake project).
 - `pdfium/VCL`: native RAD Studio `.cbproj`; not configured by CMake.
 - `pdf-image-extraction`: standalone CMake target, qpdf runtime closure still needs validation.
