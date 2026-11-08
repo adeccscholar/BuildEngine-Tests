@@ -76,48 +76,57 @@ refresh previously generated `sbom.cdx.json` and
 installed metadata. The recorded runtime DLL in CycloneDX is a declared
 identity, not a substituted PE-import verification.
 
-## Configure / build
+## PDFium 2025.11.19 / Skia 153 runtime contract
 
-Use the BCC64X RAD Studio 13 environment and the *exact* matching installed
-BuildEngine package artifacts. Package roots are required by the generic
-BuildEngine runtime stage; do not replace them with system PATH entries.
+The PDFium consumer uses **Skia 153**, not Skia 144. The exact dependency
+closure is declared in [CMakeLists.txt](CMakeLists.txt), with Abseil
+20260817.0, fast_float 8.2.3, zlib 1.4, libjpeg-turbo 3.2.0,
+libpng 1.6.59, FreeType 2.15.0, ICU 78.3, LCMS2 2.20, OpenJPEG 2.5.4,
+OpenGL 26.2.1, bzip2 1.0.8, Brotli 1.2.1, and HarfBuzz 15.1.0.
 
-The BCC64X toolchain reads the **environment variables** `CB_BDS` and
-`CB_BCC64X` during CMake configuration (`ENV{CB_BDS}` and
-`ENV{CB_BCC64X}`). A `-DCB_BDS=...` CMake cache argument is **not**
-sufficient. Set both in the **same cmd.exe session** that runs configure and
-build; use `set "NAME=value"` so the path with spaces is handled correctly.
-All CMake invocations below are **single physical cmd.exe lines** (no caret
-continuations).
+Every runtime library is taken from its exact BuildEngine package root.
+The existing collision-checking stager runs on each build, excluding only
+retired `third_party_abseil-cpp_absl.dll` and `skia144.dll` from the
+consumer output. The correct modern binaries are `libabseil_dll.dll`
+and `skia.dll`. No system PATH or alternate installed-library directory
+is consulted. Skia's `icudtl.dat` is additionally copied from the
+configuration-specific `skia/153/bin/win64/<configuration>` directory,
+since the generic PE-DLL staging step does not handle data files.
 
-The following cmd.exe example assumes the production root and uses the
-configuration-matched package DLLs. Add the complete PDFium transitive
-runtime closure when it differs; refer to admin/build-libraries.xml for pinned
-versions. No separate PDFium/SDL2 sources are built.
+**Tests:** In addition to the interactive `pdfium-sdl2-viewer`, this
+project builds `pdfium-c-api-test` and `pdfium-page-scroll-test`.
+The first creates a PDF entirely in memory and verifies PDFium's BGRA
+raster output; the second runs existing page/zoom/scroll navigation
+regressions without a GUI. Both run under CTest with nonzero exit on
+failed assertions. They do not require a PDF fixture or graphical session.
 
-~~~bat
-set "CB_BDS=C:\Program Files (x86)\Embarcadero\Studio\37.0"
-set "CB_BCC64X=%CB_BDS%\bin64\bcc64x.exe"
-set "ROOT=D:\local\embarcadero\test_v3"
-set "PKG=%ROOT%\install\packages"
-set "ROOTS=%PKG%\pdfium\2025.11.19;%PKG%\sdl2\2.32.10;%PKG%\skia\144;%PKG%\abseil\20260817.0;%PKG%\icu\78.3;%PKG%\freetype\2.14.3;%PKG%\harfbuzz\14.4.0;%PKG%\brotli\1.2.0;%PKG%\bzip2\1.0.8;%PKG%\libpng\1.6.58;%PKG%\zlib\1.3.2;%PKG%\libjpeg-turbo\3.2.0;%PKG%\lcms2\2.19.1;%PKG%\openjpeg\2.5.4"
-cmake -S Test/PDFiumSDL2 -B build/pdfium-sdl2/Release -G Ninja "-DCMAKE_BUILD_TYPE:STRING=Release" "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=%ROOT%\admin\cmake\toolchains\bcc64x-buildengine-cxx.cmake" "-DCMAKE_MAKE_PROGRAM:FILEPATH=%ROOT%\tools\ninja\1.13.2\ninja.exe" "-DADECC_RUNTIME_CMAKE_DIR:PATH=%ROOT%\admin\cmake\consumer" "-DADECC_RUNTIME_PACKAGE_ROOTS:STRING=%ROOTS%" "-DPDFium_DIR:PATH=%PKG%\pdfium\2025.11.19\lib\cmake\PDFium" "-DSDL2_DIR:PATH=%PKG%\sdl2\2.32.10\lib\cmake\SDL2"
-cmake --build build/pdfium-sdl2/Release
-~~~ 
+## Configure, build, install and test
 
-For Debug in the same initialized cmd.exe session, use this **single-line**
-configure command followed by the build:
+Run from the **BuildEngine-Tests checkout root**, inside a RAD Studio 13
+BCC64X developer environment. All commands are one physical line.
+Debug and Release use independent CMake binary directories.
 
-~~~bat
-cmake -S Test/PDFiumSDL2 -B build/pdfium-sdl2/Debug -G Ninja "-DCMAKE_BUILD_TYPE:STRING=Debug" "-DCMAKE_TOOLCHAIN_FILE:FILEPATH=%ROOT%\admin\cmake\toolchains\bcc64x-buildengine-cxx.cmake" "-DCMAKE_MAKE_PROGRAM:FILEPATH=%ROOT%\tools\ninja\1.13.2\ninja.exe" "-DADECC_RUNTIME_CMAKE_DIR:PATH=%ROOT%\admin\cmake\consumer" "-DADECC_RUNTIME_PACKAGE_ROOTS:STRING=%ROOTS%" "-DPDFium_DIR:PATH=%PKG%\pdfium\2025.11.19\lib\cmake\PDFium" "-DSDL2_DIR:PATH=%PKG%\sdl2\2.32.10\lib\cmake\SDL2"
-cmake --build build/pdfium-sdl2/Debug
-~~~
+```bat
+cmake -P bootstrap/Bootstrap.cmake
+cmake -S pdfium/SDL2 -B ../build/Test/pdfium-SDL2/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/pdfium-SDL2/Release
+cmake --build ../build/Test/pdfium-SDL2/Release/cmake
+ctest --test-dir ../build/Test/pdfium-SDL2/Release/cmake --output-on-failure
+cmake --install ../build/Test/pdfium-SDL2/Release/cmake
+```
 
-The
-runtime stage copies/validates exact Win64x DLLs beside the EXE with collision
-checks. The application does not need the SDL2main startup library: its own
-WinMain calls SDL_SetMainReady.
+```bat
+cmake -S pdfium/SDL2 -B ../build/Test/pdfium-SDL2/Debug/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug -DCMAKE_INSTALL_PREFIX=../build/Test/pdfium-SDL2/Debug
+cmake --build ../build/Test/pdfium-SDL2/Debug/cmake
+ctest --test-dir ../build/Test/pdfium-SDL2/Debug/cmake --output-on-failure
+cmake --install ../build/Test/pdfium-SDL2/Debug/cmake
+```
 
-**Evidence:** the PDFium+SDL2 package smoke checks passed separately; the
-graphical application must still be compiled and run with native BCC64X
-[not verified].
+The installed binaries and configuration-specific DLLs reside together
+under `../build/Test/pdfium-SDL2/<configuration>/`. The viewer can then
+be launched interactively with a representative PDF. The VCL consumer
+has its own independent project under `../VCL`.
+
+**Evidence status:** Dependency declarations and upstream C API contracts
+have been reviewed. A native Windows BCC64X build, executable loading,
+pixel assertions and interactive rendering in this checkout remain
+**[nicht verifiziert]**.
