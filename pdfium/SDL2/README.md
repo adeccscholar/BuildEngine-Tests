@@ -54,14 +54,13 @@ This application uses the installed BuildEngine Abseil package
 component from previous PDFium GN builds and is not an application
 dependency.
 
-`CMakeLists.txt` declares
-`EXCLUDE_DLLS third_party_abseil-cpp_absl.dll` in the generic BuildEngine
-runtime-staging call. On the next build, staging removes that exact old DLL
-from the SDL2 executable folder and ignores copies in package roots.
-The canonical `libabseil_dll.dll` remains deployed; no arbitrary
-wildcard exclusions, renaming or changes to the PDFium import library are
-made. The staging target runs on **every** CMake build, including incremental
-builds, so no forced PDFium or SDL2 source rebuild is needed.
+The test project now uses `adecc_test_install(... RUNTIME_CLOSURE)`
+to stage the recursive PE import closure from exact installed BuildEngine
+package roots. Every executable has its own runtime directory, so stale
+DLLs from other test programs are not mixed in. The staging implementation
+rejects unresolved imports and nonidentical DLL basename collisions;
+it does not suppress or overwrite such conflicts. The installed
+`libabseil_dll.dll` remains the required Abseil component.
 
 The authoritative runtime PE contract is the PDFium BuildEngine install
 gate: `pdfium.dll` must import `libabseil_dll.dll` and must **not**
@@ -85,10 +84,11 @@ libpng 1.6.59, FreeType 2.15.0, ICU 78.3, LCMS2 2.20, OpenJPEG 2.5.4,
 OpenGL 26.2.1, bzip2 1.0.8, Brotli 1.2.1, and HarfBuzz 15.1.0.
 
 Every runtime library is taken from its exact BuildEngine package root.
-The existing collision-checking stager runs on each build, excluding only
-retired `third_party_abseil-cpp_absl.dll` and `skia144.dll` from the
-consumer output. The correct modern binaries are `libabseil_dll.dll`
-and `skia.dll`. No system PATH or alternate installed-library directory
+The recursive PE import closure is staged separately for each consumer.
+Retired `third_party_abseil-cpp_absl.dll` and `skia144.dll` are not
+expected to be imported by the current PDFium package; its supported
+runtime binaries include `libabseil_dll.dll` and `skia.dll`.
+No system PATH or alternate installed-library directory
 is consulted. Skia's `icudtl.dat` is additionally copied from the
 configuration-specific `skia/153/bin/win64/<configuration>` directory,
 since the generic PE-DLL staging step does not handle data files.
