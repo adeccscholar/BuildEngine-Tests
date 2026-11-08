@@ -78,42 +78,61 @@ and $(StackRoot)\install\packages\pdfium\2025.11.19\include.
 DynamicRTL=true matches the BCC64X third-party runtime contract.
 VCL runtime packages come from the RAD Studio installation.
 
-## Deploy the exact PDFium dependency closure
+## Deploy the exact PDFium 2025.11.19 / Skia 153 closure
 
-The .cbproj IDE linker does not do the CMake application's runtime staging.
-Use the **existing BuildEngine** generic stage script; do not rename DLLs or
-copy libraries indiscriminately from PATH. Generate an absolute-path UTF-8
-root manifest containing one installed package root per line, for example:
+The Win64x VCL project still uses the PDFium 2025.11.19 C import library,
+but PDFium's current installed dependency is **Skia 153**, not Skia 144.
+Its transitive runtime closure must match the current BuildEngine XML
+contract. The VCL/IDE build has no automatic CMake runtime stage.
 
-    D:/local/embarcadero/test_v3/install/packages/pdfium/2025.11.19
-    D:/local/embarcadero/test_v3/install/packages/skia/144
-    D:/local/embarcadero/test_v3/install/packages/abseil/20260817.0
-    D:/local/embarcadero/test_v3/install/packages/icu/78.3
-    D:/local/embarcadero/test_v3/install/packages/freetype/2.14.3
-    D:/local/embarcadero/test_v3/install/packages/harfbuzz/14.4.0
-    D:/local/embarcadero/test_v3/install/packages/zlib/1.3.2
-    D:/local/embarcadero/test_v3/install/packages/libpng/1.6.58
-    D:/local/embarcadero/test_v3/install/packages/libjpeg-turbo/3.2.0
-    D:/local/embarcadero/test_v3/install/packages/brotli/1.2.0
-    D:/local/embarcadero/test_v3/install/packages/bzip2/1.0.8
-    D:/local/embarcadero/test_v3/install/packages/lcms2/2.19.1
-    D:/local/embarcadero/test_v3/install/packages/openjpeg/2.5.4
+Create a UTF-8 manifest with exactly these package roots for the current
+PDFium and Skia dependency versions. The example production root below
+is the one already used by this application; adjust it when deploying
+to another BuildEngine workspace. Do not use PATH discovery or select
+an arbitrary newer dependency in place of a catalog-declared version.
 
-Call cmake from the RAD Studio command environment with the same Config as the
-VCL build (example after creating roots.txt from the list above):
+```text
+D:/local/embarcadero/test_v3/install/packages/pdfium/2025.11.19
+D:/local/embarcadero/test_v3/install/packages/skia/153
+D:/local/embarcadero/test_v3/install/packages/abseil/20260817.0
+D:/local/embarcadero/test_v3/install/packages/fast_float/8.2.3
+D:/local/embarcadero/test_v3/install/packages/icu/78.3
+D:/local/embarcadero/test_v3/install/packages/freetype/2.15.0
+D:/local/embarcadero/test_v3/install/packages/harfbuzz/15.1.0
+D:/local/embarcadero/test_v3/install/packages/zlib/1.4
+D:/local/embarcadero/test_v3/install/packages/libpng/1.6.59
+D:/local/embarcadero/test_v3/install/packages/libjpeg-turbo/3.2.0
+D:/local/embarcadero/test_v3/install/packages/brotli/1.2.1
+D:/local/embarcadero/test_v3/install/packages/bzip2/1.0.8
+D:/local/embarcadero/test_v3/install/packages/lcms2/2.20
+D:/local/embarcadero/test_v3/install/packages/openjpeg/2.5.4
+D:/local/embarcadero/test_v3/install/packages/opengl/26.2.1
+```
 
-    cmake "-DADECC_RUNTIME_ROOTS_FILE:FILEPATH=D:/path/to/roots.txt" "-DADECC_RUNTIME_CONFIGURATION=Release" "-DADECC_RUNTIME_OUTPUT_DIR=D:/path/to/Test/PDFiumVCL/Win64x/Release" -P "D:/local/embarcadero/test_v3/admin/cmake/consumer/BuildEngineStageRuntime.cmake"
+Stage the exact PE dependencies with BuildEngine's existing checked
+runtime stager, using the chosen configuration. These are single-line
+`cmd.exe` invocations (the `roots.txt` path refers to the manifest
+created above):
 
-For selected toolchain DLLs such as libwinpthread-1-370.dll, supply
-ADECC_RUNTIME_TOOLCHAIN_DLLS_FILE and ADECC_RUNTIME_TOOLCHAIN_BIN to the same
-BuildEngineStageRuntime.cmake script. The script validates PE64 DLLs and
-rejects name/hash collisions. Do not deploy copies of Windows API-set DLLs.
-Change Release to Debug consistently for the Debug build.
+```bat
+cmake "-DADECC_RUNTIME_ROOTS_FILE:FILEPATH=D:/path/to/roots.txt" "-DADECC_RUNTIME_CONFIGURATION=Release" "-DADECC_RUNTIME_OUTPUT_DIR=D:/local/embarcadero/test_v3/tests/pdfium/VCL/Win64x/Release" -P "D:/local/embarcadero/test_v3/admin/cmake/consumer/BuildEngineStageRuntime.cmake"
+cmake -E copy_if_different "D:/local/embarcadero/test_v3/install/packages/skia/153/bin/win64/Release/icudtl.dat" "D:/local/embarcadero/test_v3/tests/pdfium/VCL/Win64x/Release/icudtl.dat"
+```
 
-The project is intentionally a minimal source-controlled RAD Studio project.
-The user can open it and adjust RAD Studio generated IDE metadata for their
-installation if required.
+For Debug, substitute `Debug` consistently in the MSBuild configuration,
+the staging configuration, the output folder and the Skia ICU data source.
+The generic runtime stager validates PE64 dependencies and rejects name/hash
+collisions, but it copies DLLs only. The explicitly versioned
+`icudtl.dat` copy is therefore required in addition.
 
-**Verification:** XML project structure/source consistency statically checked.
-Native RAD Studio Win64x compile, DLL staging and VCL GUI operation remain
-[not verified].
+Do not stage obsolete `skia144.dll` or
+`third_party_abseil-cpp_absl.dll`. PDFium's current imports use
+`skia.dll` and `libabseil_dll.dll`. The same modern FreeType and
+HarfBuzz versions must be used throughout the installed closure.
+If old DLLs remain in the output directory, remove those retired
+artifacts before deployment; do not suppress collisions between
+distinct current dependencies.
+
+**Verification:** The configured package declarations and VCL
+source/project structure were inspected. Native Win64x compilation,
+deployment and graphical rendering remain **[nicht verifiziert]**.
