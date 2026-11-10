@@ -8,33 +8,33 @@ Two alternative data sources and three representations: (1) address points on a 
 
 ## Data sources and provenance
 
-Both data formats originate from [CompareTest](../CompareTest/), specifically the routines \`Reading<T>\`, \`WriteToDirectory<T>\` and \`ReadFromDirectory<T>\` in \`MyProcess.h\` and \`Test_Read.cpp\`. The new application builds independently and does not modify CompareTest.
+Both data formats originate from [CompareTest](../CompareTest/), specifically the routines `Reading<T>`, `WriteToDirectory<T>` and `ReadFromDirectory<T>` in `MyProcess.h` and `Test_Read.cpp`. The new application builds independently and does not modify CompareTest.
 
-**A — flat input file \`berlin_infos.dat\`:**
+**A — flat input file `berlin_infos.dat`:**
 
-\`\`\`text
+```text
 City;Street;Number;ZipCode;UrbanUnit;UrbanUnitOld;District;Latitude;Longitude
-\`\`\`
+```
 
 **B — hierarchical input, where directory structure is itself part of the data:**
 
-\`\`\`text
+```text
 Root/
   City/
     Borough/
       Neighborhood/
         StreetName.csv
-\`\`\`
+```
 
 The seven CSV columns are exactly those retained when CompareTest writes directory-based data:
 
-\`\`\`text
+```text
 StreetNumber;ZipCode;UrbanUnitOld;Latitude;Longitude;Distance;Bearing
-\`\`\`
+```
 
 The reader traverses three directory levels below the city, sorts files deterministically and optionally processes them in parallel using oneTBB. Rendering currently uses GPS coordinates; hierarchy names are part of the format but not yet used for borough filters. Missing or invalid coordinates are counted and excluded. No automatic geocoding is performed.
 
-\`\`\`mermaid
+```mermaid
 flowchart TD
  A[CompareTest address data] --> B[berlin_infos.dat]
  A --> C[City / Borough / Neighborhood / Street.csv]
@@ -48,7 +48,7 @@ flowchart TD
  G --> J[OpenMP/oneTBB Gaussian smoothing]
  J --> K[Skia 2D-Relief]
  J --> L[OpenGL mesh representing 3D density terrain]
-\`\`\`
+```
 
 ## Cartographic projection
 
@@ -103,7 +103,7 @@ The square root makes smaller hills visible. Lower address densities become vall
 
 **Limitation:** The first implementation counts grid cells in pixel coordinates; changing resolution changes effective cell area. Comparable absolute addresses/km² require a future metric grid scale.
 
-\`\`\`mermaid
+```mermaid
 sequenceDiagram
  participant Read as CompareTest Input
  participant TBB as oneTBB
@@ -117,7 +117,7 @@ sequenceDiagram
  OMP-->>Skia: Grid points / density / relief
  OMP-->>GL: Mesh positions and elevations
  GL->>GL: Perspective, mouse rotation, zoom
-\`\`\`
+```
 
 ## Parallel execution
 
@@ -131,13 +131,13 @@ sequenceDiagram
 | Gaussian smoothing | Yes | Rows | Rows |
 | Draw Skia/OpenGL | GUI thread | — | — |
 
-\`\`\`cpp
+```cpp
 #pragma omp parallel for num_threads(threads) schedule(static)
 for(int row = 0; row < height; ++row) {
    // Only write disjoint destination rows.
    // Read exclusively from the immutable previous convolution pass.
 }
-\`\`\`
+```
 
 Neither Skia nor OpenGL is used concurrently from multiple worker threads on the same canvas/context. Oversized local OpenMP histograms currently fall back to a sequential, memory-saving reduction.
 
@@ -145,33 +145,33 @@ Neither Skia nor OpenGL is used concurrently from multiple worker threads on the
 
 | Program | Purpose |
 |---|---|
-| \`geospatial_viewer.exe\` | Skia points, cell density, smooth 2D relief |
-| \`geospatial_terrain.exe\` | OpenGL 3D terrain from the smoothed grid |
-| \`geospatial_benchmark.exe\` | Comparison of serial and parallel processing |
+| `geospatial_viewer.exe` | Skia points, cell density, smooth 2D relief |
+| `geospatial_terrain.exe` | OpenGL 3D terrain from the smoothed grid |
+| `geospatial_benchmark.exe` | Comparison of serial and parallel processing |
 
 **Skia controls:** Ctrl+O opens the flat file; Ctrl+D opens a street CSV and infers the hierarchy root. A hierarchy directory may also be passed at launch. Keys 1/2/3 select points/cell density/smoothed relief; S/T/P select serial/oneTBB/OpenMP; +/- change cell size.
 
-**3D controls:** Drag the left mouse button to rotate the density surface and use the wheel to zoom; 1/2/3 select top/side/oblique views; Esc exits. Both input formats support command-line arguments. The OpenGL renderer uses the system GPU, not a local Mesa \`opengl32.dll\`.
+**3D controls:** Drag the left mouse button to rotate the density surface and use the wheel to zoom; 1/2/3 select top/side/oblique views; Esc exits. Both input formats support command-line arguments. The OpenGL renderer uses the system GPU, not a local Mesa `opengl32.dll`.
 
 ## Building with BuildEngine
 
-From \`D:/local/embarcadero/test_v3/tests\`:
+From `D:/local/embarcadero/test_v3/tests`:
 
-\`\`\`bat
+```bat
 git pull
 cmake -S geospatial-skia -B D:/local/embarcadero/test_v3/build/test/geospatial-skia/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=D:/local/embarcadero/test_v3/build/test/geospatial-skia/Release
 cmake --build D:/local/embarcadero/test_v3/build/test/geospatial-skia/Release/cmake
 cmake --install D:/local/embarcadero/test_v3/build/test/geospatial-skia/Release/cmake
-\`\`\`
+```
 
 Example invocations:
 
-\`\`\`bat
+```bat
 geospatial_viewer.exe D:/Test/berlin_infos.dat
 geospatial_terrain.exe D:/Test/berlin_infos.dat
 geospatial_terrain.exe D:/Test/Verzeichnisstruktur
 geospatial_benchmark.exe D:/Test/berlin_infos.dat
-\`\`\`
+```
 
 The active XML versions of Skia, oneTBB, LLVM OpenMP, fast_float, SDL2 and GLEW are used with dynamic BuildEngine runtime DLLs. An internal CMake OBJECT target is used rather than an additional third-party static library.
 
