@@ -1,19 +1,19 @@
 # OpenGL + SDL2 Earth Demo
 
-C++23 / OpenGL 3.3 Core Demo fuer die adecc Scholar Studio-37/BCC64X-Buildchain.
+C++23 / OpenGL 3.3 Core demo for the adecc Scholar Studio-37/BCC64X build toolchain.
 
-Das Demo basiert auf dem vom Benutzer bereitgestellten `OpenGLSoil2Example_Earth_v4` und nutzt die bereits verifizierten Managed Packages der Buildchain:
+This demo is based on the user-provided `OpenGLSoil2Example_Earth_v4` and uses the already verified managed packages from the build toolchain:
 
-- SDL2: Fenster, Events und OpenGL-Kontext,
-- OpenGL 3.3 Core: Rendering,
-- GLEW: Laden der OpenGL-Funktionen,
-- SOIL2: Laden der JPG-Texturen.
+- SDL2: windowing, events and OpenGL context,
+- OpenGL 3.3 Core: rendering,
+- GLEW: OpenGL function loading,
+- SOIL2: JPG texture loading.
 
-Es wird keine Skia-Library verwendet. Das Demo dient bewusst als reine SDL2/OpenGL-Referenz vor der spaeteren Skia-Ganesh/OpenGL-Integration.
+Skia is not used. This is deliberately a pure SDL2/OpenGL reference before the later Skia Ganesh/OpenGL integration.
 
-## Build und Start (BuildEngine Tests)
+## Build and run (BuildEngine Tests)
 
-Aus `D:/local/embarcadero/test_v3/tests`:
+From `D:/local/embarcadero/test_v3/tests`:
 
 ```bat
 cmake -S opengl-sdl2-earth -B D:/local/embarcadero/test_v3/build/test/opengl-sdl2-earth/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=D:/local/embarcadero/test_v3/build/test/opengl-sdl2-earth/Release
@@ -21,45 +21,43 @@ cmake --build D:/local/embarcadero/test_v3/build/test/opengl-sdl2-earth/Release/
 cmake --install D:/local/embarcadero/test_v3/build/test/opengl-sdl2-earth/Release/cmake
 ```
 
-`OpenGLSDL2EarthDemo.exe` liegt zusammen mit den DLLs direkt in `Release/`,
-die Ressourcen in `Release/graphics/`. Die Anwendung sucht Ressourcen
-relativ zur EXE mittels SDL_GetBasePath.
+`OpenGLSDL2EarthDemo.exe` and its DLLs are installed directly under `Release/`; resources are under `Release/graphics/`. The application locates resources relative to the executable using `SDL_GetBasePath`.
 
-## Szenen
+## Scenes
 
-- `Logo`: adecc 3D Mesh mit eigener Kamera- und Scheinwerfersteuerung.
-- `Earth (Day)`: Erde mit `2k_earth_daymap.jpg`.
-- `Earth (Night)`: Erde mit `2k_earth_nightmap.jpg`.
-- Beide Earth-Varianten verwenden `2k_stars_milky_way.jpg` als Sternenhintergrund.
+- `Logo`: adecc 3D mesh with dedicated camera and spotlight controls.
+- `Earth (Day)`: Earth with `2k_earth_daymap.jpg`.
+- `Earth (Night)`: Earth with `2k_earth_nightmap.jpg`.
+- Both Earth variants use `2k_stars_milky_way.jpg` as the star background.
 
-Die Szenen koennen ueber die im OpenGL-Fenster gezeichneten Buttons umgeschaltet werden.
+Switch scenes using the buttons drawn inside the OpenGL window.
 
-## Steuerung
+## Controls
 
-`Esc` beendet die Anwendung.
+`Esc` exits the application.
 
 ### Logo
 
-- `Left` / `Right`: Kamera horizontal um das Logo drehen.
-- `Up` / `Down`: Kamera vertikal um das Logo drehen.
-- `Home` / `End`: Scheinwerfer horizontal bewegen.
-- `PageUp` / `PageDown`: Scheinwerferhoehe aendern.
-- `+` / `-` oder Mausrad: Kameraabstand.
+- `Left` / `Right`: Rotate the camera horizontally around the logo.
+- `Up` / `Down`: Rotate the camera vertically around the logo.
+- `Home` / `End`: Move the spotlight horizontally.
+- `PageUp` / `PageDown`: Change the spotlight elevation.
+- `+` / `-` oder Mausrad: Camera distance.
 
 ### Earth
 
-- `Left` / `Right`: Lichtquelle horizontal um die Erde bewegen.
-- `Up` / `Down`: Lichtquelle vertikal um die Erde bewegen.
-- `Home` / `End`: Kamera horizontal verschieben.
-- `+` / `-` oder Mausrad: Kameraabstand.
+- `Left` / `Right`: Move the light horizontally around Earth.
+- `Up` / `Down`: Move the light vertically around Earth.
+- `Home` / `End`: Pan the camera horizontally.
+- `+` / `-` oder Mausrad: Camera distance.
 
 ## Windows / SDL Main
 
-Die studio_37-Buildchain linkt SDL2 absichtlich ohne `SDL2main`. Deshalb setzt das Target `SDL_MAIN_HANDLED`, verwendet ein echtes `WinMain` und ruft vor `SDL_Init` einmal `SDL_SetMainReady()` auf. Durch `add_executable(... WIN32 ...)` entsteht kein separates Konsolenfenster.
+The studio_37 toolchain deliberately links SDL2 without `SDL2main`. The target defines `SDL_MAIN_HANDLED`, uses a real `WinMain` and calls `SDL_SetMainReady()` before `SDL_Init`. The `add_executable(... WIN32 ...)` target avoids a separate console window.
 
-## Grafikdateien
+## Graphics assets
 
-Im Verzeichnis `graphics` liegen:
+The `graphics` directory contains:
 
 - `adecc_official_logo_planar_cutout_3d_opengl.obj`
 - `adecc_official_logo_planar_cutout_3d_opengl.mtl`
@@ -67,10 +65,10 @@ Im Verzeichnis `graphics` liegen:
 - `2k_earth_nightmap.jpg`
 - `2k_stars_milky_way.jpg`
 
-Die Earth-Texturen stammen laut bereitgestelltem Projekt von Solar System Scope:
+According to the supplied original project, Earth textures originate from Solar System Scope:
 `https://www.solarsystemscope.com/textures/`
 
-Lizenz laut bereitgestelltem Projekt: CC BY 4.0 - Attribution 4.0 International.
+License noted by the original project: CC BY 4.0 — Attribution 4.0 International.
 
 ## RAD Studio IDE project (r89)
 
