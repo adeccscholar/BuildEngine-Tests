@@ -308,7 +308,7 @@ namespace {
          theCaption->GetTextProperty()->SetFontSize(23);
          theCaption->GetTextProperty()->SetBold(1);
          theCaption->GetTextProperty()->SetColor(flR, flG, flB);
-         pRenderer->AddActor2D(theCaption);
+         pRenderer->AddViewProp(theCaption);
       };
       addCaption(theLeft, "VTK 9.7.2   |   ISOSURFACE / WIREFRAME", 0.62, 0.90, 1.0);
       addCaption(theRight, "VOLUME / GPU RAYCAST", 1.0, 0.58, 0.85);
