@@ -1,5 +1,5 @@
-# Komplexe Integrationstests
+# Complex Integration Tests
 
-Dieses Verzeichnis enthaelt paketuebergreifende Consumer-Tests, die bewusst nicht dem einfachen per-Library-Smoke-Muster entsprechen.
+This directory contains cross-package consumer tests that deliberately go beyond the simple per-library smoke pattern.
 
-Ein Test darf mehrere publizierte Pakete aus `Win64x`, mehrere Prozesse oder Dienste kombinieren und eine eigene fachliche Auswertung besitzen. Kleine Tests, die lediglich die Nutzbarkeit genau einer Bibliothek pruefen, gehoeren nicht hierher, sondern nach `BuildEngine-Admin/admin/smokes` in den Library-Vertrag.
+A test may combine multiple published packages from `Win64x`, multiple processes or services, and its own application-level validation. Small tests that verify only the usability of one library belong in the library contract under `BuildEngine-Admin/admin/smokes`, not here.
