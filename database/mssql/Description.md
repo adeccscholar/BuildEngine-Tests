@@ -14,9 +14,9 @@ The attached `tests.zip` contains an additional SQL-Server-oriented suite, impor
 
 The accompanying `BuildEngine-Tests-additional-MSSQL.zip` provides the full original 13-header SQL Server exercise suite supplied with this migration. Extract its `mssql/additional-tests/` directory into this checkout to enable the additional standalone test. The core error scenario is exercised by its `main.cpp`; all other source headers remain available unchanged. This supplementary archive has not yet been merged into GitHub and must not be counted as an already committed test.
 
-## Einrichtung
+## Configuration
 
-Siehe [Configure.md](Configure.md) für Windows-Login, Datenbankbenutzer, Rechte und SQL-Server-Dienst.
+See [Configure.md](Configure.md) for the Windows login, database user, permissions and SQL Server service.
 
 ## Additional shared database executable
 
