@@ -10,9 +10,9 @@ Database engines and drivers are services or installed OS dependencies, **not** 
 
 The attached `tests.zip` contains an additional SQL-Server-oriented suite, imported separately in `mssql/additional-tests` without changing the original logic. It is not PostgreSQL SQL dialect-neutral.
 
-## Einrichtung
+## Configuration
 
-Siehe [Configure.md](Configure.md) für Windows-SSPI, Benutzerzuordnung über pg_hba.conf/pg_ident.conf und die getrennten Datenbankrollen.
+See [Configure.md](Configure.md) for Windows SSPI, user mapping through pg_hba.conf/pg_ident.conf and separate database roles.
 
 ## Additional shared database executable
 
