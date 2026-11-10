@@ -1,40 +1,40 @@
-# Configure.md – SQL Server / integrierte Sicherheit
+# SQL Server Configuration — Windows Integrated Authentication
 
-## Testumgebung
+## Test environment
 
-**Datenbank:** BuildEngineTest  
-**Testprogramm:** adecc_mssql_odbc_test.exe und adecc_mssql_csv_pipeline.exe  
-**Authentifizierung:** Windows Integrated Security (SSPI) über ODBC Driver 18.
+**Database:** `BuildEngineTest`  
+**Test executables:** `adecc_mssql_odbc_test.exe` and `adecc_mssql_csv_pipeline.exe`  
+**Authentication:** Windows Integrated Security (SSPI) through Microsoft ODBC Driver 18.
 
-Erforderlich sind eine laufende Microsoft-SQL-Server-Instanz, der installierte **Microsoft ODBC Driver 18 for SQL Server**, ein Windows-Konto mit Zugriff auf die Testinstanz und zur Ersteinrichtung ein SQL-Server-Administrator. Der Server ist eine externe Voraussetzung, kein durch CMake oder die BuildEngine bereitgestellter Dienst. Für den Build muss der Server nicht laufen, für die Tests jedoch schon.
+Prerequisites: a running Microsoft SQL Server instance, **Microsoft ODBC Driver 18 for SQL Server**, a Windows account permitted to access the test instance, and an SQL Server administrator for initial setup. The server is an external prerequisite, **not** a service installed by CMake or BuildEngine. It need not be running during compilation, but it must be available for tests.
 
-In einem RAD Studio Developer Command Prompt das tatsächlich verwendete Windows-Konto feststellen:
+Identify the Windows account used by the RAD Studio Developer Command Prompt:
 
-~~~bat
+```bat
 whoami
-~~~
+```
 
-Die Schreibweise **FIRMA\entwickler** in den folgenden Beispielen ist ein **Platzhalter**. Sie muss durch das reale Windows-Konto oder die autorisierte Windows-Gruppe ersetzt werden. Eine benannte SQL-Server-Instanz wird beispielsweise mit **localhost\SQLEXPRESS** anstelle von localhost angegeben.
+**`FIRMA\entwickler` is a placeholder**, not a real credential. Replace it with the actual Windows account or authorized Windows group. A named instance may use `localhost\SQLEXPRESS` instead of `localhost`.
 
-## 1. Datenbank einrichten
+## 1. Create the database
 
-Als Windows-Konto mit Administratorrechten auf der SQL-Server-Instanz:
+Run as a Windows account with SQL Server administrative permissions:
 
-~~~bat
+```bat
 sqlcmd -S localhost -E -b -i database\mssql\sql\create-database.sql
-~~~
+```
 
-Oder das vorhandene [create-database.sql](sql/create-database.sql) in SQL Server Management Studio (SSMS) mit **Windows Authentication** ausführen. Das Skript erstellt BuildEngineTest nur, wenn die Datenbank noch nicht existiert. **-E** aktiviert integrierte Sicherheit; **-b** meldet SQL-Fehler über den Prozess-Exitcode.
+Alternatively execute [create-database.sql](sql/create-database.sql) in SQL Server Management Studio (SSMS) using **Windows Authentication**. The script creates `BuildEngineTest` only if missing. `-E` enables integrated authentication and `-b` reports SQL errors through the process exit code.
 
-## 2. Windows-Login und Datenbankbenutzer erstellen
+## 2. Create the Windows login and database user
 
-Die folgenden Befehle führt ein SQL-Server-Administrator aus. Hier wird ein Windows-Login einem Datenbankbenutzer **buildenginetest_user** zugeordnet. Es wird **kein SQL-Kennwort** eingerichtet.
+Execute as an SQL Server administrator. Map the Windows login to database user `buildenginetest_user` without creating an SQL password.
 
-~~~sql
+```sql
 USE [master];
 GO
 
--- FIRMA\entwickler vor dem Ausführen ersetzen!
+-- Replace FIRMA\entwickler before executing.
 IF SUSER_ID(N'FIRMA\entwickler') IS NULL
    CREATE LOGIN [FIRMA\entwickler] FROM WINDOWS;
 GO
@@ -45,15 +45,15 @@ GO
 IF USER_ID(N'buildenginetest_user') IS NULL
    CREATE USER [buildenginetest_user] FOR LOGIN [FIRMA\entwickler];
 GO
-~~~
+```
 
-Existiert die Kennung bereits, ihre bestehende Login-Zuordnung prüfen. Für Team-Rechner ist ein Windows-Gruppenlogin oft praktikabler als einzelne Entwickler-Logins.
+If the identity already exists, verify its login mapping. A Windows group login can be more suitable than individual developer logins for shared team machines.
 
-## 3. Berechtigungen
+## 3. Permissions
 
-Die gegenwärtigen Tests legen Tabellen und Trigger explizit unter **dbo** an, benutzen SELECT/INSERT/UPDATE/DELETE und entfernen Testobjekte wieder. Für die **isolierte Testdatenbank**:
+The current tests create tables and triggers explicitly under `dbo`, execute SELECT/INSERT/UPDATE/DELETE, then remove test objects. **Only in the dedicated test database**, grant:
 
-~~~sql
+```sql
 USE [BuildEngineTest];
 GO
 GRANT CONNECT TO [buildenginetest_user];
@@ -62,39 +62,39 @@ GRANT ALTER ON SCHEMA::[dbo] TO [buildenginetest_user];
 GRANT SELECT, INSERT, UPDATE, DELETE
    ON SCHEMA::[dbo] TO [buildenginetest_user];
 GO
-~~~
+```
 
-**Sicherheitsgrenze:** ALTER auf dbo ist weitreichend. Solche Berechtigungen sind nur für die gesonderte Testdatenbank vorgesehen, niemals für eine Produktivdatenbank. Alternativ sind in einer vollständig dedizierten Testdatenbank die Rollen db_ddladmin, db_datareader und db_datawriter möglich. Standardmäßig wird kein sysadmin- oder db_owner-Recht benötigt.
+**Security boundary:** `ALTER` on `dbo` is powerful. Grant it only within an isolated test database, never production. Alternatively, a fully dedicated test database may use `db_ddladmin`, `db_datareader` and `db_datawriter`. `sysadmin` or `db_owner` are not normally required.
 
-## 4. Anmeldung und Programmausführung prüfen
+## 4. Verify login and run programs
 
-Das folgende Kommando **unter dem späteren Windows-Testkonto** aufrufen:
+Run these commands **under the Windows account that will execute the tests**:
 
-~~~bat
+```bat
 sqlcmd -S localhost -E -d BuildEngineTest -b -Q "SELECT DB_NAME() AS Datenbank, SYSTEM_USER AS WindowsLogin, USER_NAME() AS DBUser;"
 
 ..\build\Test\mssql\Release\adecc_mssql_odbc_test.exe --server localhost --database BuildEngineTest --integrated
 
 set ADECC_MSSQL_DATABASE=BuildEngineTest
 ..\build\Test\mssql\Release\adecc_mssql_csv_pipeline.exe
-~~~
+```
 
-Erwartet werden BuildEngineTest, das korrekte Windows-Login und die Datenbankkennung buildenginetest_user. Für die CSV-Pipeline muss zusätzlich die Beispieldatei **bookings.csv** im Laufzeitverzeichnis vorhanden sein. Build und Runtime-Staging: [build.md](build.md).
+Expect `BuildEngineTest`, the correct Windows login and `buildenginetest_user`. The CSV pipeline also requires `bookings.csv` in its runtime directory. See [build.md](build.md) for build and runtime staging.
 
-## 5. Diagnose und Grenzen
+## 5. Troubleshooting and security limits
 
-- **Login failed:** Windows-Konto per whoami sowie Login, Datenbankbenutzer und CONNECT prüfen. Integrierte Sicherheit verwendet die Prozessidentität, nicht eine separat übergebene Benutzerkennung.
-- **CREATE TABLE / TRIGGER denied:** CREATE TABLE und ALTER auf dem Schema dbo prüfen.
-- **ODBC driver not found:** 64-Bit-ODBC Driver 18 installieren und Instanznamen prüfen.
-- **Transportverschlüsselung:** Der aktuelle adecc-MSSQL-Adapter übergibt ausdrücklich **Trusted_Connection=Yes** und ebenfalls **Encrypt=No**. Windows-Authentifizierung ist daher **kein** Beleg für TLS. Diese Konfiguration ist nur für ein isoliertes, vertrauenswürdiges Testnetz geeignet; für entfernte Verbindungen muss die Client-Konfiguration auf verpflichtendes TLS mit Zertifikatsprüfung umgestellt werden.
+- **Login failed:** Check `whoami`, the SQL login, database user and CONNECT permissions. Integrated security uses the process identity, not a separately supplied username.
+- **CREATE TABLE / TRIGGER denied:** Check CREATE TABLE and ALTER permission on schema `dbo`.
+- **ODBC driver not found:** Install 64-bit ODBC Driver 18 and verify the instance name.
+- **Transport encryption:** The current adecc MSSQL adapter explicitly supplies both `Trusted_Connection=Yes` and `Encrypt=No`. Windows authentication therefore **does not demonstrate TLS**. This profile is suitable only for an isolated, trusted test network. Require TLS and certificate validation for remote access.
 
-## Dokumentationsserver / Nachweise
+## Documentation server and evidence
 
-Diese Seite wird automatisch über den Markdown-Dokumentationsserver unter **/docs/database/mssql/Configure.md** angezeigt. Der Dokumentationsserver ist nicht der SQL Server.
+The Markdown documentation server exposes this page at `/docs/database/mssql/Configure.md`; it is **not** the SQL Server itself.
 
-Referenzen:
+References:
 
-- [Microsoft – Windows Login](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/create-a-login)
-- [Microsoft – Database User](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/create-a-database-user)
-- [Microsoft – Schema-Rechte](https://learn.microsoft.com/en-us/sql/t-sql/statements/grant-schema-permissions-transact-sql)
-- [Microsoft – ODBC-Verschlüsselung](https://learn.microsoft.com/en-us/sql/connect/odbc/dsn-connection-string-attribute)
+- [Microsoft — Windows Login](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/create-a-login)
+- [Microsoft — Database User](https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/create-a-database-user)
+- [Microsoft — Schema permissions](https://learn.microsoft.com/en-us/sql/t-sql/statements/grant-schema-permissions-transact-sql)
+- [Microsoft — ODBC encryption](https://learn.microsoft.com/en-us/sql/connect/odbc/dsn-connection-string-attribute)
