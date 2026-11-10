@@ -34,16 +34,167 @@ cmake -E rm -rf ../build/Test/CompareTest/Release/cmake
 
 Then rerun the project's configure command. Do not delete library build caches or reinstall third-party packages.
 
-## VTK 9.7.2 OpenGL2 scientific visualization
+## VTK 9.7.2: interactive OpenGL2 visualization and stress tests
 
-The independent [VTK visualization laboratory](vtk-visualization/) provides an actual interactive
-Win32 OpenGL2 rendering application with an illuminated isosurface, translucent
-wireframe and GPU volume raycaster, alongside deterministic numerical, SMP
-(TBB/OpenMP/Sequential) and stress CTests. It requires the explicitly managed
-VTK 9.7.2 rendering build and the installed oneTBB/OpenMP packages. The
-managed Mesa OpenGL import library is a **build-time** dependency only; the
-interactive program uses the native Windows OpenGL driver at runtime. The
-native BCC64X rendering outcome remains **[not verified]** until built.
+The standalone [VTK Scientific Visualization Laboratory](vtk-visualization/) is a
+native C++23 / BCC64X consumer of the exact VTK 9.7.2 package built by
+BuildEngine. It combines an interactive, two-viewport **1600 × 900**
+scientific visualization with automated numerical regression and load testing:
+
+- **Left viewport:** an illuminated, smoothly deformed 3D isosurface with
+  translucent wireframe, generated with `vtkFlyingEdges3D` and VTK's OpenGL2 renderer.
+- **Right viewport:** real volumetric rendering through
+  `vtkGPUVolumeRayCastMapper`, with color and opacity transfer functions.
+- **Numerical verification:** analytic spherical level set, mesh connectivity,
+  closed-manifold boundary checks, volume and area measurements, and a 3.5%
+  tolerance against the mathematical reference values.
+- **Parallel execution:** separately selected `Sequential`, `TBB`, and `OpenMP`
+  backends; repeatable load runs report geometry sizes and elapsed time.
+- **Screenshot output:** genuine VTK framebuffer capture to PNG.
+
+VTK supplies the rendering pipeline; the program does not substitute a
+custom OpenGL renderer or static illustration. The library profile requests
+`RenderingOpenGL2`, `RenderingVolumeOpenGL2`, `RenderingFreeType`,
+`RenderingAnnotation`, `InteractionStyle`, `FiltersSources`, and `IOImage`.
+
+### Requirements and build layout
+
+Run the commands **from the BuildEngine-Tests repository root**, for example
+from `D:\local\embarcadero\test_v3\tests`, in a RAD Studio 13/BCC64X developer
+command prompt. Use the BuildEngine-managed CMake and Ninja tools and its
+tracked initial cache; do not install or select unrelated system packages.
+
+| BuildEngine package | Required version | Purpose |
+| --- | --- | --- |
+| `vtk` | `9.7.2` | Data processing, OpenGL2 rendering, GPU volume mapping |
+| `onetbb` | `2023.2.0` | Native VTK TBB backend |
+| `llvm-openmp` | `20.1.7` | Native VTK OpenMP backend |
+| `opengl` | `26.2.1` | Managed Mesa/WGL OpenGL import library for linking |
+
+The CMake project reads the active package versions from
+`admin/build-libraries.xml` and resolves their exact installed roots.
+The Mesa import library is a build-time dependency. The installed interactive
+application explicitly excludes a locally bundled Mesa `opengl32.dll`, so
+Windows resolves the system OpenGL driver; hardware acceleration still depends
+on the actual host driver and must be verified on the target machine.
+
+Build and install directories are **independent for Release and Debug**:
+
+```text
+../build/Test/vtk-visualization/Release/cmake   # CMake + Ninja output
+../build/Test/vtk-visualization/Release         # installed executable + DLL closure
+../build/Test/vtk-visualization/Debug/cmake     # separate Debug CMake + Ninja output
+../build/Test/vtk-visualization/Debug           # separate Debug installation
+```
+
+### Release: bootstrap, configure, build, test, install
+
+```bat
+cmake -P bootstrap/Bootstrap.cmake
+cmake -S vtk-visualization -B ../build/Test/vtk-visualization/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/vtk-visualization/Release
+cmake --build ../build/Test/vtk-visualization/Release/cmake --parallel 4
+ctest --test-dir ../build/Test/vtk-visualization/Release/cmake --output-on-failure
+cmake --install ../build/Test/vtk-visualization/Release/cmake
+```
+
+### Debug: configure, build, test, install
+
+```bat
+cmake -S vtk-visualization -B ../build/Test/vtk-visualization/Debug/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug -DCMAKE_INSTALL_PREFIX=../build/Test/vtk-visualization/Debug
+cmake --build ../build/Test/vtk-visualization/Debug/cmake --parallel 4
+ctest --test-dir ../build/Test/vtk-visualization/Debug/cmake --output-on-failure
+cmake --install ../build/Test/vtk-visualization/Debug/cmake
+```
+
+### Automated CTest coverage
+
+| CTest name | Workload | Desktop/graphics required? |
+| --- | --- | --- |
+| `VTK972Geometry` | 129³ voxel sphere, `Sequential`, analytic geometry | No |
+| `VTK972TBB` | 129³ voxel sphere, TBB backend | No |
+| `VTK972OpenMP` | 129³ voxel sphere, OpenMP backend | No |
+| `VTK972Load` | 193³ voxels, four iterations, TBB; 240-second timeout | No |
+| `VTK972Screenshot` | Render a 129³ volume and save `VTK972.png` | **Yes**; opt-in |
+
+Inspect registered tests or run only the parallel and stress cases:
+
+```bat
+ctest --test-dir ../build/Test/vtk-visualization/Release/cmake -N
+ctest --test-dir ../build/Test/vtk-visualization/Release/cmake -R "VTK972(TBB|OpenMP)" --output-on-failure -V
+ctest --test-dir ../build/Test/vtk-visualization/Release/cmake -R VTK972Load --output-on-failure -V
+```
+
+For more reproducible performance comparisons, run backend benchmarks
+**sequentially** rather than launching multiple CPU-saturating backends in
+parallel through `ctest -j`. The load test checks correctness and reports
+timings; it does not enforce a machine-dependent performance threshold.
+
+### Launch the interactive visualization
+
+After Release installation:
+
+```bat
+..\build\Test\vtk-visualization\Release\vtk-visualization.exe --resolution 161 --backend TBB
+```
+
+The two real VTK viewports share the application window and support camera
+interaction with the trackball style. This command requires a Windows desktop
+session and working OpenGL context, unlike the headless numerical CTests.
+
+### Explicit parallel load and benchmark runs
+
+```bat
+..\build\Test\vtk-visualization\Release\vtk-visualization.exe --stress --resolution 257 --iterations 6 --backend TBB
+..\build\Test\vtk-visualization\Release\vtk-visualization.exe --stress --resolution 257 --iterations 6 --backend OpenMP
+..\build\Test\vtk-visualization\Release\vtk-visualization.exe --verify --resolution 129 --backend Sequential
+```
+
+Each backend is selected once per process. A larger voxel grid increases both
+numerical workload and memory use; adjust `--resolution` and `--iterations`
+to the target machine rather than relying on an arbitrary run-time threshold.
+Valid ranges are 33–321 grid points per axis and 1–100 iterations.
+
+### PNG screenshot and optional graphics CTest
+
+```bat
+..\build\Test\vtk-visualization\Release\vtk-visualization.exe --screenshot vtk-lab.png --resolution 161 --backend TBB
+```
+
+To register the screenshot test in an **already configured** Release build,
+enable the graphics option and rebuild before invoking CTest:
+
+```bat
+cmake -S vtk-visualization -B ../build/Test/vtk-visualization/Release/cmake -DVTK_ENABLE_GRAPHICS_CTEST=ON
+cmake --build ../build/Test/vtk-visualization/Release/cmake --parallel 4
+ctest --test-dir ../build/Test/vtk-visualization/Release/cmake -R VTK972Screenshot --output-on-failure -V
+```
+
+The generated CTest screenshot is
+`../build/Test/vtk-visualization/Release/cmake/VTK972.png`.
+This graphics test is **OFF by default**, since Windows services and
+headless workers may not provide a usable graphics desktop.
+
+### Evidence, troubleshooting, and verification state
+
+The numerical tests print `VTK|METRIC|`, `VTK|CHECK|`, and `VTK|RESULT|`
+records, including backend, grid resolution, region count, boundary edges,
+triangle count, area, volume, and elapsed time. Failed CTest output can be
+reviewed with `--output-on-failure` or `-V` for full verbose output.
+
+If CMake cannot locate VTK, TBB, or OpenMP, confirm that the matching
+Release/Debug package artifacts exist, and that the BuildEngine rendering
+stack has been rebuilt and installed. Do **not** silently use another VTK,
+oneTBB, OpenMP, or OpenGL installation from the workstation.
+
+**[not verified]** The expanded native BCC64X rendering build, actual GPU
+screenshots, and reported performance measurements have not yet been
+validated against a completed Windows test run. Declared CTest cases are
+not proof of a successful native execution.
+
+See [project README](vtk-visualization/README.md),
+[detailed build instructions](vtk-visualization/build.md),
+[technical description](vtk-visualization/Description.md), and
+[SBOM scope](vtk-visualization/SBOM.md).
 
 ## Current project status
 
