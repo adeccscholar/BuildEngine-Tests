@@ -1,107 +1,107 @@
-# GeoSpatial Skia / OpenGL — Adressdichte und virtuelle Hügellandschaft
+# GeoSpatial Skia / OpenGL — Address Density and Synthetic Terrain
 
-> Eigenständiges C++23-Testprogramm auf Basis des **CompareTest**-Datenbestands. Implementierung für BCC64X / BuildEngine; nativer Test mit den Berliner Daten steht aus.
+> Independent C++23 test program using the **CompareTest** dataset. Implemented for BCC64X/BuildEngine; native verification using the Berlin dataset remains pending.
 
-## Zielsetzung
+## Objectives
 
-Zwei alternative Eingabequellen und drei Darstellungen: (1) Adresspunkte auf einer Skia-Zeichenfläche, (2) Skia-Dichtekarte, (3) eine **gleitend geglättete Dichtelandschaft mit Bergen und Tälern** als 2D-Relief und interaktive OpenGL-3D-Oberfläche. Die künstlichen Erhebungen zeigen die Anzahl der Adressen im Umkreis, **keine Geländehöhen und keine Einwohnerzahlen**.
+Two alternative data sources and three representations: (1) address points on a Skia canvas, (2) a Skia density map, and (3) a **smoothly filtered density terrain with hills and valleys** as a 2D relief and interactive OpenGL 3D surface. The synthetic elevations represent nearby address counts, **not physical elevations or population counts**.
 
-## Quellen und Herkunft
+## Data sources and provenance
 
-Die Daten und die beiden Formate stammen aus [CompareTest](../CompareTest/), konkret den Routinen \`Reading<T>\`, \`WriteToDirectory<T>\` und \`ReadFromDirectory<T>\` in \`MyProcess.h\` sowie \`Test_Read.cpp\`. Die neue Anwendung ist unabhängig kompilierbar und verändert CompareTest nicht.
+Both data formats originate from [CompareTest](../CompareTest/), specifically the routines \`Reading<T>\`, \`WriteToDirectory<T>\` und \`ReadFromDirectory<T>\` in \`MyProcess.h\` and \`Test_Read.cpp\`. The new application builds independently and does not modify CompareTest.
 
-**A — flache Eingabedatei \`berlin_infos.dat\`:**
+**A — flat input file \`berlin_infos.dat\`:**
 
 \`\`\`text
 City;Street;Number;ZipCode;UrbanUnit;UrbanUnitOld;District;Latitude;Longitude
 \`\`\`
 
-**B — hierarchische Eingabe, in der die Verzeichnisstruktur selbst Information enthält:**
+**B — hierarchical input, where directory structure is itself part of the data:**
 
 \`\`\`text
-Wurzel/
-  Stadt/
-    Stadtbezirk/
-      Ortsteil/
-        Straßenname.csv
+Root/
+  City/
+    Borough/
+      Neighborhood/
+        StreetName.csv
 \`\`\`
 
-Die sieben CSV-Spalten sind genau die beim CompareTest-Verzeichnisschreiben verbleibenden Felder:
+The seven CSV columns are exactly those retained when CompareTest writes directory-based data:
 
 \`\`\`text
 StreetNumber;ZipCode;UrbanUnitOld;Latitude;Longitude;Distance;Bearing
 \`\`\`
 
-Der neue Reader liest die drei Verzeichnisebenen unterhalb der Stadt, sortiert die Dateien stabil und kann diese mit oneTBB parallel verarbeiten. Im derzeitigen Renderpfad werden die GPS-Werte verwendet; die Namen aus der Hierarchie sind Teil des Eingabeformats, werden aber noch nicht in Bezirksfiltern genutzt. Fehlende/ungültige Koordinaten werden gezählt und nicht dargestellt. Wir verwenden keine automatische Geokodierung.
+The reader traverses three directory levels below the city, sorts files deterministically and optionally processes them in parallel using oneTBB. Rendering currently uses GPS coordinates; hierarchy names are part of the format but not yet used for borough filters. Missing or invalid coordinates are counted and excluded. No automatic geocoding is performed.
 
 \`\`\`mermaid
 flowchart TD
- A[CompareTest Adressdaten] --> B[berlin_infos.dat]
- A --> C[Stadt / Stadtbezirk / Ortsteil / Strasse.csv]
- B --> D[Sequentieller oder oneTBB-Zeilenparser]
- C --> E[Sequentieller oder oneTBB-Dateiparser]
- D --> F[Validierte GPS-Punkte]
+ A[CompareTest address data] --> B[berlin_infos.dat]
+ A --> C[City / Borough / Neighborhood / Street.csv]
+ B --> D[Sequential or oneTBB row parser]
+ C --> E[Sequential or oneTBB file parser]
+ D --> F[Validated GPS points]
  E --> F
- F --> G[Bounding Box und lokale Projektion]
- G --> H[Skia-Punktansicht]
- G --> I[Skia-Zellendichte]
- G --> J[OpenMP / oneTBB Gauß-Glättung]
+ F --> G[Bounding box and local projection]
+ G --> H[Skia point view]
+ G --> I[Skia cell density]
+ G --> J[OpenMP/oneTBB Gaussian smoothing]
  J --> K[Skia 2D-Relief]
- J --> L[OpenGL Dreiecksnetz als 3D-Dichtelandschaft]
+ J --> L[OpenGL mesh representing 3D density terrain]
 \`\`\`
 
-## Kartografische Projektion
+## Cartographic projection
 
-Für Berlin wird eine lokale equirektanguläre Näherung verwendet. Mit Längengrad \(\lambda\), Breitengrad \(\varphi\) und Bezugsbreite \(\varphi_0\) gilt:
+For Berlin, a local equirectangular approximation is used. With longitude \(\lambda\), latitude \(\varphi\) and reference latitude \(\varphi_0\):
 
 $$
 x=R(\lambda-\lambda_0)\cos(\varphi_0),\qquad
 y=R(\varphi-\varphi_0).
 $$
 
-In der Software wird der gemeinsame Faktor \(R\) beim Einpassen in die Zeichenfläche weggelassen. Längen und Breiten müssen mit einem gemeinsamen Bezugssystem verarbeitet werden; der Referenzbreitengrad wird aus den Daten gewonnen.
+When fitting the projected coordinates to the canvas, the common factor \(R\) is omitted. Longitude and latitude must use the same coordinate reference, with reference latitude computed from the input data.
 
-Das Anzeigenrechteck ergibt sich aus \((x_{\min},y_{\min},x_{\max},y_{\max})\), mit 3 % Rand auf jeder Seite. Seitenverhältnisse bleiben erhalten:
+The display rectangle is derived from \((x_{\min},y_{\min},x_{\max},y_{\max})\) with 3% margins on each side while preserving aspect ratio:
 
 $$
 s=\min\left(\frac{0.94 W}{x_{\max}-x_{\min}},
             \frac{0.94 H}{y_{\max}-y_{\min}}\right).
 $$
 
-Diese lokale Näherung ist nicht für weltweite Daten mit Datumsgrenze oder polarer Nähe bestimmt.
+This local approximation is not suitable for worldwide data crossing the date line or approaching the poles.
 
-## Dichte, Glättung und Höhe
+## Density, smoothing and height
 
-Sei \(H(x,y)\) die Anzahl der Adressen in der Rasterzelle. Die diskrete Dichtekarte kann anhand einer logarithmischen Skala eingefärbt werden:
+Let \(H(x,y)\) be the number of addresses in a grid cell. A logarithmic color scale can represent the discrete density:
 
 $$
 c(x,y)=\frac{\log(1+H(x,y))}{\log(1+H_{\max})}.
 $$
 
-Für eine **kontinuierlich wirkende Topologie** verwenden wir einen Gauß-Kern:
+To obtain a **visually continuous topology**, use a Gaussian kernel:
 
 $$
 G_\sigma(u,v)=\frac{1}{2\pi\sigma^2}
 \exp\left(-\frac{u^2+v^2}{2\sigma^2}\right).
 $$
 
-Die Dichteoberfläche ist eine Faltung:
+The density surface is a convolution:
 
 $$
 D(x,y)=(H*G_\sigma)(x,y).
 $$
 
-Wegen der Separierbarkeit \(G_\sigma(u,v)=g_\sigma(u)g_\sigma(v)\) lässt sich die Glättung durch einen horizontalen und einen vertikalen Durchlauf effizient ausführen. Das ermöglicht disjunkte Zeilenarbeit ohne konkurrierende Schreibzugriffe.
+Because \(G_\sigma(u,v)=g_\sigma(u)g_\sigma(v)\) is separable, smoothing can be performed efficiently in horizontal and vertical passes using disjoint rows and no competing writes.
 
-Die für den OpenGL-Viewer verwendete künstliche Höhe wird durch
+The synthetic elevation used by the OpenGL viewer is defined by
 
 $$
 z(x,y)=z_{\max}\sqrt{\frac{D(x,y)}{D_{\max}}}
 $$
 
-gebildet. Die Wurzel macht auch kleinere Hügel sichtbar. Bereiche geringerer Adressdichte werden zu Tälern; größere Konzentrationen bilden Erhebungen. Das ist eine **synthetische Adressdichte-Topografie** und darf nicht als physikalische Höhenkarte, Gebäudezahl pro Grundstück oder Einwohnerverteilung ausgegeben werden.
+The square root makes smaller hills visible. Lower address densities become valleys and stronger concentrations form peaks. This is **synthetic address-density terrain**, not a physical elevation map, building count by property or population distribution.
 
-**Grenze:** Die erste Implementation zählt Zellen in Pixelkoordinaten; bei unterschiedlichen Auflösungen ändert sich die effektive Zellfläche. Vergleichbare absolute Adressen/km² erfordern später einen metrisch definierten Rastermaßstab.
+**Limitation:** The first implementation counts grid cells in pixel coordinates; changing resolution changes effective cell area. Comparable absolute addresses/km² require a future metric grid scale.
 
 \`\`\`mermaid
 sequenceDiagram
@@ -110,26 +110,26 @@ sequenceDiagram
  participant OMP as OpenMP
  participant Skia as Skia 2D
  participant GL as OpenGL 3D
- Read->>TBB: Datei- und Zeilenparsing
- TBB-->>OMP: Koordinatenfolge
- OMP->>OMP: Projektion und Histogramm
- OMP->>OMP: Gauß horizontal + vertikal
- OMP-->>Skia: Rasterpunkte / Dichte / Relief
- OMP-->>GL: Gitterpositionen und Höhen
- GL->>GL: Perspektive, Mausrotation, Zoom
+ Read->>TBB: File and row parsing
+ TBB-->>OMP: Coordinate sequence
+ OMP->>OMP: Projection and histogram
+ OMP->>OMP: Gaussian horizontal + vertical
+ OMP-->>Skia: Grid points / density / relief
+ OMP-->>GL: Mesh positions and elevations
+ GL->>GL: Perspective, mouse rotation, zoom
 \`\`\`
 
-## Parallelisierung
+## Parallel execution
 
-| Arbeitsschritt | Sequenziell | oneTBB | OpenMP |
+| Task | Sequential | oneTBB | OpenMP |
 |---|---|---|---|
-| Flache Datei lesen | Ja | Zeilen | — |
-| Hierarchie lesen | Ja | Dateien | — |
-| Begrenzungsrechteck | Ja | parallel_reduce | — |
-| GPS auf Pixel projizieren | Ja | parallel_for | parallel for |
-| Histogramm bilden | Ja | Projektion | Threadlokale Histogramme mit deterministischer Reduktion |
-| Gauß-Glättung | Ja | Zeilen | Zeilen |
-| Skia/OpenGL zeichnen | GUI-Thread | — | — |
+| Read flat file | Yes | Rows | — |
+| Read hierarchy | Yes | Files | — |
+| Bounding rectangle | Yes | parallel_reduce | — |
+| Project GPS to pixels | Yes | parallel_for | parallel for |
+| Build histogram | Yes | Projection | Thread-local histograms with deterministic reduction |
+| Gaussian smoothing | Yes | Rows | Rows |
+| Draw Skia/OpenGL | GUI thread | — | — |
 
 \`\`\`cpp
 #pragma omp parallel for num_threads(threads) schedule(static)
@@ -139,23 +139,23 @@ for(int row = 0; row < height; ++row) {
 }
 \`\`\`
 
-Weder Skia noch OpenGL werden gleichzeitig aus mehreren Worker-Threads auf demselben Canvas/Context verwendet. Bei zu großen lokalen OpenMP-Histogrammen greift derzeit eine sequenzielle, speicherschonende Reduktion.
+Neither Skia nor OpenGL is used concurrently from multiple worker threads on the same canvas/context. Oversized local OpenMP histograms currently fall back to a sequential, memory-saving reduction.
 
-## Bedienung
+## Usage
 
-| Programm | Zweck |
+| Program | Purpose |
 |---|---|
-| \`geospatial_viewer.exe\` | Skia-Punkte, Zellendichte, glattes 2D-Relief |
-| \`geospatial_terrain.exe\` | OpenGL 3D-Hügellandschaft aus dem geglätteten Raster |
-| \`geospatial_benchmark.exe\` | Vergleich zwischen serieller und paralleler Verarbeitung |
+| \`geospatial_viewer.exe\` | Skia points, cell density, smooth 2D relief |
+| \`geospatial_terrain.exe\` | OpenGL 3D terrain from the smoothed grid |
+| \`geospatial_benchmark.exe\` | Comparison of serial and parallel processing |
 
-**Skia-Steuerung:** Strg+O öffnet die flache Datei; Strg+D öffnet eine Straßen-CSV und leitet daraus die Hierarchiewurzel ab. Ein Hierarchieverzeichnis kann alternativ beim Programmstart als Argument übergeben werden. Tasten 1/2/3: Punkte/Zelldichte/geglättetes Relief; S/T/P: seriell/oneTBB/OpenMP; +/-: Zellgröße.
+**Skia controls:** Ctrl+O opens the flat file; Ctrl+D opens a street CSV and infers the hierarchy root. A hierarchy directory may also be passed at launch. Keys 1/2/3 select points/cell density/smoothed relief; S/T/P select serial/oneTBB/OpenMP; +/- change cell size.
 
-**3D-Steuerung:** Linke Maustaste ziehen dreht die Dichteoberfläche, Mausrad zoomt; 1/2/3 stellen Drauf-, Seiten- und Schrägansicht ein; Esc beendet. Beide Quellformate sind als Programmargument vorgesehen. Der OpenGL-Renderer verwendet die System-GPU; keine lokale Mesa-\`opengl32.dll\`.
+**3D controls:** Drag the left mouse button to rotate the density surface and use the wheel to zoom; 1/2/3 select top/side/oblique views; Esc exits. Both input formats support command-line arguments. The OpenGL renderer uses the system GPU, not a local Mesa \`opengl32.dll\`.
 
-## Bauen mit der BuildEngine
+## Building with BuildEngine
 
-Aus \`D:/local/embarcadero/test_v3/tests\`:
+From \`D:/local/embarcadero/test_v3/tests\`:
 
 \`\`\`bat
 git pull
@@ -164,7 +164,7 @@ cmake --build D:/local/embarcadero/test_v3/build/test/geospatial-skia/Release/cm
 cmake --install D:/local/embarcadero/test_v3/build/test/geospatial-skia/Release/cmake
 \`\`\`
 
-Beispielaufrufe:
+Example invocations:
 
 \`\`\`bat
 geospatial_viewer.exe D:/Test/berlin_infos.dat
@@ -173,34 +173,34 @@ geospatial_terrain.exe D:/Test/Verzeichnisstruktur
 geospatial_benchmark.exe D:/Test/berlin_infos.dat
 \`\`\`
 
-Verwendet werden die aktiven XML-Versionen von Skia, oneTBB, LLVM OpenMP, fast_float, SDL2 und GLEW sowie die dynamischen BuildEngine-Runtime-DLLs. Intern wird ein CMake-OBJECT-Target statt einer statischen Drittanbieterbibliothek verwendet.
+The active XML versions of Skia, oneTBB, LLVM OpenMP, fast_float, SDL2 and GLEW are used with dynamic BuildEngine runtime DLLs. An internal CMake OBJECT target is used rather than an additional third-party static library.
 
-## Dokumentationsserver-Regression
+## Documentation-server regression
 
-Diese Markdown-Datei testet **Mermaid-Flowchart und Sequence-Diagram**, MathJax mit Inline- und Blockformeln, GFM-Tabellen und **C++-Syntaxhighlighting**. In der Druckansicht sollten Formeln und Diagramme gerendert werden, ohne unvollständige Grafiken oder leere Platzhalter.
+This Markdown page tests **Mermaid flowcharts and sequence diagrams**, MathJax inline and display equations, GFM tables and **C++ syntax highlighting**. The print view should render formulas and diagrams without incomplete graphics or blank placeholders.
 
-## Offene Verifikation
+## Pending verification
 
-Der tatsächliche Build und die realen Berliner Adressdaten wurden in dieser Umgebung noch nicht ausgeführt. Die ersten Messwerte dürfen deshalb erst nach BCC64X-Consumer-Test und visueller QA angegeben werden. Weitere geplante Erweiterungen: Bezirksfilter aus Pfadmetadaten, metrische Dichte je km², einstellbare Gauß-Bandbreite, Höhen-Skalierung, Normalenbeleuchtung und numerische Testdaten mit bekannten Gipfelpositionen.
+The actual build and real Berlin address dataset had not been run in this environment. First measured results require native BCC64X consumer tests and visual QA. Planned extensions include borough filters from hierarchy paths, metric density/km², configurable Gaussian bandwidth, height scaling, normal-based lighting and synthetic test data with known peak positions.
 
-## SDL2/OpenGL: richtige Kamera und Datenquelle zur Laufzeit wechseln
+## SDL2/OpenGL: camera orientation and runtime data-source selection
 
-Die Terrain-Darstellung nutzt eine **z-nach-oben**-Welt: x = Ost, y = Nord, z = künstliche Dichtehöhe. Der anfängliche Blick ist schräg von oben, nicht frontal auf das aufrecht stehende Raster. Die OpenGL-Projektion berechnet korrekt Tiefe und perspektivische Division; das Dreiecksnetz verwendet eine dazu passende Orientierung.
+Terrain rendering uses a **z-up** world: x = east, y = north, z = synthetic density elevation. The initial camera looks obliquely down rather than directly at a vertically oriented grid. The OpenGL projection computes depth and perspective division; mesh orientation is consistent with it.
 
-Der 3D-Viewer kann **ohne Argument** gestartet werden. Die Datenquelle wird direkt in derselben SDL2/OpenGL-Anwendung gewechselt:
+The 3D viewer can be launched **without arguments**, with source switching handled inside the same SDL2/OpenGL application:
 
-| Taste | Aktion |
+| Key | Action |
 |---|---|
-| `F` | `berlin_infos.dat` mit Windows-Dateidialog öffnen |
-| `D` | Hierarchiewurzel mit Windows-Verzeichnisdialog öffnen |
-| `L` | Aktuell ausgewählte Quelle neu laden |
-| Datei/Ordner auf Fenster ziehen | Alternative Quelle direkt laden |
-| Linke Maustaste | 3D-Ansicht drehen |
-| Mausrad | Zoom |
-| `1` | Draufsicht (z-Achse zum Betrachter) |
-| `2` | Seitenansicht |
-| `3` | Schrägansicht von oben |
-| `Esc` | Beenden |
+| `F` | `berlin_infos.dat` open with the Windows file picker |
+| `D` | open the hierarchy root with the Windows folder picker |
+| `L` | reload current data source |
+| Drop file/folder onto the window | load an alternative source immediately |
+| Left mouse button | rotate 3D view |
+| Mouse wheel | Zoom |
+| `1` | top view (z axis toward the viewer) |
+| `2` | side view |
+| `3` | oblique view from above |
+| `Esc` | exit |
 
 Beide Varianten rufen dieselbe `build(path)`-Pipeline auf und erneuern das GPU-Vertexbuffer nach erfolgreichem Laden. Ein fehlgeschlagener Wechsel erhält die zuvor geladene Darstellung. Der Fenstertitel nennt Datenart, Adresszahl, Render-GPU und die Rechenzeit des Reliefs.
 
@@ -210,13 +210,13 @@ geospatial_terrain.exe "D:/Test/Adressverzeichnisse"
 geospatial_terrain.exe
 ```
 
-## Gezieltes Zoomen in der Skia-Adresspunktkarte
+## Targeted zooming in the Skia address-point map
 
-**Diese Funktion betrifft `geospatial_viewer.exe`, nicht den OpenGL-Terrain-Viewer.** Das Mausrad zoomt um den aktuellen Mauszeiger in den **geografischen Datenbereich**. Die linke Maustaste verschiebt bei gedrückter Taste die Karte; `0` stellt den gesamten Ausgangsbereich wieder her.
+**Diese Funktion betrifft `geospatial_viewer.exe`, nicht den OpenGL-Terrain-Viewer.** Das Mouse wheel zoomt um den aktuellen Mauszeiger in den **geografischen Datenbereich**. Die linke Maustaste verschiebt bei gedrückter Taste die Karte; `0` stellt den gesamten Ausgangsbereich wieder her.
 
-Jede Änderung erzeugt eine **neue Projektion der originalen GPS-Koordinaten auf das aktuelle Fenster**, keine hochskalierte Bitmap-Kopie. Deshalb steigt die sichtbare Punktdichte/-trennung beim Hineinzoomen, ohne dass die Koordinatenquelle verloren geht. Der Zoomfaktor reicht von 1 bis 2048, pro Mausrad-Rastung wird mit 1,25 multipliziert oder dividiert. Der Fenstertitel zeigt Zoomfaktor und Anzahl der im sichtbaren Raster berücksichtigten Adressen.
+Jede Änderung erzeugt eine **neue Projektion der originalen GPS-Koordinaten auf das aktuelle Fenster**, keine hochskalierte Bitmap-Kopie. Deshalb steigt die sichtbare Punktdichte/-trennung beim Hineinzoomen, ohne dass die Koordinatenquelle verloren geht. Der Zoomfaktor reicht von 1 bis 2048, pro Mouse wheel-Rastung wird mit 1,25 multipliziert oder dividiert. Der Fenstertitel zeigt Zoomfaktor und Anzahl der im sichtbaren Raster berücksichtigten Adressen.
 
-Ausgangspunkt ist die einmalig beim Laden berechnete Bounding Box. Für den sichtbaren Bereich gilt:
+The initial bounding box is computed once at load time. The visible extent is:
 
 $$
 B_z=\left[c_x-\frac{w_0}{2z},\;c_y-\frac{h_0}{2z},\;c_x+\frac{w_0}{2z},\;c_y+\frac{h_0}{2z}\right].
@@ -224,4 +224,4 @@ $$
 
 `z` ist der Zoomfaktor, `(c_x,c_y)` das verschiebbare geografische Zentrum, `w_0,h_0` sind Breite und Höhe des ursprünglichen Projektausschnitts. Die Projektion berücksichtigt das Fenstersseitenverhältnis und behält den 3-%-Rand in jeder Richtung.
 
-**Wichtig:** Außerhalb des Viewports liegende Adressen werden **verworfen**, nicht an die Bildkante geklemmt. Das wurde im gemeinsamen Rasterkern für Punktkarte, Dichtekarte und Gauß-Relief korrigiert. Bei hohem Zoom werden alle eingelesenen GPS-Punkte erneut geprüft und projiziert. Ein räumlicher Index (Quadtree/R-Tree) und asynchrones Kachel-Rendering sind mögliche spätere Performance-Optimierungen.
+**Important:** Addresses outside the viewport are **discarded**, not clamped to an image edge. This was fixed in the shared raster core for point, density and Gaussian relief views. At high zoom, all loaded GPS points are checked and projected again. A spatial index (quadtree/R-tree) and asynchronous tile rendering are possible later optimizations.
