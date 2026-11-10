@@ -14,7 +14,7 @@ BuildEngine, not BuildEngine's own internal administration or production service
 | [PolicyTest](/docs/PolicyTest/Description.md) | adecc-core-lib policies, IBAN, SEPA, date, amount and negative acceptance tests |
 | [CompareTest](/docs/CompareTest/Description.md) | fast_float and oneTBB parsing/comparison |
 | [Financial](/docs/financial/Description.md) | Boost, pugixml and OpenSSL finance examples |
-| [Geospatial Skia](/docs/geospatial-skia/Description.md) | Skia, OpenMP, oneTBB, SDL2 and OpenGL |
+| [VTK Visualization](/docs/vtk-visualization/Description.md) | VTK 9.7.2 native OpenGL2, GPU volume raycast, analytical geometry, TBB/OpenMP and CTest load |\n| [Geospatial Skia](/docs/geospatial-skia/Description.md) | Skia, OpenMP, oneTBB, SDL2 and OpenGL |
 | [OpenGL Earth](/docs/opengl-sdl2-earth/Description.md) | SDL2, GLEW, SOIL2 and OpenGL |
 | [OpenMP Galaxy](/docs/openmp-galaxy/Description.md) | native OpenMP and SDL2 visualization |
 | [OpenMP Mandelbrot](/docs/openmp-mandelbrot/Description.md) | native OpenMP and SDL2 visualization |

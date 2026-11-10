@@ -34,6 +34,17 @@ cmake -E rm -rf ../build/Test/CompareTest/Release/cmake
 
 Then rerun the project's configure command. Do not delete library build caches or reinstall third-party packages.
 
+## VTK 9.7.2 OpenGL2 scientific visualization
+
+The independent [VTK visualization laboratory](vtk-visualization/) provides an actual interactive
+Win32 OpenGL2 rendering application with an illuminated isosurface, translucent
+wireframe and GPU volume raycaster, alongside deterministic numerical, SMP
+(TBB/OpenMP/Sequential) and stress CTests. It requires the explicitly managed
+VTK 9.7.2 rendering build and the installed oneTBB/OpenMP packages. The
+managed Mesa OpenGL import library is a **build-time** dependency only; the
+interactive program uses the native Windows OpenGL driver at runtime. The
+native BCC64X rendering outcome remains **[not verified]** until built.
+
 ## Current project status
 
 - `pdfium/SDL2`: updated to Skia 153; headless PDFium API/render and navigation CTest consumers added; Win64x execution pending.
