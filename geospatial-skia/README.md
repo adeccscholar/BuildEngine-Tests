@@ -8,7 +8,7 @@ Two alternative data sources and three representations: (1) address points on a 
 
 ## Data sources and provenance
 
-Both data formats originate from [CompareTest](../CompareTest/), specifically the routines \`Reading<T>\`, \`WriteToDirectory<T>\` und \`ReadFromDirectory<T>\` in \`MyProcess.h\` and \`Test_Read.cpp\`. The new application builds independently and does not modify CompareTest.
+Both data formats originate from [CompareTest](../CompareTest/), specifically the routines \`Reading<T>\`, \`WriteToDirectory<T>\` and \`ReadFromDirectory<T>\` in \`MyProcess.h\` and \`Test_Read.cpp\`. The new application builds independently and does not modify CompareTest.
 
 **A — flat input file \`berlin_infos.dat\`:**
 
@@ -202,7 +202,7 @@ The 3D viewer can be launched **without arguments**, with source switching handl
 | `3` | oblique view from above |
 | `Esc` | exit |
 
-Beide Varianten rufen dieselbe `build(path)`-Pipeline auf und erneuern das GPU-Vertexbuffer nach erfolgreichem Laden. Ein fehlgeschlagener Wechsel erhält die zuvor geladene Darstellung. Der Fenstertitel nennt Datenart, Adresszahl, Render-GPU und die Rechenzeit des Reliefs.
+Both data variants call the same `build(path)` pipeline and refresh the GPU vertex buffer after successful loading. A failed source switch retains the previous display. The window title reports the input format, address count, renderer GPU and relief computation time.
 
 ```bat
 geospatial_terrain.exe "D:/Test/berlin_infos.dat"
@@ -212,9 +212,9 @@ geospatial_terrain.exe
 
 ## Targeted zooming in the Skia address-point map
 
-**Diese Funktion betrifft `geospatial_viewer.exe`, nicht den OpenGL-Terrain-Viewer.** Das Mouse wheel zoomt um den aktuellen Mauszeiger in den **geografischen Datenbereich**. Die linke Maustaste verschiebt bei gedrückter Taste die Karte; `0` stellt den gesamten Ausgangsbereich wieder her.
+**This feature applies to `geospatial_viewer.exe`, not the OpenGL terrain viewer.** The mouse wheel zooms around the pointer in **geographic data space**. Drag the left mouse button to pan; `0` restores the original extent.
 
-Jede Änderung erzeugt eine **neue Projektion der originalen GPS-Koordinaten auf das aktuelle Fenster**, keine hochskalierte Bitmap-Kopie. Deshalb steigt die sichtbare Punktdichte/-trennung beim Hineinzoomen, ohne dass die Koordinatenquelle verloren geht. Der Zoomfaktor reicht von 1 bis 2048, pro Mouse wheel-Rastung wird mit 1,25 multipliziert oder dividiert. Der Fenstertitel zeigt Zoomfaktor und Anzahl der im sichtbaren Raster berücksichtigten Adressen.
+Each change creates a **fresh projection of original GPS coordinates into the current window**, not an enlarged bitmap. Zooming therefore changes visible point density and spacing without losing original coordinates. Zoom ranges from 1 to 2048 and is multiplied or divided by 1.25 per mouse-wheel step. The window title reports the zoom and number of addresses within the visible grid.
 
 The initial bounding box is computed once at load time. The visible extent is:
 
@@ -222,6 +222,6 @@ $$
 B_z=\left[c_x-\frac{w_0}{2z},\;c_y-\frac{h_0}{2z},\;c_x+\frac{w_0}{2z},\;c_y+\frac{h_0}{2z}\right].
 $$
 
-`z` ist der Zoomfaktor, `(c_x,c_y)` das verschiebbare geografische Zentrum, `w_0,h_0` sind Breite und Höhe des ursprünglichen Projektausschnitts. Die Projektion berücksichtigt das Fenstersseitenverhältnis und behält den 3-%-Rand in jeder Richtung.
+`z` is the zoom factor, `(c_x,c_y)` the movable geographic center, and `w_0,h_0` the original projected width and height. The projection preserves the window aspect ratio and a 3% margin on each side.
 
 **Important:** Addresses outside the viewport are **discarded**, not clamped to an image edge. This was fixed in the shared raster core for point, density and Gaussian relief views. At high zoom, all loaded GPS points are checked and projected again. A spatial index (quadtree/R-tree) and asynchronous tile rendering are possible later optimizations.
