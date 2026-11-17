@@ -99,6 +99,8 @@ Result Simulate(int const iSteps) {
    return theResult;
    }
 
+} // namespace
+
 /**
 \brief Executes a headless integration and repeatability suite.
 \details Checks SDL3 runtime, native Box2D world dynamics, contact production,
