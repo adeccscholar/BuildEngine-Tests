@@ -132,6 +132,26 @@ int main(int const iArgc, char const* const* const aszArgv) {
       bPass = Check("box2d-version", theVersion.major == 3,
                     "Box2D managed DLL exposes major version 3") && bPass;
 
+      // Exercise native Box2D world gravity, impulse and reset semantics
+      // independently of the repeated long-running physics scenario.
+      adecc::tests::PhysicsArena theControlArena;
+      bPass = Check("gravity-default", !theControlArena.GravityInverted(),
+                    "native world starts with downward gravity") && bPass;
+      theControlArena.ToggleGravity();
+      bPass = Check("gravity-invert", theControlArena.GravityInverted(),
+                    "native world gravity can be reversed") && bPass;
+      theControlArena.ToggleGravity();
+      bPass = Check("gravity-restore", !theControlArena.GravityInverted(),
+                    "native world gravity is restored") && bPass;
+      b2BodyId const theProjectile = theControlArena.Launch(b2Vec2 { 12.0f, -1.0f });
+      b2Vec2 const theInitialVelocity = b2Body_GetLinearVelocity(theProjectile);
+      bPass = Check("impulse", b2LengthSquared(theInitialVelocity) > 10.0f,
+                    "native Box2D projectile receives a nonzero physical impulse") && bPass;
+      theControlArena.Reset();
+      bPass = Check("reset", theControlArena.Shots() == 0 &&
+                    !theControlArena.GravityInverted(),
+                    "world ownership and counters reset cleanly") && bPass;
+
       int const iSteps = bStress ? 2400 : 480;
       Result const theFirst = Simulate(iSteps);
       Result const theSecond = Simulate(iSteps);
