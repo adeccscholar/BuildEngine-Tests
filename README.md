@@ -196,6 +196,32 @@ See [project README](vtk-visualization/README.md),
 [technical description](vtk-visualization/Description.md), and
 [SBOM scope](vtk-visualization/SBOM.md).
 
+## SDL3 + Box2D: Neon Physics Arena
+
+The standalone [Neon Physics Arena](neon-physics-arena/) is an interactive
+native SDL3 3.4.20 / Box2D 3.2.0 application. It features real rigid-body
+physics, projectile and impact events, explosions, gravity switching, live
+scoring, particle effects and framebuffer screenshot capture, with no imported
+third-party source code or fallback library API.
+
+Its companion `neon-physics-verify` executable provides headless, deterministic
+480-step regression and 2,400-step load testing through two CTest cases. Active
+packages, exact DLL closure and Debug/Release installation follow the standard
+BuildEngine-Tests contracts.
+
+Build from this repository root:
+
+```bat
+cmake -S neon-physics-arena -B ../build/Test/neon-physics-arena/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/neon-physics-arena/Release
+cmake --build ../build/Test/neon-physics-arena/Release/cmake --parallel 4
+ctest --test-dir ../build/Test/neon-physics-arena/Release/cmake --output-on-failure
+cmake --install ../build/Test/neon-physics-arena/Release/cmake
+```
+
+**[not verified]** Native Windows/BCC64X compilation, the physical simulation,
+rendering and all CTest results are pending first host execution. See the
+[full build and run instructions](neon-physics-arena/build.md).
+
 ## Current project status
 
 - `pdfium/SDL2`: updated to Skia 153; headless PDFium API/render and navigation CTest consumers added; Win64x execution pending.
