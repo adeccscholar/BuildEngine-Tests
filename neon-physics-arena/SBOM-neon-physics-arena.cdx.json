@@ -1,0 +1,83 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "neon-physics-arena",
+      "licenses": [
+        {
+          "license": {
+            "name": "PolyForm Noncommercial License 1.0.0",
+            "url": "https://polyformproject.org/licenses/noncommercial/1.0.0/"
+          }
+        }
+      ],
+      "bom-ref": "app:neon-physics-arena:neon-physics-arena"
+    },
+    "properties": [
+      {
+        "name": "adecc:status",
+        "value": "declared-only-unverified"
+      },
+      {
+        "name": "adecc:evidence",
+        "value": "BuildEngine-Tests CMake configuration, without native PE import inspection"
+      },
+      {
+        "name": "adecc:version-policy",
+        "value": "unique active versions from BuildEngine admin/build-libraries.xml"
+      },
+      {
+        "name": "adecc:license-file",
+        "value": "LICENSE.md"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "SDL3",
+      "version": "3.4.20",
+      "bom-ref": "pkg:github/libsdl-org/SDL@release-3.4.20",
+      "licenses": [
+        {
+          "expression": "Zlib"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:evidence",
+          "value": "Declared package dependency; installed binary not verified"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "Box2D",
+      "version": "3.2.0",
+      "bom-ref": "pkg:github/erincatto/box2d@v3.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "properties": [
+        {
+          "name": "adecc:evidence",
+          "value": "Declared package dependency; installed binary not verified"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "app:neon-physics-arena:neon-physics-arena",
+      "dependsOn": [
+        "pkg:github/libsdl-org/SDL@release-3.4.20",
+        "pkg:github/erincatto/box2d@v3.2.0"
+      ]
+    }
+  ]
+}
