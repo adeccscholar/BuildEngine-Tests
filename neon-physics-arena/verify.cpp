@@ -68,7 +68,8 @@ Result Simulate(int const iSteps) {
          }
       theArena.Step(1.0f / 120.0f);
       }
-   auto const theEnd = std::chrono::steady_clock::now();
+   std::chrono::steady_clock::time_point const theEnd =
+      std::chrono::steady_clock::now();
    Result theResult;
    theResult.iHits = theArena.Hits();
    theResult.iScore = theArena.Score();
