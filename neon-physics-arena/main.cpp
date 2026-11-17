@@ -11,11 +11,13 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <format>
 #include <memory>
 #include <numbers>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
