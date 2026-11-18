@@ -23,3 +23,15 @@ ctest --test-dir ../build/Test/skia-direct-showcase/Release/cmake --output-on-fa
 ```
 
 Use independent Debug paths and switch both configuration settings to Debug. Ensure the BuildEngine package catalog and DLL staging are available; CTest may report zero tests when only an interactive viewer is defined.
+
+## Applications and operator instructions
+
+**SkiaDirectShowcase:** Fullscreen Skia rendering showcase with seven scenes and adjustable stress benchmark.
+
+```bat
+..\build\Test\skia-direct-showcase\Release\SkiaDirectShowcase.exe
+```
+
+### Controls
+
+Left/Right or 1–7 chooses Images, Primitives, Paths, Gradients, Transform/Clip, BlendModes or Stress/FPS. F toggles fit-to-screen vs native design pixels; Space pauses/resumes animation; Up/Down adjusts stress load from 2,000 to 40,000 drawing calls in scene 7; R resets; Esc quits. FPS and CPU render time appear in the stress overlay.

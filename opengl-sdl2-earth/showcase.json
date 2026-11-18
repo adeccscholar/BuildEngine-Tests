@@ -28,5 +28,13 @@
   "externalDependencies": [
     "Windows system OpenGL driver"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "OpenGLSDL2EarthDemo",
+      "summary": "Native interactive SDL2/OpenGL 3D logo and day/night Earth.",
+      "command": "..\\build\\Test\\opengl-sdl2-earth\\Release\\OpenGLSDL2EarthDemo.exe",
+      "interactive": true
+    }
+  ]
 }

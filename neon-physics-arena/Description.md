@@ -34,3 +34,11 @@ The headless executable makes the same series of projectile and radial-impulse i
 See [build.md](build.md), [LICENSE.md](LICENSE.md), [SBOM.md](SBOM.md).
 
 **[not verified]** All build, test, and screenshot claims above describe intended implementation behaviour; real BCC64X execution is pending.
+
+## Applications and interactive operation
+
+**`neon-physics-arena.exe`** — Interactive SDL3/Box2D physics show with collisions and projectiles.
+
+**`neon-physics-verify.exe`** — Headless deterministic and stress test.
+
+Left click launches a projectile; right click applies a radial impulse; G toggles gravity direction; Space pauses/resumes; R resets the deterministic scene; P captures the current SDL framebuffer as neon-physics-arena.bmp; Esc exits. Headless verification uses a separate executable.

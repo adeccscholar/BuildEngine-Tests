@@ -75,3 +75,17 @@ Expected CMake packages:
 `install/packages/box2d/3.2.0/lib/cmake/box2d/box2dConfig.cmake`, with exact variant DLL and import paths.
 
 **[not verified]** Native test results are not claimed until the Windows host completes this workflow.
+
+## Applications and operator instructions
+
+**neon-physics-arena:** Interactive SDL3/Box2D physics show with collisions and projectiles.
+
+Launch command is also provided above.
+
+**neon-physics-verify:** Headless deterministic and stress test.
+
+Launch command is also provided above.
+
+### Controls
+
+Left click launches a projectile; right click applies a radial impulse; G toggles gravity direction; Space pauses/resumes; R resets the deterministic scene; P captures the current SDL framebuffer as neon-physics-arena.bmp; Esc exits. Headless verification uses a separate executable.

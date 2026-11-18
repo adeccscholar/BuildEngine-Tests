@@ -48,5 +48,13 @@
   "externalDependencies": [
     "Windows graphics APIs"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "SkiaDirectShowcase",
+      "summary": "Fullscreen Skia rendering showcase with seven scenes and adjustable stress benchmark.",
+      "command": "..\\build\\Test\\skia-direct-showcase\\Release\\SkiaDirectShowcase.exe",
+      "interactive": true
+    }
+  ]
 }

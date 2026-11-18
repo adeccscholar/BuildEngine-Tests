@@ -23,3 +23,15 @@ ctest --test-dir ../build/Test/opengl-sdl2-earth/Release/cmake --output-on-failu
 ```
 
 Use independent Debug paths and switch both configuration settings to Debug. Ensure the BuildEngine package catalog and DLL staging are available; CTest may report zero tests when only an interactive viewer is defined.
+
+## Applications and operator instructions
+
+**OpenGLSDL2EarthDemo:** Native interactive SDL2/OpenGL 3D logo and day/night Earth.
+
+```bat
+..\build\Test\opengl-sdl2-earth\Release\OpenGLSDL2EarthDemo.exe
+```
+
+### Controls
+
+Use on-screen scene buttons for Logo, Earth Day, Earth Night. Logo mode: Left/Right and Up/Down orbit the camera, Home/End adjust spotlight azimuth, PageUp/PageDown change spotlight elevation, +/- or wheel changes camera distance. Earth mode: arrows move the light, Home/End pan the camera, +/- or wheel adjusts distance. Esc exits.

@@ -16,5 +16,19 @@
     }
   ],
   "externalDependencies": [],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "neon-physics-arena",
+      "summary": "Interactive SDL3/Box2D physics show with collisions and projectiles.",
+      "command": "..\\build\\Test\\neon-physics-arena\\Release\\neon-physics-arena.exe",
+      "interactive": true
+    },
+    {
+      "name": "neon-physics-verify",
+      "summary": "Headless deterministic and stress test.",
+      "command": "..\\build\\Test\\neon-physics-arena\\Release\\neon-physics-verify.exe --stress",
+      "interactive": false
+    }
+  ]
 }
