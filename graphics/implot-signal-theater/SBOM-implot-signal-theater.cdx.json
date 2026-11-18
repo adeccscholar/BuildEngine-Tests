@@ -35,6 +35,12 @@
       "name": "implot",
       "version": "1.1",
       "bom-ref": "pkg:generic/implot"
+    },
+    {
+      "type": "library",
+      "name": "sdl2",
+      "version": "2.32.10",
+      "bom-ref": "pkg:generic/sdl2"
     }
   ],
   "dependencies": [
@@ -42,7 +48,8 @@
       "ref": "app:implot-signal-theater",
       "dependsOn": [
         "pkg:generic/imgui",
-        "pkg:generic/implot"
+        "pkg:generic/implot",
+        "pkg:generic/sdl2"
       ]
     }
   ]

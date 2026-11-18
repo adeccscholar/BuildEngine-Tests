@@ -29,13 +29,27 @@
       "name": "matplotplusplus",
       "version": "1.2.2",
       "bom-ref": "pkg:generic/matplotplusplus"
+    },
+    {
+      "type": "library",
+      "name": "imgui",
+      "version": "1.93.0",
+      "bom-ref": "pkg:generic/imgui"
+    },
+    {
+      "type": "library",
+      "name": "sdl2",
+      "version": "2.32.10",
+      "bom-ref": "pkg:generic/sdl2"
     }
   ],
   "dependencies": [
     {
       "ref": "app:matplot-chaos-atlas",
       "dependsOn": [
-        "pkg:generic/matplotplusplus"
+        "pkg:generic/matplotplusplus",
+        "pkg:generic/imgui",
+        "pkg:generic/sdl2"
       ]
     }
   ]

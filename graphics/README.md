@@ -1,7 +1,13 @@
-# Graphics demonstrations
+# Native graphics demonstration gallery
 
-This directory groups independent BCC64X / C++23 presentation applications for Dear ImGui 1.93.0, ImPlot 1.1, and Matplot++ 1.2.2.
+This directory groups three independent **interactive Windows C++23/BCC64X applications**, each with readable controls, animated scenarios, a headless correctness test and optional independent presentation artifacts.
 
-Each application must provide a standalone CMake project, a `Description.md` explaining the visual demonstration, a `build.md` with exact configure/build/test/install/run commands, a license notice, and a declared CycloneDX SBOM. The group itself is not an executable.
+| Showcase | Native user experience | Managed libraries |
+| --- | --- | --- |
+| [Dear ImGui Neon Laboratory](imgui-neon-lab/Description.md) | Four time-dependent particle fields, scene selection, zoom and playback controls | ImGui, SDL2 |
+| [ImPlot Real-Time Signal Theater](implot-signal-theater/Description.md) | Four oscilloscope models, animated ImPlot curves, labeled axes, signal toggles and parameter sliders | ImPlot, ImGui, SDL2 |
+| [Matplot++ Mathematical Discovery Gallery](matplot-chaos-atlas/Description.md) | Six tiled mathematical scenes, detailed progressive animation, zoom and optional six-file SVG export | Matplot++, ImGui, SDL2 |
 
-Demonstrations are distinct from the small library smoke tests in BuildEngine-Admin. Native builds and visual results are not considered verified until executed on the Windows BCC64X host.
+Each application builds independently with CMake/Ninja, uses installed BuildEngine DLLs, and provides one-line build commands in its own `build.md`. The graphic is part of the native application, **not** a browser rendering of pre-generated SVGs. The central server can additionally display independently generated SVGs when available.
+
+**[not verified]** The revised interactive GUI code requires native Windows BCC64X compilation and a visual desktop verification. Existing library smoke tests remain unchanged.

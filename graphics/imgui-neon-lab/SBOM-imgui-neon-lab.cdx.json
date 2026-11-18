@@ -29,13 +29,20 @@
       "name": "imgui",
       "version": "1.93.0",
       "bom-ref": "pkg:generic/imgui"
+    },
+    {
+      "type": "library",
+      "name": "sdl2",
+      "version": "2.32.10",
+      "bom-ref": "pkg:generic/sdl2"
     }
   ],
   "dependencies": [
     {
       "ref": "app:imgui-neon-lab",
       "dependsOn": [
-        "pkg:generic/imgui"
+        "pkg:generic/imgui",
+        "pkg:generic/sdl2"
       ]
     }
   ]
