@@ -1,5 +1,7 @@
 # ImPlot Signal Theater
 
+**Test purpose:** Two 768-point signals plotted with ImPlot and exported from ImGui draw lists.
+
 This independent BCC64X C++23 demonstration consumes the managed **imgui and implot** library package(s) and exports a 1280 x 720 vector composition for full-screen presentation.
 
 ## What happens

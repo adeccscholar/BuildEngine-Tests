@@ -1,5 +1,7 @@
 # Neon Physics Arena: integration architecture
 
+**Test purpose:** Interactive SDL3 and Box2D collisions, projectiles and gravity changes with repeatable physics stress tests.
+
 ## Purpose
 
 Show a visibly engaging, genuinely interactive example suitable for young C++ developers while acting as a meaningful *cross-library* BuildEngine consumer test. It deliberately goes beyond the minimal SDL3 and Box2D library smoke tests.

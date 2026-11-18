@@ -1,5 +1,7 @@
 # PostgreSQL typed query and transaction tests
 
+**Test purpose:** Validates libpq/libpqxx queries, SSPI authentication, result ranges, transactions and database constraints.
+
 This project checks native libpq and libpqxx consumers, typed C++ query result ranges, parameter binding, transaction semantics, constraints and shared logical-database operations through adecc-core-lib.
 
 Tests use a dedicated `BuildEngineTest` PostgreSQL database and may create or drop their own objects. A PostgreSQL server with configured SSPI/GSSAPI or password authentication is required for live integration; no production database should be targeted.

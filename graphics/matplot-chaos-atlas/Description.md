@@ -1,5 +1,7 @@
 # Matplot++ Chaos Atlas
 
+**Test purpose:** Parametric mathematics and 2400-point sampled attractor illustration.
+
 This independent BCC64X C++23 demonstration consumes the managed **matplotplusplus** library package(s) and exports a 1280 x 720 vector composition for full-screen presentation.
 
 ## What happens

@@ -1,5 +1,7 @@
 # ImGui Neon Constellation
 
+**Test purpose:** Native ImGui draw-list geometry exported as an offline neon particle constellation.
+
 This independent BCC64X C++23 demonstration consumes the managed **imgui** library package(s) and exports a 1280 x 720 vector composition for full-screen presentation.
 
 ## What happens
