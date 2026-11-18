@@ -5,7 +5,8 @@ endif()
 set(_projects WeatherClient PolicyTest CompareTest financial geospatial-skia opengl-sdl2-earth
    openmp-galaxy openmp-mandelbrot pdf-image-extraction
    pdfium/Common pdfium/SDL2 pdfium/VCL skia-direct-showcase
-   tests/pdf-image-extraction thirdparty-showcase docu-server
+   graphics/imgui-neon-lab graphics/implot-signal-theater graphics/matplot-chaos-atlas
+   thirdparty-showcase docu-server
    database/mssql database/postgre OpenXlsxGrid)
 file(READ "${ROOT}/LICENSE" _polyform)
 string(STRIP "${_polyform}" _polyform)

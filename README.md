@@ -279,3 +279,10 @@ Shared C++23 logical-database checks are under `database/common/database_checks.
 only connection setup, SQL dialect, and driver-specific diagnostics differ.
 SQL Server and PostgreSQL require running database services and a dedicated
 `BuildEngineTest` database. See their `build.md` and `sql/` directories.
+
+
+## Native graphics presentation showcases (November 2026)
+
+The [graphics group](graphics/README.md) now includes three independent BCC64X C++23 demonstrations: [ImGui Neon Constellation](graphics/imgui-neon-lab/Description.md), [ImPlot Signal Theater](graphics/implot-signal-theater/Description.md) and [Matplot++ Chaos Atlas](graphics/matplot-chaos-atlas/Description.md). Each project includes a `build.md` with configure, compile, CTest, install and presentation commands, plus a license and a declared CycloneDX 1.6 SBOM. These standalone tests generate offline SVG presentations. **[not verified]** A successful native Windows execution and visual review are pending.
+
+The legacy `tests/pdf-image-extraction` duplicate was retired in favor of the existing root-level `pdf-image-extraction` project. Its old generated Ninja and executable artifacts must not be tracked.

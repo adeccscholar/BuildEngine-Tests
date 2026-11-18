@@ -545,8 +545,20 @@ using tcp = asio::ip::tcp;
 ) {
    std::vector<std::filesystem::path> vecDocuments;
 
-   for(auto const& aEntry :
-       std::filesystem::recursive_directory_iterator{ aDocsRoot }) {
+   std::filesystem::recursive_directory_iterator aIterator { aDocsRoot };
+   std::filesystem::recursive_directory_iterator const aEnd;
+   for(; aIterator != aEnd; ++aIterator) {
+      auto const& aEntry = *aIterator;
+      if(aEntry.is_directory()) {
+         std::string const strFolder = aEntry.path().filename().string();
+         if(strFolder == "bootstrap" || strFolder == "cmake" ||
+            strFolder == "cache" || strFolder == "docs" ||
+            strFolder == "docu-server" || strFolder == "build" ||
+            strFolder == ".git") {
+            aIterator.disable_recursion_pending();
+            }
+         continue;
+         }
       if(!aEntry.is_regular_file()) {
          continue;
          }

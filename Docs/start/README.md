@@ -10,6 +10,9 @@ BuildEngine, not BuildEngine's own internal administration or production service
 
 | Area | Libraries and purpose |
 | --- | --- |
+| [Graphics / ImGui Neon Constellation](/docs/graphics/imgui-neon-lab/Description.md) | Native ImGui vector particle scene with offline presentation SVG |
+| [Graphics / ImPlot Signal Theater](/docs/graphics/implot-signal-theater/Description.md) | Native ImPlot signal plots, offline SVG and CTest |
+| [Graphics / Matplot++ Chaos Atlas](/docs/graphics/matplot-chaos-atlas/Description.md) | Mathematical attractor geometry, Matplot++ sampling and CTest |
 | [WeatherClient](/docs/WeatherClient/Description.md) | SDL2 + Skia analog gauges, Boost.Statechart FSM, Open-Meteo and forecast |
 | [PolicyTest](/docs/PolicyTest/Description.md) | adecc-core-lib policies, IBAN, SEPA, date, amount and negative acceptance tests |
 | [CompareTest](/docs/CompareTest/Description.md) | fast_float and oneTBB parsing/comparison |
@@ -25,7 +28,7 @@ BuildEngine, not BuildEngine's own internal administration or production service
 | [PDFium Common](/docs/pdfium/Common/Description.md) | page scrolling regression |
 | [Skia Showcase](/docs/skia-direct-showcase/Description.md) | native Skia rendering |
 | [Third-party Showcase](/docs/thirdparty-showcase/Description.md) | Boost, curl, OpenSSL and ZIP |
-| [QPDF alternate test](/docs/tests/pdf-image-extraction/Description.md) | alternate standalone qpdf consumer |
+| [PDF Image Extraction](/docs/pdf-image-extraction/Description.md) | Standalone qpdf consumer at repository root |
 
 Each test directory contains `Description.md`, `build.md`, `LICENSE.md`,
 `SBOM.md` and one CycloneDX `SBOM-*.cdx.json` per executable.
