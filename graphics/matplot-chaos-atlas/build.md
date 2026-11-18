@@ -1,16 +1,49 @@
-# Build and run — Matplot++ Chaos Atlas
+# Native Matplot++ Visual Mathematics Gallery
 
-Run from the **BuildEngine-Tests checkout root** in the RAD Studio 13 developer command prompt. Do not reuse another test's binary directory.
+Execute each command separately from the BuildEngine-Tests checkout root. All CMake commands are copyable single lines.
+
+## Prepare
 
 ```bat
 cmake -P bootstrap/Bootstrap.cmake
-cmake -S graphics/matplot-chaos-atlas -B ../build/Test/matplot-chaos-atlas/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/matplot-chaos-atlas/Release
-cmake --build ../build/Test/matplot-chaos-atlas/Release/cmake --parallel 4
-ctest --test-dir ../build/Test/matplot-chaos-atlas/Release/cmake --output-on-failure
-cmake --install ../build/Test/matplot-chaos-atlas/Release/cmake
-cd ..\build\Test\matplot-chaos-atlas\Release
-matplot-chaos-atlas.exe
-start matplot-chaos-atlas.svg
 ```
 
-Press F11 in the browser for the full-screen show. Use independent Debug paths and `-DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug` for Debug. The build selects exact managed package roots, not arbitrary DLLs on PATH. `--verify` is the headless correctness gate. **[not verified]** The resulting native executable and graphic output require host execution.
+## Configure Release
+
+```bat
+cmake -S graphics/matplot-chaos-atlas -B ../build/Test/matplot-chaos-atlas/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/matplot-chaos-atlas/Release
+```
+
+## Build
+
+```bat
+cmake --build ../build/Test/matplot-chaos-atlas/Release/cmake --parallel 4
+```
+
+## CTest
+
+```bat
+ctest --test-dir ../build/Test/matplot-chaos-atlas/Release/cmake --output-on-failure
+```
+
+## Install
+
+```bat
+cmake --install ../build/Test/matplot-chaos-atlas/Release/cmake
+```
+
+## Run gallery
+
+```bat
+..\build\Test\matplot-chaos-atlas\Release\matplot-chaos-atlas.exe
+```
+
+## Export six SVG scenes
+
+```bat
+..\build\Test\matplot-chaos-atlas\Release\matplot-chaos-atlas.exe --export
+```
+
+Use `--verify` for a headless numerical CTest. SVG files are optional output in the working directory's `artifacts/`. The application itself is the interactive presentation. Debug requires independent Debug configuration/build/install directories.
+
+**[not verified]** New visual version requires Windows BCC64X testing.

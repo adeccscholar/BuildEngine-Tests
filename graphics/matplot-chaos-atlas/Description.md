@@ -1,15 +1,11 @@
-# Matplot++ Chaos Atlas
+# Matplot++ Visual Mathematics Gallery
 
-**Test purpose:** Parametric mathematics and 2400-point sampled attractor illustration.
+**Test purpose:** Show six mathematically different, high-density scenes in a native interactive SDL2 application. Matplot++ generates 12,000 samples per scene. The six gallery tiles can be selected to open a large detailed rendering with zoom and animated rotation.
 
-This independent BCC64X C++23 demonstration consumes the managed **matplotplusplus** library package(s) and exports a 1280 x 720 vector composition for full-screen presentation.
+The gallery demonstrates Lissajous Interference, Clifford Attractor, De Jong Attractor, Harmonic Bloom, Butterfly Curves, and Orbital Resonance. These are rendered directly in SDL2, not in a browser or an external gnuplot process. The window title shows the selected scene and controls. Click a tile to view it. Click the detail view or press Esc to return. Use the left/right keys to choose the next scene, Space to pause animation, mouse wheel or +/- to zoom, F11 for full screen, and S to export all six SVG graphics.
 
-## What happens
+Run `--verify` to verify the six data sets without initializing graphics. Run `--export` to generate `artifacts/scene-1.svg` through `scene-6.svg` for independent viewing in the central server. The SVG generation is secondary to the native visual application.
 
-Matplot++ generates 2,400 mathematically defined samples, forming five richly layered parametric attractor structures.
+[Build commands](build.md) | [License](LICENSE.md) | [SBOM](SBOM.md)
 
-The result is written as an SVG in the current working directory, without external gnuplot, renderer installation, or network access. The SVG is an offline generated rendering, not GPU acceleration or a real-time application.
-
-The `--verify` option exercises native library operations without producing an SVG and is executed by CTest. See [build.md](build.md), [license](LICENSE.md) and [declared SBOM](SBOM.md).
-
-**[not verified]** Native Windows/BCC64X compilation and presentation appearance await execution on the target workstation.
+**[not verified]** The native Windows BCC64X build and interactive rendering still require execution on the target machine.
