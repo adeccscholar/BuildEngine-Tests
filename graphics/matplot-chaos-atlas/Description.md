@@ -1,11 +1,13 @@
-# Matplot++ Visual Mathematics Gallery
+# Matplot++ Mathematical Discovery Gallery
 
-**Test purpose:** Show six mathematically different, high-density scenes in a native interactive SDL2 application. Matplot++ generates 12,000 samples per scene. The six gallery tiles can be selected to open a large detailed rendering with zoom and animated rotation.
+**Test purpose:** Six mathematically distinct scenes sampled by Matplot++, visualized inside a native ImGui/SDL2 gallery with labeled previews, animated drawing, zoom and optional SVG export.
 
-The gallery demonstrates Lissajous Interference, Clifford Attractor, De Jong Attractor, Harmonic Bloom, Butterfly Curves, and Orbital Resonance. These are rendered directly in SDL2, not in a browser or an external gnuplot process. The window title shows the selected scene and controls. Click a tile to view it. Click the detail view or press Esc to return. Use the left/right keys to choose the next scene, Space to pause animation, mouse wheel or +/- to zoom, F11 for full screen, and S to export all six SVG graphics.
+The native application displays six mathematical scenes: Lissajous Interference, Clifford Attractor, De Jong Attractor, Harmonic Bloom, Butterfly Curves and Orbital Resonance. Matplot++ 1.2.2 supplies 12,000 numerical samples per scene. The application uses native ImGui 1.93 and SDL2 for labeled previews, scene selection and progressively drawn, rotating detail visualizations. The font atlas is rendered as an actual SDL texture; labels are not converted to textless SVG triangles.
 
-Run `--verify` to verify the six data sets without initializing graphics. Run `--export` to generate `artifacts/scene-1.svg` through `scene-6.svg` for independent viewing in the central server. The SVG generation is secondary to the native visual application.
+Select one of six tiles and choose Explore scene. Pause, restart, adjust speed and zoom, switch to the next or previous scene, or return to the gallery. SVG export is available but not needed for live viewing.
 
-[Build commands](build.md) | [License](LICENSE.md) | [SBOM](SBOM.md)
+The headless CTest verifies all six numerical scenes without opening a GUI. The separate `--export` mode creates six SVG files for independent presentation in the central BuildEngine Server. These exports are optional and not the main user experience.
 
-**[not verified]** The native Windows BCC64X build and interactive rendering still require execution on the target machine.
+See [build instructions](build.md), [license](LICENSE.md) and [SBOM](SBOM.md).
+
+**[not verified]** New native graphical runtime still requires execution and review on the BCC64X host.
