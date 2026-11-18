@@ -1,12 +1,17 @@
 {
   "schemaVersion": 1,
   "kind": "showcase",
-  "title": "Matplot++ Visual Mathematics Gallery",
-  "summary": "Interactive SDL2 gallery of six native Matplot++ sampled mathematical scenes, with selectable detail, zoom, rotation and independent SVG export.",
+  "title": "Matplot++ Mathematical Discovery Gallery",
+  "summary": "Interactive ImGui/SDL2 gallery of six native Matplot++ sampled scenes, with readable labeled thumbnails, progressive drawing, zoom, animation controls and optional SVG export.",
   "dependencies": [
     {
       "library": "matplotplusplus",
       "version": "1.2.2",
+      "direct": true
+    },
+    {
+      "library": "imgui",
+      "version": "1.93.0",
       "direct": true
     },
     {
