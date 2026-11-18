@@ -20,7 +20,7 @@
       "direct": true
     }
   ],
-  "status": "not-verified",
+  "status": "verified",
   "applications": [
     {
       "name": "implot-signal-theater",
@@ -28,5 +28,6 @@
       "command": "..\\build\\Test\\implot-signal-theater\\Release\\implot-signal-theater.exe",
       "interactive": true
     }
-  ]
+  ],
+  "verification": "Operator-confirmed native BCC64X build and interactive execution on 2026-11-18"
 }

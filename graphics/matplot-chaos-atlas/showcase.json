@@ -23,7 +23,7 @@
   "externalDependencies": [],
   "documentation": "Description.md",
   "build": "build.md",
-  "status": "not-verified",
+  "status": "verified",
   "applications": [
     {
       "name": "matplot-chaos-atlas",
@@ -31,5 +31,6 @@
       "command": "..\\build\\Test\\matplot-chaos-atlas\\Release\\matplot-chaos-atlas.exe",
       "interactive": true
     }
-  ]
+  ],
+  "verification": "Operator-confirmed native BCC64X build and interactive execution on 2026-11-18"
 }

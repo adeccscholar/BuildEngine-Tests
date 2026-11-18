@@ -58,4 +58,6 @@ Six mathematically distinct scenes sampled by Matplot++, visualized inside a nat
 
 Select one of six tiles and choose Explore scene. Pause, restart, adjust speed and zoom, switch to the next or previous scene, or return to the gallery. SVG export is available but not needed for live viewing.
 
-For Debug, use a separate Debug build directory, set both `-DCMAKE_BUILD_TYPE=Debug` and `-DBUILDENGINE_CONFIGURATION=Debug` and use the matching installed package variants. Never mix Release and Debug imports. **[not verified]** New native GUI compilation, frame rate and visual quality await BCC64X host verification.
+For Debug, use a separate Debug build directory, set both `-DCMAKE_BUILD_TYPE=Debug` and `-DBUILDENGINE_CONFIGURATION=Debug` and use the matching installed package variants. Never mix Release and Debug imports.
+
+**Verification:** Native BCC64X build and interactive operation confirmed by the operator on 2026-11-18.

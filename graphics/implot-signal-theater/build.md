@@ -50,4 +50,6 @@ Full-screen native scientific oscilloscope with four live, continuously recomput
 
 Select Interference, Modulated Waves, Wave Packets or Frequency Drift. Frequency, amplitude and speed are adjustable; toggle each signal, pause or reset the simulation; F11 switches to fullscreen.
 
-For Debug, use a separate Debug build directory, set both `-DCMAKE_BUILD_TYPE=Debug` and `-DBUILDENGINE_CONFIGURATION=Debug` and use the matching installed package variants. Never mix Release and Debug imports. **[not verified]** New native GUI compilation, frame rate and visual quality await BCC64X host verification.
+For Debug, use a separate Debug build directory, set both `-DCMAKE_BUILD_TYPE=Debug` and `-DBUILDENGINE_CONFIGURATION=Debug` and use the matching installed package variants. Never mix Release and Debug imports.
+
+**Verification:** Native BCC64X build and interactive operation confirmed by the operator on 2026-11-18.

@@ -10,4 +10,4 @@ The headless CTest verifies all six numerical scenes without opening a GUI. The 
 
 See [build instructions](build.md), [license](LICENSE.md) and [SBOM](SBOM.md).
 
-**[not verified]** New native graphical runtime still requires execution and review on the BCC64X host.
+**Verification:** Native BCC64X build and interactive operation confirmed by the operator on 2026-11-18.

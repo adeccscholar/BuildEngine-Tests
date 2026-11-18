@@ -6,4 +6,4 @@ Features include a scene selector, play/pause, restart and a zoom slider. The hi
 
 [Build](build.md) · [License](LICENSE.md) · [SBOM](SBOM.md)
 
-**[not verified]** Native Windows BCC64X compilation and visual appearance need workstation verification.
+**Verification:** Native BCC64X build and interactive operation confirmed by the operator on 2026-11-18.

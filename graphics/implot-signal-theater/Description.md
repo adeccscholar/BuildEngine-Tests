@@ -8,4 +8,4 @@ The live oscilloscope provides four selectable signal models: interference, modu
 
 [Build](build.md) · [License](LICENSE.md) · [SBOM](SBOM.md).
 
-**[not verified]** The expanded GUI requires a native Windows BCC64X compile, run and visual review.
+**Verification:** Native BCC64X build and interactive operation confirmed by the operator on 2026-11-18.

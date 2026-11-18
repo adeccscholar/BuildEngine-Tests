@@ -50,4 +50,6 @@ Interactive native SDL2/ImGui particle observatory with four animated scientific
 
 Choose Nebula Vortex, Quantum Orbit, Wave Interference or Stellar Bloom; pause/resume and reset the animation; adjust the zoom slider; F11 switches to fullscreen.
 
-For Debug, use a separate Debug build directory, set both `-DCMAKE_BUILD_TYPE=Debug` and `-DBUILDENGINE_CONFIGURATION=Debug` and use the matching installed package variants. Never mix Release and Debug imports. **[not verified]** New native GUI compilation, frame rate and visual quality await BCC64X host verification.
+For Debug, use a separate Debug build directory, set both `-DCMAKE_BUILD_TYPE=Debug` and `-DBUILDENGINE_CONFIGURATION=Debug` and use the matching installed package variants. Never mix Release and Debug imports.
+
+**Verification:** Native BCC64X build and interactive operation confirmed by the operator on 2026-11-18.
