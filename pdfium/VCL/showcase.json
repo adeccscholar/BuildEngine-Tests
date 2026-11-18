@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Native PDFium VCL Viewer",
+  "summary": "Presents PDF document rendering and navigation in a native RAD Studio VCL desktop application.",
+  "dependencies": [
+    {
+      "library": "pdfium",
+      "version": "2025.11.19",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "RAD Studio VCL runtime",
+    "PDFium transitive package closure"
+  ],
+  "status": "not-verified"
+}

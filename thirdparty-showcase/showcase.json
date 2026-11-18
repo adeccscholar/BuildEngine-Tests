@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Third-Party Connectivity VCL Showcase",
+  "summary": "Combines VCL user interfaces, HTTPS, JSON, ZIP archives and compression across managed native DLLs.",
+  "dependencies": [
+    {
+      "library": "boost",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "openssl",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "curl",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libzip",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "nlohmann-json",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "brotli",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zstd",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "xz",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "RAD Studio VCL runtime"
+  ],
+  "status": "not-verified"
+}

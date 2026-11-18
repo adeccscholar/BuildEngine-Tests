@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "PDFium SDL2 Viewer and API Regression",
+  "summary": "Displays PDF pages and verifies native PDFium rendering/API behavior and page navigation.",
+  "dependencies": [
+    {
+      "library": "pdfium",
+      "version": "2025.11.19",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "2.32.10",
+      "direct": true
+    },
+    {
+      "library": "abseil",
+      "version": "20260817.0",
+      "direct": true
+    },
+    {
+      "library": "fast_float",
+      "version": "8.3.3",
+      "direct": true
+    },
+    {
+      "library": "skia",
+      "version": "153",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "1.4",
+      "direct": true
+    },
+    {
+      "library": "libjpeg-turbo",
+      "version": "3.2.0",
+      "direct": true
+    },
+    {
+      "library": "libpng",
+      "version": "1.6.59",
+      "direct": true
+    },
+    {
+      "library": "freetype",
+      "version": "2.15.0",
+      "direct": true
+    },
+    {
+      "library": "icu",
+      "version": "78.3",
+      "direct": true
+    },
+    {
+      "library": "lcms2",
+      "version": "2.20",
+      "direct": true
+    },
+    {
+      "library": "openjpeg",
+      "version": "2.5.4",
+      "direct": true
+    },
+    {
+      "library": "opengl",
+      "version": "26.2.1",
+      "direct": true
+    },
+    {
+      "library": "bzip2",
+      "version": "1.0.8",
+      "direct": true
+    },
+    {
+      "library": "brotli",
+      "version": "1.2.1",
+      "direct": true
+    },
+    {
+      "library": "harfbuzz",
+      "version": "15.1.0",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "Windows graphics driver"
+  ],
+  "status": "not-verified"
+}

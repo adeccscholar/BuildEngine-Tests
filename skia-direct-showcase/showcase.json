@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Direct Skia Graphics Showcase",
+  "summary": "Demonstrates Skia shapes, text and composited images with the managed graphics DLL and assets.",
+  "dependencies": [
+    {
+      "library": "skia",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "bzip2",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "brotli",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libjpeg-turbo",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libpng",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "harfbuzz",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "freetype",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "Windows graphics APIs"
+  ],
+  "status": "not-verified"
+}

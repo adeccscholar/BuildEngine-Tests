@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "PDF Page Navigation Regression",
+  "summary": "Pure C++23 page-scroll boundary and navigation tests, without linking PDFium.",
+  "dependencies": [],
+  "externalDependencies": [],
+  "status": "not-verified"
+}
