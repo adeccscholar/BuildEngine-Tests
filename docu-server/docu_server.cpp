@@ -553,7 +553,7 @@ using tcp = asio::ip::tcp;
          std::string const strFolder = aEntry.path().filename().string();
          if(strFolder == "bootstrap" || strFolder == "cmake" ||
             strFolder == "cache" || strFolder == "docs" ||
-            strFolder == "docu-server" || strFolder == "build" ||
+            strFolder == "build" ||
             strFolder == ".git") {
             aIterator.disable_recursion_pending();
             }
