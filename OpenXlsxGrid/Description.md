@@ -1,11 +1,9 @@
-# OpenXlsxGrid — original DeckKernel consumer test
+# OpenXLSX Grid and Worksheet Test
 
-This test is migrated from [DeckKernel](https://github.com/adeccscholar/DeckKernel/tree/main/test/OpenXlsxGrid) at commit `893f9247264c27a2d938b587f4b7315f26a74973`.
+This standalone C++23 test checks typed spreadsheet data access, worksheet operations, and XLSX file generation through the managed OpenXLSX library and the adecc-core-lib spreadsheet interface.
 
-The business test algorithm is **unchanged**: only build paths, backend test connection defaults (PostgreSQL: BuildEngineTest/buildenginetest_user; MSSQL CSV: BuildEngineTest) and the BuildEngine packages have been adapted. Shared query, tuple, range and transaction code stays in the independently licensed `adecc-core-lib`, linked through `adecc::core` and `adecc::openxlsx` INTERFACE targets.
+The test operates locally, without a database server or Microsoft Excel. It produces an XLSX file that can be inspected after execution and exercises the data-access abstractions with real worksheet content.
 
-**Prerequisites:** No database server is required. The generated XLSX file is preserved for inspection; Excel is optional.
+The CMake project resolves OpenXLSX, pugixml, libzip, Boost and zlib from the BuildEngine package catalog. See [build.md](build.md) for the exact commands, [SBOM.md](SBOM.md) for declared software inventory, and [LICENSE.md](LICENSE.md) for licensing.
 
-Database engines and drivers are services or installed OS dependencies, **not** copied into this repository. The backend test uses `BuildEngineTest` only; do not run the tests against a productive database. Tests create/drop their own objects. OpenXLSX generates its own XLSX output.
-
-The attached `tests.zip` contains an additional SQL-Server-oriented suite, imported separately in `mssql/additional-tests` without changing the original logic. It is not PostgreSQL SQL dialect-neutral.
+**[not verified]** A fresh native Windows BCC64X test execution has not been performed as part of this documentation update.
