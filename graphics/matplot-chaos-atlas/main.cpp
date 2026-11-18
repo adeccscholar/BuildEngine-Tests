@@ -1,3 +1,4 @@
+#include "../common/GraphicsDllImports.h"
 #include "../common/VectorStage.h"
 #include "../common/NativeShowcase.h"
 #include <SDL.h>

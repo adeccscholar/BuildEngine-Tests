@@ -1,3 +1,4 @@
+#include "../common/GraphicsDllImports.h"
 #include "../common/NativeShowcase.h"
 
 #include <implot.h>
