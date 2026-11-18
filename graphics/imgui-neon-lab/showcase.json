@@ -1,16 +1,19 @@
 {
-   "schemaVersion": 1,
-   "kind": "showcase",
-   "title": "ImGui Neon Constellation",
-   "summary": "Native ImGui draw-list geometry exported as an offline neon particle constellation.",
-   "dependencies": [
-      {
-         "library": "imgui",
-         "version": "1.93.0",
-         "direct": true
-      }
-   ],
-   "documentation": "Description.md",
-   "build": "build.md",
-   "status": "not-verified"
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Dear ImGui Neon Constellation",
+  "summary": "Polished native SDL2 and ImGui control room with four real-time particle scenes, selectable modes, animated geometry and readable font-atlas text.",
+  "dependencies": [
+    {
+      "library": "imgui",
+      "version": "1.93.0",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "status": "not-verified"
 }

@@ -1,15 +1,9 @@
-# ImGui Neon Constellation
+# Dear ImGui Neon Constellation
 
-**Test purpose:** Native ImGui draw-list geometry exported as an offline neon particle constellation.
+**Test purpose:** Present a responsive, readable native control room with four animated scientific particle scenes. Real ImGui 1.93 DrawLists render 700 time-dependent particles in Nebula Vortex, Quantum Orbit, Wave Interference and Stellar Bloom. The native UI uses SDL2 geometry rendering with the font-atlas texture, fixing the earlier SVG text loss.
 
-This independent BCC64X C++23 demonstration consumes the managed **imgui** library package(s) and exports a 1280 x 720 vector composition for full-screen presentation.
+Features include a scene selector, play/pause, restart and a zoom slider. The high-DPI-capable SDL2 window is resizable. Scene graphics animate through deterministic parametric equations and their geometry changes every frame. `--verify` remains a headless DrawList validation, independent of SDL2 video initialization.
 
-## What happens
+[Build](build.md) · [License](LICENSE.md) · [SBOM](SBOM.md)
 
-A native ImGui draw-list constructs a luminous geometric constellation from 420 parametric nodes.
-
-The result is written as an SVG in the current working directory, without external gnuplot, renderer installation, or network access. The SVG is an offline generated rendering, not GPU acceleration or a real-time application.
-
-The `--verify` option exercises native library operations without producing an SVG and is executed by CTest. See [build.md](build.md), [license](LICENSE.md) and [declared SBOM](SBOM.md).
-
-**[not verified]** Native Windows/BCC64X compilation and presentation appearance await execution on the target workstation.
+**[not verified]** Native Windows BCC64X compilation and visual appearance need workstation verification.
