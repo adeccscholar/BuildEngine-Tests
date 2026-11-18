@@ -50,5 +50,25 @@
     "Microsoft ODBC Driver 18",
     "adecc-core-lib database interface"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "adecc_mssql_odbc_test",
+      "summary": "Tests Microsoft SQL Server ODBC connectivity and database operations",
+      "command": "..\\build\\Test\\mssql\\Release\\adecc_mssql_odbc_test.exe --server localhost --database BuildEngineTest --integrated",
+      "interactive": false
+    },
+    {
+      "name": "adecc_mssql_csv_pipeline",
+      "summary": "Tests SQL Server CSV booking workflow",
+      "command": "..\\build\\Test\\mssql\\Release\\adecc_mssql_csv_pipeline.exe",
+      "interactive": false
+    },
+    {
+      "name": "adecc_mssql_additional_test",
+      "summary": "Exercises shared logical-database acceptance tests on SQL Server",
+      "command": "..\\build\\Test\\mssql\\Release\\adecc_mssql_additional_test.exe --server localhost --database BuildEngineTest --integrated",
+      "interactive": false
+    }
+  ]
 }

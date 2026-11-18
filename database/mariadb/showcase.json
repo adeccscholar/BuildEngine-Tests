@@ -29,5 +29,25 @@
     "MariaDB server",
     "adecc-core-lib database interface"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "adecc_mariadb_logical_test",
+      "summary": "Exercises MariaDB logical queries and transactions",
+      "command": "..\\build\\Test\\database\\mariadb\\Release\\adecc_mariadb_logical_test.exe --database BuildEngineTest --user root",
+      "interactive": false
+    },
+    {
+      "name": "adecc_mariadb_connection_test",
+      "summary": "Validates MariaDB connections and authentication",
+      "command": "ctest --test-dir ../build/Test/database/mariadb/Release/cmake --output-on-failure",
+      "interactive": false
+    },
+    {
+      "name": "adecc_mariadb_member_pipeline",
+      "summary": "Exercises member-import pipeline against isolated MariaDB",
+      "command": "ctest --test-dir ../build/Test/database/mariadb/Release/cmake --output-on-failure",
+      "interactive": false
+    }
+  ]
 }

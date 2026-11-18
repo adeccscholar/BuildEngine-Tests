@@ -39,5 +39,19 @@
     "PostgreSQL server",
     "adecc-core-lib PostgreSQL interface"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "adecc_postgresql_pqxx_test",
+      "summary": "Exercises native libpqxx database and transaction operations",
+      "command": "..\\build\\Test\\postgre\\Release\\adecc_postgresql_pqxx_test.exe --host localhost --database BuildEngineTest --user buildenginetest_user --integrated",
+      "interactive": false
+    },
+    {
+      "name": "adecc_postgresql_additional_test",
+      "summary": "Executes shared logical-database checks on PostgreSQL",
+      "command": "..\\build\\Test\\postgre\\Release\\adecc_postgresql_additional_test.exe --host localhost --database BuildEngineTest --user buildenginetest_user --integrated",
+      "interactive": false
+    }
+  ]
 }

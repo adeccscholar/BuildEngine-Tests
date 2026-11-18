@@ -36,5 +36,13 @@
     }
   ],
   "externalDependencies": [],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "financial_demo",
+      "summary": "Runs native financial and cash-flow calculation examples",
+      "command": "..\\build\\Test\\financial\\Release\\financial_demo.exe",
+      "interactive": false
+    }
+  ]
 }

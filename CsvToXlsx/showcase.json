@@ -51,5 +51,19 @@
     }
   ],
   "externalDependencies": [],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "adecc_csv_to_xlsx",
+      "summary": "Converts CSV files to XLSX with optional input/output directory selection",
+      "command": "..\\build\\Test\\CsvToXlsx\\Release\\adecc_csv_to_xlsx.exe \"D:\\Data\\Input\"",
+      "interactive": false
+    },
+    {
+      "name": "adecc_csv_to_xlsx_test",
+      "summary": "Validates CSV parser and XLSX conversion edge cases",
+      "command": "ctest --test-dir ../build/Test/CsvToXlsx/Release/cmake --output-on-failure",
+      "interactive": false
+    }
+  ]
 }

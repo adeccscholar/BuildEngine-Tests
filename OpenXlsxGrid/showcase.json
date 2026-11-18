@@ -33,5 +33,13 @@
   "externalDependencies": [
     "adecc-core-lib interface target"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "adecc_openxlsx_grid_test",
+      "summary": "Exercises OpenXLSX grid, worksheet and typed-data operations",
+      "command": "..\\build\\Test\\OpenXlsxGrid\\Release\\adecc_openxlsx_grid_test.exe",
+      "interactive": false
+    }
+  ]
 }
