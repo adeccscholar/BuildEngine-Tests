@@ -1,5 +1,7 @@
 # CompareTest
 
+**Test purpose:** Measures parsing and comparison throughput for numeric and geographic records with fast_float and oneTBB.
+
 This independent BuildEngine-Tests project exercises **fast_float 8.2.3, oneTBB 2023.1.0** with native BCC64X/C++23 consumer code. Its source and its runtime dependency closure are defined by this directory's CMake/IDE configuration and the BuildEngine package catalog.
 
 **Programs:** compare-test, optional compare-tune.

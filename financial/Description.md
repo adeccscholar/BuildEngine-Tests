@@ -1,5 +1,7 @@
 # Financial demonstrations
 
+**Test purpose:** Evaluates investment fund returns, multi-currency cash flows, financial calculations and XML/JSON data interchange.
+
 This independent BuildEngine-Tests project exercises **Boost, pugixml, OpenSSL, zlib, brotli, zstd** with native BCC64X/C++23 consumer code. Its source and its runtime dependency closure are defined by this directory's CMake/IDE configuration and the BuildEngine package catalog.
 
 **Programs:** financial_demo.

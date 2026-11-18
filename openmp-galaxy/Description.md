@@ -1,5 +1,7 @@
 # OpenMP galaxy
 
+**Test purpose:** Visualizes a particle galaxy and benchmarks native OpenMP simulations through an SDL2/OpenGL viewer.
+
 This independent BuildEngine-Tests project exercises **llvm-openmp, SDL2, GLEW** with native BCC64X/C++23 consumer code. Its source and its runtime dependency closure are defined by this directory's CMake/IDE configuration and the BuildEngine package catalog.
 
 **Programs:** galaxy_benchmark, galaxy_viewer.

@@ -1,5 +1,7 @@
 # CsvToXlsx — Description
 
+**Test purpose:** Converts quoted UTF-8 CSV data with heterogeneous field widths to XLSX and verifies an exact data roundtrip.
+
 Command-line CSV-to-XLSX batch converter for BuildEngine BCC64X. Every CSV field is handled as `std::string`, including leading zeros, arbitrary field widths and values that resemble formulas or dates. Records may have different numbers of columns and quoted fields may contain embedded record delimiters.
 
 The application uses installed `OpenXLSX::OpenXLSX` packages. Its CSV parser does not require any third-party library. Two executables are built: the converter and a CTest consumer covering CSV interpretation, UTF-8 validation and a real XLSX roundtrip.
