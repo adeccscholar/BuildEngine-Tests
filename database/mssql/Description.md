@@ -1,18 +1,13 @@
-# mssql — original DeckKernel consumer test
+# Microsoft SQL Server data access and transaction tests
 
-This test is migrated from [DeckKernel](https://github.com/adeccscholar/DeckKernel/tree/main/test/mssql) at commit `893f9247264c27a2d938b587f4b7315f26a74973`.
+This project exercises the Windows ODBC Driver 18 connection to SQL Server, typed C++ result ranges, relational constraints, transactions, CSV processing and XLSX integration. The tests use the independently maintained adecc-core-lib database and spreadsheet interfaces.
 
-The business test algorithm is **unchanged**: only build paths, backend test connection defaults (PostgreSQL: BuildEngineTest/buildenginetest_user; MSSQL CSV: BuildEngineTest) and the BuildEngine packages have been adapted. Shared query, tuple, range and transaction code stays in the independently licensed `adecc-core-lib`, linked through `adecc::core` and `adecc::mssql` INTERFACE targets.
+Two scenarios are implemented: the direct SQL Server consumer and a common logical-database test suite with backend-specific SQL dialect configuration. Integration runs require a dedicated `BuildEngineTest` database; never use a production database because tests may create and drop their own objects.
 
-**Prerequisites:** MSSQL Server service with Microsoft ODBC Driver 18; execute sql/create-database.sql (SSMS/sqlcmd). The SQL Server is required at execution time, not at compilation.
-
-Database engines and drivers are services or installed OS dependencies, **not** copied into this repository. The backend test uses `BuildEngineTest` only; do not run the tests against a productive database. Tests create/drop their own objects. OpenXLSX generates its own XLSX output.
-
-The attached `tests.zip` contains an additional SQL-Server-oriented suite, imported separately in `mssql/additional-tests` without changing the original logic. It is not PostgreSQL SQL dialect-neutral.
+Dependencies include managed OpenXLSX, pugixml, libzip, Boost, zlib, xz, zstd and OpenSSL, plus the system-installed Microsoft ODBC Driver and a running SQL Server. Follow [Configure.md](Configure.md) for access setup and [build.md](build.md) for configure, build, CTest and execution commands.
 
 ## Supplementary MSSQL headers
 
-The accompanying `BuildEngine-Tests-additional-MSSQL.zip` provides the full original 13-header SQL Server exercise suite supplied with this migration. Extract its `mssql/additional-tests/` directory into this checkout to enable the additional standalone test. The core error scenario is exercised by its `main.cpp`; all other source headers remain available unchanged. This supplementary archive has not yet been merged into GitHub and must not be counted as an already committed test.
 
 ## Configuration
 
@@ -20,4 +15,4 @@ See [Configure.md](Configure.md) for the Windows login, database user, permissio
 
 ## Additional shared database executable
 
-`adecc_mssql_additional_test` instantiates [common/additional_tests.h](../common/additional_tests.h) against this backend's `logical_database`. The common suite currently covers source-derived tuple OutputRange, NULL, named parameters, lazy Execute ranges, primary key and CHECK failures. Only [additional_dialect.h](additional_dialect.h) creates the native schema. The complete supplied original headers are archived unchanged under [common/original](../common/original/) for further migration; not all original cases are enabled yet. No JSON/XML fixture is required by the currently enabled tests.
+`adecc_mssql_additional_test` instantiates [common/additional_tests.h](../common/additional_tests.h) against this backend's `logical_database`. The common suite currently covers source-derived tuple OutputRange, NULL, named parameters, lazy Execute ranges, primary key and CHECK failures. Only [additional_dialect.h](additional_dialect.h) creates the native schema. Supplemental reference headers are retained under [common/original](../common/original/) for further migration; not all original cases are enabled yet. No JSON/XML fixture is required by the currently enabled tests.
