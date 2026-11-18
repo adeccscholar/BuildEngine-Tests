@@ -1,21 +1,24 @@
 {
-   "schemaVersion": 1,
-   "kind": "showcase",
-   "title": "ImPlot Signal Theater",
-   "summary": "Two 768-point signals plotted with ImPlot and exported from ImGui draw lists.",
-   "dependencies": [
-      {
-         "library": "implot",
-         "version": "1.1",
-         "direct": true
-      },
-      {
-         "library": "imgui",
-         "version": "1.93.0",
-         "direct": true
-      }
-   ],
-   "documentation": "Description.md",
-   "build": "build.md",
-   "status": "not-verified"
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "ImPlot Real-Time Signal Theater",
+  "summary": "Fully interactive ImPlot scientific oscilloscope with four animated signal models, readable font atlas text, adjustable waveform parameters and native SDL2 rendering.",
+  "dependencies": [
+    {
+      "library": "imgui",
+      "version": "1.93.0",
+      "direct": true
+    },
+    {
+      "library": "implot",
+      "version": "1.1",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "status": "not-verified"
 }

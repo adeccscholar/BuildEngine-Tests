@@ -1,15 +1,11 @@
-# ImPlot Signal Theater
+# ImPlot Real-Time Signal Theater
 
-**Test purpose:** Two 768-point signals plotted with ImPlot and exported from ImGui draw lists.
+**Test purpose:** Provide an actual interactive scientific plotting application using native ImPlot 1.1 and ImGui 1.93 rendered with SDL2. The former SVG triangle exporter could not draw font atlas glyphs; this version renders real font textures and plot labels in the native window.
 
-This independent BCC64X C++23 demonstration consumes the managed **imgui and implot** library package(s) and exports a 1280 x 720 vector composition for full-screen presentation.
+The live oscilloscope provides four selectable signal models: interference, modulated waves, wave packets and frequency drift. Time is continuously advanced in the foreground; the 1024 samples per series update on every frame. Frequency, amplitude and simulation speed are controlled by sliders. Carrier A, Carrier B and combined response can be independently shown or hidden. Pause, reset and legend/axis text are part of the fully native UI.
 
-## What happens
+`--verify` runs a non-GUI ImPlot plotting and geometry test using the existing font atlas setup. The interactive version uses SDL2's accelerated renderer with dynamic font atlas textures. The managed packages are ImPlot, ImGui and SDL2. No gnuplot or browser is required.
 
-Two mathematical signals with 768 data points each are rendered through genuine ImPlot::PlotLine operations and ImGui draw-list geometry.
+[Build](build.md) · [License](LICENSE.md) · [SBOM](SBOM.md).
 
-The result is written as an SVG in the current working directory, without external gnuplot, renderer installation, or network access. The SVG is an offline generated rendering, not GPU acceleration or a real-time application.
-
-The `--verify` option exercises native library operations without producing an SVG and is executed by CTest. See [build.md](build.md), [license](LICENSE.md) and [declared SBOM](SBOM.md).
-
-**[not verified]** Native Windows/BCC64X compilation and presentation appearance await execution on the target workstation.
+**[not verified]** The expanded GUI requires a native Windows BCC64X compile, run and visual review.
