@@ -23,5 +23,13 @@
   "externalDependencies": [],
   "documentation": "Description.md",
   "build": "build.md",
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "matplot-chaos-atlas",
+      "summary": "Interactive gallery of six mathematical scenes with progressive animated drawing and SVG export",
+      "command": "..\\build\\Test\\matplot-chaos-atlas\\Release\\matplot-chaos-atlas.exe",
+      "interactive": true
+    }
+  ]
 }

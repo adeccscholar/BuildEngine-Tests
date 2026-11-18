@@ -39,5 +39,13 @@
     "RAD Studio VCL",
     "Open-Meteo online service"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "WeatherHist",
+      "summary": "Native VCL historical-weather application with date selection and daily weather values",
+      "command": "..\\build\\Test\\WeatherHist\\Release\\WeatherHist.exe",
+      "interactive": true
+    }
+  ]
 }

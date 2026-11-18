@@ -20,5 +20,13 @@
       "direct": true
     }
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "implot-signal-theater",
+      "summary": "Native real-time signal oscilloscope with four modes and adjustable amplitude, frequency and speed",
+      "command": "..\\build\\Test\\implot-signal-theater\\Release\\implot-signal-theater.exe",
+      "interactive": true
+    }
+  ]
 }

@@ -19,5 +19,13 @@
     "Windows Winsock (ws2_32, mswsock)",
     "Browser presentation assets: highlight.js, Mermaid and MathJax"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "buildengine_tests_docu_server",
+      "summary": "Local HTTP documentation browser for grouped tests, Markdown and source code",
+      "command": "..\\build\\Test\\docu-server\\Release\\buildengine_tests_docu_server.exe --root . --config Docs\\Documentation.xml",
+      "interactive": true
+    }
+  ]
 }

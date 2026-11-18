@@ -83,5 +83,13 @@
   "externalDependencies": [
     "Weather API services (online mode)"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "WeatherClient",
+      "summary": "Interactive Skia weather dashboard with animated weather graphics, forecast and offline demonstration mode",
+      "command": "..\\build\\Test\\WeatherClient\\Release\\WeatherClient.exe --demo",
+      "interactive": true
+    }
+  ]
 }

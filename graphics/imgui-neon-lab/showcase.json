@@ -15,5 +15,13 @@
       "direct": true
     }
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "imgui-neon-lab",
+      "summary": "Interactive native ImGui particle observatory with four animated modes, zoom and playback controls",
+      "command": "..\\build\\Test\\imgui-neon-lab\\Release\\imgui-neon-lab.exe",
+      "interactive": true
+    }
+  ]
 }
