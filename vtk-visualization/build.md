@@ -81,3 +81,15 @@ connected surface and no boundary/nonmanifold edges. All runs emit
 Performance is reported without brittle machine-specific timing thresholds.
 Native BCC64X and GPU rendering remain **not verified** until run on
 the target Windows system.
+
+## Application execution and operation
+
+**vtk-visualization:** Interactive dual-viewport VTK scientific isosurface and volume renderer.
+
+```bat
+..\build\Test\vtk-visualization\Release\vtk-visualization.exe --resolution 161 --backend TBB
+```
+
+### Controls and verification boundaries
+
+The viewer shows side-by-side VTK OpenGL2 isosurface and GPU volume rendering, with native VTK interactor camera controls. Use mouse drag to rotate, wheel to zoom and the VTK interaction gestures to inspect geometry. `--resolution` sets sample density, `--backend` chooses Sequential, TBB or OpenMP. `--verify` performs headless geometric checks, `--stress` repeats computational loads, and `--screenshot` saves a rendered PNG.

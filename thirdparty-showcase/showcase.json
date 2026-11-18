@@ -53,5 +53,13 @@
   "externalDependencies": [
     "RAD Studio VCL runtime"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "ThirdPartyShowcase",
+      "summary": "Interactive VCL dashboard for real HTTPS/JSON/zlib/libzip workflow.",
+      "command": "..\\build\\Test\\thirdparty-showcase\\Release\\ThirdPartyShowcase.exe",
+      "interactive": true
+    }
+  ]
 }

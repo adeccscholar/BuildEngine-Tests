@@ -88,5 +88,25 @@
   "externalDependencies": [
     "Windows graphics driver"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "pdfium-sdl2-viewer",
+      "summary": "Native PDFium + SDL2 PDF viewer with page selection, zoom, viewport scrolling and Windows file selection.",
+      "command": "..\\build\\Test\\pdfium-SDL2\\Release\\pdfium-sdl2-viewer.exe",
+      "interactive": true
+    },
+    {
+      "name": "pdfium-c-api-test",
+      "summary": "Headless PDFium C API and rasterization checks.",
+      "command": "ctest --test-dir ../build/Test/pdfium-SDL2/Release/cmake --output-on-failure",
+      "interactive": false
+    },
+    {
+      "name": "pdfium-page-scroll-test",
+      "summary": "Headless deterministic PDF page scrolling and bounds regression.",
+      "command": "ctest --test-dir ../build/Test/pdfium-SDL2/Release/cmake --output-on-failure",
+      "interactive": false
+    }
+  ]
 }

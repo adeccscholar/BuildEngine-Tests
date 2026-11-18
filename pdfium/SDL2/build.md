@@ -102,3 +102,27 @@ The navigation regression does not stage PDFium, Skia or SDL2.
 **Verification status:** the project wiring and commands are source-reviewed;
 native Windows BCC64X viewer execution and CTest results remain
 **[nicht verifiziert]** until the tests run locally.
+
+## Application execution and operation
+
+**pdfium-sdl2-viewer:** Native PDFium + SDL2 PDF viewer with page selection, zoom, viewport scrolling and Windows file selection.
+
+```bat
+..\build\Test\pdfium-SDL2\Release\pdfium-sdl2-viewer.exe
+```
+
+**pdfium-c-api-test:** Headless PDFium C API and rasterization checks.
+
+```bat
+ctest --test-dir ../build/Test/pdfium-SDL2/Release/cmake --output-on-failure
+```
+
+**pdfium-page-scroll-test:** Headless deterministic PDF page scrolling and bounds regression.
+
+```bat
+ctest --test-dir ../build/Test/pdfium-SDL2/Release/cmake --output-on-failure
+```
+
+### Controls and verification boundaries
+
+OPEN or Ctrl+O selects a PDF. PREV/NEXT, page number entry/GO, Left/Right, PageUp/PageDown and Home/End navigate according to scroll boundaries. +/- and Ctrl+wheel zoom (50–600% of fit); Ctrl+0 restores fit. Drag to pan, Shift+wheel pans horizontally, and Esc cancels editing or exits. The API and scrolling tests run separately without a GUI.

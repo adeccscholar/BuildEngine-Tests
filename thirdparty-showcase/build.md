@@ -23,3 +23,15 @@ ctest --test-dir ../build/Test/thirdparty-showcase/Release/cmake --output-on-fai
 ```
 
 Use independent Debug paths and switch both configuration settings to Debug. Ensure the BuildEngine package catalog and DLL staging are available; CTest may report zero tests when only an interactive viewer is defined.
+
+## Application execution and operation
+
+**ThirdPartyShowcase:** Interactive VCL dashboard for real HTTPS/JSON/zlib/libzip workflow.
+
+```bat
+..\build\Test\thirdparty-showcase\Release\ThirdPartyShowcase.exe
+```
+
+### Controls and verification boundaries
+
+The primary action button starts the integration sequence. The dashboard displays individual HTTP results from Boost.Beast/OpenSSL and curl, parsed nlohmann JSON, zlib compression/round-trip and libzip output. It reports statuses, byte counts, runtime versions and the generated archive. Internet access is required; do not claim an offline result.

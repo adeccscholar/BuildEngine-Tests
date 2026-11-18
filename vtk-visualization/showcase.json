@@ -28,5 +28,13 @@
   "externalDependencies": [
     "Windows system OpenGL driver"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "vtk-visualization",
+      "summary": "Interactive dual-viewport VTK scientific isosurface and volume renderer.",
+      "command": "..\\build\\Test\\vtk-visualization\\Release\\vtk-visualization.exe --resolution 161 --backend TBB",
+      "interactive": true
+    }
+  ]
 }
