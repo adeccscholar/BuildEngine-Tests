@@ -4,9 +4,21 @@ From `BuildEngine/tests`, use the productive BuildEngine root, existing installe
 
 ```bat
 git submodule update --init --recursive
+```
+
+```bat
 cmake -P bootstrap/Bootstrap.cmake
+```
+
+```bat
 cmake -S OpenXlsxGrid -B ../build/Test/OpenXlsxGrid/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/OpenXlsxGrid/Release
+```
+
+```bat
 cmake --build ../build/Test/OpenXlsxGrid/Release/cmake
+```
+
+```bat
 cmake --install ../build/Test/OpenXlsxGrid/Release/cmake
 ```
 

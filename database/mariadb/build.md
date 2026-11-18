@@ -18,9 +18,21 @@ The shared test **creates and drops** `Test_Error_TupleInsert` in the specified 
 
 ```bat
 cmake -S database/mariadb -B ../build/Test/database/mariadb/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/database/mariadb/Release
+```
+
+```bat
 cmake --build ../build/Test/database/mariadb/Release/cmake
+```
+
+```bat
 ctest --test-dir ../build/Test/database/mariadb/Release/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/database/mariadb/Release/cmake
+```
+
+```bat
 ..\build\Test\database\mariadb\Release\adecc_mariadb_logical_test.exe --database BuildEngineTest --user root
 ```
 

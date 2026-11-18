@@ -4,10 +4,25 @@ Run in the RAD Studio 13 developer command prompt in `BuildEngine/tests`.
 
 ```bat
 cmake -P bootstrap/Bootstrap.cmake
+```
+
+```bat
 cmake -S WeatherHist -B ../build/Test/WeatherHist/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/WeatherHist/Release
+```
+
+```bat
 cmake --build ../build/Test/WeatherHist/Release/cmake
+```
+
+```bat
 ctest --test-dir ../build/Test/WeatherHist/Release/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/WeatherHist/Release/cmake
+```
+
+```bat
 ..\build\Test\WeatherHist\Release\WeatherHist.exe
 ```
 

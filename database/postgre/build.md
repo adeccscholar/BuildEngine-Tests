@@ -6,9 +6,21 @@ From `BuildEngine/tests`, use the productive BuildEngine root, existing installe
 
 ```bat
 git submodule update --init --recursive
+```
+
+```bat
 cmake -P bootstrap/Bootstrap.cmake
+```
+
+```bat
 cmake -S database/postgre -B ../build/Test/postgre/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/postgre/Release
+```
+
+```bat
 cmake --build ../build/Test/postgre/Release/cmake
+```
+
+```bat
 cmake --install ../build/Test/postgre/Release/cmake
 ```
 
@@ -16,7 +28,13 @@ For Debug substitute `Debug` consistently. No local third-party bootstrap, no st
 
 ```bat
 psql -U postgres -d postgres -f database\postgre\sql\create-database.sql
+```
+
+```bat
 psql -U postgres -d BuildEngineTest -f database\postgre\sql\configure-access.sql
+```
+
+```bat
 ..\build\Test\postgre\Release\adecc_postgresql_pqxx_test.exe --host localhost --database BuildEngineTest --user buildenginetest_user --integrated
 ```
 

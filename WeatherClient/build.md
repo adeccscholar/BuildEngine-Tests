@@ -9,8 +9,17 @@ From `BuildEngine/tests`, using the production installation:
 
 ```bat
 git pull
+```
+
+```bat
 cmake -S WeatherClient -B ../build/Test/WeatherClient/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/WeatherClient/Release
+```
+
+```bat
 cmake --build ../build/Test/WeatherClient/Release/cmake
+```
+
+```bat
 cmake --install ../build/Test/WeatherClient/Release/cmake
 ```
 
@@ -18,6 +27,9 @@ CMake selects active versions from `admin/build-libraries.xml`, including Skia, 
 
 ```bat
 ..\build\Test\WeatherClient\Release\WeatherClient.exe --demo
+```
+
+```bat
 ..\build\Test\WeatherClient\Release\WeatherClient.exe
 ```
 
@@ -42,6 +54,9 @@ No package versions or Windows-specific GUI APIs were added.
 
 ```bat
 ..\build\Test\WeatherClient\Release\WeatherClient.exe
+```
+
+```bat
 ..\build\Test\WeatherClient\Release\WeatherClient.exe --ca-bundle C:\path\to\trusted-ca-bundle.pem
 ```
 
@@ -63,8 +78,17 @@ until `cmake --install` runs.
 
 ```bat
 cmake --build ../build/Test/WeatherClient/Release/cmake
+```
+
+```bat
 ctest --test-dir ../build/Test/WeatherClient/Release/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/WeatherClient/Release/cmake
+```
+
+```bat
 ..\build\Test\WeatherClient\Release\WeatherClient.exe
 ```
 
@@ -141,7 +165,13 @@ before rebuilding:
 
 ```bat
 cmake -S WeatherClient -B ../build/Test/WeatherClient/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/WeatherClient/Release
+```
+
+```bat
 cmake --build ../build/Test/WeatherClient/Release/cmake
+```
+
+```bat
 ctest --test-dir ../build/Test/WeatherClient/Release/cmake --output-on-failure
 ```
 
@@ -163,11 +193,25 @@ flushed result file instead of relying on attached console output:
 
 ```bat
 ..\\build\\Test\\WeatherClient\\Release\\WeatherClient.exe --weather-probe 52.52 13.405
-type weather-client-probe.log
+```
 
+```bat
+type weather-client-probe.log
+```
+
+```bat
 set WEATHERCLIENT_TRACE_RENDER=1
+```
+
+```bat
 set WEATHERCLIENT_FONT_FALLBACK=1
+```
+
+```bat
 ctest --test-dir ../build/Test/WeatherClient/Release/cmake -R WeatherClientGraphics --output-on-failure
+```
+
+```bat
 type ..\\build\\Test\\WeatherClient\\Release\\cmake\\weather-client-render.log
 ```
 
@@ -211,7 +255,13 @@ path introduced after the functioning version must be separately verified:
 
 ```bat
 set WEATHERCLIENT_USE_SEGOE=1
+```
+
+```bat
 set WEATHERCLIENT_FONT_FALLBACK=
+```
+
+```bat
 ctest --test-dir ../build/Test/WeatherClient/Release/cmake -R WeatherClientGraphics --output-on-failure
 ```
 
@@ -306,8 +356,14 @@ To locate a remaining native crash in the CTest working directory:
 
 ```bat
 set WEATHERCLIENT_TRACE_RENDER=1
+```
+
+```bat
 ctest --test-dir ../build/Test/WeatherClient/Release/cmake -R WeatherClientGraphics --output-on-failure
- type ..\build\Test\WeatherClient\Release\cmake\weather-client-render.log
+```
+
+```bat
+type ..\build\Test\WeatherClient\Release\cmake\weather-client-render.log
 ```
 
 If the trace stops before `Dial: temperature value complete`, investigate

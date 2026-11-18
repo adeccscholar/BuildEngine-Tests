@@ -4,9 +4,21 @@ From the `BuildEngine/tests` checkout in the RAD Studio 13 Developer Command Pro
 
 ```bat
 cmake -P bootstrap/Bootstrap.cmake
+```
+
+```bat
 cmake -S PolicyTest -B ../build/Test/PolicyTest/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/PolicyTest/Release
+```
+
+```bat
 cmake --build ../build/Test/PolicyTest/Release/cmake
+```
+
+```bat
 ctest --test-dir ../build/Test/PolicyTest/Release/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/PolicyTest/Release/cmake
 ```
 
