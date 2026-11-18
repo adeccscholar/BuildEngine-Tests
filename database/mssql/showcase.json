@@ -12,12 +12,12 @@
     {
       "library": "pugixml",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "libzip",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "boost",
@@ -27,22 +27,22 @@
     {
       "library": "zlib",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "xz",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "zstd",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "openssl",
       "version": "active",
-      "direct": true
+      "direct": false
     }
   ],
   "externalDependencies": [

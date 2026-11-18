@@ -37,17 +37,17 @@
     {
       "library": "brotli",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "zstd",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "xz",
       "version": "active",
-      "direct": true
+      "direct": false
     }
   ],
   "externalDependencies": [

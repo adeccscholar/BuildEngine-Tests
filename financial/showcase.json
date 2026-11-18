@@ -22,17 +22,17 @@
     {
       "library": "zlib",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "brotli",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "zstd",
       "version": "active",
-      "direct": true
+      "direct": false
     }
   ],
   "externalDependencies": [],

@@ -37,37 +37,37 @@
     {
       "library": "zlib",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "bzip2",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "brotli",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "libjpeg-turbo",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "libpng",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "harfbuzz",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "freetype",
       "version": "active",
-      "direct": true
+      "direct": false
     }
   ],
   "externalDependencies": [

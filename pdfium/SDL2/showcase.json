@@ -17,72 +17,72 @@
     {
       "library": "abseil",
       "version": "20260817.0",
-      "direct": true
+      "direct": false
     },
     {
       "library": "fast_float",
       "version": "8.3.3",
-      "direct": true
+      "direct": false
     },
     {
       "library": "skia",
       "version": "153",
-      "direct": true
+      "direct": false
     },
     {
       "library": "zlib",
       "version": "1.4",
-      "direct": true
+      "direct": false
     },
     {
       "library": "libjpeg-turbo",
       "version": "3.2.0",
-      "direct": true
+      "direct": false
     },
     {
       "library": "libpng",
       "version": "1.6.59",
-      "direct": true
+      "direct": false
     },
     {
       "library": "freetype",
       "version": "2.15.0",
-      "direct": true
+      "direct": false
     },
     {
       "library": "icu",
       "version": "78.3",
-      "direct": true
+      "direct": false
     },
     {
       "library": "lcms2",
       "version": "2.20",
-      "direct": true
+      "direct": false
     },
     {
       "library": "openjpeg",
       "version": "2.5.4",
-      "direct": true
+      "direct": false
     },
     {
       "library": "opengl",
       "version": "26.2.1",
-      "direct": true
+      "direct": false
     },
     {
       "library": "bzip2",
       "version": "1.0.8",
-      "direct": true
+      "direct": false
     },
     {
       "library": "brotli",
       "version": "1.2.1",
-      "direct": true
+      "direct": false
     },
     {
       "library": "harfbuzz",
       "version": "15.1.0",
-      "direct": true
+      "direct": false
     }
   ],
   "externalDependencies": [

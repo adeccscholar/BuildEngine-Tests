@@ -12,22 +12,22 @@
     {
       "library": "openssl",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "zlib",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "brotli",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "zstd",
       "version": "active",
-      "direct": true
+      "direct": false
     },
     {
       "library": "nlohmann-json",
