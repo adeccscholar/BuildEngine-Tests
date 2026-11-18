@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "BuildEngine Tests Documentation Server",
+  "summary": "Standalone C++23 HTTP and Markdown integration test: serves the test documentation tree, syntax-highlighted source files, optional diagrams, and validates documentation, licensing and CycloneDX declarations.",
+  "dependencies": [
+    {
+      "library": "boost",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "cmark-gfm",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "Windows Winsock (ws2_32, mswsock)",
+    "Browser presentation assets: highlight.js, Mermaid and MathJax"
+  ],
+  "status": "not-verified"
+}
