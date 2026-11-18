@@ -599,6 +599,15 @@ using tcp = asio::ip::tcp;
           << "</ul></section>";
        }
 
+    if(std::filesystem::is_regular_file(aDocsRoot / "graphics" / "README.md")) {
+       osBody << "<section class=\"doc-list\"><h2>Graphics showcases</h2><ul>"
+          << "<li><a href=\"/docs/graphics/README.md\">Graphics overview</a></li>"
+          << "<li><a href=\"/docs/graphics/imgui-neon-lab/Description.md\">ImGui Neon Constellation</a></li>"
+          << "<li><a href=\"/docs/graphics/implot-signal-theater/Description.md\">ImPlot Signal Theater</a></li>"
+          << "<li><a href=\"/docs/graphics/matplot-chaos-atlas/Description.md\">Matplot++ Chaos Atlas</a></li>"
+          << "</ul></section>";
+       }
+
     osBody << "<section class=\"doc-list\"><h2>Project licenses and SBOMs</h2><ul>";
     for(std::filesystem::path const& aDocument : vecDocuments) {
        if(aDocument.filename() != "Description.md") {
