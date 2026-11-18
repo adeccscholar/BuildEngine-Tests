@@ -23,5 +23,19 @@
   "externalDependencies": [
     "Windows system OpenGL driver"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "galaxy_benchmark",
+      "summary": "Deterministic galaxy-simulation benchmark.",
+      "command": "..\\build\\Test\\openmp-galaxy\\Release\\galaxy_benchmark.exe",
+      "interactive": false
+    },
+    {
+      "name": "galaxy_viewer",
+      "summary": "Interactive SDL2/OpenGL 3.3 star galaxy with CPU OpenMP updates.",
+      "command": "..\\build\\Test\\openmp-galaxy\\Release\\galaxy_viewer.exe",
+      "interactive": true
+    }
+  ]
 }

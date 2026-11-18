@@ -73,5 +73,25 @@
   "externalDependencies": [
     "Windows system OpenGL driver"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "geospatial_benchmark",
+      "summary": "Geospatial calculation and raster benchmark.",
+      "command": "..\\build\\Test\\geospatial-skia\\Release\\geospatial_benchmark.exe",
+      "interactive": false
+    },
+    {
+      "name": "geospatial_viewer",
+      "summary": "Interactive native Win32/Skia 2D address-point, density and relief view.",
+      "command": "..\\build\\Test\\geospatial-skia\\Release\\geospatial_viewer.exe",
+      "interactive": true
+    },
+    {
+      "name": "geospatial_terrain",
+      "summary": "Interactive SDL2/OpenGL synthetic address-density terrain.",
+      "command": "..\\build\\Test\\geospatial-skia\\Release\\geospatial_terrain.exe",
+      "interactive": true
+    }
+  ]
 }

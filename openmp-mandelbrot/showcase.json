@@ -16,5 +16,19 @@
     }
   ],
   "externalDependencies": [],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "openmp_mandelbrot_benchmark",
+      "summary": "Deterministic serial/static/dynamic/guided numerical benchmark.",
+      "command": "..\\build\\Test\\openmp-mandelbrot\\Release\\openmp_mandelbrot_benchmark.exe 1280 720 512 8",
+      "interactive": false
+    },
+    {
+      "name": "openmp_mandelbrot_viewer",
+      "summary": "Interactive SDL2 Mandelbrot and Julia explorer.",
+      "command": "..\\build\\Test\\openmp-mandelbrot\\Release\\openmp_mandelbrot_viewer.exe",
+      "interactive": true
+    }
+  ]
 }
