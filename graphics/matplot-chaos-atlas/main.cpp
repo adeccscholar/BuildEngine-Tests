@@ -209,7 +209,7 @@ void Run(std::vector<Scene> const& vecScenes) {
             ImVec2 const aPos=ImGui::GetCursorScreenPos();
             ImVec2 const aSize { flTileW-22.0F,flTileH-89.0F };
             DrawNativeScene(ImGui::GetWindowDrawList(),vecScenes[i],
-               aPos,aSize,1.0,0.0,vecScenes[i].vecPoints.size());
+               aPos,aSize,1.0,0.0,vecScenes[i].vecPoints.size()/3);
             ImGui::Dummy(aSize);
             if(ImGui::Button("Explore scene",{-1,31}))
                {iSelected=i;flZoom=1.0F;flTime=0.0;}
