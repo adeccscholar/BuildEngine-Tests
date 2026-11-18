@@ -21,5 +21,13 @@
     }
   ],
   "externalDependencies": [],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "pdf-image-extraction",
+      "summary": "QPDF extraction of embedded image assets from a PDF fixture",
+      "command": "ctest --test-dir ../build/Test/pdf-image-extraction/Release/cmake --output-on-failure",
+      "interactive": false
+    }
+  ]
 }

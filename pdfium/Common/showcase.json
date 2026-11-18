@@ -5,5 +5,13 @@
   "summary": "Pure C++23 page-scroll boundary and navigation tests, without linking PDFium.",
   "dependencies": [],
   "externalDependencies": [],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "pdfium-pagescroll-test",
+      "summary": "Deterministic PDF page scrolling navigation regression",
+      "command": "..\\build\\Test\\pdfium-Common\\Release\\pdfium-pagescroll-test.exe",
+      "interactive": false
+    }
+  ]
 }

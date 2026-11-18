@@ -84,5 +84,13 @@
     "RAD Studio VCL runtime",
     "Windows system graphics driver"
   ],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "PDFiumVCL",
+      "summary": "Native RAD Studio VCL PDF renderer and document navigation application",
+      "command": "PDFiumVCL.exe",
+      "interactive": true
+    }
+  ]
 }

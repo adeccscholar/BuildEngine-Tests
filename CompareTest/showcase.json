@@ -16,5 +16,19 @@
     }
   ],
   "externalDependencies": [],
-  "status": "not-verified"
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "compare-test",
+      "summary": "Baseline comparison of geographic parsing and parallel performance",
+      "command": "..\\build\\Test\\CompareTest\\Release\\compare-test.exe",
+      "interactive": false
+    },
+    {
+      "name": "compare-tune",
+      "summary": "Optional alternative benchmark target, available when COMPARE_BUILD_TUNE is enabled",
+      "command": "..\\build\\Test\\CompareTest\\Release\\compare-tune.exe",
+      "interactive": false
+    }
+  ]
 }
