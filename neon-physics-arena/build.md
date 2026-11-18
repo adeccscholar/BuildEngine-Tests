@@ -8,10 +8,25 @@ Both `sdl3@3.4.20` and `box2d@3.2.0` must already be installed in BuildEngine, i
 
 ```bat
 cmake -P bootstrap/Bootstrap.cmake
+```
+
+```bat
 cmake -S neon-physics-arena -B ../build/Test/neon-physics-arena/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/neon-physics-arena/Release
+```
+
+```bat
 cmake --build ../build/Test/neon-physics-arena/Release/cmake --parallel 4
+```
+
+```bat
 ctest --test-dir ../build/Test/neon-physics-arena/Release/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/neon-physics-arena/Release/cmake
+```
+
+```bat
 ..\build\Test\neon-physics-arena\Release\neon-physics-arena.exe
 ```
 
@@ -19,9 +34,21 @@ cmake --install ../build/Test/neon-physics-arena/Release/cmake
 
 ```bat
 cmake -S neon-physics-arena -B ../build/Test/neon-physics-arena/Debug/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug -DCMAKE_INSTALL_PREFIX=../build/Test/neon-physics-arena/Debug
+```
+
+```bat
 cmake --build ../build/Test/neon-physics-arena/Debug/cmake --parallel 4
+```
+
+```bat
 ctest --test-dir ../build/Test/neon-physics-arena/Debug/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/neon-physics-arena/Debug/cmake
+```
+
+```bat
 ..\build\Test\neon-physics-arena\Debug\neon-physics-arena.exe
 ```
 
@@ -29,7 +56,13 @@ cmake --install ../build/Test/neon-physics-arena/Debug/cmake
 
 ```bat
 ctest --test-dir ../build/Test/neon-physics-arena/Release/cmake -R NeonPhysicsDeterminism --output-on-failure -V
+```
+
+```bat
 ctest --test-dir ../build/Test/neon-physics-arena/Release/cmake -R NeonPhysicsStress --output-on-failure -V
+```
+
+```bat
 ..\build\Test\neon-physics-arena\Release\neon-physics-verify.exe --stress
 ```
 

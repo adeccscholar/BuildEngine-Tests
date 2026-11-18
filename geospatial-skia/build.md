@@ -4,9 +4,21 @@ Run from the BuildEngine-Tests root in the RAD Studio 13 Developer Command Promp
 
 ```bat
 cmake -P bootstrap/Bootstrap.cmake
+```
+
+```bat
 cmake -S geospatial-skia -B ../build/Test/geospatial-skia/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/geospatial-skia/Release
+```
+
+```bat
 cmake --build ../build/Test/geospatial-skia/Release/cmake
+```
+
+```bat
 cmake --install ../build/Test/geospatial-skia/Release/cmake
+```
+
+```bat
 ctest --test-dir ../build/Test/geospatial-skia/Release/cmake --output-on-failure
 ```
 
