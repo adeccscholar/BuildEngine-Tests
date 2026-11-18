@@ -253,6 +253,8 @@ void Run(std::vector<Scene> const& vecScenes) {
    }
 }
 
+} // namespace
+
 int main(int const iArgc,char const* const* const pszArgv) {
    try {
       std::vector<Scene> const vecScenes=BuildScenes();
