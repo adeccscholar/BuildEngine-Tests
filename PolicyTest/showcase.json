@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "C++ Domain Policy Acceptance Suite",
+  "summary": "Tests IBAN, SEPA, dates, localized amounts, VAT, strings and rounding policies with valid and invalid inputs.",
+  "dependencies": [],
+  "externalDependencies": [
+    "adecc-core-lib domain interface target"
+  ],
+  "status": "not-verified"
+}

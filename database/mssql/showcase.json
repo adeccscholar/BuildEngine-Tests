@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "Microsoft SQL Server Data Access",
+  "summary": "Exercises ODBC SQL Server access, typed result ranges, transactions, constraint errors and CSV/XLSX processing.",
+  "dependencies": [
+    {
+      "library": "openxlsx",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "pugixml",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libzip",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "boost",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "xz",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zstd",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "openssl",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "Microsoft SQL Server",
+    "Microsoft ODBC Driver 18",
+    "adecc-core-lib database interface"
+  ],
+  "status": "not-verified"
+}

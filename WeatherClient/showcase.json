@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Interactive Weather Dashboard",
+  "summary": "Presents live forecasts, Skia weather illustrations, lunar phases and offline model/statechart checks.",
+  "dependencies": [
+    {
+      "library": "skia",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "curl",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "openssl",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "boost",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "nlohmann-json",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "brotli",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zstd",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "xz",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "bzip2",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libjpeg-turbo",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libpng",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "harfbuzz",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "freetype",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "Weather API services (online mode)"
+  ],
+  "status": "not-verified"
+}

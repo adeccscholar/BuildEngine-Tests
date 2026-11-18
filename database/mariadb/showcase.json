@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "MariaDB Native Database Integration",
+  "summary": "Validates parameter handling, relational constraints, transaction behavior and XML/CSV membership import.",
+  "dependencies": [
+    {
+      "library": "mariadb-connector-c",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zstd",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "pugixml",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "MariaDB server",
+    "adecc-core-lib database interface"
+  ],
+  "status": "not-verified"
+}

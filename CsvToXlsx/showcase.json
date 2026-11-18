@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "CSV to Excel Conversion and Roundtrip",
+  "summary": "Converts quoted UTF-8 CSV data with heterogeneous field widths to XLSX and verifies an exact data roundtrip.",
+  "dependencies": [
+    {
+      "library": "openxlsx",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "pugixml",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libzip",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "boost",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "xz",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zstd",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "openssl",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "brotli",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified"
+}

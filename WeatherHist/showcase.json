@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "Historical Weather VCL Viewer",
+  "summary": "Displays historical daily weather, selected-date aggregates and UV provenance with model validation.",
+  "dependencies": [
+    {
+      "library": "curl",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "openssl",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "brotli",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zstd",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "nlohmann-json",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "RAD Studio VCL",
+    "Open-Meteo online service"
+  ],
+  "status": "not-verified"
+}

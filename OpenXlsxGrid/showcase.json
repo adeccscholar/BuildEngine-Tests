@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "OpenXLSX Worksheet and Grid Integration",
+  "summary": "Validates worksheet cells, typed spreadsheet data, tabular access and XLSX roundtrip without Microsoft Excel.",
+  "dependencies": [
+    {
+      "library": "openxlsx",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "pugixml",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libzip",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "boost",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "adecc-core-lib interface target"
+  ],
+  "status": "not-verified"
+}

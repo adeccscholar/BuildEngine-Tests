@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "Parallel Numeric Comparison Benchmark",
+  "summary": "Measures parsing and comparison throughput for numeric and geographic records with fast_float and oneTBB.",
+  "dependencies": [
+    {
+      "library": "fast_float",
+      "version": "8.2.3",
+      "direct": true
+    },
+    {
+      "library": "onetbb",
+      "version": "2023.1.0",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified"
+}
