@@ -1,4 +1,5 @@
 #include "../common/VectorStage.h"
+#include "../common/NativeShowcase.h"
 #include <SDL.h>
 #include <matplot/matplot.h>
 #include <algorithm>
@@ -134,85 +135,121 @@ void Export(std::vector<Scene> const& vecScenes) {
    }
 }
 
-void Run(std::vector<Scene> const& vecScenes) {
-   if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_EVENTS)!=0)
-      throw std::runtime_error{SDL_GetError()};
-   struct SDLShutdown { ~SDLShutdown(){SDL_Quit();} } const aShutdown;
-   SDL_Window* const pWindow=SDL_CreateWindow("Matplot++ Visual Mathematics Gallery",
-      SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,1440,900,SDL_WINDOW_RESIZABLE);
-   if(!pWindow)throw std::runtime_error{SDL_GetError()};
-   struct WindowGuard { SDL_Window* p; ~WindowGuard(){SDL_DestroyWindow(p);} } const aWindow{pWindow};
-   SDL_Renderer* const pRenderer=SDL_CreateRenderer(pWindow,-1,
-      SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC);
-   if(!pRenderer)throw std::runtime_error{SDL_GetError()};
-   struct RendererGuard { SDL_Renderer* p; ~RendererGuard(){SDL_DestroyRenderer(p);} } const aRenderer{pRenderer};
-   SDL_RenderSetLogicalSize(pRenderer,1440,900);
-   bool bRun=true,bGallery=true,bAnimate=true;
-   int iSelected=0;
-   double flZoom=1.0,flRotation=0.0;
-   std::uint64_t uPrevious=SDL_GetTicks64();
-   while(bRun) {
-      SDL_Event aEvent{};
-      while(SDL_PollEvent(&aEvent)) {
-         if(aEvent.type==SDL_QUIT)bRun=false;
-         if(aEvent.type==SDL_KEYDOWN) {
-            switch(aEvent.key.keysym.sym) {
-               case SDLK_ESCAPE: if(bGallery)bRun=false;else bGallery=true;break;
-               case SDLK_RETURN: bGallery=false;break;
-               case SDLK_g: bGallery=true;break;
-               case SDLK_SPACE: bAnimate=!bAnimate;break;
-               case SDLK_LEFT: iSelected=(iSelected+5)%6;break;
-               case SDLK_RIGHT: iSelected=(iSelected+1)%6;break;
-               case SDLK_s: Export(vecScenes);break;
-               case SDLK_EQUALS: flZoom=std::min(2.5,flZoom*1.15);break;
-               case SDLK_MINUS: flZoom=std::max(.35,flZoom/1.15);break;
-               case SDLK_F11: SDL_SetWindowFullscreen(pWindow,
-                  (SDL_GetWindowFlags(pWindow)&SDL_WINDOW_FULLSCREEN_DESKTOP)?
-                  0:SDL_WINDOW_FULLSCREEN_DESKTOP);break;
-               default:break;
-            }
-         }
-         if(aEvent.type==SDL_MOUSEBUTTONDOWN&&aEvent.button.button==SDL_BUTTON_LEFT) {
-            float flX{},flY{};
-            SDL_RenderWindowToLogical(pRenderer,aEvent.button.x,aEvent.button.y,&flX,&flY);
-            if(bGallery) {
-               for(int i=0;i<6;++i) {
-                  SDL_Rect const aTile{30+(i%3)*470,95+(i/3)*380,440,340};
-                  if(flX>=aTile.x&&flX<aTile.x+aTile.w&&
-                     flY>=aTile.y&&flY<aTile.y+aTile.h) {
-                     iSelected=i;bGallery=false;flZoom=1.0;
-                  }
-               }
-            }
-            else bGallery=true;
-         }
-         if(aEvent.type==SDL_MOUSEWHEEL&&!bGallery)
-            flZoom=std::clamp(flZoom*(aEvent.wheel.y>0?1.12:.89),.35,2.5);
+void DrawNativeScene(ImDrawList* const pDraw, Scene const& aScene,
+                     ImVec2 const aPos, ImVec2 const aSize,
+                     double const flZoom, double const flPhase,
+                     std::size_t const uPoints) {
+   pDraw->AddRectFilled(aPos,{aPos.x+aSize.x,aPos.y+aSize.y},
+                        IM_COL32(9,19,43,255),12.0F);
+   pDraw->PushClipRect(aPos,{aPos.x+aSize.x,aPos.y+aSize.y},true);
+   float const flScale=std::min(aSize.x,aSize.y)*.42F*static_cast<float>(flZoom);
+   float const flC=static_cast<float>(std::cos(flPhase));
+   float const flS=static_cast<float>(std::sin(flPhase));
+   ImU32 const uColor=IM_COL32(aScene.theColor.r,aScene.theColor.g,
+                              aScene.theColor.b,190);
+   ImVec2 aPrevious {};
+   bool bPrevious {};
+   for(std::size_t uI=0;uI<std::min(uPoints,aScene.vecPoints.size());++uI) {
+      Point const& aPoint=aScene.vecPoints[uI];
+      float const flX=static_cast<float>(aPoint.flX)*flC-
+                      static_cast<float>(aPoint.flY)*flS;
+      float const flY=static_cast<float>(aPoint.flX)*flS+
+                      static_cast<float>(aPoint.flY)*flC;
+      ImVec2 const aCurrent {
+         aPos.x+aSize.x*.5F+flX*flScale,
+         aPos.y+aSize.y*.5F+flY*flScale
+      };
+      if(aScene.bPolyline&&bPrevious) {
+         if(std::abs(aCurrent.x-aPrevious.x)<aSize.x*.3F &&
+            std::abs(aCurrent.y-aPrevious.y)<aSize.y*.3F)
+            pDraw->AddLine(aPrevious,aCurrent,uColor,1.1F);
       }
-      std::uint64_t const uNow=SDL_GetTicks64();
-      if(bAnimate&&!bGallery)flRotation+=std::min(double(uNow-uPrevious)*.00004,.1);
-      uPrevious=uNow;
-      SDL_SetRenderDrawColor(pRenderer,5,9,25,255);
-      SDL_RenderClear(pRenderer);
-      if(bGallery) {
-         SDL_SetWindowTitle(pWindow,"Matplot++ Gallery | Click a tile | S: SVG | F11: Fullscreen");
+      else pDraw->AddCircleFilled(aCurrent,1.25F,uColor,6);
+      aPrevious=aCurrent;
+      bPrevious=true;
+   }
+   pDraw->PopClipRect();
+}
+
+void Run(std::vector<Scene> const& vecScenes) {
+   NativeShowcase aApp{"BuildEngine | Matplot++ Visual Mathematics Gallery"};
+   int iSelected=-1;
+   bool bPlaying=true;
+   bool bProgressive=true;
+   float flZoom=1.0F;
+   float flSpeed=1.0F;
+   double flTime=0.0;
+   while(aApp.Running()) {
+      aApp.BeginFrame();
+      ImGuiIO const& aIo=ImGui::GetIO();
+      if(bPlaying) flTime+=aIo.DeltaTime*flSpeed;
+      ImGui::SetNextWindowPos({0,0});
+      ImGui::SetNextWindowSize(aIo.DisplaySize);
+      ImGui::Begin("Mathematics gallery",nullptr,
+         ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoMove|
+         ImGuiWindowFlags_NoResize);
+      NativeShowcase::Header("VISUAL MATHEMATICS GALLERY",
+         "Matplot++ 1.2.2  /  six mathematical scenes  /  native ImGui and SDL2");
+      if(iSelected<0) {
+         ImGui::TextColored({.42F,.94F,.88F,1.0F},
+                            "SELECT A MATHEMATICAL WORLD");
+         ImGui::SameLine();
+         if(ImGui::Button("Export all six SVG files"))
+            Export(vecScenes);
+         ImVec2 const aAvailable=ImGui::GetContentRegionAvail();
+         float const flSpacing=14.0F;
+         float const flTileW=std::max(180.0F,(aAvailable.x-2*flSpacing)/3);
+         float const flTileH=std::max(165.0F,(aAvailable.y-flSpacing)/2);
          for(int i=0;i<6;++i) {
-            SDL_Rect const aTile{30+(i%3)*470,95+(i/3)*380,440,340};
-            SDL_SetRenderDrawColor(pRenderer,35,58,91,255);
-            SDL_RenderFillRect(pRenderer,&aTile);
-            SDL_Rect const aPreview{aTile.x+7,aTile.y+7,426,326};
-            Draw(pRenderer,vecScenes[i],aPreview,1.0,0.0,12000);
+            if(i%3) ImGui::SameLine(0,flSpacing);
+            ImGui::PushID(i);
+            ImGui::BeginChild("Math scene", {flTileW,flTileH},ImGuiChildFlags_Borders);
+            ImGui::TextColored({.87F,.95F,1.0F,1.0F},"%02d  %s",
+                               i+1,vecScenes[i].strTitle.c_str());
+            ImVec2 const aPos=ImGui::GetCursorScreenPos();
+            ImVec2 const aSize { flTileW-22.0F,flTileH-89.0F };
+            DrawNativeScene(ImGui::GetWindowDrawList(),vecScenes[i],
+               aPos,aSize,1.0,0.0,vecScenes[i].vecPoints.size());
+            ImGui::Dummy(aSize);
+            if(ImGui::Button("Explore scene",{-1,31}))
+               {iSelected=i;flZoom=1.0F;flTime=0.0;}
+            ImGui::EndChild();
+            ImGui::PopID();
          }
       }
       else {
-         SDL_SetWindowTitle(pWindow,std::format("Matplot++ | {} | Left/Right: scene | Space: rotate | Wheel: zoom | Esc: gallery | S: SVG",
-            vecScenes[iSelected].strTitle).c_str());
-         SDL_Rect const aDetail{50,42,1340,815};
-         Draw(pRenderer,vecScenes[iSelected],aDetail,flZoom,flRotation,12000);
+         if(ImGui::Button("Back to gallery"))iSelected=-1;
+         ImGui::SameLine();
+         if(ImGui::Button(bPlaying?"Pause":"Resume"))bPlaying=!bPlaying;
+         ImGui::SameLine();
+         if(ImGui::Button("Restart"))flTime=0.0;
+         ImGui::SameLine();
+         if(ImGui::Button("Export SVG"))Export(vecScenes);
+         ImGui::SliderFloat("Zoom",&flZoom,.40F,2.25F,"%.2fx");
+         ImGui::SameLine();
+         ImGui::SetNextItemWidth(190);
+         ImGui::SliderFloat("Animation speed",&flSpeed,.1F,3.0F);
+         ImGui::Checkbox("Progressive drawing",&bProgressive);
+         ImGui::SameLine();
+         ImGui::TextColored({.50F,.93F,.88F,1.0F},
+                            "%s",vecScenes[iSelected].strTitle.c_str());
+         if(ImGui::Button("Previous"))iSelected=(iSelected+5)%6;
+         ImGui::SameLine();
+         if(ImGui::Button("Next"))iSelected=(iSelected+1)%6;
+         ImVec2 const aPos=ImGui::GetCursorScreenPos();
+         ImVec2 const aAvailable=ImGui::GetContentRegionAvail();
+         std::size_t const uCount=bProgressive?
+            std::min<std::size_t>(vecScenes[iSelected].vecPoints.size(),
+               80+static_cast<std::size_t>(std::fmod(flTime*1300.0,11920.0))):
+            vecScenes[iSelected].vecPoints.size();
+         DrawNativeScene(ImGui::GetWindowDrawList(),vecScenes[iSelected],
+            aPos,{std::max(200.0F,aAvailable.x),
+                  std::max(190.0F,aAvailable.y-8.0F)},
+            flZoom,flTime*.09,uCount);
       }
-      SDL_RenderPresent(pRenderer);
+      ImGui::End();
+      aApp.EndFrame();
    }
-}
 }
 
 int main(int const iArgc,char const* const* const pszArgv) {
