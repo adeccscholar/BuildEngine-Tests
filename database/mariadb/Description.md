@@ -1,5 +1,7 @@
 # MariaDB integration tests
 
+**Test purpose:** Validates parameter handling, relational constraints, transaction behavior and XML/CSV membership import.
+
 The native BCC64X MariaDB Connector/C 3.4.11 package and updated `adecc-core-lib` physical query backend support the **unchanged** common test in `database/common/additional_tests.h`. The dialect adapter is `additional_dialect.h` and uses MariaDB InnoDB and a CHECK constraint.
 
 ## Command-line options

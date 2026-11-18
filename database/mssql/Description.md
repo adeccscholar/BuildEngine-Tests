@@ -1,5 +1,7 @@
 # Microsoft SQL Server data access and transaction tests
 
+**Test purpose:** Exercises ODBC SQL Server access, typed result ranges, transactions, constraint errors and CSV/XLSX processing.
+
 This project exercises the Windows ODBC Driver 18 connection to SQL Server, typed C++ result ranges, relational constraints, transactions, CSV processing and XLSX integration. The tests use the independently maintained adecc-core-lib database and spreadsheet interfaces.
 
 Two scenarios are implemented: the direct SQL Server consumer and a common logical-database test suite with backend-specific SQL dialect configuration. Integration runs require a dedicated `BuildEngineTest` database; never use a production database because tests may create and drop their own objects.

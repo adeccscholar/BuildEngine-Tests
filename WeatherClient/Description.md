@@ -1,4 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH -->
+
+**Test purpose:** Presents live forecasts, Skia weather illustrations, lunar phases and offline model/statechart checks.
 <!-- SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0 -->
 
 # WeatherClient – Skia Weather Dashboard

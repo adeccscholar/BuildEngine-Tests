@@ -1,5 +1,7 @@
 # PolicyTest — adecc-core-lib policy acceptance
 
+**Test purpose:** Tests IBAN, SEPA, dates, localized amounts, VAT, strings and rounding policies with valid and invalid inputs.
+
 [TOC]
 
 ## Origin and modernization
