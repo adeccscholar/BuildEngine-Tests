@@ -1,0 +1,16 @@
+{
+   "schemaVersion": 1,
+   "kind": "showcase",
+   "title": "Matplot++ Chaos Atlas",
+   "summary": "Parametric mathematics and 2400-point sampled attractor illustration.",
+   "dependencies": [
+      {
+         "library": "matplotplusplus",
+         "version": "1.2.2",
+         "direct": true
+      }
+   ],
+   "documentation": "Description.md",
+   "build": "build.md",
+   "status": "not-verified"
+}

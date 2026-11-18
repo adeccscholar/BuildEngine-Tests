@@ -1,0 +1,16 @@
+{
+   "schemaVersion": 1,
+   "kind": "showcase",
+   "title": "ImGui Neon Constellation",
+   "summary": "Native ImGui draw-list geometry exported as an offline neon particle constellation.",
+   "dependencies": [
+      {
+         "library": "imgui",
+         "version": "1.93.0",
+         "direct": true
+      }
+   ],
+   "documentation": "Description.md",
+   "build": "build.md",
+   "status": "not-verified"
+}
