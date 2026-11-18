@@ -1,5 +1,7 @@
 # Third-party integration VCL
 
+**Test purpose:** Combines VCL user interfaces, HTTPS, JSON, ZIP archives and compression across managed native DLLs.
+
 This independent BuildEngine-Tests project exercises **Boost, OpenSSL, curl, zlib, libzip, nlohmann-json, brotli, zstd, xz** with native BCC64X/C++23 consumer code. Its source and its runtime dependency closure are defined by this directory's CMake/IDE configuration and the BuildEngine package catalog.
 
 **Programs:** ThirdPartyShowcase.

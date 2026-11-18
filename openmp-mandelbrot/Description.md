@@ -1,5 +1,7 @@
 # OpenMP Mandelbrot
 
+**Test purpose:** Computes the Mandelbrot fractal in parallel and presents the evolving image through SDL2.
+
 This independent BuildEngine-Tests project exercises **llvm-openmp, SDL2** with native BCC64X/C++23 consumer code. Its source and its runtime dependency closure are defined by this directory's CMake/IDE configuration and the BuildEngine package catalog.
 
 **Programs:** openmp_mandelbrot_benchmark, openmp_mandelbrot_viewer.

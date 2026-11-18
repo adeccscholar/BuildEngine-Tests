@@ -1,5 +1,7 @@
 # PDFium VCL viewer
 
+**Test purpose:** Presents PDF document rendering and navigation in a native RAD Studio VCL desktop application.
+
 This independent RAD Studio 13 / Win64x C++23 consumer exercises **PDFium 2025.11.19, Skia 153 and VCL**. The PDFium dependency closure is the same versioned BuildEngine package set used by `pdfium/SDL2`. The VCL IDE application does not use CMake as its build system.
 
 **Program:** `PDFiumVCL`.

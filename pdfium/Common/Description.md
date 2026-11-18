@@ -1,5 +1,7 @@
 # PDFium page scrolling
 
+**Test purpose:** Pure C++23 page-scroll boundary and navigation tests, without linking PDFium.
+
 This independent BuildEngine-Tests project exercises **C++23 standard library; no linked PDFium dependency** with native BCC64X/C++23 consumer code. Its source and its runtime dependency closure are defined by this directory's CMake/IDE configuration and the BuildEngine package catalog.
 
 **Programs:** pdfium-pagescroll-test.

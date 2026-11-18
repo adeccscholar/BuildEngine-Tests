@@ -1,5 +1,7 @@
 # VTK Scientific Visualization Laboratory
 
+**Test purpose:** Interactive analytical isosurfaces and GPU volume rendering with deterministic VTK geometry and TBB/OpenMP stress checks.
+
 A native **VTK 9.7.2 / BCC64X / Win64** interactive 3D visualization with
 two live viewports, analytical isosurface geometry, wireframe detail and
 GPU volume ray casting. No fake screenshot, static background image,

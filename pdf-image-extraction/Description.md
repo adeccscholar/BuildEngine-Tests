@@ -1,5 +1,7 @@
 # QPDF image extraction
 
+**Test purpose:** Extracts image assets from a known PDF fixture and checks QPDF output using managed compression libraries.
+
 This independent BuildEngine-Tests project exercises **qpdf 12.4.2, zlib 1.4, libjpeg-turbo 3.2.0** with native BCC64X/C++23 consumer code. Its source and its runtime dependency closure are defined by this directory's CMake/IDE configuration and the BuildEngine package catalog.
 
 **Programs:** pdf-image-extraction.
