@@ -4,6 +4,7 @@
 #include <imgui.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <chrono>
 #include <cstdint>
 #include <filesystem>
@@ -106,9 +107,9 @@ class NativeShowcase final {
             SDL_Texture* const pTexture = (SDL_Texture*)(intptr_t)aCommand.GetTexID();
             if(SDL_RenderGeometryRaw(
                   pRenderer, pTexture,
-                  &pVertices[0].pos.x, sizeof(ImDrawVert),
-                  reinterpret_cast<SDL_Color const*>(&pVertices[0].col), sizeof(ImDrawVert),
-                  &pVertices[0].uv.x, sizeof(ImDrawVert),
+                  reinterpret_cast<float const*>(reinterpret_cast<char const*>(pVertices) + offsetof(ImDrawVert, pos)), sizeof(ImDrawVert),
+                  reinterpret_cast<SDL_Color const*>(reinterpret_cast<char const*>(pVertices) + offsetof(ImDrawVert, col)), sizeof(ImDrawVert),
+                  reinterpret_cast<float const*>(reinterpret_cast<char const*>(pVertices) + offsetof(ImDrawVert, uv)), sizeof(ImDrawVert),
                   pList->VtxBuffer.Size - static_cast<int>(aCommand.VtxOffset),
                   pIndices, static_cast<int>(aCommand.ElemCount), sizeof(ImDrawIdx)) != 0)
                throw std::runtime_error { SDL_GetError() };
@@ -178,9 +179,11 @@ public:
       if(pContext) {
          ImGui::SetCurrentContext(pContext);
          for(ImTextureData* const pTexture : ImGui::GetPlatformIO().Textures) {
-            if(pTexture->Status != ImTextureStatus_Destroyed) {
+            if(pTexture->Status != ImTextureStatus_Destroyed &&
+            pTexture->TexID != ImTextureID_Invalid) {
                pTexture->SetStatus(ImTextureStatus_WantDestroy);
-               UpdateTexture(pTexture);
+               try { UpdateTexture(pTexture); }
+               catch(...) { /* Cleanup must not throw. */ }
                }
             }
          ImGui::DestroyContext(pContext);
