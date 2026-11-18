@@ -8,11 +8,81 @@
       "library": "pdfium",
       "version": "2025.11.19",
       "direct": true
+    },
+    {
+      "library": "abseil",
+      "version": "20260817.0",
+      "direct": false
+    },
+    {
+      "library": "fast_float",
+      "version": "8.3.3",
+      "direct": false
+    },
+    {
+      "library": "skia",
+      "version": "153",
+      "direct": false
+    },
+    {
+      "library": "zlib",
+      "version": "1.4",
+      "direct": false
+    },
+    {
+      "library": "libjpeg-turbo",
+      "version": "3.2.0",
+      "direct": false
+    },
+    {
+      "library": "libpng",
+      "version": "1.6.59",
+      "direct": false
+    },
+    {
+      "library": "freetype",
+      "version": "2.15.0",
+      "direct": false
+    },
+    {
+      "library": "icu",
+      "version": "78.3",
+      "direct": false
+    },
+    {
+      "library": "lcms2",
+      "version": "2.20",
+      "direct": false
+    },
+    {
+      "library": "openjpeg",
+      "version": "2.5.4",
+      "direct": false
+    },
+    {
+      "library": "opengl",
+      "version": "26.2.1",
+      "direct": false
+    },
+    {
+      "library": "bzip2",
+      "version": "1.0.8",
+      "direct": false
+    },
+    {
+      "library": "brotli",
+      "version": "1.2.1",
+      "direct": false
+    },
+    {
+      "library": "harfbuzz",
+      "version": "15.1.0",
+      "direct": false
     }
   ],
   "externalDependencies": [
     "RAD Studio VCL runtime",
-    "PDFium transitive package closure"
+    "Windows system graphics driver"
   ],
   "status": "not-verified"
 }
