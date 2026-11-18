@@ -88,11 +88,12 @@ void RenderApp(bool const bInteractive, int const iFrames=1) {
       for(int i=0;i<static_cast<int>(arrScenes.size());++i) {
          if(i) ImGui::SameLine();
          ImGui::PushID(i);
-         if(i==iSelected)
+         bool const bSelected=i==iSelected;
+         if(bSelected)
             ImGui::PushStyleColor(ImGuiCol_Button,ImVec4{.08F,.47F,.53F,1.0F});
          if(ImGui::Button(arrScenes[i].szName,{std::max(105.0F,flButtonWidth),35.0F}))
             iSelected=i;
-         if(i==iSelected) ImGui::PopStyleColor();
+         if(bSelected) ImGui::PopStyleColor();
          ImGui::PopID();
          }
       ImGui::Spacing();
