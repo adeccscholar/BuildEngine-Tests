@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "OpenGL Earth and 3D Logo",
+  "summary": "A textured rotating globe, star field and 3D logo demonstrate managed SDL2/OpenGL rendering.",
+  "dependencies": [
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "glew",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "soil2",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "opengl",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "Windows system OpenGL driver"
+  ],
+  "status": "not-verified"
+}

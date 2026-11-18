@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "OpenMP Galaxy Simulation",
+  "summary": "Visualizes a particle galaxy and benchmarks native OpenMP simulations through an SDL2/OpenGL viewer.",
+  "dependencies": [
+    {
+      "library": "llvm-openmp",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "glew",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "Windows system OpenGL driver"
+  ],
+  "status": "not-verified"
+}

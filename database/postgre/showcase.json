@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "PostgreSQL Native Query and Transaction Tests",
+  "summary": "Validates libpq/libpqxx queries, SSPI authentication, result ranges, transactions and database constraints.",
+  "dependencies": [
+    {
+      "library": "libpq",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libpqxx",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "openssl",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "brotli",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zstd",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "PostgreSQL server",
+    "adecc-core-lib PostgreSQL interface"
+  ],
+  "status": "not-verified"
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "Financial Cash-Flow and Investment Scenarios",
+  "summary": "Evaluates investment fund returns, multi-currency cash flows, financial calculations and XML/JSON data interchange.",
+  "dependencies": [
+    {
+      "library": "boost",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "pugixml",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "openssl",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "brotli",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zstd",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified"
+}

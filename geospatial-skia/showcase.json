@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Geospatial Terrain and Skia Rendering",
+  "summary": "Renders terrain and geographic data while comparing OpenMP and oneTBB processing.",
+  "dependencies": [
+    {
+      "library": "skia",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "onetbb",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "llvm-openmp",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "fast_float",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "glew",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "bzip2",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "brotli",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libjpeg-turbo",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "libpng",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "harfbuzz",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "freetype",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [
+    "Windows system OpenGL driver"
+  ],
+  "status": "not-verified"
+}

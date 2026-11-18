@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "kind": "extended-test",
+  "title": "PDF Embedded Image Extraction",
+  "summary": "Extracts image assets from a known PDF fixture and checks QPDF output using managed compression libraries.",
+  "dependencies": [
+    {
+      "library": "qpdf",
+      "version": "12.4.2",
+      "direct": true
+    },
+    {
+      "library": "zlib",
+      "version": "1.4",
+      "direct": true
+    },
+    {
+      "library": "libjpeg-turbo",
+      "version": "3.2.0",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified"
+}

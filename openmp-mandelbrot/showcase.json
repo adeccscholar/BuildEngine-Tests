@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Parallel Mandelbrot Explorer",
+  "summary": "Computes the Mandelbrot fractal in parallel and presents the evolving image through SDL2.",
+  "dependencies": [
+    {
+      "library": "llvm-openmp",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified"
+}

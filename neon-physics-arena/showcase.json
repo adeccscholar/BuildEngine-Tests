@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Neon Physics Arena",
+  "summary": "Interactive SDL3 and Box2D collisions, projectiles and gravity changes with repeatable physics stress tests.",
+  "dependencies": [
+    {
+      "library": "sdl3",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "box2d",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified"
+}
