@@ -83,11 +83,16 @@ void RenderApp(bool const bInteractive, int const iFrames=1) {
       NativeShowcase::Header("NEON CONSTELLATION",
          "Real-time procedural simulation  /  native ImGui 1.93 drawing and controls");
       ImGui::TextColored({.50F,.92F,.88F,1.0F},"SCENE SELECTOR");
+      float const flButtonWidth =
+         (ImGui::GetContentRegionAvail().x-3.0F*ImGui::GetStyle().ItemSpacing.x)/4.0F;
       for(int i=0;i<static_cast<int>(arrScenes.size());++i) {
          if(i) ImGui::SameLine();
          ImGui::PushID(i);
-         if(ImGui::Selectable(arrScenes[i].szName,i==iSelected,0,{0,34}))
+         if(i==iSelected)
+            ImGui::PushStyleColor(ImGuiCol_Button,ImVec4{.08F,.47F,.53F,1.0F});
+         if(ImGui::Button(arrScenes[i].szName,{std::max(105.0F,flButtonWidth),35.0F}))
             iSelected=i;
+         if(i==iSelected) ImGui::PopStyleColor();
          ImGui::PopID();
          }
       ImGui::Spacing();
