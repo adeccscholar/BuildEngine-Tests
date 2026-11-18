@@ -5,9 +5,21 @@ Command Prompt:
 
 ```bat
 cmake -P bootstrap/Bootstrap.cmake
+```
+
+```bat
 cmake -P docu-server/PrepareDocumentationAssets.cmake
+```
+
+```bat
 cmake -S docu-server -B ../build/Test/docu-server/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/docu-server/Release
+```
+
+```bat
 cmake --build ../build/Test/docu-server/Release/cmake
+```
+
+```bat
 cmake --install ../build/Test/docu-server/Release/cmake
 ```
 
@@ -34,7 +46,16 @@ For the previously cached Boost compiler classification, use:
 
 ```bat
 cmake -S docu-server -B ../build/Test/docu-server/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/docu-server/Release
+```
+
+```bat
 cmake --build ../build/Test/docu-server/Release/cmake --verbose
+```
+
+```bat
 ctest --test-dir ../build/Test/docu-server/Release/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/docu-server/Release/cmake
 ```

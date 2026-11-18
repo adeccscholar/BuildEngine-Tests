@@ -25,7 +25,13 @@ and the matching Skia `icudtl.dat`. It does **not** build the unrelated
 
 ```bat
 cmake -S pdfium/SDL2 -B ../build/Test/pdfium-SDL2/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/pdfium-SDL2/Release
+```
+
+```bat
 cmake --build ../build/Test/pdfium-SDL2/Release/cmake --target buildengine-stage-data-pdfium-sdl2-viewer
+```
+
+```bat
 ..\build\Test\pdfium-SDL2\Release\cmake\runtime\pdfium-sdl2-viewer\pdfium-sdl2-viewer.exe
 ```
 
@@ -33,7 +39,13 @@ cmake --build ../build/Test/pdfium-SDL2/Release/cmake --target buildengine-stage
 
 ```bat
 cmake -S pdfium/SDL2 -B ../build/Test/pdfium-SDL2/Debug/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug -DCMAKE_INSTALL_PREFIX=../build/Test/pdfium-SDL2/Debug
+```
+
+```bat
 cmake --build ../build/Test/pdfium-SDL2/Debug/cmake --target buildengine-stage-data-pdfium-sdl2-viewer
+```
+
+```bat
 ..\build\Test\pdfium-SDL2\Debug\cmake\runtime\pdfium-sdl2-viewer\pdfium-sdl2-viewer.exe
 ```
 
@@ -55,7 +67,13 @@ command above was already run.
 
 ```bat
 cmake --build ../build/Test/pdfium-SDL2/Release/cmake
+```
+
+```bat
 ctest --test-dir ../build/Test/pdfium-SDL2/Release/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/pdfium-SDL2/Release/cmake
 ```
 
@@ -63,7 +81,13 @@ cmake --install ../build/Test/pdfium-SDL2/Release/cmake
 
 ```bat
 cmake --build ../build/Test/pdfium-SDL2/Debug/cmake
+```
+
+```bat
 ctest --test-dir ../build/Test/pdfium-SDL2/Debug/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/pdfium-SDL2/Debug/cmake
 ```
 

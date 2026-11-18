@@ -15,10 +15,25 @@ excludes `opengl32.dll` and does not deploy the Mesa WGL DLL.
 
 ```bat
 cmake -P bootstrap/Bootstrap.cmake
+```
+
+```bat
 cmake -S vtk-visualization -B ../build/Test/vtk-visualization/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/vtk-visualization/Release
+```
+
+```bat
 cmake --build ../build/Test/vtk-visualization/Release/cmake --parallel 4
+```
+
+```bat
 ctest --test-dir ../build/Test/vtk-visualization/Release/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/vtk-visualization/Release/cmake
+```
+
+```bat
 ..\build\Test\vtk-visualization\Release\vtk-visualization.exe --resolution 161 --backend TBB
 ```
 
@@ -26,8 +41,17 @@ cmake --install ../build/Test/vtk-visualization/Release/cmake
 
 ```bat
 cmake -S vtk-visualization -B ../build/Test/vtk-visualization/Debug/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug -DCMAKE_INSTALL_PREFIX=../build/Test/vtk-visualization/Debug
+```
+
+```bat
 cmake --build ../build/Test/vtk-visualization/Debug/cmake --parallel 4
+```
+
+```bat
 ctest --test-dir ../build/Test/vtk-visualization/Debug/cmake --output-on-failure
+```
+
+```bat
 cmake --install ../build/Test/vtk-visualization/Debug/cmake
 ```
 
@@ -35,7 +59,13 @@ cmake --install ../build/Test/vtk-visualization/Debug/cmake
 
 ```bat
 ctest --test-dir ../build/Test/vtk-visualization/Release/cmake -R VTK972Load --output-on-failure -V
+```
+
+```bat
 ..\build\Test\vtk-visualization\Release\vtk-visualization.exe --stress --resolution 257 --iterations 6 --backend OpenMP
+```
+
+```bat
 ..\build\Test\vtk-visualization\Release\vtk-visualization.exe --screenshot vtk-lab.png --resolution 161 --backend TBB
 ```
 
