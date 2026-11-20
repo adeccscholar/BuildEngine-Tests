@@ -244,9 +244,9 @@ void Interactive() {
    std::array<char,512> arrFile {};
    bool bThreshold=true;
    int iPageMode=0;
-   int iLanguage=0;
    bool const bGermanModelInstalled=std::filesystem::is_regular_file(
       std::filesystem::path{ADECC_TESSDATA_PATH}/"deu.traineddata");
+   int iLanguage=bGermanModelInstalled?2:0;
    int iRegionMode=2;
    std::array<float,4> arrROI {.10F,.10F,.80F,.80F};
    bool bAutoUpscale=true;
