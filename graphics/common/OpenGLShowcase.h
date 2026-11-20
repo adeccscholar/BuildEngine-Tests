@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GraphicsDllImports.h"
-#include <stddef.h>
 #include <GL/glew.h>
 #include <SDL.h>
 #include <imgui.h>
