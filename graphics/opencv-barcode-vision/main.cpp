@@ -499,8 +499,12 @@ void Interactive() {
       if(bBookPending && theBookRequest.wait_for(std::chrono::milliseconds{0})==
          std::future_status::ready) {
          try {
-            theBook=theBookRequest.get();
-            if(!theBook.theCover.empty()) theBookCover.SetImage(theBook.theCover);
+            BookMetadata theResultBook=theBookRequest.get();
+            if(theResultBook.strISBN==std::string{arrLookupISBN.data()}) {
+               theBook=std::move(theResultBook);
+               if(!theBook.theCover.empty())
+                  theBookCover.SetImage(theBook.theCover);
+            }
          }
          catch(std::exception const& theError) {
             theBook.strStatus=theError.what();
