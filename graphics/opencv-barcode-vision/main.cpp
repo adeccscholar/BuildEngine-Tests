@@ -2,6 +2,7 @@
 #include "../common/NativeShowcase.h"
 #include "CameraDevices.h"
 #include "LiveBarcodeTracker.h"
+#include "BarcodeSelection.h"
 
 #include <ZXing/CreateBarcode.h>
 #include <ZXing/WriteBarcode.h>
@@ -127,6 +128,68 @@ Result Analyze(cv::Mat const& theImage,bool const bQR,
                cv::Scalar(27,215,68),3,cv::LINE_AA);
       }
    }
+   return theResult;
+}
+
+/**
+\brief Decodes a selected symbology with managed OpenCV and ZXing engines.
+\details Automatic mode tries native OpenCV QR and linear barcode detection
+   before using the broader readable ZXing format set. Manually selected
+   modes are passed to ZXing directly; they are not silently narrowed to
+   the two formats supported by the current OpenCV detector.
+\param theImage Source camera frame or imported BGR image.
+\param iSelection Zero for automatic, otherwise one-based ZXing catalog index.
+\param theSelection Catalog generated from the actual ZXing package.
+\returns Real decoded text, format names and detector quadrilateral positions.
+\throw std::runtime_error For incompatible input pixel layout.
+*/
+Result AnalyzeSelected(cv::Mat const& theImage,int const iSelection,
+   BarcodeSelection const& theSelection) {
+   if(iSelection==0) {
+      Result theQR=Analyze(theImage,true);
+      if(theQR.bDetected && !theQR.vecText.empty())
+         return theQR;
+      Result theLinear=Analyze(theImage,false);
+      if(theLinear.bDetected && !theLinear.vecText.empty()) {
+         for(std::size_t u=0;u<theLinear.vecText.size();++u) {
+            if(IsIsbn13(theLinear.vecText[u])) {
+               theLinear.vecTypes[u]="ISBN-13 (EAN-13)";
+            }
+         }
+         return theLinear;
+      }
+   }
+   auto const theStart=std::chrono::steady_clock::now();
+   ZXing::Barcodes const vecCodes=DecodeZXing(theImage,
+      theSelection.GetFormat(iSelection));
+   Result theResult;
+   theResult.theImage=theImage.clone();
+   theResult.theAnnotated=theImage.clone();
+   for(ZXing::Barcode const& theCode:vecCodes) {
+      if(!theCode.isValid()) continue;
+      std::string const strRaw=theCode.text();
+      if(strRaw.empty()) continue;
+      std::string strType=std::string(ZXing::Name(theCode.format()));
+      if(IsIsbn13(strRaw))
+         strType="ISBN-13 ("+strType+")";
+      theResult.vecText.push_back(strRaw);
+      theResult.vecTypes.push_back(strType);
+      std::array<cv::Point2f,4> arrCorners {};
+      for(std::size_t u=0;u<4;++u) {
+         auto const& thePoint=theCode.position()[u];
+         arrCorners[u]={static_cast<float>(thePoint.x),
+            static_cast<float>(thePoint.y)};
+      }
+      theResult.vecDetectedCorners.push_back(arrCorners);
+      for(int i=0;i<4;++i)
+         cv::line(theResult.theAnnotated,
+            arrCorners[static_cast<std::size_t>(i)],
+            arrCorners[static_cast<std::size_t>((i+1)%4)],
+            cv::Scalar{27,215,68},3,cv::LINE_AA);
+   }
+   theResult.bDetected=!theResult.vecText.empty();
+   theResult.flMilliseconds=std::chrono::duration<double,std::milli>(
+      std::chrono::steady_clock::now()-theStart).count();
    return theResult;
 }
 
@@ -311,6 +374,8 @@ void Interactive() {
    CameraViewport theViewport{aApp.Window()};
    CameraCapture theCapture;
    LiveBarcodeTracker theTracker;
+   BarcodeSelection const theSelection;
+   int iSelectedFormat=0;
    std::vector<CameraDevice> vecDevices;
    std::string strDiscoveryError;
    auto const RefreshCameras=[&]() {
@@ -352,7 +417,10 @@ void Interactive() {
          cv::Mat const theImage=bFile
             ? cv::imread(arrPath.data(),cv::IMREAD_COLOR)
             : MakeSymbol(arrPayload.data(),bQR);
-         theResult=Analyze(theImage,bQR,bFile?"":arrPayload.data());
+         theResult=AnalyzeSelected(theImage,iSelectedFormat,theSelection);
+         if(!bFile)
+            theResult.bVerified=std::ranges::any_of(theResult.vecText,
+               [&](std::string const& strValue) { return strValue==arrPayload.data(); });
          theViewport.SetImage(theResult.theAnnotated);
          strError.clear();
       }
@@ -512,6 +580,30 @@ void Interactive() {
          if(!bLive) Run(false);
       }
       ImGui::SetNextItemWidth(560);
+      std::string const strFormatLabel=theSelection.Label(iSelectedFormat);
+      if(ImGui::BeginCombo("Detection format",strFormatLabel.c_str())) {
+         if(ImGui::Selectable("Automatic (OpenCV + ZXing)",iSelectedFormat==0)) {
+            iSelectedFormat=0;
+            theTracker.Reset();
+            theResult={};
+            uLastScan=0;
+         }
+         for(std::size_t u=0;u<theSelection.vecFormats.size();++u) {
+            int const iOption=static_cast<int>(u)+1;
+            ZXing::BarcodeFormat const eFormat=theSelection.vecFormats[u];
+            std::string const strLabel=std::string(ZXing::Name(eFormat))+
+               "##format"+std::to_string(u);
+            if(ImGui::Selectable(strLabel.c_str(),iSelectedFormat==iOption)) {
+               iSelectedFormat=iOption;
+               theTracker.Reset();
+               theResult={};
+               uLastScan=0;
+            }
+         }
+         ImGui::EndCombo();
+      }
+      ImGui::TextDisabled("All readable formats come from installed ZXing-C++ 3.1.1; OpenCV handles QR and EAN/UPC in automatic mode.");
+      ImGui::SetNextItemWidth(560);
       ImGui::InputText("Payload",arrPayload.data(),arrPayload.size());
       if(ImGui::Button("GENERATE + DETECT")) Run(false);
       ImGui::SameLine();
@@ -536,7 +628,7 @@ void Interactive() {
                   }
                   if(bScan && !theTracker.Active() && uNow-uLastScan>=180) {
                      uLastScan=uNow;
-                     Result theScan=Analyze(theFrame,bQR);
+                     Result theScan=AnalyzeSelected(theFrame,iSelectedFormat,theSelection);
                      if(theScan.bDetected && !theScan.vecText.empty() &&
                         !theScan.vecDetectedCorners.empty() &&
                         theTracker.Acquire(theFrame,theScan.vecDetectedCorners.front())) {
@@ -587,18 +679,25 @@ void Interactive() {
             static_cast<unsigned long long>(uDecodeCount));
          if(!bLive && theResult.bVerified)
             ImGui::TextColored({.3F,.96F,.65F,1},"ROUND-TRIP: PASS");
-         for(std::size_t u=0;u<theResult.vecText.size();++u)
+         for(std::size_t u=0;u<theResult.vecText.size();++u) {
+            if(std::optional<std::string> const strISBN10=ToIsbn10(theResult.vecText[u]))
+               ImGui::Text("ISBN-10: %s",strISBN10->c_str());
             ImGui::Text("[%s] %s",
                u<theResult.vecTypes.size()?theResult.vecTypes[u].c_str():"code",
                theResult.vecText[u].c_str());
+         }
       }
       if(!theLastConfirmed.vecText.empty()) {
          ImGui::SeparatorText("Last confirmed reading (retained)");
+         ImGui::TextDisabled("Code format: %s",theLastConfirmed.vecTypes.front().c_str());
          for(std::size_t u=0;u<theLastConfirmed.vecText.size();++u)
             ImGui::TextWrapped("[%s] %s",
                u<theLastConfirmed.vecTypes.size()
                   ? theLastConfirmed.vecTypes[u].c_str() : "code",
                theLastConfirmed.vecText[u].c_str());
+         for(std::string const& strValue:theLastConfirmed.vecText)
+            if(std::optional<std::string> const strISBN10=ToIsbn10(strValue))
+               ImGui::Text("ISBN-10: %s",strISBN10->c_str());
       }
       theViewport.Draw(std::max(300.0F,ImGui::GetContentRegionAvail().x),
          std::max(180.0F,ImGui::GetContentRegionAvail().y-12));
