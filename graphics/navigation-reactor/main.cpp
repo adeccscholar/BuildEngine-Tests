@@ -261,6 +261,8 @@ void Interactive() {
    bool bAnimate = true;
    bool bView3D = true;
    bool bWireframe = false;
+   bool bShowNavMesh = true;
+   bool bShowCorridor = true;
    TerrainCamera theCamera;
    RecastField theField = BuildField(flSlope, flRelief);
    std::string strRouteError;
@@ -270,6 +272,7 @@ void Interactive() {
          theNew.vecTriangles, flSlope, flRelief, bObstacle);
       theRenderer.SetTerrain(theNew.vecVertices, theNew.vecTriangles, theNew.vecArea);
       theRenderer.SetRoute(theNew.theRoute.vecPoints);
+      theRenderer.SetNavigationMesh(theNew.theRoute.vecNavigationTriangles);
       theField = std::move(theNew);
       strRouteError.clear();
    };
@@ -302,6 +305,10 @@ void Interactive() {
       ImGui::Checkbox("3D terrain", &bView3D);
       ImGui::SameLine();
       ImGui::Checkbox("Mesh wireframe", &bWireframe);
+      ImGui::SameLine();
+      ImGui::Checkbox("NavMesh polygons", &bShowNavMesh);
+      ImGui::SameLine();
+      ImGui::Checkbox("Detour corridor", &bShowCorridor);
       if(bView3D) {
          ImGui::SetNextItemWidth(230.0F);
          ImGui::SliderFloat("Orbit azimuth", &theCamera.flAzimuth, -3.14F, 3.14F, "%.2f rad");
@@ -331,6 +338,7 @@ void Interactive() {
       ImGui::Text("Routing: %s   |   corridor polygons: %d",
          theField.theRoute.bPathComplete ? "COMPLETE" : "NO COMPLETE PATH",
          theField.theRoute.iCorridor);
+      ImGui::TextDisabled("TEAL overlay: real Detour detail mesh | ORANGE overlay: findPath polygon corridor.");
       ImGui::TextDisabled("GPU depth-tested geometry comes from Recast input triangles; route from Detour.");
       ImGui::TextDisabled("OpenGL runtime: %s", strGLVersion.c_str());
       ImGui::TextDisabled("Drag the 3D view to orbit; use the mouse wheel to zoom.");
@@ -362,7 +370,7 @@ void Interactive() {
       if(bView3D) {
          GLuint const uTexture = theRenderer.Render(
             static_cast<int>(aPanel.x), static_cast<int>(aPanel.y),
-            theCamera, flPhase, bWireframe);
+            theCamera, flPhase, bWireframe, bShowNavMesh, bShowCorridor);
          // The OpenGL FBO origin is bottom-left; ImGui UVs invert it.
          ImGui::SetCursorScreenPos(aOrigin);
          ImGui::Image(static_cast<ImTextureID>(uTexture), aPanel,
@@ -386,8 +394,13 @@ int main(int const iArgc, char const* const* const pszArgv) {
          TerrainGL theRenderer;
          RecastField const theField = BuildField(70.0F, 0.5F);
          theRenderer.SetTerrain(theField.vecVertices, theField.vecTriangles, theField.vecArea);
+         NavigationRoute const theRoute = BuildNavigationRoute(
+            theField.vecVertices, theField.vecTriangles, 70.0F, 0.5F, false);
+         theRenderer.SetNavigationMesh(theRoute.vecNavigationTriangles);
+         theRenderer.SetRoute(theRoute.vecPoints);
          GLuint const uTexture = theRenderer.Render(640, 480, TerrainCamera {}, 0.0F, false);
-         bool const bValid = uTexture != 0 && glGetError() == GL_NO_ERROR;
+         bool const bValid = uTexture != 0 && theRoute.bPathComplete &&
+            !theRoute.vecNavigationTriangles.empty() && glGetError() == GL_NO_ERROR;
          std::println("SHOWCASE|CHECK|mesa-gpu|{}|OpenGL={} texture={}",
             bValid ? "PASS" : "FAIL", aGL.VersionString(), uTexture);
          std::println("SHOWCASE|RESULT|{}|Managed Mesa GL context and terrain render",
