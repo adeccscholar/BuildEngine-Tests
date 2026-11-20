@@ -45,3 +45,19 @@ Both tests print `ARENA|CHECK`, `ARENA|METRIC` and `ARENA|RESULT` records, inclu
 See [architecture](Description.md), [exact build commands](build.md), [license](LICENSE.md) and [SBOM declaration](SBOM.md).
 
 **[not verified]** BCC64X native compilation, actual screenshot and runtime behaviour require a run on the Windows build host.
+
+## Jolt Physics versus Box2D: Differential Physics Challenge
+
+A third executable, **neon-physics-duel.exe**, independently builds a three-dimensional Jolt Physics 5.7 world and a two-dimensional Box2D 3.2 world from equivalent falling-sphere scenarios. Each solver performs 720 steps at 120 Hz. Two runs of each implementation must reproduce the same sampled positions; independent checks verify gravity, floor contact, finite positions and bounded penetration. The trajectory samples and elapsed times are printed as `DUEL|METRIC|` evidence. The comparison deliberately does not require the two different engines to produce bitwise identical trajectories.
+
+The Jolt consumer follows the accepted DLL's public feature definitions and calls `VerifyJoltVersionID()` before registration. Its owned factory, world and bodies are cleaned up in the required order. A separate `NeonPhysicsDifferential` CTest runs without opening a video or audio device.
+
+```bat
+ctest --test-dir ../build/Test/neon-physics-arena/Release/cmake -R NeonPhysicsDifferential --output-on-failure
+```
+
+```bat
+..\build\Test\neon-physics-arena\Release\neon-physics-duel.exe
+```
+
+**[not verified]** The new differential executable has not yet been compiled or run on the native BCC64X host. The operator's successful library FSM run establishes installed Jolt readiness, not execution of this new cross-engine application.
