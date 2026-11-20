@@ -15,6 +15,16 @@
       "direct": true
     },
     {
+      "library": "libpng",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": false
+    },
+    {
       "library": "imgui",
       "version": "active",
       "direct": true

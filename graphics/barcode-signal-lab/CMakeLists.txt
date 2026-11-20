@@ -6,6 +6,8 @@ include(CTest)
 
 adecc_package_current_root(ZXING_PACKAGE zxing-cpp)
 adecc_package_current_root(ZINT_PACKAGE zint)
+adecc_package_current_root(PNG_PACKAGE libpng)
+adecc_package_current_root(ZLIB_PACKAGE zlib)
 adecc_package_current_root(IMGUI_PACKAGE imgui)
 adecc_package_current_root(SDL2_PACKAGE sdl2)
 list(PREPEND CMAKE_PREFIX_PATH "${SDL2_PACKAGE}")
@@ -35,7 +37,7 @@ if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    target_link_options(barcode-signal-lab PRIVATE "-Wl,--subsystem,windows")
 endif()
 adecc_test_install(barcode-signal-lab RUNTIME_CLOSURE
-   PACKAGE_ROOTS "${ZXING_PACKAGE}" "${ZINT_PACKAGE}" "${IMGUI_PACKAGE}" "${SDL2_PACKAGE}"
+   PACKAGE_ROOTS "${ZXING_PACKAGE}" "${ZINT_PACKAGE}" "${PNG_PACKAGE}" "${ZLIB_PACKAGE}" "${IMGUI_PACKAGE}" "${SDL2_PACKAGE}"
    TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
 if(BUILD_TESTING)
    add_test(NAME BarcodeSignalNativeDecode COMMAND "$<TARGET_FILE:barcode-signal-lab>" --verify)

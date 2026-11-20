@@ -30,4 +30,6 @@ cmake --install ../build/Test/barcode-signal-lab/Release/cmake
 ..\build\Test\barcode-signal-lab\Release\barcode-signal-lab.exe --verify
 ```
 
+The exact PE runtime closure resolves ZXing-C++, Zint, ImGui and SDL2 plus the transitive, separately installed libpng and zlib package roots. The manifest declares libpng and zlib as transitive dependencies. Do not stage an entire SDK, guess DLL locations or disable PNG support. Reconfigure CMake after changing active package declarations, then rebuild.
+
 Use independent Debug/Release build folders and matching installed native packages. **[not verified]** Windows host compilation and graphical operation remain pending.
