@@ -7,6 +7,9 @@ include(CTest)
 adecc_package_current_root(OPENCV_PACKAGE opencv)
 adecc_package_current_root(ZXING_PACKAGE zxing-cpp)
 adecc_package_current_root(ZINT_PACKAGE zint)
+adecc_package_current_root(CURL_PACKAGE curl)
+adecc_package_current_root(JSON_PACKAGE nlohmann-json)
+adecc_package_current_root(OPENSSL_PACKAGE openssl)
 adecc_package_current_root(IMGUI_PACKAGE imgui)
 adecc_package_current_root(SDL2_PACKAGE sdl2)
 adecc_package_current_root(TBB_PACKAGE onetbb)
@@ -24,7 +27,12 @@ endif()
 set(_imgui_import "${IMGUI_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libimgui${_imgui_suffix}.lib")
 set(_zxing_import "${ZXING_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libZXing.lib")
 set(_zint_import "${ZINT_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libzint.lib")
-foreach(_lib IN ITEMS "${_imgui_import}" "${_zxing_import}" "${_zint_import}")
+if(BUILDENGINE_CONFIGURATION STREQUAL "Debug")
+   set(_curl_import "${CURL_PACKAGE}/lib/win64/Debug/libcurld.lib")
+else()
+   set(_curl_import "${CURL_PACKAGE}/lib/win64/Release/libcurl.lib")
+endif()
+foreach(_lib IN ITEMS "${_imgui_import}" "${_zxing_import}" "${_zint_import}" "${_curl_import}")
    if(NOT EXISTS "${_lib}")
       message(FATAL_ERROR "Managed shared-library import missing: ${_lib}")
    endif()
@@ -34,15 +42,17 @@ set_target_properties(opencv-barcode-vision PROPERTIES CXX_STANDARD 23 CXX_STAND
 target_compile_definitions(opencv-barcode-vision PRIVATE SDL_MAIN_HANDLED WIN32_LEAN_AND_MEAN NOMINMAX ZINT_DLL)
 target_include_directories(opencv-barcode-vision PRIVATE
    ${OpenCV_INCLUDE_DIRS} "${ZXING_PACKAGE}/include" "${ZINT_PACKAGE}/include"
-   "${IMGUI_PACKAGE}/include" "${SDL2_PACKAGE}/include/SDL2")
+   "${IMGUI_PACKAGE}/include" "${SDL2_PACKAGE}/include/SDL2"
+   "${CURL_PACKAGE}/include" "${JSON_PACKAGE}/include")
 target_link_libraries(opencv-barcode-vision PRIVATE
-   ${OpenCV_LIBS} "${_zxing_import}" "${_zint_import}" "${_imgui_import}" SDL2::SDL2
+   ${OpenCV_LIBS} "${_zxing_import}" "${_zint_import}" "${_imgui_import}" "${_curl_import}" SDL2::SDL2
    ole32 oleaut32 strmiids)
 if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    target_link_options(opencv-barcode-vision PRIVATE "-Wl,--subsystem,windows")
 endif()
 adecc_test_install(opencv-barcode-vision RUNTIME_CLOSURE
    PACKAGE_ROOTS "${OPENCV_PACKAGE}" "${ZXING_PACKAGE}" "${ZINT_PACKAGE}"
+      "${CURL_PACKAGE}" "${OPENSSL_PACKAGE}"
       "${IMGUI_PACKAGE}" "${SDL2_PACKAGE}" "${TBB_PACKAGE}" "${OMP_PACKAGE}"
       "${ZLIB_PACKAGE}" "${PNG_PACKAGE}"
    TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
