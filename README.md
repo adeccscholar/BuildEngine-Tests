@@ -222,6 +222,16 @@ cmake --install ../build/Test/neon-physics-arena/Release/cmake
 rendering and all CTest results are pending first host execution. See the
 [full build and run instructions](neon-physics-arena/build.md).
 
+## New interactive discovery laboratories (November 2026)
+
+Three standalone native Windows applications extend the existing SDL2/ImGui graphics gallery:
+
+- **[Vector Galaxy](graphics/vector-galaxy/Description.md):** hnswlib ANN retrieval across an 851-point feature cloud, coupled to libigl/Eigen terrain-normal calculations.
+- **[Barcode Signal Lab](graphics/barcode-signal-lab/Description.md):** live EAN-13 synthesis and true native ZXing-C++ barcode decoding; independent headless round-trip validation.
+- **[Navigation Reactor](graphics/navigation-reactor/Description.md):** dynamic Recast triangle walkability classification and real voxelized heightfield spans, colour-coded in an animated-looking native command room.
+
+Each owns its `CMakeLists.txt`, `showcase.json`, `Description.md`, `build.md`, `LICENSE.md`, `SBOM.md` and `--verify` CTest route. Native builds are pending first BCC64X execution and therefore the manifests are `not-verified`. The Jolt Physics package's last observed consumer crash must be resolved before a Jolt-dependent visual application can be claimed as accepted. No GUI verification or screenshot is inferred from the package's successful build.
+
 ## Current project status
 
 - `pdfium/SDL2`: updated to Skia 153; headless PDFium API/render and navigation CTest consumers added; Win64x execution pending.
