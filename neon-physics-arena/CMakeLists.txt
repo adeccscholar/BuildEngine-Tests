@@ -96,7 +96,8 @@ target_compile_definitions(neon-physics-duel PRIVATE
    JPH_SHARED_LIBRARY JPH_OBJECT_LAYER_BITS=16 JPH_OBJECT_STREAM
    JPH_DEBUG_RENDERER JPH_PROFILE_ENABLED JPH_USE_SSE4_1 JPH_USE_SSE4_2
    JPH_USE_AVX JPH_USE_AVX2 JPH_USE_LZCNT JPH_USE_TZCNT JPH_USE_F16C
-   JPH_USE_FMADD)
+   JPH_USE_FMADD
+   "$<$<CONFIG:Debug>:JPH_DEBUG>")
 target_link_libraries(neon-physics-duel PRIVATE box2d::box2d "${_jolt_lib}")
 adecc_test_install(neon-physics-duel RUNTIME_CLOSURE
    PACKAGE_ROOTS "${JOLT_PACKAGE}" "${BOX2D_PACKAGE}"
