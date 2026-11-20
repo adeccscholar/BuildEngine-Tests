@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Navigation Reactor — Terrain Intelligence",
+  "summary": "An interactive neon terrain laboratory where native Recast classifies real triangle slopes, rasterizes the heightfield and reveals traversable versus dangerous terrain as settings change.",
+  "dependencies": [
+    {
+      "library": "recastnavigation",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "imgui",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "navigation-reactor",
+      "summary": "Interactive Recast terrain raster with dynamic agent slope and terrain relief controls.",
+      "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe",
+      "interactive": true
+    },
+    {
+      "name": "navigation-reactor --verify",
+      "summary": "Headless Recast triangle walkability classification and rasterized span comparison.",
+      "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe --verify",
+      "interactive": false
+    }
+  ]
+}
