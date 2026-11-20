@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "showcase",
   "title": "Neon Physics Arena",
-  "summary": "Interactive SDL3 and Box2D collisions, projectiles and gravity changes with repeatable physics stress tests.",
+  "summary": "Interactive SDL3 and Box2D physics arena, now accompanied by an independent Jolt Physics 5.7 versus Box2D fixed-step differential solver regression.",
   "dependencies": [
     {
       "library": "sdl3",
@@ -11,6 +11,11 @@
     },
     {
       "library": "box2d",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "jolt-physics",
       "version": "active",
       "direct": true
     }
@@ -28,6 +33,12 @@
       "name": "neon-physics-verify",
       "summary": "Headless deterministic and stress test.",
       "command": "..\\build\\Test\\neon-physics-arena\\Release\\neon-physics-verify.exe --stress",
+      "interactive": false
+    },
+    {
+      "name": "neon-physics-duel",
+      "summary": "Headless dual-engine 720-step gravity, ground-contact and deterministic trajectory comparison using independently installed Jolt and Box2D DLLs.",
+      "command": "..\\build\\Test\\neon-physics-arena\\Release\\neon-physics-duel.exe",
       "interactive": false
     }
   ]
