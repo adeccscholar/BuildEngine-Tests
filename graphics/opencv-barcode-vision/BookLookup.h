@@ -131,6 +131,12 @@ class BookLookup final {
 
    static void LoadCover(BookMetadata& theBook) {
       if(theBook.strCoverURL.empty()) return;
+      // Legacy catalog responses may contain HTTP thumbnails. Convert only
+      // known cover hosts to verified HTTPS; never disable TLS verification.
+      if(theBook.strCoverURL.starts_with("http://covers.openlibrary.org/"))
+         theBook.strCoverURL.replace(0,7,"https://");
+      if(theBook.strCoverURL.starts_with("http://books.google.com/"))
+         theBook.strCoverURL.replace(0,7,"https://");
       try {
          std::string const strBytes=BookHttp::Get(theBook.strCoverURL);
          if(strBytes.empty()) return;
