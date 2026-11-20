@@ -444,6 +444,7 @@ void Interactive() {
    BookMetadata theBook;
    std::future<BookMetadata> theBookRequest;
    bool bBookPending=false;
+   bool bAutoBookLookup=true;
    std::string strError;
    std::string strCaptureError;
    std::uint64_t uLastCapture {};
@@ -473,6 +474,15 @@ void Interactive() {
       }
    };
    Run(false);
+   auto const BeginBookLookup=[&](std::string const& strISBN) {
+      if(bBookPending) return;
+      theBook={};
+      theBook.strISBN=strISBN;
+      theBook.strStatus="Searching public catalogs...";
+      bBookPending=true;
+      theBookRequest=std::async(std::launch::async,
+         [strISBN]() { return BookLookup::Lookup(strISBN); });
+   };
    auto const SetLookupISBN=[&](std::string_view const svText) {
       std::string strDigits;
       for(char const c:svText)
@@ -481,7 +491,9 @@ void Interactive() {
       arrLookupISBN.fill(0);
       std::copy(strDigits.begin(),strDigits.end(),arrLookupISBN.begin());
       theBook={};
-      theBook.strStatus="ISBN recognized. Select LOOK UP BOOK to query public catalogs.";
+      theBook.strStatus="ISBN recognized. Public catalog query available.";
+      if(bAutoBookLookup)
+         BeginBookLookup(strDigits);
    };
    while(aApp.Running()) {
       if(bBookPending && theBookRequest.wait_for(std::chrono::milliseconds{0})==
@@ -765,6 +777,7 @@ void Interactive() {
       ImGui::TextWrapped("Book metadata is optional and fetched only on request. "
          "Open Library is queried first; Google Books supplies a fallback. "
          "The detected ISBN remains visible independently of catalog availability.");
+      ImGui::Checkbox("Auto lookup after confirmed ISBN", &bAutoBookLookup);
       ImGui::SetNextItemWidth(290);
       ImGui::InputText("ISBN-13 (hyphens accepted)",arrLookupISBN.data(),
          arrLookupISBN.size());
@@ -780,14 +793,8 @@ void Interactive() {
             theBook={};
             theBook.strStatus="Enter a valid 978/979 ISBN-13 with correct checksum.";
          }
-         else {
-            theBook={};
-            theBook.strISBN=strNormalized;
-            theBook.strStatus="Searching public catalogs...";
-            bBookPending=true;
-            theBookRequest=std::async(std::launch::async,
-               [strNormalized]() { return BookLookup::Lookup(strNormalized); });
-         }
+         else
+            BeginBookLookup(strNormalized);
       }
       if(!theBook.strStatus.empty())
          ImGui::TextWrapped("%s",theBook.strStatus.c_str());
@@ -802,8 +809,11 @@ void Interactive() {
          if(!theBook.strPublished.empty())
             ImGui::Text("Published: %s",theBook.strPublished.c_str());
          ImGui::Text("Source: %s",theBook.strProvider.c_str());
-         if(!theBook.strSourceURL.empty())
+         if(!theBook.strSourceURL.empty()) {
             ImGui::TextWrapped("Catalog: %s",theBook.strSourceURL.c_str());
+            if(ImGui::Button("COPY CATALOG LINK"))
+               ImGui::SetClipboardText(theBook.strSourceURL.c_str());
+         }
          if(!theBook.theCover.empty()) {
             ImGui::Text("Cover");
             theBookCover.Draw(180.0F,260.0F);
