@@ -1,17 +1,19 @@
-# Barcode Signal Lab — Decode the Invisible
+# Barcode Signal Lab — Universal Encode / Decode
 
-## The experience
+## Experience
 
-A retail barcode becomes a luminous signal in an interactive native scan chamber. Enter twelve digits; the showcase constructs a complete EAN-13 waveform, adds the mathematically correct check digit, renders the black-and-white symbol as real GUI geometry, and asks **ZXing-C++ 3.1.1** to recognize it. The decoded value is shown directly under the generated bars.
+Choose **QR Code, Data Matrix, Code 128, EAN-13 or PDF417**, enter a payload, press **ENCODE + SCAN**, and watch the resulting barcode appear. A native ZXing-C++ reader independently decodes the generated pixel image and the application reports the actual recovered text and round-trip status. The rendering is based on pixels returned by the writer, not a painted imitation.
 
-## Why this is a real integration
+## Integration
 
-The generator is a small independent implementation of the public EAN-13 L/G/R bit tables, first-digit parity, guard patterns and modulo-10 checksum. **The decoder is not a stub**: `ZXing::ReadBarcodes` receives the generated grayscale pixel buffer through `ZXing::ImageView` and links to the BuildEngine-provided native ZXing DLL.
+The installed **ZXing-C++ 3.1.1** DLL uses the upstream new writer backend with **external Zint 2.16.0** instead of a bundled encoder. A call to `ZBarcode_ValidID` additionally exercises the independent Zint DLL. Both shared libraries must be present and version-coherent. The live GUI is implemented with the existing ImGui and SDL2 packages.
 
-ZXing is configured as a reader-only package; the application deliberately does not depend on or sneak in a writer library. Change the input and scan again, toggle accuracy mode, or adjust the visual scale. All pixel and decoding work happens offline in the local process.
+`ZXing::CreateBarcodeFromText` creates a selected symbol; `ZXing::WriteBarcodeToImage` produces its bitmap; `ZXing::ReadBarcodes` interprets that image. Generated bitmap pixels are converted into ImGui draw rectangles for a sharp native display. The application is offline and does not fetch a second barcode backend.
 
-## Headless evidence
+The five selectable formats represent explicit tested use cases, not a promise that every conceivable barcode symbology accepts every arbitrary payload. For EAN-13, supply valid numeric content and checksum.
 
-`barcode-signal-lab.exe --verify` generates a deterministic EAN-13 symbol and asserts that ZXing recovers the exact thirteen digits. The CTest named `BarcodeSignalNativeDecode` runs this independent round-trip check without any display server.
+## Verification
 
-This is not an image-fuzzing, camera, or recognition-rate benchmark. **[not verified]** Native build, live desktop appearance and CTest success require testing on Windows with the BuildEngine BCC64X installation.
+The `--verify` CTest runs all five format round-trips and checks the Zint DLL capability, image dimensions and successful returned payloads. It prints `SHOWCASE|CHECK` and `SHOWCASE|RESULT` evidence. Invalid payloads are reported instead of silently generating another barcode.
+
+**[not verified]** The modified reader/writer DLL, native barcode laboratory compilation, screenshot and full multi-format CTest still require Windows BCC64X execution.
