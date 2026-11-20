@@ -663,12 +663,20 @@ void Interactive() {
       ImGui::TextDisabled("All readable formats come from installed ZXing-C++ 3.1.1; OpenCV handles QR and EAN/UPC in automatic mode.");
       ImGui::SetNextItemWidth(560);
       ImGui::InputText("Payload",arrPayload.data(),arrPayload.size());
-      if(ImGui::Button("GENERATE + DETECT")) Run(false);
+      if(ImGui::Button("GENERATE + DETECT")) {
+         Run(false);
+         for(std::string const& strDecoded:theResult.vecText)
+            SetLookupISBN(strDecoded);
+      }
       ImGui::SameLine();
       ImGui::SetNextItemWidth(570);
       ImGui::InputText("Image path",arrPath.data(),arrPath.size());
       ImGui::SameLine();
-      if(ImGui::Button("DETECT FILE")) Run(true);
+      if(ImGui::Button("DETECT FILE")) {
+         Run(true);
+         for(std::string const& strDecoded:theResult.vecText)
+            SetLookupISBN(strDecoded);
+      }
 
       if(bLive) {
          std::uint64_t const uNow=SDL_GetTicks64();
@@ -747,8 +755,6 @@ void Interactive() {
                theResult.vecText[u].c_str());
          }
       }
-      for(std::string const& strDecoded:theResult.vecText)
-         SetLookupISBN(strDecoded);
       ImGui::SeparatorText("4. ISBN book metadata (public REST)");
       ImGui::TextWrapped("Book metadata is optional and fetched only on request. "
          "Open Library is queried first; Google Books supplies a fallback. "
