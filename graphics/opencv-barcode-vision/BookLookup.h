@@ -8,6 +8,7 @@
 #include <opencv2/core.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cstddef>
 #include <memory>
@@ -33,6 +34,8 @@ struct BookMetadata {
    std::string strSourceURL;
    std::string strCoverURL;
    std::string strStatus;
+   std::string strOpenLibraryStatus;
+   std::string strGoogleBooksStatus;
    cv::Mat theCover;
 
    [[nodiscard]] bool Found() const noexcept { return !strTitle.empty(); }
@@ -50,6 +53,7 @@ class BookHttp final {
       }
    };
    static constexpr std::size_t uMaximumBytes=3*1024*1024;
+   static constexpr std::size_t uErrorBufferSize=CURL_ERROR_SIZE;
 
    static std::size_t Write(char* const pBytes,std::size_t const uSize,
       std::size_t const uCount,void* const pUser) {
@@ -70,7 +74,8 @@ public:
    \returns Response bytes on HTTP 200 or empty on 404.
    \throw std::runtime_error On transport errors, unsafe URL or HTTP failure.
    */
-   [[nodiscard]] static std::string Get(std::string const& strURL) {
+   [[nodiscard]] static std::string Get(std::string const& strURL,
+      long const iConnectTimeoutMs=2000L,long const iTotalTimeoutMs=4500L) {
       bool const bAllowed=strURL.starts_with("https://openlibrary.org/") ||
          strURL.starts_with("https://covers.openlibrary.org/") ||
          strURL.starts_with("https://www.googleapis.com/") ||
@@ -85,20 +90,38 @@ public:
       std::unique_ptr<CURL,CurlDeleter> const pCurl(curl_easy_init());
       if(!pCurl) throw std::runtime_error("Cannot create libcurl session");
       std::string strData;
+      std::array<char,CURL_ERROR_SIZE> arrCurlError {};
+      curl_easy_setopt(pCurl.get(),CURLOPT_ERRORBUFFER,arrCurlError.data());
       curl_easy_setopt(pCurl.get(),CURLOPT_URL,strURL.c_str());
       curl_easy_setopt(pCurl.get(),CURLOPT_WRITEFUNCTION,&Write);
       curl_easy_setopt(pCurl.get(),CURLOPT_WRITEDATA,&strData);
-      curl_easy_setopt(pCurl.get(),CURLOPT_CONNECTTIMEOUT_MS,2500L);
-      curl_easy_setopt(pCurl.get(),CURLOPT_TIMEOUT_MS,6500L);
+      curl_easy_setopt(pCurl.get(),CURLOPT_CONNECTTIMEOUT_MS,iConnectTimeoutMs);
+      curl_easy_setopt(pCurl.get(),CURLOPT_TIMEOUT_MS,iTotalTimeoutMs);
       curl_easy_setopt(pCurl.get(),CURLOPT_FOLLOWLOCATION,0L);
       curl_easy_setopt(pCurl.get(),CURLOPT_SSL_VERIFYPEER,1L);
       curl_easy_setopt(pCurl.get(),CURLOPT_SSL_VERIFYHOST,2L);
+      // Our managed libcurl uses OpenSSL, not Windows Schannel. Explicitly
+      // consult the Windows trust store while keeping full TLS verification.
+      // This is a native libcurl feature, not a certificate-check bypass.
+      CURLcode const eNativeCA=curl_easy_setopt(pCurl.get(),
+         CURLOPT_SSL_OPTIONS,static_cast<long>(CURLSSLOPT_NATIVE_CA));
+      if(eNativeCA!=CURLE_OK)
+         throw std::runtime_error("Managed libcurl does not support native Windows CA verification");
       curl_easy_setopt(pCurl.get(),CURLOPT_USERAGENT,
          "BuildEngine-Tests ISBN Showcase/1.0 (OpenLibrary/GoogleBooks)");
       CURLcode const eResult=curl_easy_perform(pCurl.get());
-      if(eResult!=CURLE_OK)
-         throw std::runtime_error(std::string("ISBN REST request failed: ")+
-            curl_easy_strerror(eResult));
+      if(eResult!=CURLE_OK) {
+         std::string strDetails=arrCurlError.data();
+         if(strDetails.empty())
+            strDetails=curl_easy_strerror(eResult);
+         if(eResult==CURLE_OPERATION_TIMEDOUT)
+            throw std::runtime_error("Network timeout ("+
+               std::to_string(iTotalTimeoutMs)+" ms): "+strDetails);
+         if(eResult==CURLE_PEER_FAILED_VERIFICATION)
+            throw std::runtime_error("TLS certificate chain could not be verified against Windows CA store: "+strDetails);
+         throw std::runtime_error("HTTPS transport error ("+
+            std::to_string(static_cast<int>(eResult))+"): "+strDetails);
+      }
       long iStatus {};
       curl_easy_getinfo(pCurl.get(),CURLINFO_RESPONSE_CODE,&iStatus);
       if(iStatus==404) return {};
@@ -167,7 +190,7 @@ public:
       std::string const strOLURL="https://openlibrary.org/api/books?bibkeys=ISBN:"+
          strISBN+"&jscmd=data&format=json";
       try {
-         std::string const strPayload=BookHttp::Get(strOLURL);
+         std::string const strPayload=BookHttp::Get(strOLURL,1500L,3000L);
          if(!strPayload.empty()) {
             nlohmann::json const theRoot=nlohmann::json::parse(strPayload);
             std::string const strKey="ISBN:"+strISBN;
@@ -202,6 +225,7 @@ public:
                   theEntry.at("cover").is_object())
                   theBook.strCoverURL=Field(theEntry.at("cover"),"medium");
                if(theBook.Found()) {
+                  theBook.strOpenLibraryStatus="Exact ISBN match";
                   theBook.strProvider="Open Library";
                   theBook.strStatus="Book metadata found";
                   LoadCover(theBook);
@@ -211,8 +235,10 @@ public:
          }
       }
       catch(std::exception const& theError) {
-         theBook.strStatus="Open Library: "+std::string(theError.what());
+         theBook.strOpenLibraryStatus=theError.what();
       }
+      if(theBook.strOpenLibraryStatus.empty())
+         theBook.strOpenLibraryStatus="No exact ISBN result returned";
 
       std::string const strGoogleURL=
          "https://www.googleapis.com/books/v1/volumes?q=isbn:"+strISBN+"&maxResults=5";
@@ -253,6 +279,7 @@ public:
                      if(theBook.strCoverURL.starts_with("http://"))
                         theBook.strCoverURL.replace(0,7,"https://");
                   }
+                  theBook.strGoogleBooksStatus="Exact ISBN match";
                   theBook.strProvider="Google Books";
                   theBook.strStatus="Book metadata found";
                   LoadCover(theBook);
@@ -262,11 +289,16 @@ public:
          }
       }
       catch(std::exception const& theError) {
-         if(!theBook.strStatus.empty()) theBook.strStatus+="; ";
-         theBook.strStatus+="Google Books: "+std::string(theError.what());
+         theBook.strGoogleBooksStatus=theError.what();
       }
-      if(theBook.strStatus.empty())
-         theBook.strStatus="No exact ISBN record in Open Library or Google Books";
+      if(theBook.strGoogleBooksStatus.empty())
+         theBook.strGoogleBooksStatus="No exact ISBN result returned";
+      bool const bProviderError=
+         theBook.strOpenLibraryStatus!="No exact ISBN result returned" ||
+         theBook.strGoogleBooksStatus!="No exact ISBN result returned";
+      theBook.strStatus=bProviderError
+         ? "No verified book metadata; one or more catalog requests failed"
+         : "Neither catalog returned an exact ISBN record";
       return theBook;
    }
 };
