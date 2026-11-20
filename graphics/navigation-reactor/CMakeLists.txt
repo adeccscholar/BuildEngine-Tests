@@ -54,16 +54,10 @@ if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 adecc_test_install(navigation-reactor RUNTIME_CLOSURE
    PACKAGE_ROOTS "${RECAST_PACKAGE}" "${OPENGL_PACKAGE}" "${GLEW_PACKAGE}" "${IMGUI_PACKAGE}" "${SDL2_PACKAGE}"
-   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
-# Mesa loads the Gallium WGL implementation dynamically: a PE import scan alone
-# cannot discover it. Stage only the two exact, versioned managed Mesa DLLs.
-add_custom_command(TARGET buildengine-stage-navigation-reactor POST_BUILD
-   COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-      "${OpenGL_RUNTIME_DLL}" "$<TARGET_FILE_DIR:navigation-reactor>/opengl32.dll"
-   COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-      "${OpenGL_GALLIUM_DLL}" "$<TARGET_FILE_DIR:navigation-reactor>/libgallium_wgl.dll"
-   COMMENT "Stage managed Mesa WGL pair without SDK-wide DLL copying"
-   VERBATIM)
+   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll
+   # Both Mesa DLLs are declared managed runtime modules. Gallium WGL is
+   # loaded dynamically and would not appear in the ordinary PE import scan.
+   DYNAMIC_DLLS opengl32.dll libgallium_wgl.dll)
 if(BUILD_TESTING)
    add_test(NAME NavigationReactorRecastRasterization COMMAND "$<TARGET_FILE:navigation-reactor>" --verify)
    set_tests_properties(NavigationReactorRecastRasterization PROPERTIES LABELS "native;recast;terrain;showcase" TIMEOUT 60)
