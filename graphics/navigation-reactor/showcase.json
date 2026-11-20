@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "kind": "showcase",
-  "title": "Navigation Reactor — Terrain Intelligence",
-  "summary": "An interactive neon terrain laboratory where native Recast classifies real triangle slopes, rasterizes the heightfield and reveals traversable versus dangerous terrain as settings change.",
+  "title": "Navigation Reactor — Detour Expedition",
+  "summary": "Interactive Recast polygon navigation mesh and genuine Detour routefinding with animated agent, slope controls, terrain relief and optional central obstacle.",
   "dependencies": [
     {
       "library": "recastnavigation",
@@ -25,13 +25,13 @@
   "applications": [
     {
       "name": "navigation-reactor",
-      "summary": "Interactive Recast terrain raster with dynamic agent slope and terrain relief controls.",
+      "summary": "Live Recast terrain, Detour corridor path, start and goal markers and animated agent.",
       "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe",
       "interactive": true
     },
     {
       "name": "navigation-reactor --verify",
-      "summary": "Headless Recast triangle walkability classification and rasterized span comparison.",
+      "summary": "Recast rasterization and Detour native end-to-end path query checks.",
       "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe --verify",
       "interactive": false
     }

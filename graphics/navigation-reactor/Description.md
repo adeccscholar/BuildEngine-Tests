@@ -1,17 +1,21 @@
-# Navigation Reactor — Terrain Intelligence
+# Navigation Reactor — Detour Expedition
 
-## Explore the boundary between safe ground and danger
+## Live terrain and navigation laboratory
 
-An alien landscape of ridges and ravines glows turquoise when a mobile agent can cross it and magenta when the terrain is too steep. Drag the **maximum slope** and **terrain relief** sliders: every change rebuilds a genuine Recast navigation raster, replacing the entire coloured surface with newly computed results. Watch thousands of triangles become a navigability map.
+The interactive showcase displays the native Recast walkability raster in teal and magenta, plus a gold route calculated through **Detour's actual navigation query**. Green and pink beacons mark the projected path endpoints; a blue agent travels the returned waypoint corridor. The visualization is an overlay of real path data, not a replacement graph search or pre-rendered animation.
 
-## Actual Recast computation
+Controls: maximum walkable slope, terrain relief, an optional central excluded obstacle, rebuild, and animated traversal. Each terrain/obstacle change builds a new Recast polygon navmesh and re-queries Detour; missing paths are shown as **NO COMPLETE PATH**, not invented routes.
 
-The program generates a reproducible 81 by 51 terrain mesh from radial and oscillatory elevation functions. Its triangles are passed to `rcMarkWalkableTriangles` with the selected agent slope. Recast then allocates an `rcHeightfield`, calculates voxel dimensions and executes `rcRasterizeTriangles`. The resulting `rcSpan` area flags determine every green and magenta cell in the native ImGui draw list. The displayed triangle counts and rasterized spans are returned by the actual Recast calls, not fixed HUD placeholders.
+## Real producer functionality
 
-The demonstration covers the **real walkability classification and rasterization stages** of Recast's navigation pipeline; it does not claim to implement Recast's complete polygon-mesh extraction, Detour path planning, crowd simulation or collision physics.
+The BuildEngine managed Recast Navigation 1.6.0 package provides separate Recast and Detour dynamic libraries. The showcase uses Recast triangle classification and heightfield rasterization, then compact field construction, erosion, monotone regions, contours, polygon mesh and detail mesh generation. The polygon mesh is serialized into a Detour navigation mesh and queried using nearest-polygons, `findPath` and `findStraightPath`. The UI renders those returned 3D points projected onto the raster.
 
-## Controls and evidence
+This is a reproducible navigation demonstration, **not** a full physics simulation, crowd AI, dynamic tile cache, interactive 3D camera or collision avoidance engine. The central obstacle is applied to navigation triangle classification and indicated visually; the background terrain raster remains a separate diagnostic layer.
 
-Adjust agent slope from 5 to 80 degrees, terrain relief from 0.25 to 2.25, or rebuild the field explicitly. `navigation-reactor.exe --verify` creates two terrains with different slope limits and checks that higher permitted slopes yield more walkable triangles while both are successfully voxelized.
+## Validation
 
-The program consumes the separately installed Recast Navigation 1.6.0 DLL and the existing native SDL2 + ImGui presentation stack. **[not verified]** Visual acceptance and Windows BCC64X CTest execution remain pending.
+The native `--verify` mode keeps the original slope/raster checks and additionally requests a complete native Detour path on a fixed low-relief terrain without the central obstacle. The headless check must report `SHOWCASE|CHECK|detour-route|PASS` before accepting the full result. Native Windows/BCC64X build, runtime closure and route completion remain **[not verified]** until executed on the host.
+
+## Dependency decision
+
+The managed package already disables upstream `RECASTNAVIGATION_DEMO`, `RECASTNAVIGATION_TESTS` and `RECASTNAVIGATION_EXAMPLES`, builds shared Recast/Detour/DetourCrowd/DetourTileCache/DebugUtils artifacts and does not declare an external dependency in the BuildEngine library catalog. No upstream SDL/OpenGL demo is linked into the showcase. The application links only the installed Recast and Detour import libraries plus separately managed ImGui and SDL2; no additional rendering or physics library is introduced.

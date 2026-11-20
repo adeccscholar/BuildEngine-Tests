@@ -2,7 +2,7 @@
 
 | BuildEngine package | Role |
 | --- | --- |
-| Recast Navigation 1.6.0 | Slope classification, heightfield allocation and triangle rasterization |
+| Recast Navigation 1.6.0 | Recast slope classification, rasterization, polygon navmesh generation and Detour route queries (separately linked Recast and Detour DLLs) |
 | Dear ImGui 1.93.0 | Live native controls and coloured grid |
 | SDL2 (active) | Window/event management and accelerated draw-list rendering |
 
