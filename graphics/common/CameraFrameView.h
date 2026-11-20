@@ -7,6 +7,7 @@
 #include <opencv2/videoio.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <stdexcept>
 
@@ -89,6 +90,29 @@ public:
          reinterpret_cast<std::intptr_t>(pTexture)),
          ImVec2{std::max(1.0F,flScale*iWidth),
                 std::max(1.0F,flScale*iHeight)});
+   }
+
+   /**
+   \brief Displays the camera frame with an explicit normalized document ROI.
+   \details The overlay is UI-only and never modifies the OpenCV OCR pixels.
+   \param flMaxWidth Maximum visible viewport width.
+   \param flMaxHeight Maximum visible viewport height.
+   \param arrROI Normalized left, top, width, height.
+   \throw Nothing intentionally.
+   */
+   void DrawWithROI(float const flMaxWidth,float const flMaxHeight,
+      std::array<float,4> const& arrROI) const {
+      Draw(flMaxWidth,flMaxHeight);
+      if(!pTexture || iWidth<=0 || iHeight<=0) return;
+      ImVec2 const aMin=ImGui::GetItemRectMin();
+      ImVec2 const aMax=ImGui::GetItemRectMax();
+      float const flW=aMax.x-aMin.x;
+      float const flH=aMax.y-aMin.y;
+      ImGui::GetWindowDrawList()->AddRect(
+         {aMin.x+flW*arrROI[0],aMin.y+flH*arrROI[1]},
+         {aMin.x+flW*(arrROI[0]+arrROI[2]),
+          aMin.y+flH*(arrROI[1]+arrROI[3])},
+         IM_COL32(255,187,52,255),0.0F,0,3.0F);
    }
 };
 
