@@ -51,8 +51,21 @@ public:
    */
    bool Acquire(cv::Mat const& theImage,
       std::array<cv::Point2f,4> const& arrCorners) {
-      cv::Rect theRect=cv::boundingRect(std::vector<cv::Point2f>{
-         arrCorners.begin(),arrCorners.end()});
+      float flMinX=arrCorners.front().x;
+      float flMinY=arrCorners.front().y;
+      float flMaxX=flMinX;
+      float flMaxY=flMinY;
+      for(cv::Point2f const& aPoint:arrCorners) {
+         flMinX=std::min(flMinX,aPoint.x);
+         flMinY=std::min(flMinY,aPoint.y);
+         flMaxX=std::max(flMaxX,aPoint.x);
+         flMaxY=std::max(flMaxY,aPoint.y);
+      }
+      int const iLeft=static_cast<int>(std::floor(flMinX));
+      int const iTop=static_cast<int>(std::floor(flMinY));
+      int const iRight=static_cast<int>(std::ceil(flMaxX));
+      int const iBottom=static_cast<int>(std::ceil(flMaxY));
+      cv::Rect theRect {iLeft,iTop,iRight-iLeft+1,iBottom-iTop+1};
       theRect &= cv::Rect{0,0,theImage.cols,theImage.rows};
       if(theRect.width<24 || theRect.height<24) return false;
       cv::Mat const theGray=MakeGray(theImage);
