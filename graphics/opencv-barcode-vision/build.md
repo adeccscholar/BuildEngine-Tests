@@ -121,3 +121,11 @@ In the GUI, select **EAN-13 / UPC barcode** or **QR Code**, connect a camera and
 The existing `--verify` remains camera-independent. It generates known barcode fixtures with managed ZXing/Zint and requires native OpenCV to decode them. The new `--list-cameras` is a diagnostic rather than an automated availability test.
 
 **[not verified]** DirectShow enumeration and live camera behavior must be tested on the BCC64X Windows host.
+
+## 9. Read-once camera recognition and stable result visibility
+
+The live scanner does not re-decode a confirmed QR or barcode while its region remains tracked in the video. The initial successful OpenCV decoding result activates a local grayscale template tracker. The camera may continue streaming without repeatedly running the expensive QR/linear decoding algorithm. The green frame follows the tracked region. The recognized text stays available in **Last confirmed reading (retained)**, even after the symbol disappears and scanning is enabled for the next symbol.
+
+To begin scanning a new code manually, click **RESET / SCAN NEXT**. Otherwise the tracker waits for five consecutive captured frames without a satisfactory image match before permitting a new decode. The 180 ms recognition interval applies only when no code is currently tracked. Switching recognition modes, selecting another webcam and disconnecting also release the tracking state.
+
+The `--verify` CTest includes an additional synthetic-camera regression: a recognized QR must remain tracked through twelve identical input frames without re-decoding; the tracker must subsequently release it when the code is removed. The video capture and UI still require testing on the actual Windows camera. **[not verified]** until native test evidence is available.
