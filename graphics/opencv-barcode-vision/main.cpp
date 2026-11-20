@@ -1,6 +1,7 @@
 #include "../common/GraphicsDllImports.h"
 #include "../common/NativeShowcase.h"
 #include "CameraDevices.h"
+#include "LiveBarcodeTracker.h"
 
 #include <ZXing/CreateBarcode.h>
 #include <ZXing/WriteBarcode.h>
@@ -33,6 +34,7 @@ struct Result {
    cv::Mat theAnnotated;
    std::vector<std::string> vecText;
    std::vector<std::string> vecTypes;
+   std::vector<std::array<cv::Point2f,4>> vecDetectedCorners;
    bool bDetected {};
    bool bVerified {};
    double flMilliseconds {};
@@ -115,11 +117,14 @@ Result Analyze(cv::Mat const& theImage,bool const bQR,
       theCorners.convertTo(thePoints,CV_32F);
       cv::Mat theFlat=thePoints.reshape(2,static_cast<int>(thePoints.total()));
       for(int i=0;i+3<theFlat.rows;i+=4) {
-         for(int j=0;j<4;++j) {
-            cv::Point2f const a=theFlat.at<cv::Point2f>(i+j);
-            cv::Point2f const b=theFlat.at<cv::Point2f>(i+(j+1)%4);
-            cv::line(theResult.theAnnotated,a,b,cv::Scalar(27,215,68),3,cv::LINE_AA);
-         }
+         std::array<cv::Point2f,4> arrCorners {};
+         for(int j=0;j<4;++j)
+            arrCorners[static_cast<std::size_t>(j)]=theFlat.at<cv::Point2f>(i+j);
+         theResult.vecDetectedCorners.push_back(arrCorners);
+         for(int j=0;j<4;++j)
+            cv::line(theResult.theAnnotated,arrCorners[static_cast<std::size_t>(j)],
+               arrCorners[static_cast<std::size_t>((j+1)%4)],
+               cv::Scalar(27,215,68),3,cv::LINE_AA);
       }
    }
    return theResult;
@@ -280,6 +285,7 @@ void Interactive() {
    NativeShowcase aApp{"BuildEngine | OPENCV BARCODE VISION",1460,880};
    CameraViewport theViewport{aApp.Window()};
    CameraCapture theCapture;
+   LiveBarcodeTracker theTracker;
    std::vector<CameraDevice> vecDevices;
    std::string strDiscoveryError;
    auto const RefreshCameras=[&]() {
@@ -303,6 +309,8 @@ void Interactive() {
    std::string strText="5901234123457";
    std::copy(strText.begin(),strText.end(),arrPayload.begin());
    Result theResult;
+   Result theLastConfirmed;
+   std::uint64_t uDecodeCount {};
    std::string strError;
    std::string strCaptureError;
    std::uint64_t uLastCapture {};
@@ -315,6 +323,7 @@ void Interactive() {
             theCapture.Disconnect();
             bLive=false;
          }
+         theTracker.Reset();
          cv::Mat const theImage=bFile
             ? cv::imread(arrPath.data(),cv::IMREAD_COLOR)
             : MakeSymbol(arrPayload.data(),bQR);
@@ -338,6 +347,7 @@ void Interactive() {
          "OpenCV 5.1 DirectShow camera + native barcode/QR detection + ZXing/Zint fixtures");
       ImGui::SeparatorText("1. Native camera selection");
       if(ImGui::Button("REFRESH REGISTERED CAMERAS")) {
+         theTracker.Reset();
          theCapture.Disconnect();
          bLive=false;
          std::string strPreviousPath;
@@ -373,6 +383,7 @@ void Interactive() {
             std::string const strLabel=std::format("[{}] {}##camera{}",
                aCamera.iIndex,aCamera.strName,u);
             if(ImGui::Selectable(strLabel.c_str(),iSelected==static_cast<int>(u))) {
+               theTracker.Reset();
                theCapture.Disconnect();
                bLive=false;
                iSelected=static_cast<int>(u);
@@ -394,6 +405,8 @@ void Interactive() {
             if(theCapture.Connect(iIndex)) {
                bLive=true;
                uLastCapture=uLastScan=0;
+               theTracker.Reset();
+               theResult={};
                uFrames=0;
                iDroppedFrames=0;
                strCaptureError.clear();
@@ -415,6 +428,8 @@ void Interactive() {
             if(theCapture.Connect(iManualIndex)) {
                bLive=true;
                uLastCapture=uLastScan=0;
+               theTracker.Reset();
+               theResult={};
                uFrames=0;
                iDroppedFrames=0;
                strCaptureError.clear();
@@ -432,11 +447,21 @@ void Interactive() {
       }
       ImGui::SameLine();
       if(ImGui::Button("DISCONNECT")) {
+         theTracker.Reset();
          theCapture.Disconnect();
          bLive=false;
       }
       ImGui::SameLine();
-      ImGui::Checkbox("Scan live frames",&bScan);
+      if(ImGui::Checkbox("Scan live frames",&bScan)) {
+         theTracker.Reset();
+         theResult={};
+      }
+      ImGui::SameLine();
+      if(ImGui::Button("RESET / SCAN NEXT")) {
+         theTracker.Reset();
+         theResult={};
+         uLastScan=0;
+      }
       ImGui::Text("Capture status: %s | index: %d | frames: %llu | read failures: %d",
          bLive?"CONNECTED":"DISCONNECTED",theCapture.Index(),
          static_cast<unsigned long long>(uFrames),iDroppedFrames);
@@ -448,6 +473,8 @@ void Interactive() {
          bQR=false; arrPayload.fill(0);
          strText="5901234123457";
          std::copy(strText.begin(),strText.end(),arrPayload.begin());
+         theTracker.Reset();
+         theResult={};
          if(!bLive) Run(false);
       }
       ImGui::SameLine();
@@ -455,6 +482,8 @@ void Interactive() {
          bQR=true; arrPayload.fill(0);
          strText="BUILDENGINE-OPENCV-5.1";
          std::copy(strText.begin(),strText.end(),arrPayload.begin());
+         theTracker.Reset();
+         theResult={};
          if(!bLive) Run(false);
       }
       ImGui::SetNextItemWidth(560);
@@ -474,15 +503,32 @@ void Interactive() {
                cv::Mat theFrame;
                if(theCapture.Read(theFrame)) {
                   ++uFrames;
-                  if(bScan && uNow-uLastScan>=180) {
+                  // A confirmed barcode is tracked visually, without calling
+                  // the barcode or QR decoder again while the symbol persists.
+                  if(theTracker.Active() && !theTracker.Update(theFrame)) {
+                     theResult={};
+                     uLastScan=0;
+                  }
+                  if(bScan && !theTracker.Active() && uNow-uLastScan>=180) {
                      uLastScan=uNow;
-                     theResult=Analyze(theFrame,bQR);
+                     Result theScan=Analyze(theFrame,bQR);
+                     if(theScan.bDetected && !theScan.vecText.empty() &&
+                        !theScan.vecDetectedCorners.empty() &&
+                        theTracker.Acquire(theFrame,theScan.vecDetectedCorners.front())) {
+                        theResult=std::move(theScan);
+                        theLastConfirmed=theResult;
+                        ++uDecodeCount;
+                     }
+                     else {
+                        theResult={};
+                     }
                   }
-                  else {
-                     theResult.theImage=theFrame;
-                     theResult.theAnnotated=theFrame;
+                  cv::Mat theLive=theFrame.clone();
+                  if(theTracker.Active()) {
+                     cv::Rect const aBox=theTracker.Box();
+                     cv::rectangle(theLive,aBox,cv::Scalar{28,220,65},3,cv::LINE_AA);
                   }
-                  theViewport.SetImage(theResult.theAnnotated);
+                  theViewport.SetImage(theLive);
                   strCaptureError.clear();
                }
                else {
@@ -509,12 +555,25 @@ void Interactive() {
          ImGui::Text("Detected: %s | Decoded: %d | Analysis: %.2f ms",
             theResult.bDetected?"yes":"no",
             static_cast<int>(theResult.vecText.size()),theResult.flMilliseconds);
+         if(bLive && theTracker.Active())
+            ImGui::TextColored({.35F,.95F,.70F,1},
+               "LOCKED: symbol still present - no repeat decoding");
+         ImGui::Text("Confirmed live decodes: %llu",
+            static_cast<unsigned long long>(uDecodeCount));
          if(!bLive && theResult.bVerified)
             ImGui::TextColored({.3F,.96F,.65F,1},"ROUND-TRIP: PASS");
          for(std::size_t u=0;u<theResult.vecText.size();++u)
             ImGui::Text("[%s] %s",
                u<theResult.vecTypes.size()?theResult.vecTypes[u].c_str():"code",
                theResult.vecText[u].c_str());
+      }
+      if(!theLastConfirmed.vecText.empty()) {
+         ImGui::SeparatorText("Last confirmed reading (retained)");
+         for(std::size_t u=0;u<theLastConfirmed.vecText.size();++u)
+            ImGui::TextWrapped("[%s] %s",
+               u<theLastConfirmed.vecTypes.size()
+                  ? theLastConfirmed.vecTypes[u].c_str() : "code",
+               theLastConfirmed.vecText[u].c_str());
       }
       theViewport.Draw(std::max(300.0F,ImGui::GetContentRegionAvail().x),
          std::max(180.0F,ImGui::GetContentRegionAvail().y-12));
