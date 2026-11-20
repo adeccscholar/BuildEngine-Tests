@@ -17,6 +17,7 @@
 #include <exception>
 #include <format>
 #include <print>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -108,7 +109,7 @@ Result Analyze(cv::Mat const& theImage,bool const bQR,
    if(theCorners.total() >= 4) {
       cv::Mat thePoints;
       theCorners.convertTo(thePoints,CV_32F);
-      cv::Mat theFlat=thePoints.reshape(2,static_cast<int>(thePoints.total()/2));
+      cv::Mat theFlat=thePoints.reshape(2,static_cast<int>(thePoints.total()));
       for(int i=0;i+3<theFlat.rows;i+=4) {
          for(int j=0;j<4;++j) {
             cv::Point2f const a=theFlat.at<cv::Point2f>(i+j);
