@@ -178,6 +178,25 @@ public:
    title search. An unavailable entry is returned as not found, not invented.
 */
 class BookLookup final {
+   struct CachedResult {
+      BookMetadata theBook;
+      std::chrono::steady_clock::time_point theExpiry;
+   };
+   static inline std::mutex theMutex;
+   static inline std::unordered_map<std::string,CachedResult> mpResults;
+   static inline std::chrono::steady_clock::time_point theOpenLibraryBackoff {};
+   static inline std::chrono::steady_clock::time_point theGoogleBooksBackoff {};
+
+   static bool IsCoolingDown(std::chrono::steady_clock::time_point const theDeadline) {
+      return std::chrono::steady_clock::now()<theDeadline;
+   }
+
+   static void StartBackoff(std::chrono::steady_clock::time_point& theDeadline,
+      long const iSeconds) {
+      theDeadline=std::chrono::steady_clock::now()+
+         std::chrono::seconds{std::clamp(iSeconds,1L,86400L)};
+   }
+
    [[nodiscard]] static std::string Field(nlohmann::json const& theData,
       char const* const szName) {
       if(!theData.is_object() || !theData.contains(szName) ||
@@ -226,11 +245,28 @@ public:
    [[nodiscard]] static BookMetadata Lookup(std::string const& strISBN) {
       if(!IsIsbn13(strISBN))
          throw std::runtime_error("ISBN REST request rejected: invalid ISBN-13");
+      {
+         std::scoped_lock const theLock{theMutex};
+         auto const theIt=mpResults.find(strISBN);
+         if(theIt!=mpResults.end() &&
+            std::chrono::steady_clock::now()<theIt->second.theExpiry) {
+            BookMetadata theCached=theIt->second.theBook;
+            theCached.strStatus+=" (cached)";
+            return theCached;
+         }
+      }
       BookMetadata theBook;
       theBook.strISBN=strISBN;
       std::string const strOLURL="https://openlibrary.org/api/books?bibkeys=ISBN:"+
          strISBN+"&jscmd=data&format=json";
+      bool bSkipOpenLibrary {};
+      {
+         std::scoped_lock const theLock{theMutex};
+         bSkipOpenLibrary=IsCoolingDown(theOpenLibraryBackoff);
+      }
       try {
+         if(bSkipOpenLibrary)
+            throw std::runtime_error("Provider cooling down after previous timeout");
          std::string const strPayload=BookHttp::Get(strOLURL,1500L,3000L);
          if(!strPayload.empty()) {
             nlohmann::json const theRoot=nlohmann::json::parse(strPayload);
@@ -270,6 +306,11 @@ public:
                   theBook.strProvider="Open Library";
                   theBook.strStatus="Book metadata found";
                   LoadCover(theBook);
+                  {
+                     std::scoped_lock const theLock{theMutex};
+                     mpResults[strISBN]={theBook,std::chrono::steady_clock::now()+
+                        std::chrono::hours{24}};
+                  }
                   return theBook;
                }
             }
@@ -277,13 +318,24 @@ public:
       }
       catch(std::exception const& theError) {
          theBook.strOpenLibraryStatus=theError.what();
+         if(theBook.strOpenLibraryStatus.starts_with("Network timeout")) {
+            std::scoped_lock const theLock{theMutex};
+            StartBackoff(theOpenLibraryBackoff,60L);
+         }
       }
       if(theBook.strOpenLibraryStatus.empty())
          theBook.strOpenLibraryStatus="No exact ISBN result returned";
 
       std::string const strGoogleURL=
          "https://www.googleapis.com/books/v1/volumes?q=isbn:"+strISBN+"&maxResults=5";
+      bool bSkipGoogleBooks {};
+      {
+         std::scoped_lock const theLock{theMutex};
+         bSkipGoogleBooks=IsCoolingDown(theGoogleBooksBackoff);
+      }
       try {
+         if(bSkipGoogleBooks)
+            throw std::runtime_error("Provider rate limited: cooling down; no new request");
          std::string const strPayload=BookHttp::Get(strGoogleURL);
          if(!strPayload.empty()) {
             nlohmann::json const theRoot=nlohmann::json::parse(strPayload);
@@ -324,10 +376,20 @@ public:
                   theBook.strProvider="Google Books";
                   theBook.strStatus="Book metadata found";
                   LoadCover(theBook);
+                  {
+                     std::scoped_lock const theLock{theMutex};
+                     mpResults[strISBN]={theBook,std::chrono::steady_clock::now()+
+                        std::chrono::hours{24}};
+                  }
                   return theBook;
                }
             }
          }
+      }
+      catch(RateLimited const& theError) {
+         theBook.strGoogleBooksStatus=theError.what();
+         std::scoped_lock const theLock{theMutex};
+         StartBackoff(theGoogleBooksBackoff,theError.iRetrySeconds);
       }
       catch(std::exception const& theError) {
          theBook.strGoogleBooksStatus=theError.what();
@@ -340,6 +402,11 @@ public:
       theBook.strStatus=bProviderError
          ? "No verified book metadata; one or more catalog requests failed"
          : "Neither catalog returned an exact ISBN record";
+      {
+         std::scoped_lock const theLock{theMutex};
+         mpResults[strISBN]={theBook,std::chrono::steady_clock::now()+
+            std::chrono::minutes{10}};
+      }
       return theBook;
    }
 };
