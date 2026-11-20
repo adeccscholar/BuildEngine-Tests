@@ -12,8 +12,19 @@
 #include <stdexcept>
 #include <vector>
 
+/**
+\brief A triangle from the genuine Detour navigation detail mesh.
+\details The source coordinates and corridor membership come from the built
+   dtNavMesh tiles. No visual substitute geometry is generated.
+*/
+struct NavigationMeshTriangle {
+   std::array<std::array<float, 3>, 3> arrVertices {};
+   bool bCorridor {};
+};
+
 struct NavigationRoute {
    std::vector<std::array<float, 3>> vecPoints;
+   std::vector<NavigationMeshTriangle> vecNavigationTriangles;
    int iPolygons {};
    int iCorridor {};
    bool bPathComplete {};
@@ -156,7 +167,44 @@ inline NavigationRoute BuildNavigationRoute(
    dtStatus const iPath = pQuery->findPath(iStartRef, iEndRef, arrNearStart,
       arrNearEnd, &theFilter, arrCorridor.data(), &iPathCount,
       static_cast<int>(arrCorridor.size()));
-   if(dtStatusFailed(iPath) || iPathCount == 0 || arrCorridor[static_cast<std::size_t>(iPathCount - 1)] != iEndRef)
+   // Export the exact triangulated Detour detail mesh for visualization.
+   // A polygon is highlighted only when its genuine dtPolyRef occurs in the
+   // corridor returned by findPath. No raster or terrain fallback is used.
+   for(int iTile = 0; iTile < pNav->getMaxTiles(); ++iTile) {
+      dtMeshTile const* const pTile = pNav->getTile(iTile);
+      if(!pTile || !pTile->header || !pTile->detailMeshes || !pTile->detailTris)
+         continue;
+      dtPolyRef const iBase = pNav->getPolyRefBase(pTile);
+      for(int iPoly = 0; iPoly < pTile->header->polyCount; ++iPoly) {
+         dtPoly const& thePoly = pTile->polys[iPoly];
+         if(thePoly.getType() == DT_POLYTYPE_OFFMESH_CONNECTION) continue;
+         dtPolyDetail const& theDetail = pTile->detailMeshes[iPoly];
+         dtPolyRef const iRef = iBase | static_cast<dtPolyRef>(iPoly);
+         bool const bCorridor = std::find(arrCorridor.begin(),
+            arrCorridor.begin() + iPathCount, iRef) !=
+            arrCorridor.begin() + iPathCount;
+         for(unsigned int uTriangle = 0; uTriangle < theDetail.triCount; ++uTriangle) {
+            unsigned char const* const pIndices = &pTile->detailTris[
+               (theDetail.triBase + uTriangle) * 4];
+            NavigationMeshTriangle theTriangle;
+            theTriangle.bCorridor = bCorridor;
+            for(int j = 0; j < 3; ++j) {
+               unsigned int const uIndex = pIndices[j];
+               float const* pVertex = nullptr;
+               if(uIndex < thePoly.vertCount)
+                  pVertex = &pTile->verts[thePoly.verts[uIndex] * 3];
+               else
+                  pVertex = &pTile->detailVerts[
+                     (theDetail.vertBase + uIndex - thePoly.vertCount) * 3];
+               theTriangle.arrVertices[static_cast<std::size_t>(j)] =
+                  {pVertex[0], pVertex[1], pVertex[2]};
+            }
+            theRoute.vecNavigationTriangles.push_back(theTriangle);
+         }
+      }
+   }
+   if(dtStatusFailed(iPath) || iPathCount == 0 ||
+      arrCorridor[static_cast<std::size_t>(iPathCount - 1)] != iEndRef)
       return theRoute;
    theRoute.iCorridor = iPathCount;
    std::array<float, 256 * 3> arrStraight {};
@@ -172,7 +220,6 @@ inline NavigationRoute BuildNavigationRoute(
    // the actual detailed navigation mesh for every intermediate surface height.
    // Never draw the straight 3D chord between distant funnel corners.
    constexpr float flRouteStep = flCell * 0.5F;
-   float const arrSampleExtent[3] {flCell * 2.0F, 2.5F, flCell * 2.0F};
    constexpr float flMaxHorizontalSnap = flCell * 1.5F;
    constexpr int iMaxSurfaceSamples = 8192;
    std::vector<std::array<float, 3>> vecSurface;
@@ -193,19 +240,36 @@ inline NavigationRoute BuildNavigationRoute(
             arrStraight[uA + 1] + flDY * flT,
             arrStraight[uA + 2] + flDZ * flT
          };
-         dtPolyRef iSurfaceRef {};
-         float arrSurface[3] {};
-         dtStatus const iSurfaceStatus = pQuery->findNearestPoly(
-            arrDesired, arrSampleExtent, &theFilter, &iSurfaceRef, arrSurface);
-         if(dtStatusFailed(iSurfaceStatus) || !iSurfaceRef ||
-            std::hypot(arrSurface[0] - arrDesired[0],
-                       arrSurface[2] - arrDesired[2]) > flMaxHorizontalSnap) {
-            // An incomplete surface cannot be presented as a navigable route.
+         // A global nearest-poly query can jump across an impassable ridge
+         // to a polygon outside the actual path corridor. Restrict every
+         // surface sample to the exact polygon references returned by findPath.
+         float flBestDistanceSquared = flMaxHorizontalSnap * flMaxHorizontalSnap;
+         bool bFound = false;
+         std::array<float, 3> arrBest {};
+         for(int k = 0; k < iPathCount; ++k) {
+            float arrCandidate[3] {};
+            bool bOverPoly = false;
+            dtStatus const iStatus = pQuery->closestPointOnPoly(
+               arrCorridor[static_cast<std::size_t>(k)],
+               arrDesired, arrCandidate, &bOverPoly);
+            if(dtStatusFailed(iStatus)) continue;
+            float const flDX = arrCandidate[0] - arrDesired[0];
+            float const flDZ = arrCandidate[2] - arrDesired[2];
+            float const flDistanceSquared = flDX*flDX + flDZ*flDZ;
+            if(flDistanceSquared <= flBestDistanceSquared) {
+               flBestDistanceSquared = flDistanceSquared;
+               arrBest = {arrCandidate[0], arrCandidate[1], arrCandidate[2]};
+               bFound = true;
+            }
+         }
+         if(!bFound) {
+            // The corridor does not support this point: report failure rather
+            // than rendering a shortcut across forbidden geometry.
             theRoute.vecPoints.clear();
             theRoute.bPathComplete = false;
             return theRoute;
          }
-         vecSurface.push_back({arrSurface[0], arrSurface[1], arrSurface[2]});
+         vecSurface.push_back(arrBest);
       }
    }
    theRoute.vecPoints = std::move(vecSurface);
