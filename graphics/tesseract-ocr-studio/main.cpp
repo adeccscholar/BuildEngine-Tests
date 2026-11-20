@@ -94,7 +94,7 @@ cv::Mat MakeDocument(std::string_view const svText) {
 \throw std::runtime_error When recognition initialization or processing fails.
 */
 Recognition Recognize(cv::Mat const& theInput,bool const bThreshold,
-   tesseract::PageSegMode const iPageMode) {
+   tesseract::PageSegMode const iPageMode,std::string const& strLanguage="eng") {
    if(theInput.empty())
       throw std::runtime_error("No OCR input image");
    Recognition theResult;
@@ -114,11 +114,16 @@ Recognition Recognize(cv::Mat const& theInput,bool const bThreshold,
          cv::THRESH_BINARY|cv::THRESH_OTSU);
    else
       theResult.theProcessed=theGray;
-   if(!std::filesystem::is_regular_file(
-      std::filesystem::path{ADECC_TESSDATA_PATH}/"eng.traineddata"))
+   if(strLanguage!="eng" && strLanguage!="deu" && strLanguage!="deu+eng")
+      throw std::runtime_error("Unapproved OCR language selection");
+   std::filesystem::path const theDataDir{ADECC_TESSDATA_PATH};
+   if(!std::filesystem::is_regular_file(theDataDir/"eng.traineddata"))
       throw std::runtime_error("Managed Tesseract English traineddata missing");
+   if(strLanguage!="eng" &&
+      !std::filesystem::is_regular_file(theDataDir/"deu.traineddata"))
+      throw std::runtime_error("German OCR model is missing from managed Tesseract package: deu.traineddata");
    tesseract::TessBaseAPI theAPI;
-   if(theAPI.Init(ADECC_TESSDATA_PATH,"eng",tesseract::OEM_LSTM_ONLY)!=0)
+   if(theAPI.Init(ADECC_TESSDATA_PATH,strLanguage.c_str(),tesseract::OEM_LSTM_ONLY)!=0)
       throw std::runtime_error("Tesseract English model initialization failed");
    theAPI.SetPageSegMode(iPageMode);
    // Leptonica owns the PIX; pixDestroy is required after the OCR call.
@@ -255,6 +260,9 @@ void Interactive() {
    std::array<char,512> arrFile {};
    bool bThreshold=true;
    int iPageMode=0;
+   int iLanguage=0;
+   bool const bGermanModelInstalled=std::filesystem::is_regular_file(
+      std::filesystem::path{ADECC_TESSDATA_PATH}/"deu.traineddata");
    int iRegionMode=2;
    std::array<float,4> arrROI {.10F,.10F,.80F,.80F};
    bool bAutoUpscale=true;
@@ -290,7 +298,8 @@ void Interactive() {
          tesseract::PageSegMode const ePSM=iPageMode==0
             ? tesseract::PSM_AUTO
             : iPageMode==1?tesseract::PSM_SINGLE_BLOCK:tesseract::PSM_SINGLE_LINE;
-         Recognition theNewResult=Recognize(theDocument,bThreshold,ePSM);
+         Recognition theNewResult=Recognize(theDocument,bThreshold,ePSM,
+            iLanguage==0?"eng":iLanguage==1?"deu":"deu+eng");
          theLastRegion=std::move(theRegion);
          theResult=std::move(theNewResult);
          theSourceView.Update(theResult.theOriginal);
@@ -444,6 +453,12 @@ void Interactive() {
          "OCR runs only when RECOGNIZE FRAME is pressed.");
 
       ImGui::SeparatorText("2. Recognition settings and alternative inputs");
+      ImGui::SetNextItemWidth(260);
+      ImGui::Combo("Recognition language",&iLanguage,
+         "English (eng)\0German (deu)\0German + English\0");
+      if(!bGermanModelInstalled)
+         ImGui::TextColored({1.0F,.7F,.3F,1},
+            "German model not installed in active Tesseract package: only English OCR is available.");
       ImGui::Checkbox("Otsu threshold",&bThreshold);
       ImGui::SameLine();
       ImGui::Checkbox("Upscale small camera text",&bAutoUpscale);
