@@ -3,6 +3,7 @@
 #include "CameraDevices.h"
 #include "LiveBarcodeTracker.h"
 #include "BarcodeSelection.h"
+#include "BookLookup.h"
 
 #include <ZXing/CreateBarcode.h>
 #include <ZXing/WriteBarcode.h>
@@ -22,6 +23,7 @@
 #include <cstdint>
 #include <memory>
 #include <format>
+#include <future>
 #include <print>
 #include <ranges>
 #include <stdexcept>
@@ -402,6 +404,7 @@ bool Verify() {
 void Interactive() {
    NativeShowcase aApp{"BuildEngine | OPENCV BARCODE VISION",1460,880};
    CameraViewport theViewport{aApp.Window()};
+   CameraViewport theBookCover{aApp.Window()};
    CameraCapture theCapture;
    LiveBarcodeTracker theTracker;
    BarcodeSelection const theSelection;
@@ -431,6 +434,10 @@ void Interactive() {
    Result theResult;
    Result theLastConfirmed;
    std::uint64_t uDecodeCount {};
+   std::array<char,40> arrLookupISBN {};
+   BookMetadata theBook;
+   std::future<BookMetadata> theBookRequest;
+   bool bBookPending=false;
    std::string strError;
    std::string strCaptureError;
    std::uint64_t uLastCapture {};
@@ -460,7 +467,28 @@ void Interactive() {
       }
    };
    Run(false);
+   auto const SetLookupISBN=[&](std::string_view const svText) {
+      std::string strDigits;
+      for(char const c:svText)
+         if(c>='0' && c<='9') strDigits.push_back(c);
+      if(!IsIsbn13(strDigits) || strDigits==arrLookupISBN.data()) return;
+      arrLookupISBN.fill(0);
+      std::copy(strDigits.begin(),strDigits.end(),arrLookupISBN.begin());
+      theBook={};
+      theBook.strStatus="ISBN recognized. Select LOOK UP BOOK to query public catalogs.";
+   };
    while(aApp.Running()) {
+      if(bBookPending && theBookRequest.wait_for(std::chrono::milliseconds{0})==
+         std::future_status::ready) {
+         try {
+            theBook=theBookRequest.get();
+            if(!theBook.theCover.empty()) theBookCover.SetImage(theBook.theCover);
+         }
+         catch(std::exception const& theError) {
+            theBook.strStatus=theError.what();
+         }
+         bBookPending=false;
+      }
       aApp.BeginFrame();
       ImGui::SetNextWindowPos({0,0});
       ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
@@ -664,6 +692,8 @@ void Interactive() {
                         theTracker.Acquire(theFrame,theScan.vecDetectedCorners.front())) {
                         theResult=std::move(theScan);
                         theLastConfirmed=theResult;
+                        for(std::string const& strDecoded:theResult.vecText)
+                           SetLookupISBN(strDecoded);
                         ++uDecodeCount;
                      }
                      else {
@@ -717,7 +747,59 @@ void Interactive() {
                theResult.vecText[u].c_str());
          }
       }
-      if(!theLastConfirmed.vecText.empty()) {
+      for(std::string const& strDecoded:theResult.vecText)
+         SetLookupISBN(strDecoded);
+      ImGui::SeparatorText("4. ISBN book metadata (public REST)");
+      ImGui::TextWrapped("Book metadata is optional and fetched only on request. "
+         "Open Library is queried first; Google Books supplies a fallback. "
+         "The detected ISBN remains visible independently of catalog availability.");
+      ImGui::SetNextItemWidth(290);
+      ImGui::InputText("ISBN-13 (hyphens accepted)",arrLookupISBN.data(),
+         arrLookupISBN.size());
+      ImGui::SameLine();
+      if(bBookPending) {
+         ImGui::TextDisabled("Searching catalogs...");
+      }
+      else if(ImGui::Button("LOOK UP BOOK")) {
+         std::string strNormalized;
+         for(char const c:std::string_view{arrLookupISBN.data()})
+            if(c>='0' && c<='9') strNormalized.push_back(c);
+         if(!IsIsbn13(strNormalized)) {
+            theBook={};
+            theBook.strStatus="Enter a valid 978/979 ISBN-13 with correct checksum.";
+         }
+         else {
+            theBook={};
+            theBook.strISBN=strNormalized;
+            theBook.strStatus="Searching public catalogs...";
+            bBookPending=true;
+            theBookRequest=std::async(std::launch::async,
+               [strNormalized]() { return BookLookup::Lookup(strNormalized); });
+         }
+      }
+      if(!theBook.strStatus.empty())
+         ImGui::TextWrapped("%s",theBook.strStatus.c_str());
+      if(theBook.Found()) {
+         ImGui::Text("Title: %s",theBook.strTitle.c_str());
+         if(!theBook.strSubtitle.empty())
+            ImGui::TextWrapped("Subtitle: %s",theBook.strSubtitle.c_str());
+         if(!theBook.strAuthors.empty())
+            ImGui::TextWrapped("Authors: %s",theBook.strAuthors.c_str());
+         if(!theBook.strPublisher.empty())
+            ImGui::TextWrapped("Publisher: %s",theBook.strPublisher.c_str());
+         if(!theBook.strPublished.empty())
+            ImGui::Text("Published: %s",theBook.strPublished.c_str());
+         ImGui::Text("Source: %s",theBook.strProvider.c_str());
+         if(!theBook.strSourceURL.empty())
+            ImGui::TextWrapped("Catalog: %s",theBook.strSourceURL.c_str());
+         if(!theBook.theCover.empty()) {
+            ImGui::Text("Cover");
+            theBookCover.Draw(180.0F,260.0F);
+         }
+         else
+            ImGui::TextDisabled("No cover available from this catalog.");
+      }
+            if(!theLastConfirmed.vecText.empty()) {
          ImGui::SeparatorText("Last confirmed reading (retained)");
          ImGui::TextDisabled("Code format: %s",theLastConfirmed.vecTypes.front().c_str());
          for(std::size_t u=0;u<theLastConfirmed.vecText.size();++u)
