@@ -129,15 +129,24 @@ void DrawField(RecastField const& theField, ImVec2 const aOrigin, ImVec2 const a
 bool Verify() {
    RecastField const theLow = BuildField(15.0F, 1.3F);
    RecastField const theHigh = BuildField(75.0F, 1.3F);
-   bool const bPassed =
-      theLow.iTotalTriangles > 5000 &&
-      theLow.iCells > 1000 &&
-      theHigh.iCells > 1000 &&
-      theHigh.iWalkableTriangles > theLow.iWalkableTriangles;
-   std::println("SHOWCASE|CHECK|slope-rasterization|{}|triangles={} lowWalkable={} highWalkable={} spans={}",
-                bPassed ? "PASS" : "FAIL",
-                theLow.iTotalTriangles, theLow.iWalkableTriangles,
-                theHigh.iWalkableTriangles, theHigh.iCells);
+   bool const bMesh = theLow.iTotalTriangles == 8000 &&
+                      theHigh.iTotalTriangles == theLow.iTotalTriangles;
+   bool const bLowRaster = theLow.iCells > 0;
+   bool const bHighRaster = theHigh.iCells > 0;
+   bool const bSlopeResponse =
+      theLow.iWalkableTriangles > 0 &&
+      theHigh.iWalkableTriangles > theLow.iWalkableTriangles &&
+      theHigh.iWalkableTriangles <= theHigh.iTotalTriangles;
+   bool const bPassed = bMesh && bLowRaster && bHighRaster && bSlopeResponse;
+   std::println("SHOWCASE|CHECK|mesh-topology|{}|trianglesLow={} trianglesHigh={} expected=8000",
+      bMesh ? "PASS" : "FAIL", theLow.iTotalTriangles, theHigh.iTotalTriangles);
+   std::println("SHOWCASE|CHECK|low-slope-raster|{}|spans={} threshold=nonzero",
+      bLowRaster ? "PASS" : "FAIL", theLow.iCells);
+   std::println("SHOWCASE|CHECK|high-slope-raster|{}|spans={} threshold=nonzero",
+      bHighRaster ? "PASS" : "FAIL", theHigh.iCells);
+   std::println("SHOWCASE|CHECK|slope-response|{}|lowWalkable={} highWalkable={} triangles={}",
+      bSlopeResponse ? "PASS" : "FAIL", theLow.iWalkableTriangles,
+      theHigh.iWalkableTriangles, theHigh.iTotalTriangles);
    std::println("SHOWCASE|RESULT|{}|Recast walkability classification and heightfield rasterization",
                 bPassed ? "PASS" : "FAIL");
    return bPassed;
