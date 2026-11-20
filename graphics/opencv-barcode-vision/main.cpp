@@ -341,6 +341,12 @@ bool Verify() {
          theResult.vecText.size(),theResult.flMilliseconds);
       bPass=bPass && bCase;
    }
+   bool const bLookupISBN=IsIsbn13("9783696710095") &&
+      ToIsbn10("9783696710095")==std::optional<std::string>{"3696710091"};
+   std::println("SHOWCASE|CHECK|isbn-requested-9783696710095|{}|isbn10={}",
+      bLookupISBN?"PASS":"FAIL",
+      ToIsbn10("9783696710095").value_or("n/a"));
+   bPass=bPass&&bLookupISBN;
    // Catalog entries and ISBN metadata are independent of webcam availability.
    BarcodeSelection const theSelection;
    bool const bHasISBN=std::ranges::find(theSelection.vecFormats,
@@ -827,6 +833,31 @@ void Interactive() {
 }
 int main(int const iArgc,char const* const* const pszArgv) {
    try {
+      if(iArgc>1 && std::string_view{pszArgv[1]}=="--lookup-isbn") {
+         if(iArgc<3) throw std::runtime_error("Usage: --lookup-isbn <ISBN-13>");
+         std::string strISBN;
+         for(char const c:std::string_view{pszArgv[2]})
+            if(c>='0' && c<='9') strISBN.push_back(c);
+         if(!IsIsbn13(strISBN))
+            throw std::runtime_error("Invalid ISBN-13 checksum or 978/979 prefix");
+         BookMetadata const theBook=BookLookup::Lookup(strISBN);
+         std::println("SHOWCASE|BOOK|ISBN|{}",strISBN);
+         std::println("SHOWCASE|BOOK|STATUS|{}",theBook.strStatus);
+         if(theBook.Found()) {
+            std::println("SHOWCASE|BOOK|TITLE|{}",theBook.strTitle);
+            std::println("SHOWCASE|BOOK|SUBTITLE|{}",theBook.strSubtitle);
+            std::println("SHOWCASE|BOOK|AUTHOR|{}",theBook.strAuthors);
+            std::println("SHOWCASE|BOOK|PUBLISHER|{}",theBook.strPublisher);
+            std::println("SHOWCASE|BOOK|PUBLISHED|{}",theBook.strPublished);
+            std::println("SHOWCASE|BOOK|SOURCE|{}|{}",theBook.strProvider,
+               theBook.strSourceURL);
+            std::println("SHOWCASE|BOOK|COVER|{}|{}",
+               theBook.theCover.empty()?"UNAVAILABLE":"AVAILABLE",theBook.strCoverURL);
+         }
+         else
+            std::println("SHOWCASE|BOOK|NOT_FOUND|No confirmed entry in queried catalogs");
+         return theBook.Found()?0:3;
+      }
       if(iArgc>1 && std::string_view{pszArgv[1]}=="--list-cameras") {
          std::vector<CameraDevice> const vecDevices=EnumerateCameras();
          std::println("SHOWCASE|CAMERAS|{}|DirectShow registered devices",vecDevices.size());
