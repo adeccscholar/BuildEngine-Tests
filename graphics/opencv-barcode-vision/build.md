@@ -97,3 +97,27 @@ Reconfigure after changing an active library version, a package's CMake export, 
 If the runtime closure rejects a DLL, investigate the original installed managed package root and its declared transitive dependencies. If CTest fails, preserve the exact `SHOWCASE|CHECK` diagnostics and native stack/compiler messages rather than masking detection failures with a different decoder or model.
 
 **Validation status: [not verified].** The CMake commands follow the existing BuildEngine test layout and project configurations, but native BCC64X compilation, CTest execution and interactive behavior must be verified on the Windows host.
+
+## 8. Enumerate and select webcams without opening them
+
+The interactive application offers a dropdown of DirectShow video input devices, including available friendly names. The **REFRESH REGISTERED CAMERAS** action enumerates devices but does not open them, avoiding unnecessary delays on inactive inputs. Use **CONNECT SELECTED** to open the selected DirectShow index through the installed OpenCV `videoio` component. You can also supply a numeric index with **CONNECT BY INDEX**. A disconnected or disabled source may refuse to open; this is reported as a connection error, not silently redirected to a different camera.
+
+For a machine with six registered devices where the first four are currently inactive, the UI is intended to let you select the fifth or sixth device directly, without trying the inactive devices sequentially. The actual indices and ordering must be confirmed on that machine. Windows may exclude fully disabled devices from enumeration, and reconnecting hardware can reorder indices.
+
+Inspect the registered DirectShow inventory using the installed application. This operation only enumerates source names and device paths and does **not** open them:
+
+```bat
+..\build\Test\opencv-barcode-vision\Release\opencv-barcode-vision.exe --list-cameras
+```
+
+For a quick check before installation, the same diagnostic can be run from the build-tree runtime directory:
+
+```bat
+..\build\Test\opencv-barcode-vision\Release\cmake\runtime\opencv-barcode-vision\opencv-barcode-vision.exe --list-cameras
+```
+
+In the GUI, select **EAN-13 / UPC barcode** or **QR Code**, connect a camera and enable **Scan live frames**. A live SDL2 image displays frames captured by OpenCV and overlays any detector-supplied barcode boundaries. If a device stops returning frames repeatedly, the stream is released with a visible diagnostic. Use **DISCONNECT** before switching to another physical capture source; selecting a new device or running a file-based test also releases the previous capture.
+
+The existing `--verify` remains camera-independent. It generates known barcode fixtures with managed ZXing/Zint and requires native OpenCV to decode them. The new `--list-cameras` is a diagnostic rather than an automated availability test.
+
+**[not verified]** DirectShow enumeration and live camera behavior must be tested on the BCC64X Windows host.
