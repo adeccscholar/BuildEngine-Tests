@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stddef.h>
 #include <GL/glew.h>
 #include <imgui.h>
 #include "TerrainView.h"
