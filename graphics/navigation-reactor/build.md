@@ -31,3 +31,7 @@ cmake --install ../build/Test/navigation-reactor/Release/cmake
 ```
 
 Debug and Release must use separate CMake caches and exact matching managed import DLL variants. **[not verified]** Native Windows build and visual operation are pending.
+
+## 3D view validation
+
+The current main branch defaults to the perspective 3D terrain viewport, with mouse-drag orbit, mouse-wheel zoom, azimuth/elevation/distance sliders and a wireframe toggle. The '3D terrain' checkbox returns to the prior voxel raster. After updating the source, reconfigure and rebuild before installing the new executable. The headless test does not validate the visual output; inspect the terrain elevation, route projection and interaction on Windows.

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "kind": "showcase",
-  "title": "Navigation Reactor — Detour Expedition",
-  "summary": "Interactive Recast polygon navigation mesh and genuine Detour routefinding with animated agent, slope controls, terrain relief and optional central obstacle.",
+  "title": "Navigation Reactor — 3D Detour Expedition",
+  "summary": "Interactive 3D terrain rendered from the actual Recast input mesh, orbit camera, wireframe overlay, Detour pathfinding and animated agent; 2D diagnostic raster retained.",
   "dependencies": [
     {
       "library": "recastnavigation",
@@ -25,7 +25,7 @@
   "applications": [
     {
       "name": "navigation-reactor",
-      "summary": "Live Recast terrain, Detour corridor path, start and goal markers and animated agent.",
+      "summary": "Perspective 3D terrain with orbit and zoom, actual Recast triangles, Detour route and animated agent; 2D diagnostics on demand.",
       "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe",
       "interactive": true
     },
