@@ -112,10 +112,17 @@ public:
    \returns True only when OpenCV successfully opens the source.
    \throw cv::Exception On a native driver failure.
    */
-   bool Connect(int const iDeviceIndex) {
+   bool Connect(int const iDeviceIndex,int const iRequestedWidth=0,
+      int const iRequestedHeight=0) {
       Disconnect();
       if(iDeviceIndex<0) return false;
       if(!theCapture.open(iDeviceIndex,cv::CAP_DSHOW)) return false;
+      if(iRequestedWidth>0 && iRequestedHeight>0) {
+         // Device negotiation may select a different supported mode. Always
+         // report actual captured frame dimensions instead of claiming 4K.
+         theCapture.set(cv::CAP_PROP_FRAME_WIDTH,iRequestedWidth);
+         theCapture.set(cv::CAP_PROP_FRAME_HEIGHT,iRequestedHeight);
+      }
       iIndex=iDeviceIndex;
       return true;
    }
