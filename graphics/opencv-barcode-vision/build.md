@@ -139,3 +139,25 @@ Most printed book barcodes encode an ISBN-13 as EAN-13 with prefix `978` or `979
 A selected format affects file scans and live camera scans. Changing the format resets the current tracking lock so the code may be decoded under the new filter. The last successfully decoded data remains visible independently in the retained reading area. To test the selection without camera access, run the normal CTest command described above: `--verify` includes a ZXing-readable catalog check, selected-format QR test and real ISBN-13 EAN barcode check. The producer's installed format list, not this documentation, determines the exact entries shown on your machine.
 
 **[not verified]** The full format list and ISBN test results require execution with the installed BCC64X ZXing-C++ package.
+
+## 11. ISBN REST book metadata and cover retrieval
+
+The selected ISBN is available immediately after detection. By default **Auto lookup after confirmed ISBN** launches exactly one asynchronous request for a new, valid ISBN; the live scanner and retained reading continue independently. Uncheck this option for manual-only lookup, enter an ISBN-13 with or without punctuation and click **LOOK UP BOOK**. The application normalizes punctuation, verifies the 978/979 prefix and EAN-13 checksum before opening a network connection. Open Library and Google Books are consulted in that order. The source, title, publisher, author and optionally a downloaded and decoded cover are displayed in a separate results section. The **COPY CATALOG LINK** control copies the catalog URL for external inspection.
+
+The application uses the active **curl 8.23.0**, **nlohmann-json 3.12.0** and OpenCV image-decoding interfaces. BuildEngine's existing installed OpenSSL and zlib packages supply libcurl's transitive runtime. All dependencies are declared and staged via the regular managed package closure. The HTTPS request verifies certificate and host, is size limited, and never follows an arbitrary server redirect. Unavailable book metadata and cover images are explicit outcomes, not recognition failures.
+
+The following command queries the exact ISBN provided for acceptance and outputs the live REST result, including the catalog name, matched book metadata and cover availability. It is an online diagnostic and may return a nonzero exit status even for a valid ISBN if neither public catalog contains that edition.
+
+```bat
+..\build\Test\opencv-barcode-vision\Release\cmake\runtime\opencv-barcode-vision\opencv-barcode-vision.exe --lookup-isbn 978-3-6967-1009-5
+```
+
+Once the application has been installed, the corresponding command is:
+
+```bat
+..\build\Test\opencv-barcode-vision\Release\opencv-barcode-vision.exe --lookup-isbn 978-3-6967-1009-5
+```
+
+The known publisher reference for this edition is https://buchshop.bod.de/die-antwort-klingt-richtig-volker-hillmann-9783696710095 . It establishes that this is a real title even if a public REST catalog returns no entry; it is not a hardcoded lookup fallback. The offline `--verify` also checks that this ISBN corresponds mathematically to ISBN-10 `3696710091`.
+
+**[not verified]** The new libcurl / nlohmann JSON BCC64X integration and remote metadata/cover results must be tested on the Windows host.

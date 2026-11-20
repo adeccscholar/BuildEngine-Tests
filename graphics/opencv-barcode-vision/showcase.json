@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "showcase",
   "title": "OpenCV Barcode Vision",
-  "summary": "Native OpenCV barcode/QR detection with selectable ZXing formats, ISBN-13/ISBN-10 metadata, DirectShow live cameras and stable tracked detections.",
+  "summary": "Live OpenCV/ZXing scanning with ISBN book metadata lookup from Open Library and Google Books, including available covers.",
   "dependencies": [
     {
       "library": "opencv",
@@ -48,6 +48,21 @@
       "library": "libpng",
       "version": "active",
       "direct": false
+    },
+    {
+      "library": "curl",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "nlohmann-json",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "openssl",
+      "version": "active",
+      "direct": false
     }
   ],
   "externalDependencies": [],
@@ -55,7 +70,7 @@
   "applications": [
     {
       "name": "opencv-barcode-vision",
-      "summary": "Interactive webcam, barcode and QR scanning with dynamic format selection, ISBN identification, and retained last reading.",
+      "summary": "Interactive barcode and webcam detection, ISBN catalog lookup, title/author/publisher and optional cover.",
       "command": "..\\build\\Test\\opencv-barcode-vision\\Release\\opencv-barcode-vision.exe",
       "interactive": true
     },
@@ -69,6 +84,12 @@
       "name": "opencv-barcode-vision --list-cameras",
       "summary": "Enumerate registered Windows DirectShow capture devices without opening any camera.",
       "command": "..\\build\\Test\\opencv-barcode-vision\\Release\\opencv-barcode-vision.exe --list-cameras",
+      "interactive": false
+    },
+    {
+      "name": "opencv-barcode-vision --lookup-isbn",
+      "summary": "Fetch exact ISBN book data and available cover from live public REST catalogs.",
+      "command": "..\\build\\Test\\opencv-barcode-vision\\Release\\opencv-barcode-vision.exe --lookup-isbn 978-3-6967-1009-5",
       "interactive": false
     }
   ]
