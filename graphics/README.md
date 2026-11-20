@@ -1,12 +1,15 @@
 # Native graphics demonstration gallery
 
-This directory groups three independent **interactive Windows C++23/BCC64X applications**, each with readable controls, animated scenarios, a headless correctness test and optional independent presentation artifacts.
+This directory groups six independent **interactive Windows C++23/BCC64X applications**, each with readable controls, animated scenarios, a headless correctness test and optional independent presentation artifacts.
 
 | Showcase | Native user experience | Managed libraries |
 | --- | --- | --- |
 | [Dear ImGui Neon Laboratory](imgui-neon-lab/Description.md) | Four time-dependent particle fields, scene selection, zoom and playback controls | ImGui, SDL2 |
 | [ImPlot Real-Time Signal Theater](implot-signal-theater/Description.md) | Four oscilloscope models, animated ImPlot curves, labeled axes, signal toggles and parameter sliders | ImPlot, ImGui, SDL2 |
 | [Matplot++ Mathematical Discovery Gallery](matplot-chaos-atlas/Description.md) | Six tiled mathematical scenes, detailed progressive animation, zoom and optional six-file SVG export | Matplot++, ImGui, SDL2 |
+| [Vector Galaxy](vector-galaxy/Description.md) | 851-star mathematical nebula with real HNSW similarity rings and libigl vertex-normal lighting | hnswlib, libigl, Eigen, ImGui, SDL2 |
+| [Barcode Signal Lab](barcode-signal-lab/Description.md) | Interactive EAN-13 scan chamber; public-standard encoder, native ZXing decoding and live results | ZXing-C++, ImGui, SDL2 |
+| [Navigation Reactor](navigation-reactor/Description.md) | Real Recast triangle classification and voxelized heightfields; interactive slope and relief controls | Recast Navigation, ImGui, SDL2 |
 
 Each application builds independently with CMake/Ninja, uses installed BuildEngine DLLs, and provides one-line build commands in its own `build.md`. The graphic is part of the native application, **not** a browser rendering of pre-generated SVGs. The central server can additionally display independently generated SVGs when available.
 
