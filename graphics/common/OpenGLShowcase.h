@@ -100,7 +100,7 @@ class OpenGLShowcase final {
    }
 
    void UpdateTexture(ImTextureData* const pTexture) {
-      GLuint uTexture = static_cast<GLuint>(reinterpret_cast<std::uintptr_t>(pTexture->TexID));
+      GLuint uTexture = static_cast<GLuint>(static_cast<std::uintptr_t>(pTexture->TexID));
       if(pTexture->Status == ImTextureStatus_WantCreate) {
          glGenTextures(1, &uTexture);
          glBindTexture(GL_TEXTURE_2D, uTexture);
@@ -184,7 +184,7 @@ class OpenGLShowcase final {
             if(iRight <= iLeft || iBottom <= iTop) continue;
             glScissor(iLeft, iHeight - iBottom, iRight - iLeft, iBottom - iTop);
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(reinterpret_cast<std::uintptr_t>(aCmd.GetTexID())));
+            glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(static_cast<std::uintptr_t>(aCmd.GetTexID())));
             glDrawElementsBaseVertex(GL_TRIANGLES, static_cast<GLsizei>(aCmd.ElemCount),
                sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT,
                reinterpret_cast<void const*>(static_cast<std::uintptr_t>(aCmd.IdxOffset * sizeof(ImDrawIdx))),
@@ -262,7 +262,7 @@ public:
          for(ImTextureData* const pTexture : ImGui::GetPlatformIO().Textures)
             if(pTexture->Status != ImTextureStatus_Destroyed &&
                pTexture->TexID != ImTextureID_Invalid) {
-               GLuint const uId = static_cast<GLuint>(reinterpret_cast<std::uintptr_t>(pTexture->TexID));
+               GLuint const uId = static_cast<GLuint>(static_cast<std::uintptr_t>(pTexture->TexID));
                glDeleteTextures(1, &uId);
                pTexture->SetTexID(ImTextureID_Invalid);
                pTexture->SetStatus(ImTextureStatus_Destroyed);
@@ -281,6 +281,13 @@ public:
 
    [[nodiscard]] bool Running() const noexcept { return bRunning; }
    [[nodiscard]] SDL_Window* Window() const noexcept { return pWindow; }
+
+   /** \brief Reports the active runtime OpenGL version string. */
+   [[nodiscard]] std::string VersionString() const {
+      GLubyte const* const pText = glGetString(GL_VERSION);
+      return pText ? std::string(reinterpret_cast<char const*>(pText)) :
+         std::string("OpenGL version unavailable");
+   }
 
    /** \brief Advances SDL input and begins a new ImGui frame. */
    void BeginFrame() {
