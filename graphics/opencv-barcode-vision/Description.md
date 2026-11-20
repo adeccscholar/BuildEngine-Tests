@@ -81,3 +81,13 @@ In the first real ISBN lookup, Open Library timed out and Google Books rejected 
 Each provider now records its own response outcome. Open Library uses a bounded 1.5-second connection timeout and a 3-second total deadline before the Google Books fallback is attempted. Errors differentiate network timeout, TLS certificate validation failure, HTTP response failure, and absence of an exact matching record. The UI and `--lookup-isbn` diagnostic print independent **Open Library** and **Google Books** statuses. A timeout or certificate failure is not rendered as "book not listed". The network path remains asynchronous in the interactive application. **[not verified]** until BCC64X Windows execution.
 
 No CA bundle is downloaded, no TLS verification is disabled, and no provider metadata is fabricated when both catalogs are unavailable.
+
+## REST backoff, HTTP 429 and ISBN caching (20 November 2026)
+
+The Google Books REST endpoint returned HTTP 429 after the native Windows CA trust correction, while Open Library continued timing out. Neither is evidence that the ISBN is absent. The shared HTTP client now parses a numeric HTTP `Retry-After` response header and reports 429 as a distinct `RateLimited` exception. The provider is **not retried immediately**. If no numeric `Retry-After` is available, the client uses a five-minute conservative backoff; when a numeric value is present, it is bounded to one day. Provider rate-limit state is shared in memory across ISBN requests.
+
+After an Open Library timeout, new requests skip that provider for 60 seconds rather than spending three seconds repeatedly attempting unreachable requests. Results are cached by validated ISBN: exact book metadata for 24 hours, and no-result or provider-error outcomes for ten minutes. Cached outcomes are explicitly labelled in their status. The fallback logic never turns HTTP 429 or network timeout into a claim that a valid ISBN is unknown. Different HTTP providers retain their independent status messages.
+
+The cache and throttling state are **per process**. Restarting the executable resets both; an API key, persistent library database or external cache service is not silently introduced. Rate limits imposed by a remote provider cannot be bypassed by code. A permanent quota restriction or denied unauthenticated access requires a supported provider access arrangement rather than faster repeated calls. Strict TLS verification and the existing managed libcurl/OpenSSL package boundaries remain in force.
+
+**[not verified]** Native BCC64X runtime behavior and live provider responses still require testing on the Windows host.

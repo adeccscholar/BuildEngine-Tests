@@ -197,3 +197,21 @@ Run the same exact ISBN against both live providers and inspect their individual
 ```
 
 If the native Windows trust store lacks the CA for a TLS-intercepting corporate proxy, certificate validation will continue to fail deliberately. Correct the Windows certificate deployment rather than disabling `CURLOPT_SSL_VERIFYPEER` or `CURLOPT_SSL_VERIFYHOST`. Likewise, a timeout alone never proves a catalog has no record. **[not verified]** Native provider responses are not asserted until this command has run successfully on the actual Windows host.
+
+## 14. Handling Open Library timeout and Google Books HTTP 429
+
+A `Network timeout` from Open Library does not mean that an ISBN is unlisted. The current connection timeout is 1.5 seconds and the total request timeout is three seconds. After a timeout, the application temporarily skips new Open Library requests for 60 seconds. Google Books HTTP 429 is reported as an explicit rate-limit status, with a cooldown determined by the numeric `Retry-After` header when available, or a conservative 300-second fallback.
+
+The application caches exact book matches for 24 hours and unavailable/error responses for ten minutes, keyed by ISBN. Repeated scans of an already recognized barcode do not initiate repeated lookups. The cache and provider cooldowns are process-local and are cleared by restarting the program. This prevents accidental hammering during one session but does not override external API quotas. No request retries are performed on HTTP 429.
+
+Run the single-line lookup diagnostic after rebuilding:
+
+```bat
+cmake --build ../build/Test/opencv-barcode-vision/Release/cmake --parallel 4
+```
+
+```bat
+..\build\Test\opencv-barcode-vision\Release\cmake\runtime\opencv-barcode-vision\opencv-barcode-vision.exe --lookup-isbn 978-3-6967-1009-5
+```
+
+If the Google Books service continues to return 429 after its requested cooldown, check the provider's quota and access policy rather than disabling TLS or retrying repeatedly. An unsuccessful public REST lookup must never overwrite or contradict an independently verified publisher record. **[not verified]** The revised policy requires local Windows execution.
