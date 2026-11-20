@@ -183,7 +183,32 @@ void DrawGray(cv::Mat const& theImage,ImVec2 const aSize) {
 
 bool Verify() {
    std::string const strExpected="OCR TEST 4711";
-   Recognition const theResult=Recognize(MakeDocument(strExpected),true,
+   cv::Mat const theFixture=MakeDocument(strExpected);
+   // Verify that the source really contains whitespace between adjacent words.
+   // Otherwise a recognized OCRTEST would be a rendering regression rather
+   // than a defect in Tesseract's text-space segmentation.
+   cv::Mat theInk;
+   cv::threshold(theFixture,theInk,128,255,cv::THRESH_BINARY_INV);
+   cv::Mat theColumnInk;
+   cv::reduce(theInk,theColumnInk,0,cv::REDUCE_MAX,CV_8U);
+   int iLargestGap {};
+   int iCurrentGap {};
+   bool bSeenInk {};
+   for(int iX=0;iX<theColumnInk.cols;++iX) {
+      bool const bInk=theColumnInk.at<unsigned char>(0,iX)!=0;
+      if(bInk) {
+         if(bSeenInk) iLargestGap=std::max(iLargestGap,iCurrentGap);
+         iCurrentGap=0;
+         bSeenInk=true;
+      }
+      else if(bSeenInk) {
+         ++iCurrentGap;
+      }
+   }
+   bool const bWordSeparation=iLargestGap>=55;
+   std::println("SHOWCASE|CHECK|ocr-fixture-word-spacing|{}|largest-white-gap={}px",
+      bWordSeparation?"PASS":"FAIL",iLargestGap);
+   Recognition const theResult=Recognize(theFixture,true,
       tesseract::PSM_SINGLE_LINE);
    bool const bExact=theResult.strRecognized==strExpected;
    bool const bConfidence=theResult.iConfidence>=0 &&
@@ -193,8 +218,8 @@ bool Verify() {
    std::println("SHOWCASE|CHECK|tesseract-confidence|{}|confidence={} elapsed-ms={:.2f}",
       bConfidence?"PASS":"FAIL",theResult.iConfidence,theResult.flMilliseconds);
    std::println("SHOWCASE|RESULT|{}|OpenCV preprocessing, Leptonica PIX and native Tesseract LSTM",
-      bExact&&bConfidence?"PASS":"FAIL");
-   return bExact&&bConfidence;
+      bExact&&bConfidence&&bWordSeparation?"PASS":"FAIL");
+   return bExact&&bConfidence&&bWordSeparation;
 }
 
 void Interactive() {
