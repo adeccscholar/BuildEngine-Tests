@@ -1,11 +1,16 @@
 {
   "schemaVersion": 1,
   "kind": "showcase",
-  "title": "Barcode Signal Lab — Decode the Invisible",
-  "summary": "A luminous interactive scan chamber synthesizes EAN-13 barcodes and decodes them live using the native ZXing-C++ DLL. Adjust retail data and decoder settings, watch real detection results.",
+  "title": "Barcode Signal Lab — Universal Encode / Decode",
+  "summary": "Live QR Code, Data Matrix, Code 128, EAN-13 and PDF417 generation through the native ZXing writer and externally managed Zint DLL, with immediate ZXing readback and round-trip verification.",
   "dependencies": [
     {
       "library": "zxing-cpp",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zint",
       "version": "active",
       "direct": true
     },
@@ -25,13 +30,13 @@
   "applications": [
     {
       "name": "barcode-signal-lab",
-      "summary": "Interactive EAN-13 scanner: enter retail digits, synthesize bars, decode through ZXing and display the detected symbol.",
+      "summary": "Interactive multi-symbology writer and scanner, with real ZXing/Zint encoding and ZXing decoding.",
       "command": "..\\build\\Test\\barcode-signal-lab\\Release\\barcode-signal-lab.exe",
       "interactive": true
     },
     {
       "name": "barcode-signal-lab --verify",
-      "summary": "Headless EAN-13 encoder/decoder cross-check through the installed ZXing DLL.",
+      "summary": "Headless five-format encode/decode round-trip regression over the native ZXing+Zint integration.",
       "command": "..\\build\\Test\\barcode-signal-lab\\Release\\barcode-signal-lab.exe --verify",
       "interactive": false
     }
