@@ -227,9 +227,26 @@ bool Verify() {
       bExact?"PASS":"FAIL",strExpected,theResult.strRecognized);
    std::println("SHOWCASE|CHECK|tesseract-confidence|{}|confidence={} elapsed-ms={:.2f}",
       bConfidence?"PASS":"FAIL",theResult.iConfidence,theResult.flMilliseconds);
+   // Validate document extraction independently from an attached camera.
+   cv::Mat thePage(540,760,CV_8UC1,cv::Scalar{255});
+   cv::rectangle(thePage,cv::Rect{120,90,450,330},cv::Scalar{0},4);
+   cv::Mat const theSelected=ExtractDocument(thePage,
+      DocumentRegion::Mode::ManualROI,{{.15F,.12F,.65F,.70F}}).theDocument;
+   DocumentRegion const theAutoPage=ExtractDocument(thePage,
+      DocumentRegion::Mode::AutoPage,{{.0F,.0F,1.0F,1.0F}});
+   bool const bManualRegion=theSelected.cols>=450 &&
+      theSelected.rows>=350;
+   bool const bAutoRegion=theAutoPage.bFound &&
+      theAutoPage.theDocument.cols>=350 &&
+      theAutoPage.theDocument.rows>=250;
+   std::println("SHOWCASE|CHECK|ocr-document-manual-region|{}|size={}x{}",
+      bManualRegion?"PASS":"FAIL",theSelected.cols,theSelected.rows);
+   std::println("SHOWCASE|CHECK|ocr-document-perspective|{}|detected={} size={}x{}",
+      bAutoRegion?"PASS":"FAIL",theAutoPage.bFound,
+      theAutoPage.theDocument.cols,theAutoPage.theDocument.rows);
    std::println("SHOWCASE|RESULT|{}|OpenCV preprocessing, Leptonica PIX and native Tesseract LSTM",
-      bExact&&bConfidence&&bWordSeparation?"PASS":"FAIL");
-   return bExact&&bConfidence&&bWordSeparation;
+      bExact&&bConfidence&&bWordSeparation&&bManualRegion&&bAutoRegion?"PASS":"FAIL");
+   return bExact&&bConfidence&&bWordSeparation&&bManualRegion&&bAutoRegion;
 }
 
 void Interactive() {
