@@ -152,7 +152,7 @@ Result AnalyzeSelected(cv::Mat const& theImage,int const iSelection,
       Result theLinear=Analyze(theImage,false);
       if(theLinear.bDetected && !theLinear.vecText.empty()) {
          for(std::size_t u=0;u<theLinear.vecText.size();++u) {
-            if(IsIsbn13(theLinear.vecText[u])) {
+            if(IsIsbn13(theLinear.vecText[u]) && u<theLinear.vecTypes.size()) {
                theLinear.vecTypes[u]="ISBN-13 (EAN-13)";
             }
          }
@@ -339,6 +339,36 @@ bool Verify() {
          theResult.vecText.size(),theResult.flMilliseconds);
       bPass=bPass && bCase;
    }
+   // Catalog entries and ISBN metadata are independent of webcam availability.
+   BarcodeSelection const theSelection;
+   bool const bHasISBN=std::ranges::find(theSelection.vecFormats,
+      ZXing::BarcodeFormat::ISBN)!=theSelection.vecFormats.end();
+   bool const bHasQR=std::ranges::find(theSelection.vecFormats,
+      ZXing::BarcodeFormat::QRCode)!=theSelection.vecFormats.end();
+   bool const bISBN=IsIsbn13("9780306406157") &&
+      !IsIsbn13("9780306406158") &&
+      !IsIsbn13("4006381333931") &&
+      ToIsbn10("9780306406157")==std::optional<std::string>{"0306406152"} &&
+      !ToIsbn10("9791234567896");
+   cv::Mat const theISBNImage=MakeSymbol("9780306406157",false);
+   Result const theISBNResult=AnalyzeSelected(theISBNImage,0,theSelection);
+   bool const bISBNDetected=std::ranges::find(theISBNResult.vecText,
+      std::string("9780306406157"))!=theISBNResult.vecText.end();
+   cv::Mat const theSelectedQR=MakeSymbol("BUILDENGINE-OPENCV-5.1",true);
+   int const iQRCodeOption=static_cast<int>(
+      std::ranges::find(theSelection.vecFormats,ZXing::BarcodeFormat::QRCode)-
+      theSelection.vecFormats.begin())+1;
+   Result const theSelectedResult=bHasQR ?
+      AnalyzeSelected(theSelectedQR,iQRCodeOption,theSelection):Result{};
+   bool const bManualQR=std::ranges::find(theSelectedResult.vecText,
+      std::string("BUILDENGINE-OPENCV-5.1"))!=theSelectedResult.vecText.end();
+   std::println("SHOWCASE|CHECK|barcode-formats|{}|readable={} isbn={} qrcode={}",
+      bHasISBN&&bHasQR?"PASS":"FAIL",theSelection.vecFormats.size(),bHasISBN,bHasQR);
+   std::println("SHOWCASE|CHECK|isbn-13|{}|ean978={} isbn10={} checksum={}",
+      bISBN&&bISBNDetected?"PASS":"FAIL",bISBNDetected,ToIsbn10("9780306406157").value_or("n/a"),bISBN);
+   std::println("SHOWCASE|CHECK|barcode-manual-qr|{}|decoded={}",
+      bManualQR?"PASS":"FAIL",bManualQR);
+   bPass=bPass&&bHasISBN&&bHasQR&&bISBN&&bISBNDetected&&bManualQR;
    // A confirmed QR code must remain locked on unchanged live frames.
    // No decoder invocation is necessary while the tracker reports presence.
    cv::Mat const theFixture=MakeSymbol("BUILDENGINE-OPENCV-5.1",true);
