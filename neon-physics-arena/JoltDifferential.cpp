@@ -16,6 +16,7 @@
 #include <box2d/box2d.h>
 #include <box2d/math_functions.h>
 
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <cmath>
