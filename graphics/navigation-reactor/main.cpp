@@ -228,8 +228,19 @@ bool Verify() {
          }
       }
    }
+   int const iCorridorTriangles = static_cast<int>(std::count_if(
+      theRouteField.theRoute.vecNavigationTriangles.begin(),
+      theRouteField.theRoute.vecNavigationTriangles.end(),
+      [](NavigationMeshTriangle const& theTriangle) {
+         return theTriangle.bCorridor;
+      }));
+   bool const bNavMeshCorridor = theRouteField.theRoute.iCorridor > 0 &&
+      !theRouteField.theRoute.vecNavigationTriangles.empty() &&
+      iCorridorTriangles > 0 &&
+      iCorridorTriangles <= static_cast<int>(
+         theRouteField.theRoute.vecNavigationTriangles.size());
    bool const bPassed = bMesh && bLowRaster && bHighRaster &&
-      bSlopeResponse && bDetour && bSurfaceSampling;
+      bSlopeResponse && bDetour && bSurfaceSampling && bNavMeshCorridor;
    std::println("SHOWCASE|CHECK|mesh-topology|{}|trianglesLow={} trianglesHigh={} expected=8000",
       bMesh ? "PASS" : "FAIL", theLow.iTotalTriangles, theHigh.iTotalTriangles);
    std::println("SHOWCASE|CHECK|low-slope-raster|{}|spans={} threshold=nonzero",
@@ -242,6 +253,10 @@ bool Verify() {
    std::println("SHOWCASE|CHECK|detour-route|{}|polygons={} points={} complete={}",
       bDetour ? "PASS" : "FAIL", theRouteField.theRoute.iPolygons,
       theRouteField.theRoute.vecPoints.size(), theRouteField.theRoute.bPathComplete);
+   std::println("SHOWCASE|CHECK|detour-mesh-corridor|{}|detailTriangles={} corridorTriangles={} corridorPolygons={}",
+      bNavMeshCorridor ? "PASS" : "FAIL",
+      theRouteField.theRoute.vecNavigationTriangles.size(),
+      iCorridorTriangles, theRouteField.theRoute.iCorridor);
    std::println("SHOWCASE|CHECK|detour-surface-sampling|{}|points={} max-horizontal-step=0.5m",
       bSurfaceSampling ? "PASS" : "FAIL",
       theRouteField.theRoute.vecPoints.size());
