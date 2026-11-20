@@ -57,7 +57,7 @@ inline DocumentRegion ExtractDocument(cv::Mat const& theFrame,
          1,theFrame.rows-iTop);
       cv::Rect const aROI {iLeft,iTop,iWidth,iHeight};
       theRegion.theDocument=theFrame(aROI).clone();
-      theRegion.arrCorners {{
+      theRegion.arrCorners = {{
          {static_cast<float>(aROI.x),static_cast<float>(aROI.y)},
          {static_cast<float>(aROI.x+aROI.width),static_cast<float>(aROI.y)},
          {static_cast<float>(aROI.x+aROI.width),static_cast<float>(aROI.y+aROI.height)},
