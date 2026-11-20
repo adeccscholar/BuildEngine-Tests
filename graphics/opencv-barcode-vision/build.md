@@ -179,3 +179,21 @@ cmake --build ../build/Test/opencv-barcode-vision/Release/cmake --parallel 4
 ```
 
 **[not verified]** The corrected PE closure must be executed on the Windows BCC64X host.
+
+## 13. HTTPS certificate validation and network timeouts
+
+The application explicitly enables libcurl's native Windows CA store option for the OpenSSL backend while retaining certificate and hostname verification. This addresses the earlier `SSL peer certificate or SSH remote key was not OK` result, which indicated an unverifiable certificate chain rather than an absent ISBN. Open Library's network operation is limited to three seconds, after which Google Books is tried. The independent diagnostics distinguish connection timeout, TLS failure, HTTP error and no exact ISBN match.
+
+After updating the sources, rebuild the existing Release tree:
+
+```bat
+cmake --build ../build/Test/opencv-barcode-vision/Release/cmake --parallel 4
+```
+
+Run the same exact ISBN against both live providers and inspect their individual status fields:
+
+```bat
+..\build\Test\opencv-barcode-vision\Release\cmake\runtime\opencv-barcode-vision\opencv-barcode-vision.exe --lookup-isbn 978-3-6967-1009-5
+```
+
+If the native Windows trust store lacks the CA for a TLS-intercepting corporate proxy, certificate validation will continue to fail deliberately. Correct the Windows certificate deployment rather than disabling `CURLOPT_SSL_VERIFYPEER` or `CURLOPT_SSL_VERIFYHOST`. Likewise, a timeout alone never proves a catalog has no record. **[not verified]** Native provider responses are not asserted until this command has run successfully on the actual Windows host.
