@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.25)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../bootstrap/PrepareToolchain.cmake")
+project(pulse_engine LANGUAGES CXX)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/BuildEngineTests.cmake")
+include(CTest)
+
+adecc_package_current_root(MINIAUDIO_PACKAGE miniaudio)
+adecc_package_current_root(IMGUI_PACKAGE imgui)
+adecc_package_current_root(SDL2_PACKAGE sdl2)
+list(PREPEND CMAKE_PREFIX_PATH "${SDL2_PACKAGE}")
+find_package(SDL2 CONFIG REQUIRED PATHS "${SDL2_PACKAGE}" NO_DEFAULT_PATH)
+if(BUILDENGINE_CONFIGURATION STREQUAL "Debug")
+   set(_imgui_suffix d)
+else()
+   set(_imgui_suffix "")
+endif()
+set(_imgui_import "${IMGUI_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libimgui${_imgui_suffix}.lib")
+if(NOT EXISTS "${_imgui_import}")
+   message(FATAL_ERROR "Managed ImGui DLL import missing: ${_imgui_import}")
+endif()
+add_executable(pulse-engine WIN32 main.cpp)
+set_target_properties(pulse-engine PROPERTIES
+   CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF
+   CXX_SCAN_FOR_MODULES OFF)
+target_compile_definitions(pulse-engine PRIVATE
+   SDL_MAIN_HANDLED WIN32_LEAN_AND_MEAN NOMINMAX MA_NO_DECODING MA_NO_ENCODING)
+target_include_directories(pulse-engine PRIVATE "${MINIAUDIO_PACKAGE}/include" "${IMGUI_PACKAGE}/include" "${SDL2_PACKAGE}/include/SDL2")
+target_link_libraries(pulse-engine PRIVATE "${_imgui_import}" SDL2::SDL2 winmm ole32)
+target_link_options(pulse-engine PRIVATE "-Wl,--subsystem,windows")
+adecc_test_install(pulse-engine RUNTIME_CLOSURE
+   PACKAGE_ROOTS "${MINIAUDIO_PACKAGE}" "${IMGUI_PACKAGE}" "${SDL2_PACKAGE}"
+   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
+if(BUILD_TESTING)
+   add_test(NAME PulseEngineWaveform COMMAND "$<TARGET_FILE:pulse-engine>" --verify)
+   set_tests_properties(PulseEngineWaveform PROPERTIES LABELS "native;miniaudio;audio;showcase" TIMEOUT 60)
+endif()
