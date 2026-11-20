@@ -1,3 +1,3 @@
 # Licensing
 
-This original educational showcase is covered by the parent BuildEngine-Tests repository license. External dependencies remain under their upstream terms: ZXing-C++ Apache-2.0, Dear ImGui MIT and SDL2 zlib. The small EAN-13 test encoder is authored in the showcase, not copied from an additional package. No ZXing writer source or binary is bundled.
+The original educational showcase remains governed by the parent BuildEngine-Tests repository license. Its separately installed dependencies carry their own terms: ZXing-C++ Apache-2.0, Zint BSD-3-Clause, Dear ImGui MIT and SDL2 zlib. The application uses ZXing's upstream new writer backend and an independently built Zint 2.16.0 DLL. No Zint sources are copied into the showcase.
