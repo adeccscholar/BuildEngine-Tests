@@ -1,5 +1,6 @@
 #include "../common/GraphicsDllImports.h"
 #include "../common/NativeShowcase.h"
+#include "CameraDevices.h"
 
 #include <ZXing/CreateBarcode.h>
 #include <ZXing/WriteBarcode.h>
@@ -8,6 +9,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/videoio.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/objdetect/barcode.hpp>
 
@@ -15,6 +17,8 @@
 #include <array>
 #include <chrono>
 #include <exception>
+#include <cstdint>
+#include <memory>
 #include <format>
 #include <print>
 #include <ranges>
@@ -146,6 +150,111 @@ void DrawImage(cv::Mat const& theImage,ImVec2 const aSize) {
    ImGui::Dummy(aSize);
 }
 
+/**
+\brief Owns a native SDL streaming texture for continuous OpenCV image display.
+\details The image is transferred once per updated camera frame, not converted
+   into thousands of ImGui drawing primitives. The SDL renderer owns the GPU
+   resource, which is released before its NativeShowcase parent shuts down.
+*/
+class CameraViewport final {
+   SDL_Renderer* pRenderer {};
+   SDL_Texture* pTexture {};
+   int iWidth {};
+   int iHeight {};
+
+public:
+   explicit CameraViewport(SDL_Window* const pWindow)
+      : pRenderer(SDL_GetRenderer(pWindow)) {
+      if(!pRenderer) throw std::runtime_error("SDL renderer unavailable");
+   }
+   CameraViewport(CameraViewport const&)=delete;
+   CameraViewport& operator=(CameraViewport const&)=delete;
+   ~CameraViewport() { if(pTexture) SDL_DestroyTexture(pTexture); }
+
+   /**
+   \brief Updates the live image from the actual annotated OpenCV pixels.
+   \details Uses an SDL2 BGRA streaming texture and OpenCV conversion.
+   \param theImage BGR camera image with optional detector annotations.
+   \returns Nothing.
+   \throw std::runtime_error On SDL texture allocation or transfer failure.
+   */
+   void SetImage(cv::Mat const& theImage) {
+      if(theImage.empty()) return;
+      if(theImage.cols!=iWidth || theImage.rows!=iHeight) {
+         if(pTexture) SDL_DestroyTexture(pTexture);
+         pTexture=SDL_CreateTexture(pRenderer,SDL_PIXELFORMAT_BGRA32,
+            SDL_TEXTUREACCESS_STREAMING,theImage.cols,theImage.rows);
+         if(!pTexture) throw std::runtime_error(SDL_GetError());
+         iWidth=theImage.cols;
+         iHeight=theImage.rows;
+      }
+      cv::Mat theBGRA;
+      cv::cvtColor(theImage,theBGRA,cv::COLOR_BGR2BGRA);
+      if(SDL_UpdateTexture(pTexture,nullptr,theBGRA.data,
+         static_cast<int>(theBGRA.step))!=0)
+         throw std::runtime_error(SDL_GetError());
+   }
+
+   /**
+   \brief Displays the current frame with its native aspect ratio.
+   \details Calls SDL2 texture-backed ImGui rendering, preserving all pixels.
+   \param flAvailableWidth Available viewport width.
+   \param flAvailableHeight Available viewport height.
+   \returns Nothing.
+   \throw Nothing intentionally.
+   */
+   void Draw(float const flAvailableWidth,float const flAvailableHeight) const {
+      if(!pTexture || iWidth<=0 || iHeight<=0) {
+         ImGui::TextDisabled("No camera frames received.");
+         return;
+      }
+      float const flScale=std::min(flAvailableWidth/static_cast<float>(iWidth),
+         flAvailableHeight/static_cast<float>(iHeight));
+      ImVec2 const aSize {
+         std::max(1.0F,flScale*iWidth),std::max(1.0F,flScale*iHeight)
+      };
+      ImGui::Image(static_cast<ImTextureID>(
+         reinterpret_cast<std::intptr_t>(pTexture)),aSize);
+   }
+};
+
+/**
+\brief Holds an explicitly selected OpenCV DirectShow capture.
+\details Neither camera discovery nor the headless smoke opens hardware.
+   The selected camera is released on every disconnect or selection change.
+*/
+class CameraCapture final {
+   cv::VideoCapture theCapture;
+   int iIndex {-1};
+
+public:
+   [[nodiscard]] bool Connected() const { return theCapture.isOpened(); }
+   [[nodiscard]] int Index() const { return iIndex; }
+
+   /**
+   \brief Opens exactly one selected DirectShow camera.
+   \details Uses the existing OpenCV CAP_DSHOW backend; does not enumerate by
+      repeatedly opening camera indices, so inactive cameras remain harmless.
+   \param iDeviceIndex Current DirectShow enumeration index.
+   \returns True when the driver successfully opens the selected source.
+   \throw cv::Exception If OpenCV reports a capture failure.
+   */
+   bool Connect(int const iDeviceIndex) {
+      Disconnect();
+      if(iDeviceIndex<0) return false;
+      if(!theCapture.open(iDeviceIndex,cv::CAP_DSHOW)) return false;
+      iIndex=iDeviceIndex;
+      return true;
+   }
+   void Disconnect() {
+      theCapture.release();
+      iIndex=-1;
+   }
+   [[nodiscard]] bool Read(cv::Mat& theFrame) {
+      return Connected() && theCapture.read(theFrame) && !theFrame.empty();
+   }
+};
+
 bool Verify() {
    struct Case { char const* szLabel; char const* szPayload; bool bQR; };
    constexpr std::array<Case,2> arrCases {{
@@ -169,19 +278,48 @@ bool Verify() {
 
 void Interactive() {
    NativeShowcase aApp{"BuildEngine | OPENCV BARCODE VISION",1460,880};
+   CameraViewport theViewport{aApp.Window()};
+   CameraCapture theCapture;
+   std::vector<CameraDevice> vecDevices;
+   std::string strDiscoveryError;
+   auto const RefreshCameras=[&]() {
+      try {
+         vecDevices=EnumerateCameras();
+         strDiscoveryError.clear();
+      }
+      catch(std::exception const& theError) {
+         vecDevices.clear();
+         strDiscoveryError=theError.what();
+      }
+   };
+   RefreshCameras();
+   int iSelected=vecDevices.empty()?-1:0;
+   int iManualIndex=0;
    bool bQR=false;
+   bool bLive=false;
+   bool bScan=true;
    std::array<char,512> arrPath {};
    std::array<char,256> arrPayload {};
    std::string strText="5901234123457";
    std::copy(strText.begin(),strText.end(),arrPayload.begin());
    Result theResult;
    std::string strError;
+   std::string strCaptureError;
+   std::uint64_t uLastCapture {};
+   std::uint64_t uLastScan {};
+   std::uint64_t uFrames {};
+   int iDroppedFrames {};
    auto const Run=[&](bool const bFile) {
       try {
+         if(bLive) {
+            theCapture.Disconnect();
+            bLive=false;
+         }
          cv::Mat const theImage=bFile
             ? cv::imread(arrPath.data(),cv::IMREAD_COLOR)
             : MakeSymbol(arrPayload.data(),bQR);
          theResult=Analyze(theImage,bQR,bFile?"":arrPayload.data());
+         theViewport.SetImage(theResult.theAnnotated);
          strError.clear();
       }
       catch(std::exception const& theError) {
@@ -197,51 +335,206 @@ void Interactive() {
       ImGui::Begin("OPENCV BARCODE VISION",nullptr,
          ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize);
       NativeShowcase::Header("OPENCV / BARCODE VISION",
-         "OpenCV 5.1 native detection + ZXing/Zint symbols + ImGui/SDL2");
+         "OpenCV 5.1 DirectShow camera + native barcode/QR detection + ZXing/Zint fixtures");
+      ImGui::SeparatorText("1. Native camera selection");
+      if(ImGui::Button("REFRESH REGISTERED CAMERAS")) {
+         theCapture.Disconnect();
+         bLive=false;
+         std::string strPreviousPath;
+         if(iSelected>=0 && iSelected<static_cast<int>(vecDevices.size()))
+            strPreviousPath=vecDevices[static_cast<std::size_t>(iSelected)].strDevicePath;
+         RefreshCameras();
+         iSelected=vecDevices.empty()?-1:0;
+         if(!strPreviousPath.empty()) {
+            for(std::size_t u=0;u<vecDevices.size();++u) {
+               if(vecDevices[u].strDevicePath==strPreviousPath) {
+                  iSelected=static_cast<int>(u);
+                  break;
+               }
+            }
+         }
+         strCaptureError.clear();
+      }
+      ImGui::SameLine();
+      ImGui::TextDisabled("Registered DirectShow devices: %d",
+         static_cast<int>(vecDevices.size()));
+      if(!strDiscoveryError.empty())
+         ImGui::TextColored({1,.35F,.42F,1},"Enumeration: %s",strDiscoveryError.c_str());
+
+      std::string strSelected="No enumerated camera";
+      if(iSelected>=0 && iSelected<static_cast<int>(vecDevices.size())) {
+         CameraDevice const& aCamera=vecDevices[static_cast<std::size_t>(iSelected)];
+         strSelected=std::format("[{}] {}",aCamera.iIndex,aCamera.strName);
+      }
+      ImGui::SetNextItemWidth(std::min(920.0F,ImGui::GetContentRegionAvail().x));
+      if(ImGui::BeginCombo("DirectShow device",strSelected.c_str())) {
+         for(std::size_t u=0;u<vecDevices.size();++u) {
+            CameraDevice const& aCamera=vecDevices[u];
+            std::string const strLabel=std::format("[{}] {}##camera{}",
+               aCamera.iIndex,aCamera.strName,u);
+            if(ImGui::Selectable(strLabel.c_str(),iSelected==static_cast<int>(u))) {
+               theCapture.Disconnect();
+               bLive=false;
+               iSelected=static_cast<int>(u);
+               strCaptureError.clear();
+            }
+         }
+         ImGui::EndCombo();
+      }
+      ImGui::TextDisabled(
+         "Enumeration does not open devices; unavailable cameras may remain listed.");
+      ImGui::SetNextItemWidth(125);
+      ImGui::InputInt("DirectShow index (manual)",&iManualIndex);
+      iManualIndex=std::clamp(iManualIndex,0,31);
+      if(ImGui::Button("CONNECT SELECTED")) {
+         int const iIndex=iSelected>=0 &&
+            iSelected<static_cast<int>(vecDevices.size())
+            ? vecDevices[static_cast<std::size_t>(iSelected)].iIndex:-1;
+         try {
+            if(theCapture.Connect(iIndex)) {
+               bLive=true;
+               uLastCapture=uLastScan=0;
+               uFrames=0;
+               iDroppedFrames=0;
+               strCaptureError.clear();
+               strError.clear();
+            }
+            else {
+               bLive=false;
+               strCaptureError="Selected DirectShow camera could not be opened.";
+            }
+         }
+         catch(std::exception const& theError) {
+            bLive=false;
+            strCaptureError=theError.what();
+         }
+      }
+      ImGui::SameLine();
+      if(ImGui::Button("CONNECT BY INDEX")) {
+         try {
+            if(theCapture.Connect(iManualIndex)) {
+               bLive=true;
+               uLastCapture=uLastScan=0;
+               uFrames=0;
+               iDroppedFrames=0;
+               strCaptureError.clear();
+               strError.clear();
+            }
+            else {
+               bLive=false;
+               strCaptureError=std::format("DirectShow index {} is unavailable.",iManualIndex);
+            }
+         }
+         catch(std::exception const& theError) {
+            bLive=false;
+            strCaptureError=theError.what();
+         }
+      }
+      ImGui::SameLine();
+      if(ImGui::Button("DISCONNECT")) {
+         theCapture.Disconnect();
+         bLive=false;
+      }
+      ImGui::SameLine();
+      ImGui::Checkbox("Scan live frames",&bScan);
+      ImGui::Text("Capture status: %s | index: %d | frames: %llu | read failures: %d",
+         bLive?"CONNECTED":"DISCONNECTED",theCapture.Index(),
+         static_cast<unsigned long long>(uFrames),iDroppedFrames);
+      if(!strCaptureError.empty())
+         ImGui::TextColored({1,.4F,.4F,1},"Capture: %s",strCaptureError.c_str());
+
+      ImGui::SeparatorText("2. Recognition mode");
       if(ImGui::RadioButton("EAN-13 / UPC barcode",!bQR)) {
          bQR=false; arrPayload.fill(0);
          strText="5901234123457";
          std::copy(strText.begin(),strText.end(),arrPayload.begin());
-         Run(false);
+         if(!bLive) Run(false);
       }
       ImGui::SameLine();
       if(ImGui::RadioButton("QR Code",bQR)) {
          bQR=true; arrPayload.fill(0);
          strText="BUILDENGINE-OPENCV-5.1";
          std::copy(strText.begin(),strText.end(),arrPayload.begin());
-         Run(false);
+         if(!bLive) Run(false);
       }
       ImGui::SetNextItemWidth(560);
       ImGui::InputText("Payload",arrPayload.data(),arrPayload.size());
       if(ImGui::Button("GENERATE + DETECT")) Run(false);
-      ImGui::SeparatorText("Import an existing symbol image");
-      ImGui::SetNextItemWidth(720);
-      ImGui::InputText("Image path (PNG/JPEG)",arrPath.data(),arrPath.size());
+      ImGui::SameLine();
+      ImGui::SetNextItemWidth(570);
+      ImGui::InputText("Image path",arrPath.data(),arrPath.size());
       ImGui::SameLine();
       if(ImGui::Button("DETECT FILE")) Run(true);
+
+      if(bLive) {
+         std::uint64_t const uNow=SDL_GetTicks64();
+         if(uNow-uLastCapture>=80) {
+            uLastCapture=uNow;
+            try {
+               cv::Mat theFrame;
+               if(theCapture.Read(theFrame)) {
+                  ++uFrames;
+                  if(bScan && uNow-uLastScan>=180) {
+                     uLastScan=uNow;
+                     theResult=Analyze(theFrame,bQR);
+                  }
+                  else {
+                     theResult.theImage=theFrame;
+                     theResult.theAnnotated=theFrame;
+                  }
+                  theViewport.SetImage(theResult.theAnnotated);
+                  strCaptureError.clear();
+               }
+               else {
+                  ++iDroppedFrames;
+                  if(iDroppedFrames>=10) {
+                     theCapture.Disconnect();
+                     bLive=false;
+                     strCaptureError="Camera stopped returning frames; reconnect or select another device.";
+                  }
+               }
+            }
+            catch(std::exception const& theError) {
+               theCapture.Disconnect();
+               bLive=false;
+               strCaptureError=theError.what();
+            }
+         }
+      }
+
+      ImGui::SeparatorText("3. Native OpenCV output");
       if(!strError.empty())
          ImGui::TextColored({1,.3F,.4F,1},"Error: %s",strError.c_str());
       else {
-         ImGui::Text("OpenCV detected: %s | Results: %d | Processing: %.2f ms",
+         ImGui::Text("Detected: %s | Decoded: %d | Analysis: %.2f ms",
             theResult.bDetected?"yes":"no",
             static_cast<int>(theResult.vecText.size()),theResult.flMilliseconds);
-         if(theResult.bVerified)
+         if(!bLive && theResult.bVerified)
             ImGui::TextColored({.3F,.96F,.65F,1},"ROUND-TRIP: PASS");
          for(std::size_t u=0;u<theResult.vecText.size();++u)
             ImGui::Text("[%s] %s",
                u<theResult.vecTypes.size()?theResult.vecTypes[u].c_str():"code",
                theResult.vecText[u].c_str());
       }
-      DrawImage(theResult.theAnnotated,ImVec2{
-         std::max(360.0F,ImGui::GetContentRegionAvail().x),
-         std::max(240.0F,ImGui::GetContentRegionAvail().y-12)});
+      theViewport.Draw(std::max(300.0F,ImGui::GetContentRegionAvail().x),
+         std::max(180.0F,ImGui::GetContentRegionAvail().y-12));
       ImGui::End();
       aApp.EndFrame();
    }
+   theCapture.Disconnect();
+}
 }
 }
 int main(int const iArgc,char const* const* const pszArgv) {
    try {
+      if(iArgc>1 && std::string_view{pszArgv[1]}=="--list-cameras") {
+         std::vector<CameraDevice> const vecDevices=EnumerateCameras();
+         std::println("SHOWCASE|CAMERAS|{}|DirectShow registered devices",vecDevices.size());
+         for(CameraDevice const& aCamera:vecDevices)
+            std::println("SHOWCASE|CAMERA|{}|{}|{}",aCamera.iIndex,
+               aCamera.strName,aCamera.strDevicePath);
+         return 0;
+      }
       if(iArgc>1 && std::string_view{pszArgv[1]}=="--verify")
          return Verify()?0:1;
       Interactive();
