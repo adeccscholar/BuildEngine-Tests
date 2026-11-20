@@ -161,3 +161,21 @@ Once the application has been installed, the corresponding command is:
 The known publisher reference for this edition is https://buchshop.bod.de/die-antwort-klingt-richtig-volker-hillmann-9783696710095 . It establishes that this is a real title even if a public REST catalog returns no entry; it is not a hardcoded lookup fallback. The offline `--verify` also checks that this ISBN corresponds mathematically to ISBN-10 `3696710091`.
 
 **[not verified]** The new libcurl / nlohmann JSON BCC64X integration and remote metadata/cover results must be tested on the Windows host.
+
+## 12. OpenSSL transitive DLL closure for ISBN HTTPS
+
+The managed curl 8.23.0 package uses OpenSSL 3.5.9, which declares Brotli 1.2.1 and Zstandard 1.5.7 as transitive runtime dependencies. The OpenCV Barcode Vision runtime-closure contract explicitly includes the active `brotli` and `zstd` package roots so that `libbrotlidec.dll` and any required peer DLLs are resolved from their installed managed locations. The PE closure remains strict: no DLL is copied from an arbitrary host directory, and unresolved imports still fail the build. This correction affects runtime staging only; it does not change barcode decoding or ISBN REST lookup semantics.
+
+Reconfigure after updating the CMake file so that `opencv-barcode-vision.runtime-roots.txt` includes the new managed roots:
+
+```bat
+cmake -S graphics/opencv-barcode-vision -B ../build/Test/opencv-barcode-vision/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/opencv-barcode-vision/Release
+```
+
+Then build again:
+
+```bat
+cmake --build ../build/Test/opencv-barcode-vision/Release/cmake --parallel 4
+```
+
+**[not verified]** The corrected PE closure must be executed on the Windows BCC64X host.
