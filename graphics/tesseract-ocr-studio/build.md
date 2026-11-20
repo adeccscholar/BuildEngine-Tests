@@ -97,3 +97,55 @@ Reconfigure after changing an active library version, a package's CMake export, 
 If the runtime closure rejects a DLL, investigate the original installed managed package root and its declared transitive dependencies. If CTest fails, preserve the exact `SHOWCASE|CHECK` diagnostics and native stack/compiler messages rather than masking detection failures with a different decoder or model.
 
 **Validation status: [not verified].** The CMake commands follow the existing BuildEngine test layout and project configurations, but native BCC64X compilation, CTest execution and interactive behavior must be verified on the Windows host.
+
+## 8. Camera selection, live image and frozen OCR capture
+
+The webcam mode reuses the OpenCV 5.1 `videoio` component, native Windows DirectShow device enumeration, shared SDL2 streaming-image renderer and the existing Leptonica/Tesseract image pipeline. The application never creates a second OCR engine or modifies upstream packages. The names reported by the Windows DirectShow video input category appear in a dropdown, without opening each camera in sequence. Busy or disconnected devices may appear in the list, while Windows-disabled devices can be absent. Manual DirectShow indices are also supported for diagnostics.
+
+Use **REFRESH CAMERAS** to rebuild the registered device list. Choose the desired camera (including the fifth or sixth registered device when the first four are unavailable), then press **CONNECT SELECTED**. Alternatively enter a specific index and press **CONNECT BY INDEX**. The camera remains open until you explicitly disconnect, change selection or the driver stops returning valid frames. The preview uses actual captured pixels. **FREEZE FRAME** stops reading further frames and preserves a copy of the most recent image. **RECOGNIZE FRAME** applies the currently configured Otsu and Tesseract page-segmentation settings to that copy, while keeping the recognized UTF-8 text and confidence visible. **RESUME LIVE** returns to capture without automatically repeating OCR.
+
+A list of registered cameras is available from the build-tree executable without requiring any active hardware input. This command emits `SHOWCASE|CAMERAS` and one `SHOWCASE|CAMERA` record per registered source.
+
+```bat
+..\build\Test\tesseract-ocr-studio\Release\cmake\runtime\tesseract-ocr-studio\tesseract-ocr-studio.exe --list-cameras
+```
+
+The installed application provides the same diagnostic:
+
+```bat
+..\build\Test\tesseract-ocr-studio\Release\tesseract-ocr-studio.exe --list-cameras
+```
+
+The webcam option requires the new `videoio` package component and the native DirectShow system import libraries `ole32`, `oleaut32` and `strmiids`. These are resolved explicitly in the showcase CMake contract. The original `--verify` test remains camera-independent and must pass before accepting the OCR build.
+
+After updating the checkout, regenerate the CMake build tree to apply the new OpenCV component and Windows libraries:
+
+```bat
+cmake -S graphics/tesseract-ocr-studio -B ../build/Test/tesseract-ocr-studio/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/tesseract-ocr-studio/Release
+```
+
+Compile using the existing BCC64X Ninja toolchain:
+
+```bat
+cmake --build ../build/Test/tesseract-ocr-studio/Release/cmake --parallel 4
+```
+
+Run the camera-independent integration regression:
+
+```bat
+ctest --test-dir ../build/Test/tesseract-ocr-studio/Release/cmake --output-on-failure
+```
+
+Install the same tested build:
+
+```bat
+cmake --install ../build/Test/tesseract-ocr-studio/Release/cmake
+```
+
+Launch the interactive application:
+
+```bat
+..\build\Test\tesseract-ocr-studio\Release\tesseract-ocr-studio.exe
+```
+
+**[not verified]** BCC64X compilation and the live camera controls require execution on the actual Windows machine. The earlier OCR fixture-word-spacing correction also still requires CTest confirmation.

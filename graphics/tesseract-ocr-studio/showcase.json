@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "showcase",
   "title": "Tesseract OCR Studio",
-  "summary": "OpenCV preprocessing + Leptonica PIX + native Tesseract 5.5 English LSTM and model-driven text recognition.",
+  "summary": "Native OpenCV webcam capture and frozen-frame OCR with Tesseract English LSTM and Leptonica image processing.",
   "dependencies": [
     {
       "library": "tesseract",
@@ -65,7 +65,7 @@
   "applications": [
     {
       "name": "tesseract-ocr-studio",
-      "summary": "Interactive computer-vision showcase",
+      "summary": "Select a DirectShow webcam, preview and freeze a frame, then perform explicit Tesseract OCR; synthetic documents and image files remain supported.",
       "command": "..\\build\\Test\\tesseract-ocr-studio\\Release\\tesseract-ocr-studio.exe",
       "interactive": true
     },
@@ -73,6 +73,12 @@
       "name": "tesseract-ocr-studio --verify",
       "summary": "Headless native computer-vision integration verification",
       "command": "..\\build\\Test\\tesseract-ocr-studio\\Release\\tesseract-ocr-studio.exe --verify",
+      "interactive": false
+    },
+    {
+      "name": "tesseract-ocr-studio --list-cameras",
+      "summary": "List registered Windows DirectShow webcams without opening them.",
+      "command": "..\\build\\Test\\tesseract-ocr-studio\\Release\\tesseract-ocr-studio.exe --list-cameras",
       "interactive": false
     }
   ]

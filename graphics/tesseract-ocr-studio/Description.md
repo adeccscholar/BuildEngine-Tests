@@ -28,3 +28,15 @@ The resulting eight-bit pixel values are copied into a Leptonica `PIX` image own
 The deterministic headless test verifies an exact recognized text instead of merely checking that Tesseract can load the model. Real-world documents may require different page segmentation, layout detection, camera correction and language-specific traineddata. Those capabilities are not disabled by this showcase; its currently installed model provides English recognition only.
 
 For complete Release/Debug configuration, one-line commands, CTest, installation and troubleshooting, see [build.md](build.md).
+
+## Selectable webcam and deliberate frame recognition (20 November 2026)
+
+The application now provides a named **DirectShow camera combobox**, **REFRESH CAMERAS**, **CONNECT SELECTED**, **CONNECT BY INDEX**, **DISCONNECT**, **FREEZE FRAME**, **RESUME LIVE**, and **RECOGNIZE FRAME**. The camera list uses the shared Windows COM DirectShow enumeration component in `graphics/common/CameraDevices.h`. It does not open any cameras merely to discover them. Consequently, a registered but currently unavailable device can remain visible. The manual camera index field is available for devices omitted or reordered by Windows. The actual availability of the user's camera hardware is determined only when opening a selected device.
+
+Live frames are acquired through the installed **OpenCV 5.1 `videoio`** component using `cv::VideoCapture::open(index, cv::CAP_DSHOW)`. A shared `CameraFrameView` wraps an SDL2 streaming texture to display a real camera image through the existing ImGui/SDL2 renderer. This avoids rendering each video pixel as individual ImGui geometry. The current camera selection, capture status, acquired-frame count and driver failures remain visible.
+
+**OCR is an explicit operation, not a continuous per-frame task.** Pressing **FREEZE FRAME** creates an immutable copy of the latest camera image and pauses capture. **RECOGNIZE FRAME** sends either that frozen image or the current live frame into the existing OpenCV grayscale/Otsu → Leptonica PIX → Tesseract English LSTM pipeline. The recognized text, confidence and processing duration remain available while the camera continues to display new frames. Pressing **RESUME LIVE** resumes capture without discarding the last successful OCR result. Changing the camera releases the previous device; the synthetic-document and imported-image workflows remain independent and available.
+
+For diagnostic purposes, `--list-cameras` prints the registered DirectShow device indices, friendly names and paths without opening any capture device. The original `--verify` is still **camera-independent** and asserts actual recognized text, confidence and measurable spacing in the synthetic source image. The webcam feature does not reduce that verification coverage.
+
+**[not verified]** The live DirectShow source, GUI rendering and Windows device order have not yet been executed on the BCC64X host.
