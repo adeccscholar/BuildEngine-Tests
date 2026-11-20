@@ -212,7 +212,24 @@ bool Verify() {
       theRouteField.vecTriangles, 70.0F, 0.5F, false);
    bool const bDetour = theRouteField.theRoute.bPathComplete &&
       theRouteField.theRoute.vecPoints.size() >= 2;
-   bool const bPassed = bMesh && bLowRaster && bHighRaster && bSlopeResponse && bDetour;
+   // Route samples must follow the detailed navigable surface, rather than
+   // presenting only a handful of straight funnel-corner chords.
+   bool bSurfaceSampling = bDetour &&
+      theRouteField.theRoute.vecPoints.size() >= 40;
+   if(bSurfaceSampling) {
+      for(std::size_t u = 1; u < theRouteField.theRoute.vecPoints.size(); ++u) {
+         auto const& arrPrevious = theRouteField.theRoute.vecPoints[u - 1];
+         auto const& arrCurrent = theRouteField.theRoute.vecPoints[u];
+         float const flStep = std::hypot(arrCurrent[0] - arrPrevious[0],
+            arrCurrent[2] - arrPrevious[2]);
+         if(flStep > 0.5F) {
+            bSurfaceSampling = false;
+            break;
+         }
+      }
+   }
+   bool const bPassed = bMesh && bLowRaster && bHighRaster &&
+      bSlopeResponse && bDetour && bSurfaceSampling;
    std::println("SHOWCASE|CHECK|mesh-topology|{}|trianglesLow={} trianglesHigh={} expected=8000",
       bMesh ? "PASS" : "FAIL", theLow.iTotalTriangles, theHigh.iTotalTriangles);
    std::println("SHOWCASE|CHECK|low-slope-raster|{}|spans={} threshold=nonzero",
@@ -225,7 +242,10 @@ bool Verify() {
    std::println("SHOWCASE|CHECK|detour-route|{}|polygons={} points={} complete={}",
       bDetour ? "PASS" : "FAIL", theRouteField.theRoute.iPolygons,
       theRouteField.theRoute.vecPoints.size(), theRouteField.theRoute.bPathComplete);
-   std::println("SHOWCASE|RESULT|{}|Recast rasterization and Detour pathfinding",
+   std::println("SHOWCASE|CHECK|detour-surface-sampling|{}|points={} max-horizontal-step=0.5m",
+      bSurfaceSampling ? "PASS" : "FAIL",
+      theRouteField.theRoute.vecPoints.size());
+   std::println("SHOWCASE|RESULT|{}|Recast rasterization and Detour surface pathfinding",
                 bPassed ? "PASS" : "FAIL");
    return bPassed;
 }
