@@ -1,9 +1,10 @@
 #include "../common/GraphicsDllImports.h"
-#include "../common/NativeShowcase.h"
+#include "../common/OpenGLShowcase.h"
 
 #include <Recast.h>
 #include "NavigationPath.h"
 #include "TerrainView.h"
+#include "TerrainGL.h"
 
 #include <algorithm>
 #include <array>
@@ -230,7 +231,9 @@ bool Verify() {
 }
 
 void Interactive() {
-   NativeShowcase aApp { "BuildEngine | NAVIGATION REACTOR - Detour Expedition", 1540, 900 };
+   OpenGLShowcase aApp { "BuildEngine | NAVIGATION REACTOR - Mesa Expedition",
+      ADECC_MESA_OPENGL_DLL, 1540, 900 };
+   TerrainGL theRenderer;
    float flSlope = 70.0F;
    float flRelief = 0.50F;
    bool bObstacle = true;
@@ -244,6 +247,8 @@ void Interactive() {
       RecastField theNew = BuildField(flSlope, flRelief);
       theNew.theRoute = BuildNavigationRoute(theNew.vecVertices,
          theNew.vecTriangles, flSlope, flRelief, bObstacle);
+      theRenderer.SetTerrain(theNew.vecVertices, theNew.vecTriangles, theNew.vecArea);
+      theRenderer.SetRoute(theNew.theRoute.vecPoints);
       theField = std::move(theNew);
       strRouteError.clear();
    };
@@ -260,8 +265,8 @@ void Interactive() {
       ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
       ImGui::Begin("NAVIGATION REACTOR", nullptr,
          ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-      NativeShowcase::Header("NAVIGATION REACTOR / DETOUR EXPEDITION",
-         "Real Recast navigation mesh / Detour corridor planning / animated agent");
+      OpenGLShowcase::Header("NAVIGATION REACTOR / MESA EXPEDITION",
+         "Mesa OpenGL + GLEW / Recast + Detour / native GPU depth buffer");
       ImGui::TextColored({.48F, .95F, .83F, 1.0F},
          "TRIANGLES %d / %d   |   VOXEL SPANS %d   |   NAV POLYGONS %d   |   WAYPOINTS %d",
          theField.iWalkableTriangles, theField.iTotalTriangles, theField.iCells,
@@ -305,7 +310,7 @@ void Interactive() {
       ImGui::Text("Routing: %s   |   corridor polygons: %d",
          theField.theRoute.bPathComplete ? "COMPLETE" : "NO COMPLETE PATH",
          theField.theRoute.iCorridor);
-      ImGui::TextDisabled("The terrain uses the same 3D triangle mesh as Recast; the path is supplied by Detour.");
+      ImGui::TextDisabled("GPU depth-tested geometry comes from Recast input triangles; route from Detour.");
       ImGui::TextDisabled("Drag the 3D view to orbit; use the mouse wheel to zoom.");
       ImVec2 const aOrigin = ImGui::GetCursorScreenPos();
       ImVec2 const aSize = ImGui::GetContentRegionAvail();
@@ -333,10 +338,13 @@ void Interactive() {
          flPhase = std::fmod(flElapsed / 16.0F, 1.0F);
       }
       if(bView3D) {
-         DrawTerrain3D(theField.vecVertices, theField.vecTriangles, theField.vecArea,
-            aOrigin, aPanel, theCamera, bObstacle, bWireframe);
-         DrawTerrainRoute3D(theField.theRoute.vecPoints,
-            aOrigin, aPanel, theCamera, flPhase);
+         GLuint const uTexture = theRenderer.Render(
+            static_cast<int>(aPanel.x), static_cast<int>(aPanel.y),
+            theCamera, flPhase, bWireframe);
+         // The OpenGL FBO origin is bottom-left; ImGui UVs invert it.
+         ImGui::SetCursorScreenPos(aOrigin);
+         ImGui::Image(static_cast<ImTextureID>(uTexture), aPanel,
+            ImVec2 {0.0F, 1.0F}, ImVec2 {1.0F, 0.0F});
       }
       else {
          DrawField(theField, aOrigin, aPanel);
