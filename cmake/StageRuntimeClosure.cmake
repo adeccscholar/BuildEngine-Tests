@@ -65,6 +65,58 @@ if(EXISTS "${_manifest}")
    endforeach()
 endif()
 
+# Resolve non-PE-imported runtime modules (e.g. Mesa Gallium WGL) only
+# against declared managed package roots. The declared filename must be an
+# unambiguous installed package artifact; no PATH or SDK lookup is permitted.
+set(_dynamic_seed)
+if(DEFINED ADECC_RUNTIME_DYNAMIC_DLLS_FILE AND
+   EXISTS "${ADECC_RUNTIME_DYNAMIC_DLLS_FILE}")
+   file(STRINGS "${ADECC_RUNTIME_DYNAMIC_DLLS_FILE}" _dynamic_names ENCODING UTF-8)
+   list(REMOVE_DUPLICATES _dynamic_names)
+   foreach(_name IN LISTS _dynamic_names)
+      if(NOT _name MATCHES "^[A-Za-z0-9_+.-]+[.]dll$")
+         message(FATAL_ERROR "Invalid declared dynamic DLL name: ${_name}")
+      endif()
+      # A previous staging pass or the former POST_BUILD copy must not cause
+      # CMake's PE resolver to select an unmanaged local runtime copy.
+      file(REMOVE "${ADECC_RUNTIME_OUTPUT_DIR}/${_name}")
+      string(TOLOWER "${_name}" _wanted)
+      set(_selected_dynamic "")
+      foreach(_dir IN LISTS _search)
+         # The explicitly declared BCC64X toolchain DLLs cannot substitute
+         # for a managed package plugin.
+         if(_dir STREQUAL "${ADECC_RUNTIME_TOOLCHAIN_BIN}")
+            continue()
+         endif()
+         file(GLOB _candidates LIST_DIRECTORIES FALSE "${_dir}/*.dll")
+         foreach(_candidate IN LISTS _candidates)
+            get_filename_component(_basename "${_candidate}" NAME)
+            string(TOLOWER "${_basename}" _lower)
+            if(_lower STREQUAL _wanted)
+               if(NOT _selected_dynamic STREQUAL "")
+                  file(SHA256 "${_selected_dynamic}" _first_hash)
+                  file(SHA256 "${_candidate}" _next_hash)
+                  if(NOT _first_hash STREQUAL _next_hash)
+                     message(FATAL_ERROR
+                        "Ambiguous managed dynamic DLL ${_name}: "
+                        "${_selected_dynamic} vs ${_candidate}")
+                  endif()
+               else()
+                  set(_selected_dynamic "${_candidate}")
+               endif()
+            endif()
+         endforeach()
+      endforeach()
+      if(_selected_dynamic STREQUAL "")
+         message(FATAL_ERROR
+            "Declared dynamic DLL ${_name} not found in managed package roots")
+      endif()
+      list(APPEND _dynamic_seed "${_selected_dynamic}")
+   endforeach()
+endif()
+list(APPEND _seed ${_dynamic_seed})
+list(REMOVE_DUPLICATES _seed)
+
 set(CMAKE_GET_RUNTIME_DEPENDENCIES_PLATFORM "windows+pe")
 file(GET_RUNTIME_DEPENDENCIES
    EXECUTABLES "${ADECC_RUNTIME_EXECUTABLE}"
