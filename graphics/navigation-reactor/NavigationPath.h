@@ -167,10 +167,48 @@ inline NavigationRoute BuildNavigationRoute(
       &iStraight, 256);
    if(dtStatusFailed(iStraightStatus) || iStraight < 2)
       return theRoute;
-   for(int i = 0; i < iStraight; ++i)
-      theRoute.vecPoints.push_back({arrStraight[static_cast<std::size_t>(i * 3)],
-         arrStraight[static_cast<std::size_t>(i * 3 + 1)],
-         arrStraight[static_cast<std::size_t>(i * 3 + 2)]});
-   theRoute.bPathComplete = true;
+   // The funnel returns corner positions, NOT a terrain-following trajectory.
+   // Sample each Detour corridor segment at terrain-cell resolution and query
+   // the actual detailed navigation mesh for every intermediate surface height.
+   // Never draw the straight 3D chord between distant funnel corners.
+   constexpr float flRouteStep = flCell * 0.5F;
+   float const arrSampleExtent[3] {flCell * 2.0F, 2.5F, flCell * 2.0F};
+   constexpr float flMaxHorizontalSnap = flCell * 1.5F;
+   constexpr int iMaxSurfaceSamples = 8192;
+   std::vector<std::array<float, 3>> vecSurface;
+   for(int i = 0; i + 1 < iStraight; ++i) {
+      std::size_t const uA = static_cast<std::size_t>(i * 3);
+      std::size_t const uB = static_cast<std::size_t>((i + 1) * 3);
+      float const flDX = arrStraight[uB] - arrStraight[uA];
+      float const flDY = arrStraight[uB + 1] - arrStraight[uA + 1];
+      float const flDZ = arrStraight[uB + 2] - arrStraight[uA + 2];
+      float const flLength = std::hypot(flDX, flDZ);
+      int const iSteps = std::max(1, static_cast<int>(std::ceil(flLength / flRouteStep)));
+      if(vecSurface.size() + static_cast<std::size_t>(iSteps) + 1 > iMaxSurfaceSamples)
+         throw std::runtime_error("Detour route exceeds the surface sample budget");
+      for(int j = (i == 0 ? 0 : 1); j <= iSteps; ++j) {
+         float const flT = static_cast<float>(j) / static_cast<float>(iSteps);
+         float const arrDesired[3] {
+            arrStraight[uA] + flDX * flT,
+            arrStraight[uA + 1] + flDY * flT,
+            arrStraight[uA + 2] + flDZ * flT
+         };
+         dtPolyRef iSurfaceRef {};
+         float arrSurface[3] {};
+         dtStatus const iSurfaceStatus = pQuery->findNearestPoly(
+            arrDesired, arrSampleExtent, &theFilter, &iSurfaceRef, arrSurface);
+         if(dtStatusFailed(iSurfaceStatus) || !iSurfaceRef ||
+            std::hypot(arrSurface[0] - arrDesired[0],
+                       arrSurface[2] - arrDesired[2]) > flMaxHorizontalSnap) {
+            // An incomplete surface cannot be presented as a navigable route.
+            theRoute.vecPoints.clear();
+            theRoute.bPathComplete = false;
+            return theRoute;
+         }
+         vecSurface.push_back({arrSurface[0], arrSurface[1], arrSurface[2]});
+      }
+   }
+   theRoute.vecPoints = std::move(vecSurface);
+   theRoute.bPathComplete = theRoute.vecPoints.size() >= 2;
    return theRoute;
 }
