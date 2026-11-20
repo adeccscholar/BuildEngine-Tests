@@ -34,7 +34,7 @@ class TerrainGL final {
    int iWidth {}, iHeight {};
    GLsizei iTerrainVertices {};
    GLsizei iRouteVertices {};
-   float flRouteProgress {};
+   std::vector<std::array<float, 3>> vecRoutePoints;
 
    static GLuint Compile(GLenum eType, char const* szCode) {
       GLuint const u = glCreateShader(eType);
@@ -275,7 +275,10 @@ public:
       std::vector<Vertex> vecGPU;
       for(auto const& arr : vecPoints)
          vecGPU.push_back({arr[0], arr[1]+0.06F, arr[2], 0,1,0,1});
+      vecRoutePoints = vecPoints;
       iRouteVertices = static_cast<GLsizei>(vecGPU.size());
+      // Reserve one additional vertex for the blue animated agent.
+      if(!vecGPU.empty()) vecGPU.push_back(vecGPU.front());
       glBindBuffer(GL_ARRAY_BUFFER, uRouteVBO);
       glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vecGPU.size()*sizeof(Vertex)),
          vecGPU.data(), GL_DYNAMIC_DRAW);
@@ -317,6 +320,35 @@ public:
          glPointSize(10.0F);
          glDrawArrays(GL_POINTS, 0, 1);
          glDrawArrays(GL_POINTS, iRouteVertices-1, 1);
+         float flTotal = 0.0F;
+         for(std::size_t u = 1; u < vecRoutePoints.size(); ++u)
+            flTotal += std::hypot(
+               vecRoutePoints[u][0] - vecRoutePoints[u-1][0],
+               vecRoutePoints[u][2] - vecRoutePoints[u-1][2]);
+         float flRemain = flTotal * std::clamp(flPhase, 0.0F, 1.0F);
+         std::array<float, 3> arrAgent = vecRoutePoints.front();
+         for(std::size_t u = 1; u < vecRoutePoints.size(); ++u) {
+            auto const& arrA = vecRoutePoints[u-1];
+            auto const& arrB = vecRoutePoints[u];
+            float const flLength = std::hypot(arrB[0]-arrA[0], arrB[2]-arrA[2]);
+            if(flRemain <= flLength) {
+               float const flT = flLength > 0.0F ? flRemain/flLength : 0.0F;
+               for(int j = 0; j < 3; ++j)
+                  arrAgent[static_cast<std::size_t>(j)] =
+                     arrA[static_cast<std::size_t>(j)] +
+                     (arrB[static_cast<std::size_t>(j)] - arrA[static_cast<std::size_t>(j)])*flT;
+               break;
+            }
+            flRemain -= flLength;
+            arrAgent = arrB;
+         }
+         Vertex const theAgent {arrAgent[0], arrAgent[1]+0.16F, arrAgent[2],0,1,0,1};
+         glBindBuffer(GL_ARRAY_BUFFER, uRouteVBO);
+         glBufferSubData(GL_ARRAY_BUFFER, static_cast<GLintptr>(iRouteVertices)*sizeof(Vertex),
+            sizeof(Vertex), &theAgent);
+         glUniform4f(glGetUniformLocation(uRouteProgram, "uColor"), 0.24F,0.53F,1.0F,1.0F);
+         glPointSize(16.0F);
+         glDrawArrays(GL_POINTS, iRouteVertices, 1);
       }
       glBindVertexArray(0);
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
