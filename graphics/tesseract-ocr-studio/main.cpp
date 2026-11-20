@@ -254,6 +254,7 @@ void Interactive() {
 
    int iSelectedCamera=vecCameras.empty()?-1:0;
    int iManualIndex=0;
+   int iCameraResolution=2;
    std::array<char,256> arrText {};
    std::string const strDefault="OCR TEST 4711";
    std::copy(strDefault.begin(),strDefault.end(),arrText.begin());
@@ -390,6 +391,9 @@ void Interactive() {
       ImGui::SetNextItemWidth(110);
       ImGui::InputInt("Manual DirectShow index",&iManualIndex);
       iManualIndex=std::clamp(iManualIndex,0,31);
+      ImGui::SetNextItemWidth(250);
+      ImGui::Combo("Requested camera resolution",&iCameraResolution,
+         "Device default\0HD 1280 x 720\0Full HD 1920 x 1080\0UHD 3840 x 2160\0");
       auto const ConnectCamera=[&](int const iIndex) {
          try {
             ReleaseCamera();
@@ -397,7 +401,11 @@ void Interactive() {
             uLastCapture=0;
             uFrames=0;
             iReadFailures=0;
-            if(theCapture.Connect(iIndex))
+            constexpr std::array<std::array<int,2>,4> arrResolutions {{
+               {{0,0}},{{1280,720}},{{1920,1080}},{{3840,2160}}
+            }};
+            auto const& arrResolution=arrResolutions[static_cast<std::size_t>(iCameraResolution)];
+            if(theCapture.Connect(iIndex,arrResolution[0],arrResolution[1]))
                strCaptureError.clear();
             else
                strCaptureError=std::format("DirectShow camera {} could not be opened.",iIndex);
@@ -449,8 +457,10 @@ void Interactive() {
          else
             strError="No camera frame is available for OCR.";
       }
-      ImGui::TextDisabled("Camera enumeration does not open inactive sources. "
-         "OCR runs only when RECOGNIZE FRAME is pressed.");
+      if(!theLatestFrame.empty())
+         ImGui::Text("Actual captured pixels: %d x %d",
+            theLatestFrame.cols,theLatestFrame.rows);
+      ImGui::TextDisabled("Requested resolution depends on camera support. OCR runs only on RECOGNIZE FRAME.");
 
       ImGui::SeparatorText("2. Recognition settings and alternative inputs");
       ImGui::SetNextItemWidth(260);
