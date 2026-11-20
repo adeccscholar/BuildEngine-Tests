@@ -89,3 +89,17 @@ Launch command is also provided above.
 ### Controls
 
 Left click launches a projectile; right click applies a radial impulse; G toggles gravity direction; Space pauses/resumes; R resets the deterministic scene; P captures the current SDL framebuffer as neon-physics-arena.bmp; Esc exits. Headless verification uses a separate executable.
+
+## Differential physics regression: Jolt 5.7.0 / Box2D 3.2.0
+
+The same configuration builds `neon-physics-duel.exe`, using only the active managed shared libraries. No additional source download is required.
+
+```bat
+ctest --test-dir ../build/Test/neon-physics-arena/Release/cmake -R NeonPhysicsDifferential --output-on-failure
+```
+
+```bat
+..\build\Test\neon-physics-arena\Release\neon-physics-duel.exe
+```
+
+Expected managed Jolt installation: `install/packages/jolt-physics/5.7.0`, matching the selected Release/Debug variant, with `libJolt*.dll`, import libraries and public headers. **[not verified]** The new dual-engine executable needs a fresh native build and CTest run.
