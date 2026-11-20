@@ -68,7 +68,7 @@ endfunction()
 
 # Explicit per-target package closures. CMake does not guess libraries from PATH.
 function(adecc_test_install target)
- cmake_parse_arguments(ARG "RUNTIME_CLOSURE" "" "PACKAGE_ROOTS;TOOLCHAIN_DLLS;EXCLUDE_DLLS" ${ARGN})
+ cmake_parse_arguments(ARG "RUNTIME_CLOSURE" "" "PACKAGE_ROOTS;TOOLCHAIN_DLLS;DYNAMIC_DLLS;EXCLUDE_DLLS" ${ARGN})
  if(ARG_UNPARSED_ARGUMENTS OR ARG_KEYWORDS_MISSING_VALUES)
     message(FATAL_ERROR "Invalid runtime arguments for ${target}")
  endif()
@@ -77,10 +77,13 @@ function(adecc_test_install target)
        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/runtime/${target}")
     set(_roots_file "${CMAKE_CURRENT_BINARY_DIR}/${target}.runtime-roots.txt")
     set(_toolchain_file "${CMAKE_CURRENT_BINARY_DIR}/${target}.runtime-toolchain.txt")
+    set(_dynamic_file "${CMAKE_CURRENT_BINARY_DIR}/${target}.runtime-dynamic.txt")
     string(REPLACE ";" "\n" _roots "${ARG_PACKAGE_ROOTS}")
     string(REPLACE ";" "\n" _dlls "${ARG_TOOLCHAIN_DLLS}")
     file(WRITE "${_roots_file}" "${_roots}\n")
     file(WRITE "${_toolchain_file}" "${_dlls}\n")
+    string(REPLACE ";" "\n" _dynamic_names "${ARG_DYNAMIC_DLLS}")
+    file(WRITE "${_dynamic_file}" "${_dynamic_names}\n")
     if(ARG_TOOLCHAIN_DLLS)
        if(NOT DEFINED ENV{CB_BDS} OR "$ENV{CB_BDS}" STREQUAL "")
           message(FATAL_ERROR "BCC64X runtime requires CB_BDS")
@@ -95,6 +98,7 @@ function(adecc_test_install target)
           "-DADECC_RUNTIME_OUTPUT_DIR:PATH=$<TARGET_FILE_DIR:${target}>"
           "-DADECC_RUNTIME_ROOTS_FILE:FILEPATH=${_roots_file}"
           "-DADECC_RUNTIME_TOOLCHAIN_DLLS_FILE:FILEPATH=${_toolchain_file}"
+          "-DADECC_RUNTIME_DYNAMIC_DLLS_FILE:FILEPATH=${_dynamic_file}"
           "-DADECC_RUNTIME_TOOLCHAIN_BIN:PATH=${_toolbin}"
           "-DADECC_RUNTIME_CONFIGURATION=${BUILDENGINE_CONFIGURATION}"
           -P "${BUILDENGINE_TESTS_ROOT}/cmake/StageRuntimeClosure.cmake"
