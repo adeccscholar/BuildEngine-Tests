@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <imgui.h>
 #include "TerrainView.h"
+#include "NavigationPath.h"
 
 #include <algorithm>
 #include <array>
@@ -31,6 +32,8 @@ class TerrainGL final {
    GLuint uRouteProgram {};
    GLuint uTerrainVAO {}, uTerrainVBO {};
    GLuint uRouteVAO {}, uRouteVBO {};
+   GLuint uNavVAO {}, uNavVBO {};
+   GLsizei iNavTriangles {}, iCorridorTriangles {};
    GLuint uFramebuffer {}, uColor {}, uDepth {};
    int iWidth {}, iHeight {};
    GLsizei iTerrainVertices {};
@@ -200,6 +203,19 @@ public:
       glEnableVertexAttribArray(2);
       glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
          reinterpret_cast<void const*>(offsetof(Vertex, flArea)));
+      glGenVertexArrays(1, &uNavVAO);
+      glGenBuffers(1, &uNavVBO);
+      glBindVertexArray(uNavVAO);
+      glBindBuffer(GL_ARRAY_BUFFER, uNavVBO);
+      glEnableVertexAttribArray(0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+         reinterpret_cast<void const*>(offsetof(Vertex, flX)));
+      glEnableVertexAttribArray(1);
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+         reinterpret_cast<void const*>(offsetof(Vertex, flNX)));
+      glEnableVertexAttribArray(2);
+      glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+         reinterpret_cast<void const*>(offsetof(Vertex, flArea)));
       glBindVertexArray(0);
    }
 
@@ -210,8 +226,10 @@ public:
       if(uDepth) glDeleteRenderbuffers(1, &uDepth);
       if(uColor) glDeleteTextures(1, &uColor);
       if(uFramebuffer) glDeleteFramebuffers(1, &uFramebuffer);
+      if(uNavVBO) glDeleteBuffers(1, &uNavVBO);
       if(uTerrainVBO) glDeleteBuffers(1, &uTerrainVBO);
       if(uRouteVBO) glDeleteBuffers(1, &uRouteVBO);
+      if(uNavVAO) glDeleteVertexArrays(1, &uNavVAO);
       if(uTerrainVAO) glDeleteVertexArrays(1, &uTerrainVAO);
       if(uRouteVAO) glDeleteVertexArrays(1, &uRouteVAO);
       if(uTerrainProgram) glDeleteProgram(uTerrainProgram);
@@ -266,6 +284,34 @@ public:
    }
 
    /**
+   \brief Uploads the exact Detour navigation detail triangles to the GPU.
+   \details Draws regular polygons and corridor polygons in two distinct
+      contiguous batches; no visual geometry is generated from the heightfield.
+   \param vecTriangles Native detail triangles with corridor membership.
+   \returns Nothing.
+   \throw Nothing intentionally.
+   */
+   void SetNavigationMesh(std::vector<NavigationMeshTriangle> const& vecTriangles) {
+      std::vector<Vertex> vecGPU;
+      vecGPU.reserve(vecTriangles.size()*3);
+      auto const Add = [&](bool const bCorridor) {
+         for(NavigationMeshTriangle const& theTriangle:vecTriangles) {
+            if(theTriangle.bCorridor != bCorridor) continue;
+            for(auto const& arr:theTriangle.arrVertices)
+               vecGPU.push_back({arr[0],arr[1]+0.035F,arr[2],0,1,0,1});
+         }
+      };
+      Add(false);
+      iNavTriangles = static_cast<GLsizei>(vecGPU.size());
+      Add(true);
+      iCorridorTriangles = static_cast<GLsizei>(vecGPU.size())-iNavTriangles;
+      glBindBuffer(GL_ARRAY_BUFFER,uNavVBO);
+      glBufferData(GL_ARRAY_BUFFER,
+         static_cast<GLsizeiptr>(vecGPU.size()*sizeof(Vertex)),
+         vecGPU.data(),GL_STATIC_DRAW);
+   }
+
+   /**
    \brief Uploads the actual Detour straight-path output.
    \details Keeps native xyz elevations; no substitute pathfinding is performed.
    \param vecPoints Ordered waypoints provided by Detour.
@@ -297,7 +343,8 @@ public:
    \throw std::runtime_error If the framebuffer is incomplete.
    */
    [[nodiscard]] GLuint Render(int const iViewWidth, int const iViewHeight,
-      TerrainCamera const& theCamera, float const flPhase, bool const bWireframe) {
+      TerrainCamera const& theCamera, float const flPhase, bool const bWireframe,
+      bool const bShowNavMesh = true, bool const bShowCorridor = true) {
       EnsureFramebuffer(iViewWidth, iViewHeight);
       glBindFramebuffer(GL_FRAMEBUFFER, uFramebuffer);
       glViewport(0, 0, iWidth, iHeight);
@@ -312,6 +359,28 @@ public:
       if(bWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       glDrawArrays(GL_TRIANGLES, 0, iTerrainVertices);
       if(bWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      if((bShowNavMesh && iNavTriangles > 0) ||
+         (bShowCorridor && iCorridorTriangles > 0)) {
+         SetCamera(uRouteProgram, theCamera, iWidth, iHeight);
+         glBindVertexArray(uNavVAO);
+         glEnable(GL_BLEND);
+         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+         glDepthMask(GL_FALSE);
+         glEnable(GL_POLYGON_OFFSET_FILL);
+         glPolygonOffset(-1.0F,-1.0F);
+         GLint const iColor=glGetUniformLocation(uRouteProgram,"uColor");
+         if(bShowNavMesh && iNavTriangles > 0) {
+            glUniform4f(iColor,0.15F,0.94F,0.76F,0.28F);
+            glDrawArrays(GL_TRIANGLES,0,iNavTriangles);
+         }
+         if(bShowCorridor && iCorridorTriangles > 0) {
+            glUniform4f(iColor,0.98F,0.47F,0.12F,0.48F);
+            glDrawArrays(GL_TRIANGLES,iNavTriangles,iCorridorTriangles);
+         }
+         glDisable(GL_POLYGON_OFFSET_FILL);
+         glDepthMask(GL_TRUE);
+         glDisable(GL_BLEND);
+      }
       if(iRouteVertices >= 2) {
          SetCamera(uRouteProgram, theCamera, iWidth, iHeight);
          glUniform4f(glGetUniformLocation(uRouteProgram, "uColor"), 1.0F,0.81F,0.22F,1.0F);
