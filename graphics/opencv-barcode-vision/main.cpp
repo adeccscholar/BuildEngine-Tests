@@ -524,7 +524,6 @@ void Interactive() {
    theCapture.Disconnect();
 }
 }
-}
 int main(int const iArgc,char const* const* const pszArgv) {
    try {
       if(iArgc>1 && std::string_view{pszArgv[1]}=="--list-cameras") {
