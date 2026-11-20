@@ -2,6 +2,7 @@
 #include "../common/NativeShowcase.h"
 #include "../common/CameraDevices.h"
 #include "../common/CameraFrameView.h"
+#include "DocumentRegion.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -229,6 +230,8 @@ bool Verify() {
 void Interactive() {
    NativeShowcase aApp{"BuildEngine | TESSERACT OCR STUDIO",1500,950};
    CameraFrameView theCameraView{aApp.Window()};
+   CameraFrameView theSourceView{aApp.Window()};
+   CameraFrameView theProcessedView{aApp.Window()};
    DirectShowCapture theCapture;
    std::vector<CameraDevice> vecCameras;
    std::string strEnumerationError;
@@ -251,7 +254,11 @@ void Interactive() {
    std::copy(strDefault.begin(),strDefault.end(),arrText.begin());
    std::array<char,512> arrFile {};
    bool bThreshold=true;
-   bool bSingleLine=true;
+   int iPageMode=0;
+   int iRegionMode=2;
+   std::array<float,4> arrROI {.10F,.10F,.80F,.80F};
+   bool bAutoUpscale=true;
+   DocumentRegion theLastRegion;
    bool bFrozen=false;
    cv::Mat theLatestFrame;
    cv::Mat theFrozenFrame;
@@ -267,17 +274,34 @@ void Interactive() {
       bFrozen=false;
       theFrozenFrame.release();
    };
-   auto const Run=[&](cv::Mat const& theInput) {
+   auto const Run=[&](cv::Mat const& theInput,bool const bCameraInput) {
       try {
-         theResult=Recognize(theInput,bThreshold,
-            bSingleLine?tesseract::PSM_SINGLE_LINE:tesseract::PSM_AUTO);
+         DocumentRegion theRegion=ExtractDocument(theInput,
+            bCameraInput?static_cast<DocumentRegion::Mode>(iRegionMode):
+               DocumentRegion::Mode::FullFrame,arrROI);
+         cv::Mat theDocument=theRegion.theDocument;
+         if(bCameraInput && bAutoUpscale) {
+            double const flScale=std::min(2.5,
+               std::max(1.0,1800.0/std::max(theDocument.cols,theDocument.rows)));
+            if(flScale>1.01)
+               cv::resize(theDocument,theDocument,cv::Size{},
+                  flScale,flScale,cv::INTER_CUBIC);
+         }
+         tesseract::PageSegMode const ePSM=iPageMode==0
+            ? tesseract::PSM_AUTO
+            : iPageMode==1?tesseract::PSM_SINGLE_BLOCK:tesseract::PSM_SINGLE_LINE;
+         Recognition theNewResult=Recognize(theDocument,bThreshold,ePSM);
+         theLastRegion=std::move(theRegion);
+         theResult=std::move(theNewResult);
+         theSourceView.Update(theResult.theOriginal);
+         theProcessedView.Update(theResult.theProcessed);
          strError.clear();
       }
       catch(std::exception const& theError) {
          strError=theError.what();
       }
    };
-   Run(MakeDocument(arrText.data()));
+   Run(MakeDocument(arrText.data()),false);
    while(aApp.Running()) {
       if(theCapture.Connected() && !bFrozen) {
          std::uint64_t const uNow=SDL_GetTicks64();
@@ -411,7 +435,7 @@ void Interactive() {
             // Recognition operates on an immutable captured frame; do not
             // invoke Tesseract on every SDL video or ImGui refresh.
             cv::Mat const theSnapshot=theInput.clone();
-            Run(theSnapshot);
+            Run(theSnapshot,true);
          }
          else
             strError="No camera frame is available for OCR.";
@@ -422,11 +446,25 @@ void Interactive() {
       ImGui::SeparatorText("2. Recognition settings and alternative inputs");
       ImGui::Checkbox("Otsu threshold",&bThreshold);
       ImGui::SameLine();
-      ImGui::Checkbox("Single line (otherwise auto page layout)",&bSingleLine);
+      ImGui::Checkbox("Upscale small camera text",&bAutoUpscale);
+      ImGui::SetNextItemWidth(270);
+      ImGui::Combo("Tesseract text layout",&iPageMode,
+         "Automatic page (PSM 3)\0Single text block (PSM 6)\0Single line (PSM 7)\0");
+      ImGui::SetNextItemWidth(290);
+      ImGui::Combo("Camera document area",&iRegionMode,
+         "Whole camera frame\0Manual text rectangle\0Detect document quadrilateral\0");
+      if(iRegionMode==1) {
+         ImGui::SliderFloat("Crop left",&arrROI[0],0.0F,.95F);
+         ImGui::SliderFloat("Crop top",&arrROI[1],0.0F,.95F);
+         ImGui::SliderFloat("Crop width",&arrROI[2],.05F,1.0F-arrROI[0]);
+         ImGui::SliderFloat("Crop height",&arrROI[3],.05F,1.0F-arrROI[1]);
+      }
+      if(iRegionMode==2)
+         ImGui::TextDisabled("If no page border exists, full frame is used; use Manual rectangle for a text block.");
       ImGui::SetNextItemWidth(560);
       ImGui::InputText("Synthetic document",arrText.data(),arrText.size());
       if(ImGui::Button("RENDER + RECOGNIZE")) {
-         Run(MakeDocument(arrText.data()));
+         Run(MakeDocument(arrText.data()),false);
       }
       ImGui::SameLine();
       ImGui::SetNextItemWidth(640);
@@ -434,27 +472,42 @@ void Interactive() {
       ImGui::SameLine();
       if(ImGui::Button("OCR FILE")) {
          cv::Mat const theInput=cv::imread(arrFile.data(),cv::IMREAD_COLOR);
-         Run(theInput);
+         Run(theInput,false);
       }
 
       ImGui::SeparatorText("3. Camera image and recognized text");
       if(!strError.empty())
          ImGui::TextColored({1,.35F,.44F,1},"OCR error: %s",strError.c_str());
       else {
-         ImGui::Text("Confidence: %d%% | Processing: %.2f ms",
-            theResult.iConfidence,theResult.flMilliseconds);
-         ImGui::TextWrapped("Recognized UTF-8: %s",theResult.strRecognized.c_str());
+         ImGui::Text("Confidence: %d%% | Processing: %.2f ms | OCR image: %d x %d",
+            theResult.iConfidence,theResult.flMilliseconds,
+            theResult.theProcessed.cols,theResult.theProcessed.rows);
+         ImGui::TextDisabled("Document region: %s",
+            theLastRegion.eMode==DocumentRegion::Mode::AutoPage
+               ? (theLastRegion.bFound?"Detected and rectified":"Not detected (full frame)")
+               : theLastRegion.eMode==DocumentRegion::Mode::ManualROI
+                  ? "Selected text rectangle":"Full frame");
       }
+      ImGui::Text("Recognized UTF-8 (scrollable, copyable):");
+      if(ImGui::Button("COPY RECOGNIZED TEXT"))
+         ImGui::SetClipboardText(theResult.strRecognized.c_str());
+      ImGui::InputTextMultiline("##ocrText",
+         theResult.strRecognized.data(),theResult.strRecognized.size()+1,
+         ImVec2{std::max(320.0F,ImGui::GetContentRegionAvail().x),180},
+         ImGuiInputTextFlags_ReadOnly);
+      ImGui::SeparatorText("4. Live camera / document source / processed pixels");
       if(theCapture.Connected()) {
+         ImGui::Text("Live camera frame:");
          theCameraView.Draw(std::max(350.0F,ImGui::GetContentRegionAvail().x),
-            270.0F);
+            310.0F);
       }
       else
          ImGui::TextDisabled("Camera disconnected; synthetic and file OCR remain usable.");
-      ImGui::SeparatorText("4. OCR source and processed image");
       float const flW=std::max(300.0F,ImGui::GetContentRegionAvail().x);
-      DrawGray(theResult.theOriginal,{flW,120});
-      DrawGray(theResult.theProcessed,{flW,120});
+      ImGui::Text("Selected document / rectified source:");
+      theSourceView.Draw(flW,450.0F);
+      ImGui::Text("Actual OpenCV preprocessing supplied to Tesseract:");
+      theProcessedView.Draw(flW,450.0F);
       ImGui::End();
       aApp.EndFrame();
    }
