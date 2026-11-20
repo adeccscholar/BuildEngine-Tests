@@ -276,6 +276,31 @@ bool Verify() {
          theResult.vecText.size(),theResult.flMilliseconds);
       bPass=bPass && bCase;
    }
+   // A confirmed QR code must remain locked on unchanged live frames.
+   // No decoder invocation is necessary while the tracker reports presence.
+   cv::Mat const theFixture=MakeSymbol("BUILDENGINE-OPENCV-5.1",true);
+   Result const theQR=Analyze(theFixture,true,"BUILDENGINE-OPENCV-5.1");
+   LiveBarcodeTracker theTracker;
+   bool bAcquired=theQR.bVerified &&
+      !theQR.vecDetectedCorners.empty() &&
+      theTracker.Acquire(theFixture,theQR.vecDetectedCorners.front());
+   bool bStable=bAcquired;
+   if(bStable) {
+      for(int i=0;i<12;++i)
+         bStable=bStable && theTracker.Update(theFixture);
+   }
+   cv::Mat const theAbsent(theFixture.size(),theFixture.type(),cv::Scalar(255,255,255));
+   bool bReleased=bStable;
+   if(bReleased) {
+      for(int i=0;i<6;++i)
+         theTracker.Update(theAbsent);
+      bReleased=!theTracker.Active();
+   }
+   std::println("SHOWCASE|CHECK|live-code-lock|{}|acquired={} still-tracked={}",
+      bStable?"PASS":"FAIL",bAcquired,theTracker.Active());
+   std::println("SHOWCASE|CHECK|live-code-rearm|{}|removed symbol frees new decode",
+      bReleased?"PASS":"FAIL");
+   bPass=bPass && bStable && bReleased;
    std::println("SHOWCASE|RESULT|{}|Native OpenCV barcode and QR detectors with ZXing/Zint fixtures",
       bPass?"PASS":"FAIL");
    return bPass;
