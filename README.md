@@ -204,6 +204,8 @@ physics, projectile and impact events, explosions, gravity switching, live
 scoring, particle effects and framebuffer screenshot capture, with no imported
 third-party source code or fallback library API.
 
+The new `neon-physics-duel` executable additionally compares 720 fixed-step simulation updates from the installed Jolt Physics 5.7.0 and Box2D 3.2.0 DLLs. It validates per-engine repeatability, gravity, floor contacts, and bounded trajectories through the `NeonPhysicsDifferential` CTest; the new executable itself has not yet been natively verified.
+
 Its companion `neon-physics-verify` executable provides headless, deterministic
 480-step regression and 2,400-step load testing through two CTest cases. Active
 packages, exact DLL closure and Debug/Release installation follow the standard
