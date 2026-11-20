@@ -129,3 +129,13 @@ The live scanner does not re-decode a confirmed QR or barcode while its region r
 To begin scanning a new code manually, click **RESET / SCAN NEXT**. Otherwise the tracker waits for five consecutive captured frames without a satisfactory image match before permitting a new decode. The 180 ms recognition interval applies only when no code is currently tracked. Switching recognition modes, selecting another webcam and disconnecting also release the tracking state.
 
 The `--verify` CTest includes an additional synthetic-camera regression: a recognized QR must remain tracked through twelve identical input frames without re-decoding; the tracker must subsequently release it when the code is removed. The video capture and UI still require testing on the actual Windows camera. **[not verified]** until native test evidence is available.
+
+## 10. Choose the symbology and verify book ISBNs
+
+The **Detection format** combo box defaults to automatic scanning. OpenCV 5.1 handles QR and linear EAN/UPC decoding first, followed by ZXing-C++ for additional supported formats. Choosing a concrete entry restricts scanning to that library format; this is especially useful for Codabar, Code 39/93/128, ITF, Data Matrix, PDF417, Aztec, additional QR variants and ISBN. Only formats reported readable by the exact installed ZXing build are listed.
+
+Most printed book barcodes encode an ISBN-13 as EAN-13 with prefix `978` or `979`. The application verifies the EAN check digit before assigning ISBN semantics, and it computes the corresponding ISBN-10 only for valid `978` ISBN-13 numbers. For example, the ISBN-13 `9780306406157` corresponds to ISBN-10 `0306406152`. A `979`-prefixed ISBN-13 does not, in general, admit ISBN-10 conversion.
+
+A selected format affects file scans and live camera scans. Changing the format resets the current tracking lock so the code may be decoded under the new filter. The last successfully decoded data remains visible independently in the retained reading area. To test the selection without camera access, run the normal CTest command described above: `--verify` includes a ZXing-readable catalog check, selected-format QR test and real ISBN-13 EAN barcode check. The producer's installed format list, not this documentation, determines the exact entries shown on your machine.
+
+**[not verified]** The full format list and ISBN test results require execution with the installed BCC64X ZXing-C++ package.

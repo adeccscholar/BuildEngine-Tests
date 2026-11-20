@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "showcase",
   "title": "OpenCV Barcode Vision",
-  "summary": "OpenCV 5.1 barcode and QR image recognition, selectable Windows DirectShow camera capture and live SDL2 viewport, with managed ZXing/Zint fixtures.",
+  "summary": "Native OpenCV barcode/QR detection with selectable ZXing formats, ISBN-13/ISBN-10 metadata, DirectShow live cameras and stable tracked detections.",
   "dependencies": [
     {
       "library": "opencv",
@@ -55,7 +55,7 @@
   "applications": [
     {
       "name": "opencv-barcode-vision",
-      "summary": "Interactive image import, live selectable DirectShow webcam video, barcode/QR detection and ZXing/Zint test symbol generation.",
+      "summary": "Interactive webcam, barcode and QR scanning with dynamic format selection, ISBN identification, and retained last reading.",
       "command": "..\\build\\Test\\opencv-barcode-vision\\Release\\opencv-barcode-vision.exe",
       "interactive": true
     },
