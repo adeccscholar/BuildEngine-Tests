@@ -7,6 +7,7 @@
 #include <array>
 #include <cmath>
 #include <stdexcept>
+#include <vector>
 
 /**
 \brief Tracks one confirmed barcode image patch without decoding it again.
