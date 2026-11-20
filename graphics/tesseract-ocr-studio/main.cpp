@@ -89,7 +89,7 @@ cv::Mat MakeDocument(std::string_view const svText) {
    separately installed English language model.
 \param theInput Original grayscale or BGR image.
 \param bThreshold Whether to apply Otsu binarization.
-\param iPageMode Tesseract PSM_SINGLE_LINE or PSM_AUTO.
+\param iPageMode Tesseract text segmentation mode.\n\param strLanguage Explicit managed traineddata selection, eng/deu/deu+eng.
 \returns Original, processed image, recognized UTF-8 text, confidence and time.
 \throw std::runtime_error When recognition initialization or processing fails.
 */
@@ -155,40 +155,6 @@ Recognition Recognize(cv::Mat const& theInput,bool const bThreshold,
    theResult.flMilliseconds=std::chrono::duration<double,std::milli>(
       std::chrono::steady_clock::now()-theStart).count();
    return theResult;
-}
-
-/** \brief Draws real grayscale pixels as a compact ImGui diagnostic viewport. */
-void DrawGray(cv::Mat const& theImage,ImVec2 const aSize) {
-   ImVec2 const aStart=ImGui::GetCursorScreenPos();
-   ImDrawList* const pDraw=ImGui::GetWindowDrawList();
-   pDraw->AddRectFilled(aStart,{aStart.x+aSize.x,aStart.y+aSize.y},
-      IM_COL32(250,252,255,255),10.0F);
-   if(!theImage.empty()) {
-      cv::Mat theGray;
-      if(theImage.channels()==1) theGray=theImage;
-      else cv::cvtColor(theImage,theGray,cv::COLOR_BGR2GRAY);
-      int const iWidth=std::clamp(static_cast<int>(aSize.x/3),1,470);
-      int const iHeight=std::clamp(static_cast<int>(aSize.y/3),1,120);
-      cv::Mat theSmall;
-      cv::resize(theGray,theSmall,cv::Size{iWidth,iHeight},0,0,cv::INTER_AREA);
-      float const flScale=std::min(aSize.x/iWidth,aSize.y/iHeight);
-      float const flOffsetX=aStart.x+(aSize.x-iWidth*flScale)*.5F;
-      float const flOffsetY=aStart.y+(aSize.y-iHeight*flScale)*.5F;
-      for(int iY=0;iY<iHeight;++iY) {
-         unsigned char const* pLine=theSmall.ptr<unsigned char>(iY);
-         int iX=0;
-         while(iX<iWidth) {
-            int const iStart=iX;
-            unsigned char const uValue=pLine[iX];
-            while(iX<iWidth && pLine[iX]==uValue) ++iX;
-            pDraw->AddRectFilled(
-               {flOffsetX+iStart*flScale,flOffsetY+iY*flScale},
-               {flOffsetX+iX*flScale+.25F,flOffsetY+(iY+1)*flScale+.25F},
-               IM_COL32(uValue,uValue,uValue,255));
-         }
-      }
-   }
-   ImGui::Dummy(aSize);
 }
 
 bool Verify() {
@@ -540,8 +506,11 @@ void Interactive() {
       ImGui::SeparatorText("4. Live camera / document source / processed pixels");
       if(theCapture.Connected()) {
          ImGui::Text("Live camera frame:");
-         theCameraView.Draw(std::max(350.0F,ImGui::GetContentRegionAvail().x),
-            310.0F);
+         float const flCameraWidth=std::max(350.0F,ImGui::GetContentRegionAvail().x);
+         if(iRegionMode==1)
+            theCameraView.DrawWithROI(flCameraWidth,310.0F,arrROI);
+         else
+            theCameraView.Draw(flCameraWidth,310.0F);
       }
       else
          ImGui::TextDisabled("Camera disconnected; synthetic and file OCR remain usable.");
