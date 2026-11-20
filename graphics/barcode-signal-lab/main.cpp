@@ -1,174 +1,204 @@
 #include "../common/GraphicsDllImports.h"
 #include "../common/NativeShowcase.h"
 
+#include <ZXing/CreateBarcode.h>
+#include <ZXing/WriteBarcode.h>
 #include <ZXing/ReadBarcode.h>
 #include <ZXing/ReaderOptions.h>
 #include <ZXing/ImageView.h>
+#include <zint.h>
 
 #include <algorithm>
 #include <array>
-#include <cmath>
 #include <cstdint>
 #include <exception>
+#include <format>
 #include <print>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <vector>
 
 namespace {
-constexpr int iModules = 95;
-constexpr int iModulePixels = 6;
-constexpr int iQuietModules = 18;
-constexpr int iHeight = 272;
-constexpr int iWidth = (iModules + iQuietModules * 2) * iModulePixels;
+struct SymbolType {
+   char const* szName;
+   ZXing::BarcodeFormat eFormat;
+};
+constexpr std::array<SymbolType, 5> arrFormats {{
+   { "QR Code", ZXing::BarcodeFormat::QRCode },
+   { "Data Matrix", ZXing::BarcodeFormat::DataMatrix },
+   { "Code 128", ZXing::BarcodeFormat::Code128 },
+   { "EAN-13", ZXing::BarcodeFormat::EAN13 },
+   { "PDF417", ZXing::BarcodeFormat::PDF417 }
+}};
+
+struct Scan {
+   ZXing::Image theImage;
+   ZXing::Barcodes vecDetected;
+   int iWidth {};
+   int iHeight {};
+   bool bRoundtrip {};
+};
 
 /**
-\brief Constructs a deterministic retail barcode using the public EAN-13 bit layout.
-\details The encoder is deliberately independent of ZXing; the actual verification
-         roundtrip uses ZXing's native installed DLL decoder.
-\param svDigits Twelve decimal data digits.
-\returns A monochrome image of the full generated EAN-13 symbol.
-\throw std::invalid_argument If the input is not twelve ASCII digits.
+\brief Generates a real symbol through ZXing's external Zint writer backend.
+\details The installed ZXing DLL encodes and rasterizes the payload, then its
+         own reader detects it from the returned image. No mock encoder is used.
+\param svPayload Text to encode.
+\param eFormat Requested supported symbology.
+\param bTryHarder Enables slower reader heuristics.
+\returns Owned image, decoded symbols and round-trip result.
+\throw std::exception For unsupported formats, invalid content or DLL errors.
 */
-std::vector<std::uint8_t> Generate(std::string_view const svDigits) {
-   if(svDigits.size() != 12 ||
-      !std::all_of(svDigits.begin(), svDigits.end(), [](char c) { return c >= '0' && c <= '9'; }))
-      throw std::invalid_argument { "EAN-13 requires exactly 12 digits" };
+Scan Generate(std::string_view const svPayload, ZXing::BarcodeFormat const eFormat,
+              bool const bTryHarder) {
+   ZXing::CreatorOptions const theOptions { eFormat };
+   ZXing::Barcode const theBarcode = ZXing::CreateBarcodeFromText(svPayload, theOptions);
+   if(!theBarcode.isValid())
+      throw std::runtime_error { "ZXing writer returned an invalid barcode" };
 
-   constexpr std::array<std::string_view, 10> arrL {
-      "0001101","0011001","0010011","0111101","0100011",
-      "0110001","0101111","0111011","0110111","0001011"
-   };
-   constexpr std::array<std::string_view, 10> arrG {
-      "0100111","0110011","0011011","0100001","0011101",
-      "0111001","0000101","0010001","0001001","0010111"
-   };
-   constexpr std::array<std::string_view, 10> arrR {
-      "1110010","1100110","1101100","1000010","1011100",
-      "1001110","1010000","1000100","1001000","1110100"
-   };
-   constexpr std::array<std::string_view, 10> arrParity {
-      "LLLLLL","LLGLGG","LLGGLG","LLGGGL","LGLLGG",
-      "LGGLLG","LGGGLL","LGLGLG","LGLGGL","LGGLGL"
-   };
-
-   int iChecksum = 0;
-   for(std::size_t u = 0; u < 12; ++u)
-      iChecksum += (svDigits[u] - '0') * (u % 2 == 0 ? 1 : 3);
-   iChecksum = (10 - iChecksum % 10) % 10;
-
-   std::string strBits { "101" };
-   int const iFirst = svDigits[0] - '0';
-   for(int i = 0; i < 6; ++i) {
-      int const iDigit = svDigits[static_cast<std::size_t>(i + 1)] - '0';
-      strBits += arrParity[static_cast<std::size_t>(iFirst)][static_cast<std::size_t>(i)] == 'L'
-         ? arrL[static_cast<std::size_t>(iDigit)] : arrG[static_cast<std::size_t>(iDigit)];
-   }
-   strBits += "01010";
-   for(int i = 0; i < 5; ++i)
-      strBits += arrR[static_cast<std::size_t>(svDigits[static_cast<std::size_t>(i + 7)] - '0')];
-   strBits += arrR[static_cast<std::size_t>(iChecksum)];
-   strBits += "101";
-   if(strBits.size() != iModules) throw std::runtime_error { "EAN-13 module count mismatch" };
-
-   std::vector<std::uint8_t> vecPixels(static_cast<std::size_t>(iWidth * iHeight), 255);
-   for(int iX = 0; iX < iModules; ++iX) {
-      if(strBits[static_cast<std::size_t>(iX)] != '1') continue;
-      int const iStart = (iQuietModules + iX) * iModulePixels;
-      for(int iY = 22; iY < iHeight - 22; ++iY)
-         for(int iPixel = 0; iPixel < iModulePixels; ++iPixel)
-            vecPixels[static_cast<std::size_t>(iY * iWidth + iStart + iPixel)] = 0;
-   }
-   return vecPixels;
+   ZXing::WriterOptions theWriter;
+   theWriter.scale(5);
+   theWriter.addQuietZones(true);
+   ZXing::Image theImage = ZXing::WriteBarcodeToImage(theBarcode, theWriter);
+   ZXing::ReaderOptions theReader;
+   theReader.tryHarder(bTryHarder);
+   theReader.tryRotate(true);
+   theReader.tryInvert(true);
+   ZXing::Barcodes vecDetected = ZXing::ReadBarcodes(theImage, theReader);
+   bool const bRoundtrip = std::ranges::any_of(vecDetected,
+      [svPayload](ZXing::Barcode const& theDecoded) {
+         return theDecoded.isValid() && theDecoded.text() == svPayload;
+      });
+   int const iWidth = theImage.width();
+   int const iHeight = theImage.height();
+   return { std::move(theImage), std::move(vecDetected), iWidth, iHeight, bRoundtrip };
 }
 
-std::string FullDigits(std::string_view const svData) {
-   int iSum = 0;
-   for(std::size_t u = 0; u < 12; ++u)
-      iSum += (svData[u] - '0') * (u % 2 == 0 ? 1 : 3);
-   return std::string { svData } + static_cast<char>('0' + (10 - iSum % 10) % 10);
-}
-
-ZXing::Barcodes Decode(std::vector<std::uint8_t> const& vecPixels, bool const bTryHarder) {
-   ZXing::ReaderOptions theOptions;
-   theOptions.formats(ZXing::BarcodeFormat::EAN13);
-   theOptions.tryHarder(bTryHarder);
-   theOptions.tryRotate(false);
-   theOptions.tryInvert(false);
-   ZXing::ImageView const theView { vecPixels.data(), iWidth, iHeight, ZXing::ImageFormat::Lum };
-   return ZXing::ReadBarcodes(theView, theOptions);
+/**
+\brief Draws the real generated barcode pixels in the native ImGui viewport.
+\details The renderer converts foreground pixel spans into vector rectangles.
+\param theScan Owned generated barcode and image dimensions.
+\param aOrigin Screen origin.
+\param flWidth Available width for the barcode visualization.
+\param flHeight Available height for the barcode visualization.
+\returns Nothing.
+\throw Nothing intentionally.
+*/
+void DrawBarcode(Scan const& theScan, ImVec2 const aOrigin, float const flWidth,
+                 float const flHeight) {
+   ImDrawList* const pDraw = ImGui::GetWindowDrawList();
+   ImVec2 const aEnd { aOrigin.x + flWidth, aOrigin.y + flHeight };
+   pDraw->AddRectFilled(aOrigin, aEnd, IM_COL32(246, 250, 254, 255), 14.0F);
+   int const iWidth = theScan.iWidth;
+   int const iHeight = theScan.iHeight;
+   if(iWidth <= 0 || iHeight <= 0) return;
+   float const flScale = std::min((flWidth - 40.0F) / iWidth, (flHeight - 36.0F) / iHeight);
+   float const flX = aOrigin.x + (flWidth - iWidth * flScale) * .5F;
+   float const flY = aOrigin.y + (flHeight - iHeight * flScale) * .5F;
+   pDraw->PushClipRect(aOrigin, aEnd, true);
+   // Merge consecutive dark pixels per row into one rectangle. The image is
+   // generated by ZXing/Zint and never reconstructed by another barcode writer.
+   for(int iY = 0; iY < iHeight; ++iY) {
+      int iX = 0;
+      while(iX < iWidth) {
+         while(iX < iWidth && theScan.theImage.data(iX, iY)[0] >= 128) ++iX;
+         int const iStart = iX;
+         while(iX < iWidth && theScan.theImage.data(iX, iY)[0] < 128) ++iX;
+         if(iX > iStart)
+            pDraw->AddRectFilled({flX + iStart * flScale, flY + iY * flScale},
+               {flX + iX * flScale, flY + (iY + 1) * flScale},
+               IM_COL32(9, 25, 46, 255));
+      }
+   }
+   pDraw->PopClipRect();
+   pDraw->AddRect(aOrigin, aEnd, IM_COL32(49, 207, 227, 255), 14.0F, 0, 2.0F);
 }
 
 bool Verify() {
-   std::string_view const svDigits = "590123412345";
-   auto const vecPixels = Generate(svDigits);
-   ZXing::Barcodes const vecCodes = Decode(vecPixels, true);
-   bool const bPassed = std::any_of(vecCodes.begin(), vecCodes.end(),
-      [svDigits](ZXing::Barcode const& theCode) {
-         return theCode.isValid() && theCode.text() == FullDigits(svDigits);
-      });
-   std::println("SHOWCASE|CHECK|ean13-roundtrip|{}|ZXing decoded {} symbols", bPassed ? "PASS" : "FAIL", vecCodes.size());
-   std::println("SHOWCASE|RESULT|{}|Independent EAN-13 generation and native ZXing decoding", bPassed ? "PASS" : "FAIL");
+   bool bPassed = true;
+   bool const bZint = ZBarcode_ValidID(BARCODE_QRCODE) != 0;
+   std::println("SHOWCASE|CHECK|zint-dll|{}|External Zint DLL supports QR codes",
+      bZint ? "PASS" : "FAIL");
+   bPassed = bZint && bPassed;
+   constexpr std::array<std::string_view, 5> arrPayloads {
+      "BUILDENGINE-ZINT-2.16", "BUILDENGINE-DATA-MATRIX", "BUILDENGINE-CODE128",
+      "5901234123457", "BUILDENGINE-PDF417"
+   };
+   for(std::size_t u = 0; u < arrFormats.size(); ++u) {
+      Scan const theScan = Generate(arrPayloads[u], arrFormats[u].eFormat, true);
+      bool const bValid = theScan.bRoundtrip && theScan.iWidth > 0 && theScan.iHeight > 0;
+      std::println("SHOWCASE|CHECK|format-{}|{}|{} size={}x{} decoded={}",
+         u, bValid ? "PASS" : "FAIL", arrFormats[u].szName, theScan.iWidth,
+         theScan.iHeight, theScan.vecDetected.size());
+      bPassed = bValid && bPassed;
+   }
+   std::println("SHOWCASE|RESULT|{}|Native ZXing writer, external Zint DLL and multi-format reader",
+      bPassed ? "PASS" : "FAIL");
    return bPassed;
 }
 
-void DrawBarcode(std::vector<std::uint8_t> const& vecPixels, ImVec2 const aOrigin, float const flWidth, float const flHeight) {
-   ImDrawList* const pDraw = ImGui::GetWindowDrawList();
-   ImVec2 const aBottom { aOrigin.x + flWidth, aOrigin.y + flHeight };
-   pDraw->AddRectFilled(aOrigin, aBottom, IM_COL32(241, 249, 254, 255), 14.0F);
-   float const flScale = flWidth / static_cast<float>(iWidth);
-   for(int iX = 0; iX < iWidth; iX += iModulePixels) {
-      if(vecPixels[static_cast<std::size_t>(iHeight / 2 * iWidth + iX + iModulePixels / 2)] != 0) continue;
-      float const flLeft = aOrigin.x + static_cast<float>(iX) * flScale;
-      float const flRight = aOrigin.x + static_cast<float>(iX + iModulePixels) * flScale;
-      pDraw->AddRectFilled({ flLeft, aOrigin.y + 15.0F }, { flRight, aOrigin.y + flHeight - 15.0F }, IM_COL32(11, 29, 55, 255));
-   }
-   pDraw->AddRect(aOrigin, aBottom, IM_COL32(54, 202, 225, 255), 14.0F, 0, 2.0F);
-}
-
 void Interactive() {
-   NativeShowcase aApp { "BuildEngine | BARCODE SIGNAL LAB - Decode the Invisible", 1480, 850 };
-   std::array<char, 13> arrDigits { '5','9','0','1','2','3','4','1','2','3','4','5','\0' };
-   std::vector<std::uint8_t> vecPixels = Generate(arrDigits.data());
-   ZXing::Barcodes vecResults = Decode(vecPixels, true);
+   NativeShowcase aApp { "BuildEngine | BARCODE SIGNAL LAB - Encode and Decode", 1480, 850 };
+   std::array<char, 256> arrPayload {};
+   std::string const strInitial = "BUILDENGINE-ZINT-2.16";
+   std::copy(strInitial.begin(), strInitial.end(), arrPayload.begin());
+   int iFormat = 0;
    bool bTryHarder = true;
    float flZoom = 1.0F;
+   Scan theScan = Generate(arrPayload.data(), arrFormats[0].eFormat, bTryHarder);
+   std::string strError;
    while(aApp.Running()) {
       aApp.BeginFrame();
-      ImGui::SetNextWindowPos({ 0.0F, 0.0F });
+      ImGui::SetNextWindowPos({0.0F, 0.0F});
       ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
       ImGui::Begin("BARCODE SIGNAL LAB", nullptr,
-                   ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-      NativeShowcase::Header("BARCODE SIGNAL LAB / DECODE THE INVISIBLE",
-                             "Live barcode synthesis  /  real ZXing-C++ 3.1.1 DLL  /  native C++23");
-      ImGui::TextColored({ .46F, .93F, .88F, 1.0F }, "THE SCAN CHAMBER");
-      ImGui::InputText("12-digit EAN data", arrDigits.data(), arrDigits.size());
-      ImGui::SameLine();
-      if(ImGui::Button("SCAN SIGNAL")) {
-         try {
-            vecPixels = Generate(arrDigits.data());
-            vecResults = Decode(vecPixels, bTryHarder);
+         ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+      NativeShowcase::Header("BARCODE SIGNAL LAB / ENCODE THE INVISIBLE",
+         "Real ZXing writer + external Zint DLL + ZXing reader / Native C++23");
+      ImGui::TextColored({.45F, .94F, .82F, 1.0F}, "THE SYMBOL REACTOR");
+      bool bChanged = ImGui::BeginCombo("Symbology", arrFormats[static_cast<std::size_t>(iFormat)].szName);
+      if(bChanged) {
+         for(int i = 0; i < static_cast<int>(arrFormats.size()); ++i) {
+            bool const bSelected = i == iFormat;
+            if(ImGui::Selectable(arrFormats[static_cast<std::size_t>(i)].szName, bSelected)) {
+               iFormat = i;
+               if(iFormat == 3) {
+                  std::string const strRetail = "5901234123457";
+                  arrPayload.fill(0);
+                  std::copy(strRetail.begin(), strRetail.end(), arrPayload.begin());
+               }
+            }
          }
-         catch(std::exception const&) {
-            vecResults.clear();
+         ImGui::EndCombo();
+      }
+      ImGui::InputText("Content", arrPayload.data(), arrPayload.size());
+      ImGui::Checkbox("High accuracy scanning", &bTryHarder);
+      ImGui::SameLine();
+      ImGui::SliderFloat("Zoom", &flZoom, .6F, 1.0F);
+      if(ImGui::Button("ENCODE + SCAN")) {
+         try {
+            theScan = Generate(arrPayload.data(), arrFormats[static_cast<std::size_t>(iFormat)].eFormat,
+               bTryHarder);
+            strError.clear();
+         }
+         catch(std::exception const& theError) {
+            strError = theError.what();
          }
       }
-      ImGui::Checkbox("Try harder", &bTryHarder);
-      ImGui::SameLine();
-      ImGui::SliderFloat("Barcode scale", &flZoom, .6F, 1.0F);
-      ImGui::Spacing();
-      float const flWidth = std::min(ImGui::GetContentRegionAvail().x - 10.0F, 1060.0F) * flZoom;
+      if(!strError.empty())
+         ImGui::TextColored({1.0F, .4F, .45F, 1.0F}, "Encoding error: %s", strError.c_str());
+      ImGui::Text("GENERATED %dx%d   /   DECODED %d symbols   /   ROUNDTRIP %s",
+         theScan.iWidth, theScan.iHeight,
+         static_cast<int>(theScan.vecDetected.size()), theScan.bRoundtrip ? "PASS" : "FAIL");
+      float const flWidth = std::min(ImGui::GetContentRegionAvail().x - 10.0F, 1080.0F) * flZoom;
       ImVec2 const aOrigin = ImGui::GetCursorScreenPos();
-      DrawBarcode(vecPixels, aOrigin, flWidth, 270.0F);
-      ImGui::Dummy({ flWidth, 285.0F });
+      DrawBarcode(theScan, aOrigin, flWidth, 440.0F);
+      ImGui::Dummy({flWidth, 450.0F});
       ImGui::Separator();
-      ImGui::Text("DECODER STATUS  /  %d symbol(s) recognized", static_cast<int>(vecResults.size()));
-      for(ZXing::Barcode const& theCode : vecResults)
-         ImGui::TextColored({ .95F, .81F, .37F, 1.0F },
-                            "DECODED EAN-13: %s", theCode.text().c_str());
-      ImGui::TextDisabled("The bars are independently generated. Recognition uses the managed ZXing DLL.");
-      ImGui::TextDisabled("No mocked detection, no online service, no ZXing writer backend.");
+      for(ZXing::Barcode const& theCode : theScan.vecDetected)
+         ImGui::TextColored({.95F, .81F, .37F, 1.0F},
+            "DECODED: %s", theCode.text().c_str());
+      ImGui::TextDisabled("All symbols are actually generated and decoded through installed DLLs.");
       ImGui::End();
       aApp.EndFrame();
    }
@@ -182,8 +212,8 @@ int main(int const iArgc, char const* const* const pszArgv) {
       Interactive();
       return 0;
    }
-   catch(std::exception const& theException) {
-      std::println(stderr, "SHOWCASE|ERROR|{}", theException.what());
+   catch(std::exception const& theError) {
+      std::println(stderr, "SHOWCASE|ERROR|{}", theError.what());
       return 2;
    }
 }
