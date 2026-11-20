@@ -229,7 +229,7 @@ rendering and all CTest results are pending first host execution. See the
 Four standalone native Windows applications extend the existing SDL2/ImGui graphics gallery:
 
 - **[Vector Galaxy](graphics/vector-galaxy/Description.md):** hnswlib ANN retrieval across an 851-point feature cloud, coupled to libigl/Eigen terrain-normal calculations.
-- **[Barcode Signal Lab](graphics/barcode-signal-lab/Description.md):** live EAN-13 synthesis and true native ZXing-C++ barcode decoding; independent headless round-trip validation.
+- **[Barcode Signal Lab](graphics/barcode-signal-lab/Description.md):** live QR Code, Data Matrix, Code 128, EAN-13 and PDF417 generation using ZXing-C++'s new writer with separately managed Zint 2.16.0, followed by native ZXing decoding.
 - **[Navigation Reactor](graphics/navigation-reactor/Description.md):** dynamic Recast triangle walkability classification and real voxelized heightfield spans, colour-coded in a native command room.
 - **[Pulse Engine](graphics/pulse-engine/Description.md):** authentic miniaudio waveform synthesis with a luminous oscilloscope and optional audio playback activated only by the operator.
 
