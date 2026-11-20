@@ -35,3 +35,7 @@ Debug and Release must use separate CMake caches and exact matching managed impo
 ## 3D view validation
 
 The current main branch defaults to the perspective 3D terrain viewport, with mouse-drag orbit, mouse-wheel zoom, azimuth/elevation/distance sliders and a wireframe toggle. The '3D terrain' checkbox returns to the prior voxel raster. After updating the source, reconfigure and rebuild before installing the new executable. The headless test does not validate the visual output; inspect the terrain elevation, route projection and interaction on Windows.
+
+## Managed official ImGui GPU backend
+
+Prerequisites are the **installed, active, matching** Recast Navigation 1.6.0, Mesa OpenGL 26.2.1, GLEW 2.3.1, SDL2 2.32.10, and ImGui 1.93.0 packages. ImGui must first be rebuilt and reinstalled with the producer extension `imgui_sdl2_opengl3` (both configurations) from BuildEngine-Admin/main; the Navigation Reactor CMake contract requires the official backend import library and refuses to use a handwritten fallback. Run the existing configure command, then build, CTest and install. CTest now includes a display-dependent GPU test. The test executable also accepts `--verify-gl` directly. The Mesa runtime `opengl32.dll` and its dynamically loaded Gallium `libgallium_wgl.dll` are staged from the exact managed Mesa package, not copied from an SDK.

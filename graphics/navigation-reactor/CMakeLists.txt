@@ -67,4 +67,6 @@ add_custom_command(TARGET buildengine-stage-navigation-reactor POST_BUILD
 if(BUILD_TESTING)
    add_test(NAME NavigationReactorRecastRasterization COMMAND "$<TARGET_FILE:navigation-reactor>" --verify)
    set_tests_properties(NavigationReactorRecastRasterization PROPERTIES LABELS "native;recast;terrain;showcase" TIMEOUT 60)
+   add_test(NAME NavigationReactorMesaOpenGL COMMAND "$<TARGET_FILE:navigation-reactor>" --verify-gl)
+   set_tests_properties(NavigationReactorMesaOpenGL PROPERTIES LABELS "native;mesa;glew;imgui;sdl2;gpu;showcase" TIMEOUT 60)
 endif()
