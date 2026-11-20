@@ -2,6 +2,7 @@
 #include "../common/NativeShowcase.h"
 
 #include <Recast.h>
+#include "NavigationPath.h"
 
 #include <algorithm>
 #include <array>
@@ -12,6 +13,8 @@
 #include <print>
 #include <stdexcept>
 #include <string_view>
+#include <string>
+#include <chrono>
 #include <vector>
 
 namespace {
@@ -27,9 +30,12 @@ struct RecastField {
    };
    std::unique_ptr<rcHeightfield, FieldDeleter> pHeightfield;
    std::vector<unsigned char> vecArea;
+   std::vector<float> vecVertices;
+   std::vector<int> vecTriangles;
    int iWalkableTriangles {};
    int iTotalTriangles {};
    int iCells {};
+   NavigationRoute theRoute;
 };
 
 /**
@@ -96,6 +102,8 @@ RecastField BuildField(float const flSlope, float const flRuggedness) {
                             theField.iTotalTriangles, *theField.pHeightfield))
       throw std::runtime_error { "Recast native terrain rasterization failed" };
    theField.iCells = rcGetHeightFieldSpanCount(&theContext, *theField.pHeightfield);
+   theField.vecVertices = std::move(vecVertices);
+   theField.vecTriangles = std::move(vecTriangles);
    return theField;
 }
 
@@ -126,6 +134,66 @@ void DrawField(RecastField const& theField, ImVec2 const aOrigin, ImVec2 const a
    pDraw->PopClipRect();
 }
 
+/**
+\brief Draws the Detour-computed path and animated agent on the Recast raster.
+\details Projects only the Detour path, without implementing an alternative pathfinder.
+\param theField The Recast field and Detour path.
+\param aOrigin Viewport position.
+\param aSize Viewport size.
+\param flPhase Fraction of the route traversed by the agent.
+\param bObstacle Whether to display the excluded obstacle region.
+\returns Nothing.
+\throw Nothing intentionally.
+*/
+void DrawRoute(RecastField const& theField, ImVec2 const aOrigin, ImVec2 const aSize,
+               float const flPhase, bool const bObstacle) {
+   rcHeightfield const& theH = *theField.pHeightfield;
+   float const flSize = std::min(aSize.x / static_cast<float>(theH.width),
+      aSize.y / static_cast<float>(theH.height)) * .9F;
+   ImVec2 const aStart {
+      aOrigin.x + (aSize.x - flSize * theH.width) * .5F,
+      aOrigin.y + (aSize.y - flSize * theH.height) * .5F
+   };
+   auto const Project = [&](std::array<float, 3> const& arrPoint) -> ImVec2 {
+      return {aStart.x + (arrPoint[0] - theH.bmin[0]) / theH.cs * flSize,
+              aStart.y + (arrPoint[2] - theH.bmin[2]) / theH.cs * flSize};
+   };
+   ImDrawList* const pDraw = ImGui::GetWindowDrawList();
+   pDraw->PushClipRect(aOrigin, {aOrigin.x + aSize.x, aOrigin.y + aSize.y}, true);
+   if(bObstacle) {
+      ImVec2 const aCenter = Project({8.0F, 0.0F, 5.0F});
+      pDraw->AddCircleFilled(aCenter, 1.8F / theH.cs * flSize, IM_COL32(8, 14, 29, 235));
+      pDraw->AddCircle(aCenter, 1.8F / theH.cs * flSize, IM_COL32(255, 91, 131, 255), 0, 3.0F);
+   }
+   auto const& vecPoints = theField.theRoute.vecPoints;
+   if(vecPoints.size() >= 2) {
+      float flTotal = 0.0F;
+      for(std::size_t u = 1; u < vecPoints.size(); ++u)
+         flTotal += std::hypot(vecPoints[u][0] - vecPoints[u - 1][0],
+            vecPoints[u][2] - vecPoints[u - 1][2]);
+      ImVec2 aAgent = Project(vecPoints.front());
+      float flRemaining = flTotal * std::clamp(flPhase, 0.0F, 1.0F);
+      for(std::size_t u = 1; u < vecPoints.size(); ++u) {
+         ImVec2 const aA = Project(vecPoints[u - 1]);
+         ImVec2 const aB = Project(vecPoints[u]);
+         pDraw->AddLine(aA, aB, IM_COL32(13, 33, 55, 255), 9.0F);
+         pDraw->AddLine(aA, aB, IM_COL32(255, 218, 83, 255), 4.0F);
+         float const flLength = std::hypot(vecPoints[u][0] - vecPoints[u - 1][0],
+            vecPoints[u][2] - vecPoints[u - 1][2]);
+         if(flRemaining > 0.0F) {
+            float const flT = flLength > 0.0F ? std::min(flRemaining / flLength, 1.0F) : 1.0F;
+            aAgent = { aA.x + (aB.x - aA.x) * flT, aA.y + (aB.y - aA.y) * flT };
+            flRemaining -= flLength;
+         }
+      }
+      pDraw->AddCircleFilled(Project(vecPoints.front()), 9.0F, IM_COL32(80, 240, 172, 255));
+      pDraw->AddCircleFilled(Project(vecPoints.back()), 9.0F, IM_COL32(255, 104, 142, 255));
+      pDraw->AddCircleFilled(aAgent, 12.0F, IM_COL32(255, 255, 255, 255));
+      pDraw->AddCircleFilled(aAgent, 7.0F, IM_COL32(56, 116, 255, 255));
+   }
+   pDraw->PopClipRect();
+}
+
 bool Verify() {
    RecastField const theLow = BuildField(15.0F, 1.3F);
    RecastField const theHigh = BuildField(75.0F, 1.3F);
@@ -137,7 +205,12 @@ bool Verify() {
       theLow.iWalkableTriangles > 0 &&
       theHigh.iWalkableTriangles > theLow.iWalkableTriangles &&
       theHigh.iWalkableTriangles <= theHigh.iTotalTriangles;
-   bool const bPassed = bMesh && bLowRaster && bHighRaster && bSlopeResponse;
+   RecastField theRouteField = BuildField(70.0F, 0.5F);
+   theRouteField.theRoute = BuildNavigationRoute(theRouteField.vecVertices,
+      theRouteField.vecTriangles, 70.0F, 0.5F, false);
+   bool const bDetour = theRouteField.theRoute.bPathComplete &&
+      theRouteField.theRoute.vecPoints.size() >= 2;
+   bool const bPassed = bMesh && bLowRaster && bHighRaster && bSlopeResponse && bDetour;
    std::println("SHOWCASE|CHECK|mesh-topology|{}|trianglesLow={} trianglesHigh={} expected=8000",
       bMesh ? "PASS" : "FAIL", theLow.iTotalTriangles, theHigh.iTotalTriangles);
    std::println("SHOWCASE|CHECK|low-slope-raster|{}|spans={} threshold=nonzero",
@@ -147,38 +220,87 @@ bool Verify() {
    std::println("SHOWCASE|CHECK|slope-response|{}|lowWalkable={} highWalkable={} triangles={}",
       bSlopeResponse ? "PASS" : "FAIL", theLow.iWalkableTriangles,
       theHigh.iWalkableTriangles, theHigh.iTotalTriangles);
-   std::println("SHOWCASE|RESULT|{}|Recast walkability classification and heightfield rasterization",
+   std::println("SHOWCASE|CHECK|detour-route|{}|polygons={} points={} complete={}",
+      bDetour ? "PASS" : "FAIL", theRouteField.theRoute.iPolygons,
+      theRouteField.theRoute.vecPoints.size(), theRouteField.theRoute.bPathComplete);
+   std::println("SHOWCASE|RESULT|{}|Recast rasterization and Detour pathfinding",
                 bPassed ? "PASS" : "FAIL");
    return bPassed;
 }
 
 void Interactive() {
-   NativeShowcase aApp { "BuildEngine | NAVIGATION REACTOR - Terrain Intelligence", 1540, 900 };
-   float flSlope = 36.0F;
-   float flRelief = 1.25F;
+   NativeShowcase aApp { "BuildEngine | NAVIGATION REACTOR - Detour Expedition", 1540, 900 };
+   float flSlope = 70.0F;
+   float flRelief = 0.50F;
+   bool bObstacle = true;
+   bool bAnimate = true;
    RecastField theField = BuildField(flSlope, flRelief);
+   std::string strRouteError;
+   auto const Refresh = [&]() {
+      RecastField theNew = BuildField(flSlope, flRelief);
+      theNew.theRoute = BuildNavigationRoute(theNew.vecVertices,
+         theNew.vecTriangles, flSlope, flRelief, bObstacle);
+      theField = std::move(theNew);
+      strRouteError.clear();
+   };
+   try {
+      Refresh();
+   }
+   catch(std::exception const& theError) {
+      strRouteError = theError.what();
+   }
+   auto const theStart = std::chrono::steady_clock::now();
    while(aApp.Running()) {
       aApp.BeginFrame();
       ImGui::SetNextWindowPos({0.0F, 0.0F});
       ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
       ImGui::Begin("NAVIGATION REACTOR", nullptr,
-                   ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-      NativeShowcase::Header("NAVIGATION REACTOR / TERRAIN INTELLIGENCE",
-                             "Live native Recast slope classification and voxelized surface spans");
+         ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+      NativeShowcase::Header("NAVIGATION REACTOR / DETOUR EXPEDITION",
+         "Real Recast navigation mesh / Detour corridor planning / animated agent");
       ImGui::TextColored({.48F, .95F, .83F, 1.0F},
-         "WALKABLE TRIANGLES: %d / %d     RASTERIZED SPANS: %d",
-         theField.iWalkableTriangles, theField.iTotalTriangles, theField.iCells);
+         "TRIANGLES %d / %d   |   VOXEL SPANS %d   |   NAV POLYGONS %d   |   WAYPOINTS %d",
+         theField.iWalkableTriangles, theField.iTotalTriangles, theField.iCells,
+         theField.theRoute.iPolygons, static_cast<int>(theField.theRoute.vecPoints.size()));
       bool bChange = ImGui::SliderFloat("Agent maximum slope", &flSlope, 5.0F, 80.0F, "%.1f deg");
-      bChange = ImGui::SliderFloat("Terrain relief", &flRelief, .25F, 2.25F, "%.2fx") || bChange;
-      if(bChange || ImGui::Button("Rebuild navigation field"))
-         theField = BuildField(flSlope, flRelief);
-      ImGui::TextColored({.18F, .89F, .75F, 1.0F}, "GREEN: Recast walkable surface");
+      bChange = ImGui::SliderFloat("Terrain relief", &flRelief, .20F, 1.60F, "%.2fx") || bChange;
+      bChange = ImGui::Checkbox("Central obstacle", &bObstacle) || bChange;
       ImGui::SameLine();
-      ImGui::TextColored({.97F, .39F, .51F, 1.0F}, "PINK: steep or blocked span");
-      ImGui::TextDisabled("A genuine Recast raster, not a pre-rendered texture. Lower the slope to close dangerous routes.");
+      ImGui::Checkbox("Animate agent", &bAnimate);
+      ImGui::SameLine();
+      bChange = ImGui::Button("REBUILD NAVMESH") || bChange;
+      if(bChange) {
+         try {
+            Refresh();
+         }
+         catch(std::exception const& theError) {
+            theField.theRoute = {};
+            strRouteError = theError.what();
+         }
+      }
+      if(!strRouteError.empty())
+         ImGui::TextColored({1.0F, .4F, .45F, 1.0F}, "Navigation error: %s", strRouteError.c_str());
+      ImGui::TextColored({.40F, .92F, .78F, 1.0F}, "TEAL: traversable");
+      ImGui::SameLine();
+      ImGui::TextColored({.97F, .37F, .54F, 1.0F}, "MAGENTA: blocked or steep");
+      ImGui::SameLine();
+      ImGui::TextColored({1.0F, .85F, .37F, 1.0F}, "GOLD: Detour route");
+      ImGui::Text("Routing: %s   |   corridor polygons: %d",
+         theField.theRoute.bPathComplete ? "COMPLETE" : "NO COMPLETE PATH",
+         theField.theRoute.iCorridor);
+      ImGui::TextDisabled("The route comes from native Detour queries, not a graphical approximation.");
       ImVec2 const aOrigin = ImGui::GetCursorScreenPos();
       ImVec2 const aSize = ImGui::GetContentRegionAvail();
-      DrawField(theField, aOrigin, {aSize.x, std::max(260.0F, aSize.y - 10.0F)});
+      ImVec2 const aPanel {aSize.x, std::max(260.0F, aSize.y - 10.0F)};
+      DrawField(theField, aOrigin, aPanel);
+      float flPhase = 0.0F;
+      if(bAnimate) {
+         float const flElapsed = std::chrono::duration<float>(
+            std::chrono::steady_clock::now() - theStart).count();
+         flPhase = std::fmod(flElapsed / 16.0F, 1.0F);
+      }
+      DrawRoute(theField, aOrigin, aPanel, flPhase, bObstacle);
+      ImGui::Dummy(aPanel);
       ImGui::End();
       aApp.EndFrame();
    }
