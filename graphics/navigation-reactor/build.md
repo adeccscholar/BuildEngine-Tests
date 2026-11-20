@@ -39,3 +39,7 @@ The current main branch defaults to the perspective 3D terrain viewport, with mo
 ## Managed official ImGui GPU backend
 
 Prerequisites are the **installed, active, matching** Recast Navigation 1.6.0, Mesa OpenGL 26.2.1, GLEW 2.3.1, SDL2 2.32.10, and ImGui 1.93.0 packages. ImGui must first be rebuilt and reinstalled with the producer extension `imgui_sdl2_opengl3` (both configurations) from BuildEngine-Admin/main; the Navigation Reactor CMake contract requires the official backend import library and refuses to use a handwritten fallback. Run the existing configure command, then build, CTest and install. CTest now includes a display-dependent GPU test. The test executable also accepts `--verify-gl` directly. The Mesa runtime `opengl32.dll` and its dynamically loaded Gallium `libgallium_wgl.dll` are staged from the exact managed Mesa package, not copied from an SDK.
+
+## Verify actual Detour polygons and corridor overlays
+
+After rebuilding the managed packages, run `navigation-reactor.exe --verify` to verify native detail mesh triangles, corridor membership and densely sampled surface navigation. Run `navigation-reactor.exe --verify-gl` to validate Mesa OpenGL framebuffer rendering with those native triangles and the path. In the interactive viewport, toggle **NavMesh polygons** (teal) and **Detour corridor** (orange) independently. These overlays are direct Detour geometry, not a painted terrain approximation. **[not verified]** until the executable completes on the BCC64X host.
