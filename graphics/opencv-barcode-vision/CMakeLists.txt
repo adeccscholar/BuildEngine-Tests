@@ -14,7 +14,7 @@ adecc_package_current_root(OMP_PACKAGE llvm-openmp)
 adecc_package_current_root(ZLIB_PACKAGE zlib)
 adecc_package_current_root(PNG_PACKAGE libpng)
 set(OpenCV_DIR "${OPENCV_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/cmake/opencv5")
-find_package(OpenCV 5.1 CONFIG REQUIRED COMPONENTS core imgproc objdetect imgcodecs PATHS "${OpenCV_DIR}" NO_DEFAULT_PATH)
+find_package(OpenCV 5.1 CONFIG REQUIRED COMPONENTS core imgproc objdetect imgcodecs videoio PATHS "${OpenCV_DIR}" NO_DEFAULT_PATH)
 find_package(SDL2 CONFIG REQUIRED PATHS "${SDL2_PACKAGE}" NO_DEFAULT_PATH)
 if(BUILDENGINE_CONFIGURATION STREQUAL "Debug")
    set(_imgui_suffix d)
@@ -36,7 +36,8 @@ target_include_directories(opencv-barcode-vision PRIVATE
    ${OpenCV_INCLUDE_DIRS} "${ZXING_PACKAGE}/include" "${ZINT_PACKAGE}/include"
    "${IMGUI_PACKAGE}/include" "${SDL2_PACKAGE}/include/SDL2")
 target_link_libraries(opencv-barcode-vision PRIVATE
-   ${OpenCV_LIBS} "${_zxing_import}" "${_zint_import}" "${_imgui_import}" SDL2::SDL2)
+   ${OpenCV_LIBS} "${_zxing_import}" "${_zint_import}" "${_imgui_import}" SDL2::SDL2
+   ole32 oleaut32 strmiids)
 if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    target_link_options(opencv-barcode-vision PRIVATE "-Wl,--subsystem,windows")
 endif()
