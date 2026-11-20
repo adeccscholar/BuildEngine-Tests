@@ -28,7 +28,8 @@ endif()
 set(_recast_import "${RECAST_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libRecast${_recast_suffix}.lib")
 set(_detour_import "${RECAST_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libDetour${_recast_suffix}.lib")
 set(_imgui_import "${IMGUI_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libimgui${_imgui_suffix}.lib")
-foreach(_lib IN ITEMS "${_recast_import}" "${_detour_import}" "${_imgui_import}")
+set(_imgui_backend_import "${IMGUI_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libimgui_sdl2_opengl3${_imgui_suffix}.lib")
+foreach(_lib IN ITEMS "${_recast_import}" "${_detour_import}" "${_imgui_import}" "${_imgui_backend_import}")
    if(NOT EXISTS "${_lib}")
       message(FATAL_ERROR "Managed DLL import missing: ${_lib}")
    endif()
@@ -38,7 +39,8 @@ add_executable(navigation-reactor WIN32 main.cpp)
 set_target_properties(navigation-reactor PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF CXX_SCAN_FOR_MODULES OFF)
 target_compile_definitions(navigation-reactor PRIVATE
    SDL_MAIN_HANDLED WIN32_LEAN_AND_MEAN NOMINMAX
-   ADECC_MESA_OPENGL_DLL="${OpenGL_RUNTIME_DLL}")
+   ADECC_MESA_OPENGL_DLL="${OpenGL_RUNTIME_DLL}"
+   IMGUI_IMPL_API=__declspec\(dllimport\))
 target_include_directories(navigation-reactor PRIVATE
    "${RECAST_PACKAGE}/include/recastnavigation"
    "${GLEW_PACKAGE}/include"
@@ -46,7 +48,7 @@ target_include_directories(navigation-reactor PRIVATE
    "${IMGUI_PACKAGE}/include"
    "${SDL2_PACKAGE}/include/SDL2")
 target_link_libraries(navigation-reactor PRIVATE
-   "${_recast_import}" "${_detour_import}" "${_imgui_import}"
+   "${_recast_import}" "${_detour_import}" "${_imgui_import}" "${_imgui_backend_import}"
    SDL2::SDL2 OpenGL::OpenGL GLEW::GLEW)
 if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    target_link_options(navigation-reactor PRIVATE "-Wl,--subsystem,windows")
