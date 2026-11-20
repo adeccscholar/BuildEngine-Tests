@@ -1,5 +1,7 @@
 #include "../common/GraphicsDllImports.h"
 #include "../common/NativeShowcase.h"
+#include "../common/CameraDevices.h"
+#include "../common/CameraFrameView.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -13,6 +15,8 @@
 #include <exception>
 #include <filesystem>
 #include <memory>
+#include <format>
+#include <cstdint>
 #include <print>
 #include <stdexcept>
 #include <string>
@@ -223,69 +227,250 @@ bool Verify() {
 }
 
 void Interactive() {
-   NativeShowcase aApp{"BuildEngine | TESSERACT OCR STUDIO",1450,900};
+   NativeShowcase aApp{"BuildEngine | TESSERACT OCR STUDIO",1500,950};
+   CameraFrameView theCameraView{aApp.Window()};
+   DirectShowCapture theCapture;
+   std::vector<CameraDevice> vecCameras;
+   std::string strEnumerationError;
+   auto const RefreshCameras=[&]() {
+      try {
+         vecCameras=EnumerateCameras();
+         strEnumerationError.clear();
+      }
+      catch(std::exception const& theError) {
+         vecCameras.clear();
+         strEnumerationError=theError.what();
+      }
+   };
+   RefreshCameras();
+
+   int iSelectedCamera=vecCameras.empty()?-1:0;
+   int iManualIndex=0;
    std::array<char,256> arrText {};
    std::string const strDefault="OCR TEST 4711";
    std::copy(strDefault.begin(),strDefault.end(),arrText.begin());
    std::array<char,512> arrFile {};
    bool bThreshold=true;
    bool bSingleLine=true;
+   bool bFrozen=false;
+   cv::Mat theLatestFrame;
+   cv::Mat theFrozenFrame;
    Recognition theResult;
    std::string strError;
-   auto const Run=[&](bool const bFromFile) {
+   std::string strCaptureError;
+   std::uint64_t uLastCapture {};
+   std::uint64_t uFrames {};
+   int iReadFailures {};
+
+   auto const ReleaseCamera=[&]() {
+      theCapture.Disconnect();
+      bFrozen=false;
+      theFrozenFrame.release();
+   };
+   auto const Run=[&](cv::Mat const& theInput) {
       try {
-         cv::Mat const theInput=bFromFile
-            ? cv::imread(arrFile.data(),cv::IMREAD_COLOR)
-            : MakeDocument(arrText.data());
          theResult=Recognize(theInput,bThreshold,
             bSingleLine?tesseract::PSM_SINGLE_LINE:tesseract::PSM_AUTO);
          strError.clear();
       }
       catch(std::exception const& theError) {
-         theResult={};
          strError=theError.what();
       }
    };
-   Run(false);
+   Run(MakeDocument(arrText.data()));
    while(aApp.Running()) {
+      if(theCapture.Connected() && !bFrozen) {
+         std::uint64_t const uNow=SDL_GetTicks64();
+         if(uNow-uLastCapture>=70) {
+            uLastCapture=uNow;
+            try {
+               cv::Mat theFrame;
+               if(theCapture.Read(theFrame)) {
+                  theLatestFrame=theFrame.clone();
+                  theCameraView.Update(theLatestFrame);
+                  ++uFrames;
+                  iReadFailures=0;
+                  strCaptureError.clear();
+               }
+               else if(++iReadFailures>=10) {
+                  ReleaseCamera();
+                  strCaptureError="Camera returned no frames. Select and reconnect a device.";
+               }
+            }
+            catch(std::exception const& theError) {
+               ReleaseCamera();
+               strCaptureError=theError.what();
+            }
+         }
+      }
+
       aApp.BeginFrame();
       ImGui::SetNextWindowPos({0,0});
       ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
       ImGui::Begin("TESSERACT OCR STUDIO",nullptr,
          ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize);
       NativeShowcase::Header("TESSERACT / OCR STUDIO",
-         "OpenCV grayscale + Otsu / Leptonica PIX / Tesseract 5.5 English LSTM");
-      ImGui::SetNextItemWidth(650);
-      ImGui::InputText("Synthetic document",arrText.data(),arrText.size());
+         "OpenCV 5.1 camera and preprocessing / Leptonica PIX / Tesseract LSTM");
+
+      ImGui::SeparatorText("1. DirectShow camera");
+      if(ImGui::Button("REFRESH CAMERAS")) {
+         std::string strSelectedPath;
+         if(iSelectedCamera>=0 &&
+            iSelectedCamera<static_cast<int>(vecCameras.size()))
+            strSelectedPath=vecCameras[static_cast<std::size_t>(iSelectedCamera)].strDevicePath;
+         ReleaseCamera();
+         RefreshCameras();
+         iSelectedCamera=vecCameras.empty()?-1:0;
+         if(!strSelectedPath.empty())
+            for(std::size_t u=0;u<vecCameras.size();++u)
+               if(vecCameras[u].strDevicePath==strSelectedPath) {
+                  iSelectedCamera=static_cast<int>(u);
+                  break;
+               }
+      }
+      ImGui::SameLine();
+      ImGui::TextDisabled("Registered cameras: %d",
+         static_cast<int>(vecCameras.size()));
+      if(!strEnumerationError.empty())
+         ImGui::TextColored({1,.4F,.4F,1},
+            "Enumeration: %s",strEnumerationError.c_str());
+      std::string strSelection="Select registered camera";
+      if(iSelectedCamera>=0 &&
+         iSelectedCamera<static_cast<int>(vecCameras.size())) {
+         CameraDevice const& theDevice=vecCameras[static_cast<std::size_t>(iSelectedCamera)];
+         strSelection=std::format("[{}] {}",theDevice.iIndex,theDevice.strName);
+      }
+      ImGui::SetNextItemWidth(740);
+      if(ImGui::BeginCombo("Camera",strSelection.c_str())) {
+         for(std::size_t u=0;u<vecCameras.size();++u) {
+            CameraDevice const& theDevice=vecCameras[u];
+            std::string const strLabel=std::format("[{}] {}##ocrCamera{}",
+               theDevice.iIndex,theDevice.strName,u);
+            if(ImGui::Selectable(strLabel.c_str(),
+               iSelectedCamera==static_cast<int>(u))) {
+               ReleaseCamera();
+               iSelectedCamera=static_cast<int>(u);
+            }
+         }
+         ImGui::EndCombo();
+      }
+      ImGui::SetNextItemWidth(110);
+      ImGui::InputInt("Manual DirectShow index",&iManualIndex);
+      iManualIndex=std::clamp(iManualIndex,0,31);
+      auto const ConnectCamera=[&](int const iIndex) {
+         try {
+            ReleaseCamera();
+            theLatestFrame.release();
+            uLastCapture=0;
+            uFrames=0;
+            iReadFailures=0;
+            if(theCapture.Connect(iIndex))
+               strCaptureError.clear();
+            else
+               strCaptureError=std::format("DirectShow camera {} could not be opened.",iIndex);
+         }
+         catch(std::exception const& theError) {
+            ReleaseCamera();
+            strCaptureError=theError.what();
+         }
+      };
+      if(ImGui::Button("CONNECT SELECTED")) {
+         if(iSelectedCamera>=0 &&
+            iSelectedCamera<static_cast<int>(vecCameras.size()))
+            ConnectCamera(vecCameras[static_cast<std::size_t>(iSelectedCamera)].iIndex);
+         else
+            strCaptureError="Select a registered DirectShow camera first.";
+      }
+      ImGui::SameLine();
+      if(ImGui::Button("CONNECT BY INDEX")) ConnectCamera(iManualIndex);
+      ImGui::SameLine();
+      if(ImGui::Button("DISCONNECT")) ReleaseCamera();
+      ImGui::SameLine();
+      ImGui::TextDisabled("%s / index %d / frames %llu",
+         theCapture.Connected()?(bFrozen?"FROZEN":"LIVE"):"DISCONNECTED",
+         theCapture.Index(),static_cast<unsigned long long>(uFrames));
+      if(!strCaptureError.empty())
+         ImGui::TextColored({1,.4F,.4F,1},"Capture: %s",strCaptureError.c_str());
+
+      if(ImGui::Button(bFrozen?"RESUME LIVE":"FREEZE FRAME") &&
+         theCapture.Connected()) {
+         if(bFrozen) {
+            bFrozen=false;
+            theFrozenFrame.release();
+            uLastCapture=0;
+         }
+         else if(!theLatestFrame.empty()) {
+            theFrozenFrame=theLatestFrame.clone();
+            bFrozen=true;
+         }
+      }
+      ImGui::SameLine();
+      if(ImGui::Button("RECOGNIZE FRAME")) {
+         cv::Mat const& theInput=bFrozen?theFrozenFrame:theLatestFrame;
+         if(!theInput.empty()) {
+            // Recognition operates on an immutable captured frame; do not
+            // invoke Tesseract on every SDL video or ImGui refresh.
+            cv::Mat const theSnapshot=theInput.clone();
+            Run(theSnapshot);
+         }
+         else
+            strError="No camera frame is available for OCR.";
+      }
+      ImGui::TextDisabled("Camera enumeration does not open inactive sources. "
+         "OCR runs only when RECOGNIZE FRAME is pressed.");
+
+      ImGui::SeparatorText("2. Recognition settings and alternative inputs");
       ImGui::Checkbox("Otsu threshold",&bThreshold);
       ImGui::SameLine();
-      ImGui::Checkbox("Single line (otherwise auto layout)",&bSingleLine);
-      if(ImGui::Button("RENDER + RECOGNIZE")) Run(false);
-      ImGui::SeparatorText("Recognize a document from disk");
-      ImGui::SetNextItemWidth(730);
+      ImGui::Checkbox("Single line (otherwise auto page layout)",&bSingleLine);
+      ImGui::SetNextItemWidth(560);
+      ImGui::InputText("Synthetic document",arrText.data(),arrText.size());
+      if(ImGui::Button("RENDER + RECOGNIZE")) {
+         Run(MakeDocument(arrText.data()));
+      }
+      ImGui::SameLine();
+      ImGui::SetNextItemWidth(640);
       ImGui::InputText("Image file (PNG/JPEG)",arrFile.data(),arrFile.size());
       ImGui::SameLine();
-      if(ImGui::Button("OCR FILE")) Run(true);
+      if(ImGui::Button("OCR FILE")) {
+         cv::Mat const theInput=cv::imread(arrFile.data(),cv::IMREAD_COLOR);
+         Run(theInput);
+      }
+
+      ImGui::SeparatorText("3. Camera image and recognized text");
       if(!strError.empty())
          ImGui::TextColored({1,.35F,.44F,1},"OCR error: %s",strError.c_str());
       else {
-         ImGui::Text("Tesseract LSTM confidence: %d%% | Processing: %.2f ms",
+         ImGui::Text("Confidence: %d%% | Processing: %.2f ms",
             theResult.iConfidence,theResult.flMilliseconds);
-         ImGui::TextColored({.35F,.95F,.75F,1},"Recognized UTF-8 text:");
-         ImGui::TextWrapped("%s",theResult.strRecognized.c_str());
+         ImGui::TextWrapped("Recognized UTF-8: %s",theResult.strRecognized.c_str());
       }
-      ImGui::SeparatorText("Original input");
+      if(theCapture.Connected()) {
+         theCameraView.Draw(std::max(350.0F,ImGui::GetContentRegionAvail().x),
+            270.0F);
+      }
+      else
+         ImGui::TextDisabled("Camera disconnected; synthetic and file OCR remain usable.");
+      ImGui::SeparatorText("4. OCR source and processed image");
       float const flW=std::max(300.0F,ImGui::GetContentRegionAvail().x);
-      DrawGray(theResult.theOriginal,{flW,190});
-      ImGui::SeparatorText("OpenCV preprocessing output");
-      DrawGray(theResult.theProcessed,{flW,190});
+      DrawGray(theResult.theOriginal,{flW,120});
+      DrawGray(theResult.theProcessed,{flW,120});
       ImGui::End();
       aApp.EndFrame();
    }
+   ReleaseCamera();
 }
 }
 int main(int const iArgc,char const* const* const pszArgv) {
    try {
+      if(iArgc>1 && std::string_view{pszArgv[1]}=="--list-cameras") {
+         std::vector<CameraDevice> const vecCameras=EnumerateCameras();
+         std::println("SHOWCASE|CAMERAS|{}|Registered DirectShow devices",vecCameras.size());
+         for(CameraDevice const& theCamera:vecCameras)
+            std::println("SHOWCASE|CAMERA|{}|{}|{}",theCamera.iIndex,
+               theCamera.strName,theCamera.strDevicePath);
+         return 0;
+      }
       if(iArgc>1 && std::string_view{pszArgv[1]}=="--verify")
          return Verify()?0:1;
       Interactive();
