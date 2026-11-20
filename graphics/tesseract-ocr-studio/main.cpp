@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace {
 struct Recognition {
@@ -35,9 +36,44 @@ struct Recognition {
 \throw std::exception If OpenCV cannot allocate the image.
 */
 cv::Mat MakeDocument(std::string_view const svText) {
-   cv::Mat theImage(280,1120,CV_8UC1,cv::Scalar(255));
-   cv::putText(theImage,std::string(svText),cv::Point{52,160},
-      cv::FONT_HERSHEY_SIMPLEX,2.15,cv::Scalar(14),5,cv::LINE_AA);
+   constexpr int iFont=cv::FONT_HERSHEY_SIMPLEX;
+   constexpr double flFontScale=2.15;
+   constexpr int iThickness=5;
+   constexpr int iMargin=52;
+   constexpr int iBaseline=160;
+   // OpenCV's Hershey renderer has narrow default ASCII-space advances.
+   // Draw measured words independently with a visible inter-word gap.
+   // Never infer or insert spaces into Tesseract's recognition result.
+   std::vector<std::string> vecWords;
+   std::size_t uPos=0;
+   while(uPos<svText.size()) {
+      std::size_t const uStart=svText.find_first_not_of(' ',uPos);
+      if(uStart==std::string_view::npos) break;
+      std::size_t const uEnd=svText.find(' ',uStart);
+      vecWords.emplace_back(svText.substr(uStart,
+         uEnd==std::string_view::npos ? uEnd : uEnd-uStart));
+      if(uEnd==std::string_view::npos) break;
+      uPos=uEnd+1;
+   }
+   int iUnusedBaseline {};
+   cv::Size const aReference=cv::getTextSize("TEST",iFont,
+      flFontScale,iThickness,&iUnusedBaseline);
+   int const iWordGap=std::max(70,aReference.height);
+   int iTextWidth {};
+   for(std::string const& strWord:vecWords)
+      iTextWidth+=cv::getTextSize(strWord,iFont,
+         flFontScale,iThickness,&iUnusedBaseline).width;
+   if(vecWords.size()>1)
+      iTextWidth+=static_cast<int>(vecWords.size()-1)*iWordGap;
+   cv::Mat theImage(280,std::max(1120,iTextWidth+2*iMargin),
+      CV_8UC1,cv::Scalar(255));
+   int iX=iMargin;
+   for(std::string const& strWord:vecWords) {
+      cv::putText(theImage,strWord,cv::Point{iX,iBaseline},
+         iFont,flFontScale,cv::Scalar(14),iThickness,cv::LINE_AA);
+      iX+=cv::getTextSize(strWord,iFont,
+         flFontScale,iThickness,&iUnusedBaseline).width+iWordGap;
+   }
    return theImage;
 }
 
