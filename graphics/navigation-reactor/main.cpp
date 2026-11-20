@@ -234,6 +234,7 @@ void Interactive() {
    OpenGLShowcase aApp { "BuildEngine | NAVIGATION REACTOR - Mesa Expedition",
       ADECC_MESA_OPENGL_DLL, 1540, 900 };
    TerrainGL theRenderer;
+   std::string const strGLVersion = aApp.VersionString();
    float flSlope = 70.0F;
    float flRelief = 0.50F;
    bool bObstacle = true;
@@ -311,6 +312,7 @@ void Interactive() {
          theField.theRoute.bPathComplete ? "COMPLETE" : "NO COMPLETE PATH",
          theField.theRoute.iCorridor);
       ImGui::TextDisabled("GPU depth-tested geometry comes from Recast input triangles; route from Detour.");
+      ImGui::TextDisabled("OpenGL runtime: %s", strGLVersion.c_str());
       ImGui::TextDisabled("Drag the 3D view to orbit; use the mouse wheel to zoom.");
       ImVec2 const aOrigin = ImGui::GetCursorScreenPos();
       ImVec2 const aSize = ImGui::GetContentRegionAvail();
@@ -358,6 +360,20 @@ void Interactive() {
 
 int main(int const iArgc, char const* const* const pszArgv) {
    try {
+      if(iArgc > 1 && std::string_view { pszArgv[1] } == "--verify-gl") {
+         OpenGLShowcase aGL { "Navigation Reactor GPU Verification",
+            ADECC_MESA_OPENGL_DLL, 640, 480 };
+         TerrainGL theRenderer;
+         RecastField const theField = BuildField(70.0F, 0.5F);
+         theRenderer.SetTerrain(theField.vecVertices, theField.vecTriangles, theField.vecArea);
+         GLuint const uTexture = theRenderer.Render(640, 480, TerrainCamera {}, 0.0F, false);
+         bool const bValid = uTexture != 0 && glGetError() == GL_NO_ERROR;
+         std::println("SHOWCASE|CHECK|mesa-gpu|{}|OpenGL={} texture={}",
+            bValid ? "PASS" : "FAIL", aGL.VersionString(), uTexture);
+         std::println("SHOWCASE|RESULT|{}|Managed Mesa GL context and terrain render",
+            bValid ? "PASS" : "FAIL");
+         return bValid ? 0 : 1;
+      }
       if(iArgc > 1 && std::string_view { pszArgv[1] } == "--verify")
          return Verify() ? 0 : 1;
       Interactive();
