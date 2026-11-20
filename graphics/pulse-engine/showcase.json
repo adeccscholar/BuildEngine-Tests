@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Pulse Engine — The Shape of Sound",
+  "summary": "A native neon sound laboratory: real miniaudio PCM waveform synthesis, glowing oscilloscope, frequency and harmonic controls, with speaker playback only on explicit request.",
+  "dependencies": [
+    {
+      "library": "miniaudio",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "imgui",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "pulse-engine",
+      "summary": "Interactive PCM oscilloscope and optional audio playback featuring sine, square, triangle and sawtooth waveforms.",
+      "command": "..\\build\\Test\\pulse-engine\\Release\\pulse-engine.exe",
+      "interactive": true
+    },
+    {
+      "name": "pulse-engine --verify",
+      "summary": "Headless miniaudio PCM generation test without opening an audio device.",
+      "command": "..\\build\\Test\\pulse-engine\\Release\\pulse-engine.exe --verify",
+      "interactive": false
+    }
+  ]
+}
