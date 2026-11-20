@@ -23,3 +23,9 @@ The `--verify` CTest runs all twelve format round-trips and checks the Zint DLL 
 The native implementation uses ZXing's **new writer API**, linked against the separately installed Zint shared library. It does not use an independently generated demonstration symbol or a reader-only fallback. A missing or invalid writer is an explicit error. Changing the symbology loads a matching sample payload; EAN/UPC and ITF require numeric payloads and can impose length/check digit constraints. The CTest checks the 12 example payloads.
 
 If a running application still reports "no write backend" or mentions independently generated barcodes, confirm its executable path: these strings do not occur in this `main.cpp`. Running `cmake --build` updates the build-tree runtime binary, **not** necessarily the separately installed application. Reconfigure, build, test and install, then launch the documented installed executable. This explanation is not proof that an older executable was used.
+
+## Compact input and readback UI
+
+The editable content field is presented with a dedicated heading and a wide text box. Press Enter or **ENCODE + SCAN** to generate a barcode and immediately decode it. The view displays the exact last successfully encoded payload, returned decoded texts and PASS/FAIL status *above* the barcode; editing input alone never changes the claimed encoded value. Generation errors clear the previous result. The visualization is limited to a 480 by 300 pixel panel (or narrower as available) rather than the previous 1080 by 440 panel, keeping the input and readback on screen for QR Code as well as linear symbols. The symbol itself is scaled proportionally.
+
+**[not verified]** Native visual placement and the 12-format Windows test still require a local BCC64X run.

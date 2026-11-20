@@ -107,7 +107,8 @@ void DrawBarcode(Scan const& theScan, ImVec2 const aOrigin, float const flWidth,
    int const iWidth = theScan.iWidth;
    int const iHeight = theScan.iHeight;
    if(iWidth <= 0 || iHeight <= 0) return;
-   float const flScale = std::min((flWidth - 40.0F) / iWidth, (flHeight - 36.0F) / iHeight);
+   float const flScale = std::max(0.0F, std::min((flWidth - 24.0F) / iWidth,
+      (flHeight - 24.0F) / iHeight));
    float const flX = aOrigin.x + (flWidth - iWidth * flScale) * .5F;
    float const flY = aOrigin.y + (flHeight - iHeight * flScale) * .5F;
    pDraw->PushClipRect(aOrigin, aEnd, true);
@@ -158,8 +159,10 @@ void Interactive() {
    float flZoom = 1.0F;
    Scan theScan {};
    std::string strError;
+   std::string strEncoded;
    try {
       theScan = Generate(arrPayload.data(), arrFormats[0].eFormat, bTryHarder);
+      strEncoded = arrPayload.data();
    }
    catch(std::exception const& theError) {
       strError = theError.what();
@@ -185,46 +188,62 @@ void Interactive() {
                try {
                   theScan = Generate(arrPayload.data(), arrFormats[static_cast<std::size_t>(iFormat)].eFormat,
                      bTryHarder);
+                  strEncoded = arrPayload.data();
                   strError.clear();
                }
                catch(std::exception const& theError) {
                   theScan = {};
+                  strEncoded.clear();
                   strError = theError.what();
                }
             }
          }
          ImGui::EndCombo();
       }
-      ImGui::InputText("Content", arrPayload.data(), arrPayload.size());
+      ImGui::SeparatorText("1. Enter barcode content");
+      ImGui::SetNextItemWidth(std::min(ImGui::GetContentRegionAvail().x, 780.0F));
+      bool const bEnter = ImGui::InputText("##BarcodeContent", arrPayload.data(),
+         arrPayload.size(), ImGuiInputTextFlags_EnterReturnsTrue);
+      ImGui::TextDisabled("Enter text or numbers above, then press Enter or ENCODE + SCAN.");
       ImGui::Checkbox("High accuracy scanning", &bTryHarder);
-      ImGui::SameLine();
-      ImGui::SliderFloat("Zoom", &flZoom, .6F, 1.0F);
-      if(ImGui::Button("ENCODE + SCAN")) {
+      bool const bGenerate = ImGui::Button("ENCODE + SCAN") || bEnter;
+      if(bGenerate) {
          try {
             theScan = Generate(arrPayload.data(), arrFormats[static_cast<std::size_t>(iFormat)].eFormat,
                bTryHarder);
+            strEncoded = arrPayload.data();
             strError.clear();
          }
          catch(std::exception const& theError) {
             theScan = {};
+            strEncoded.clear();
             strError = theError.what();
          }
       }
+      ImGui::SeparatorText("2. Generated barcode and decoded result");
       if(!strError.empty())
          ImGui::TextColored({1.0F, .4F, .45F, 1.0F}, "Encoding error: %s", strError.c_str());
-      ImGui::Text("GENERATED %dx%d   /   DECODED %d symbols   /   ROUNDTRIP %s",
-         theScan.iWidth, theScan.iHeight,
-         static_cast<int>(theScan.vecDetected.size()), theScan.bRoundtrip ? "PASS" : "FAIL");
-      float const flWidth = std::min(ImGui::GetContentRegionAvail().x - 10.0F, 1080.0F) * flZoom;
+      else if(theScan.iWidth > 0 && theScan.iHeight > 0) {
+         ImGui::Text("Encoded content: %s", strEncoded.c_str());
+         ImGui::Text("Barcode: %dx%d pixels | Decoded symbols: %d | Round-trip: %s",
+            theScan.iWidth, theScan.iHeight,
+            static_cast<int>(theScan.vecDetected.size()), theScan.bRoundtrip ? "PASS" : "FAIL");
+         for(ZXing::Barcode const& theCode : theScan.vecDetected)
+            ImGui::TextColored({.95F, .81F, .37F, 1.0F}, "Decoded: %s",
+               theCode.text().c_str());
+         if(theScan.vecDetected.empty())
+            ImGui::TextDisabled("The reader did not detect a barcode in the generated image.");
+      }
+      else
+         ImGui::TextDisabled("No barcode generated yet.");
+      // Keep the output compact so the input and actual readback stay visible together.
+      float const flWidth = std::max(240.0F,
+         std::min(ImGui::GetContentRegionAvail().x - 12.0F, 480.0F));
+      float constexpr flHeight = 300.0F;
       ImVec2 const aOrigin = ImGui::GetCursorScreenPos();
-      DrawBarcode(theScan, aOrigin, flWidth, 440.0F);
-      ImGui::Dummy({flWidth, 450.0F});
-      ImGui::Separator();
-      for(ZXing::Barcode const& theCode : theScan.vecDetected)
-         ImGui::TextColored({.95F, .81F, .37F, 1.0F},
-            "DECODED: %s", theCode.text().c_str());
-      ImGui::TextDisabled("Encode: ZXing new writer / external Zint 2.16.0. Decode: ZXing reader.");
-      ImGui::TextDisabled("Invalid symbology/payload combinations are reported, not silently replaced.");
+      DrawBarcode(theScan, aOrigin, flWidth, flHeight);
+      ImGui::Dummy({flWidth, flHeight + 8.0F});
+      ImGui::TextDisabled("Writer: ZXing + external Zint | Reader: ZXing");
       ImGui::End();
       aApp.EndFrame();
    }
