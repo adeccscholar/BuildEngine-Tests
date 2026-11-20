@@ -42,3 +42,9 @@ See [build.md](build.md), [LICENSE.md](LICENSE.md), [SBOM.md](SBOM.md).
 **`neon-physics-verify.exe`** — Headless deterministic and stress test.
 
 Left click launches a projectile; right click applies a radial impulse; G toggles gravity direction; Space pauses/resumes; R resets the deterministic scene; P captures the current SDL framebuffer as neon-physics-arena.bmp; Esc exits. Headless verification uses a separate executable.
+
+## Differential Physics Challenge: Jolt versus Box2D
+
+A third independently runnable program `neon-physics-duel.exe` creates two equivalent vertical drop experiments through separate, installed native DLL APIs. Jolt Physics 5.7.0 provides a 3D sphere, box floor, broadphase layer interfaces, native allocator and single-threaded job system. Box2D 3.2.0 provides the corresponding 2D circle, floor and fixed-step solver. Both are simulated for 720 steps at 120 Hz. Each engine is also run twice from a new world to test its own repeatability.
+
+A correct result requires finite positions, falling bodies, stable floor contacts, and repeated matching per-engine sampled heights. The comparison reports per-second trajectories and separate timings without pretending that unrelated 2D and 3D solver implementations should generate identical numerical values. There is no dependency on the interactive SDL3 renderer for this additional CTest. Library builds are operator-confirmed successful, but the new differential application itself remains **[not verified]** until a native Windows run.
