@@ -12,6 +12,7 @@
 #include <array>
 #include <cstdint>
 #include <exception>
+#include <ranges>
 #include <format>
 #include <print>
 #include <stdexcept>
@@ -23,12 +24,26 @@ struct SymbolType {
    char const* szName;
    ZXing::BarcodeFormat eFormat;
 };
-constexpr std::array<SymbolType, 5> arrFormats {{
+constexpr std::array<SymbolType, 12> arrFormats {{
    { "QR Code", ZXing::BarcodeFormat::QRCode },
    { "Data Matrix", ZXing::BarcodeFormat::DataMatrix },
+   { "Aztec", ZXing::BarcodeFormat::Aztec },
+   { "PDF417", ZXing::BarcodeFormat::PDF417 },
    { "Code 128", ZXing::BarcodeFormat::Code128 },
+   { "Code 39", ZXing::BarcodeFormat::Code39 },
+   { "Code 93", ZXing::BarcodeFormat::Code93 },
+   { "Codabar", ZXing::BarcodeFormat::Codabar },
+   { "ITF", ZXing::BarcodeFormat::ITF },
    { "EAN-13", ZXing::BarcodeFormat::EAN13 },
-   { "PDF417", ZXing::BarcodeFormat::PDF417 }
+   { "EAN-8", ZXing::BarcodeFormat::EAN8 },
+   { "UPC-A", ZXing::BarcodeFormat::UPCA }
+}};
+
+constexpr std::array<std::string_view, 12> arrExamples {{
+   "BUILDENGINE-ZINT-2.16", "BUILDENGINE-DATA-MATRIX",
+   "BUILDENGINE-AZTEC", "BUILDENGINE-PDF417", "BUILDENGINE-CODE128",
+   "BUILDENGINE39", "BUILDENGINE93", "A12345B", "12345678",
+   "5901234123457", "96385074", "036000291452"
 }};
 
 struct Scan {
@@ -120,12 +135,8 @@ bool Verify() {
    std::println("SHOWCASE|CHECK|zint-dll|{}|External Zint DLL supports QR codes",
       bZint ? "PASS" : "FAIL");
    bPassed = bZint && bPassed;
-   constexpr std::array<std::string_view, 5> arrPayloads {
-      "BUILDENGINE-ZINT-2.16", "BUILDENGINE-DATA-MATRIX", "BUILDENGINE-CODE128",
-      "5901234123457", "BUILDENGINE-PDF417"
-   };
    for(std::size_t u = 0; u < arrFormats.size(); ++u) {
-      Scan const theScan = Generate(arrPayloads[u], arrFormats[u].eFormat, true);
+      Scan const theScan = Generate(arrExamples[u], arrFormats[u].eFormat, true);
       bool const bValid = theScan.bRoundtrip && theScan.iWidth > 0 && theScan.iHeight > 0;
       std::println("SHOWCASE|CHECK|format-{}|{}|{} size={}x{} decoded={}",
          u, bValid ? "PASS" : "FAIL", arrFormats[u].szName, theScan.iWidth,
@@ -145,8 +156,14 @@ void Interactive() {
    int iFormat = 0;
    bool bTryHarder = true;
    float flZoom = 1.0F;
-   Scan theScan = Generate(arrPayload.data(), arrFormats[0].eFormat, bTryHarder);
+   Scan theScan {};
    std::string strError;
+   try {
+      theScan = Generate(arrPayload.data(), arrFormats[0].eFormat, bTryHarder);
+   }
+   catch(std::exception const& theError) {
+      strError = theError.what();
+   }
    while(aApp.Running()) {
       aApp.BeginFrame();
       ImGui::SetNextWindowPos({0.0F, 0.0F});
@@ -162,10 +179,17 @@ void Interactive() {
             bool const bSelected = i == iFormat;
             if(ImGui::Selectable(arrFormats[static_cast<std::size_t>(i)].szName, bSelected)) {
                iFormat = i;
-               if(iFormat == 3) {
-                  std::string const strRetail = "5901234123457";
-                  arrPayload.fill(0);
-                  std::copy(strRetail.begin(), strRetail.end(), arrPayload.begin());
+               arrPayload.fill(0);
+               std::string_view const svExample = arrExamples[static_cast<std::size_t>(iFormat)];
+               std::copy(svExample.begin(), svExample.end(), arrPayload.begin());
+               try {
+                  theScan = Generate(arrPayload.data(), arrFormats[static_cast<std::size_t>(iFormat)].eFormat,
+                     bTryHarder);
+                  strError.clear();
+               }
+               catch(std::exception const& theError) {
+                  theScan = {};
+                  strError = theError.what();
                }
             }
          }
@@ -182,6 +206,7 @@ void Interactive() {
             strError.clear();
          }
          catch(std::exception const& theError) {
+            theScan = {};
             strError = theError.what();
          }
       }
@@ -198,7 +223,8 @@ void Interactive() {
       for(ZXing::Barcode const& theCode : theScan.vecDetected)
          ImGui::TextColored({.95F, .81F, .37F, 1.0F},
             "DECODED: %s", theCode.text().c_str());
-      ImGui::TextDisabled("All symbols are actually generated and decoded through installed DLLs.");
+      ImGui::TextDisabled("Encode: ZXing new writer / external Zint 2.16.0. Decode: ZXing reader.");
+      ImGui::TextDisabled("Invalid symbology/payload combinations are reported, not silently replaced.");
       ImGui::End();
       aApp.EndFrame();
    }

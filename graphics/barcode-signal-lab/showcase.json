@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "showcase",
   "title": "Barcode Signal Lab — Universal Encode / Decode",
-  "summary": "Live QR Code, Data Matrix, Code 128, EAN-13 and PDF417 generation through the native ZXing writer and externally managed Zint DLL, with immediate ZXing readback and round-trip verification.",
+  "summary": "Interactive 12-format symbol generation with ZXing's new writer and externally managed Zint DLL, followed by native ZXing readback and round-trip checks.",
   "dependencies": [
     {
       "library": "zxing-cpp",
@@ -40,13 +40,13 @@
   "applications": [
     {
       "name": "barcode-signal-lab",
-      "summary": "Interactive multi-symbology writer and scanner, with real ZXing/Zint encoding and ZXing decoding.",
+      "summary": "Interactive twelve-format generator and scanner using ZXing's new writer backed by the external Zint DLL.",
       "command": "..\\build\\Test\\barcode-signal-lab\\Release\\barcode-signal-lab.exe",
       "interactive": true
     },
     {
       "name": "barcode-signal-lab --verify",
-      "summary": "Headless five-format encode/decode round-trip regression over the native ZXing+Zint integration.",
+      "summary": "Headless twelve-format encode/decode regression with external Zint linkage.",
       "command": "..\\build\\Test\\barcode-signal-lab\\Release\\barcode-signal-lab.exe --verify",
       "interactive": false
     }
