@@ -9,6 +9,9 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
+#include <mutex>
+#include <unordered_map>
 #include <cctype>
 #include <cstddef>
 #include <memory>
@@ -46,6 +49,13 @@ struct BookMetadata {
 \details Uses verified TLS, bounded response memory, redirects, short
    connect/read timeouts and the default BuildEngine curl trust configuration.
 */
+struct RateLimited : std::runtime_error {
+   long iRetrySeconds {};
+   explicit RateLimited(long const iSeconds)
+      : std::runtime_error("HTTP 429 Too Many Requests; retry after " +
+           std::to_string(iSeconds) + " seconds"), iRetrySeconds{iSeconds} {}
+};
+
 class BookHttp final {
    struct CurlDeleter {
       void operator()(CURL* const pCurl) const noexcept {
@@ -53,7 +63,32 @@ class BookHttp final {
       }
    };
    static constexpr std::size_t uMaximumBytes=3*1024*1024;
-   static constexpr std::size_t uErrorBufferSize=CURL_ERROR_SIZE;
+   struct Headers {
+      long iRetryAfterSeconds {};
+   };
+
+   static std::size_t Header(char* const pBytes,std::size_t const uSize,
+      std::size_t const uCount,void* const pUser) {
+      Headers& theHeaders=*static_cast<Headers*>(pUser);
+      std::string_view const svLine{pBytes,uSize*uCount};
+      constexpr std::string_view svPrefix="retry-after:";
+      if(svLine.size()<svPrefix.size()) return svLine.size();
+      for(std::size_t u=0;u<svPrefix.size();++u)
+         if(std::tolower(static_cast<unsigned char>(svLine[u]))!=svPrefix[u])
+            return svLine.size();
+      std::size_t uPos=svPrefix.size();
+      while(uPos<svLine.size() &&
+         (svLine[uPos]==' '||svLine[uPos]=='\t')) ++uPos;
+      long iSeconds=0;
+      bool bFound=false;
+      while(uPos<svLine.size() && svLine[uPos]>='0' && svLine[uPos]<='9') {
+         bFound=true;
+         iSeconds=std::min(86400L,iSeconds*10L+(svLine[uPos]-'0'));
+         ++uPos;
+      }
+      if(bFound) theHeaders.iRetryAfterSeconds=std::max(1L,iSeconds);
+      return svLine.size();
+   }
 
    static std::size_t Write(char* const pBytes,std::size_t const uSize,
       std::size_t const uCount,void* const pUser) {
@@ -90,11 +125,14 @@ public:
       std::unique_ptr<CURL,CurlDeleter> const pCurl(curl_easy_init());
       if(!pCurl) throw std::runtime_error("Cannot create libcurl session");
       std::string strData;
+      Headers theHeaders;
       std::array<char,CURL_ERROR_SIZE> arrCurlError {};
       curl_easy_setopt(pCurl.get(),CURLOPT_ERRORBUFFER,arrCurlError.data());
       curl_easy_setopt(pCurl.get(),CURLOPT_URL,strURL.c_str());
       curl_easy_setopt(pCurl.get(),CURLOPT_WRITEFUNCTION,&Write);
       curl_easy_setopt(pCurl.get(),CURLOPT_WRITEDATA,&strData);
+      curl_easy_setopt(pCurl.get(),CURLOPT_HEADERFUNCTION,&Header);
+      curl_easy_setopt(pCurl.get(),CURLOPT_HEADERDATA,&theHeaders);
       curl_easy_setopt(pCurl.get(),CURLOPT_CONNECTTIMEOUT_MS,iConnectTimeoutMs);
       curl_easy_setopt(pCurl.get(),CURLOPT_TIMEOUT_MS,iTotalTimeoutMs);
       curl_easy_setopt(pCurl.get(),CURLOPT_FOLLOWLOCATION,0L);
@@ -125,6 +163,9 @@ public:
       long iStatus {};
       curl_easy_getinfo(pCurl.get(),CURLINFO_RESPONSE_CODE,&iStatus);
       if(iStatus==404) return {};
+      if(iStatus==429)
+         throw RateLimited{theHeaders.iRetryAfterSeconds>0
+            ? theHeaders.iRetryAfterSeconds:300L};
       if(iStatus!=200)
          throw std::runtime_error("ISBN REST HTTP "+std::to_string(iStatus));
       return strData;
