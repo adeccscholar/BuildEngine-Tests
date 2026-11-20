@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "OpenCV Barcode Vision",
+  "summary": "Real OpenCV 5.1 EAN-13/QR detection, interactive diagnostics and independent ZXing/Zint reproducible test images.",
+  "dependencies": [
+    {
+      "library": "opencv",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zxing-cpp",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "zint",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "imgui",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "onetbb",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "llvm-openmp",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "libpng",
+      "version": "active",
+      "direct": false
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "opencv-barcode-vision",
+      "summary": "Interactive computer-vision showcase",
+      "command": "..\\build\\Test\\opencv-barcode-vision\\Release\\opencv-barcode-vision.exe",
+      "interactive": true
+    },
+    {
+      "name": "opencv-barcode-vision --verify",
+      "summary": "Headless native computer-vision integration verification",
+      "command": "..\\build\\Test\\opencv-barcode-vision\\Release\\opencv-barcode-vision.exe --verify",
+      "interactive": false
+    }
+  ]
+}

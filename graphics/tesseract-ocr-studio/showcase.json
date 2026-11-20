@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "Tesseract OCR Studio",
+  "summary": "OpenCV preprocessing + Leptonica PIX + native Tesseract 5.5 English LSTM and model-driven text recognition.",
+  "dependencies": [
+    {
+      "library": "tesseract",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "leptonica",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "opencv",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "imgui",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "onetbb",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "llvm-openmp",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "libpng",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "libjpeg-turbo",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "libtiff",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "zlib",
+      "version": "active",
+      "direct": false
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "tesseract-ocr-studio",
+      "summary": "Interactive computer-vision showcase",
+      "command": "..\\build\\Test\\tesseract-ocr-studio\\Release\\tesseract-ocr-studio.exe",
+      "interactive": true
+    },
+    {
+      "name": "tesseract-ocr-studio --verify",
+      "summary": "Headless native computer-vision integration verification",
+      "command": "..\\build\\Test\\tesseract-ocr-studio\\Release\\tesseract-ocr-studio.exe --verify",
+      "interactive": false
+    }
+  ]
+}
