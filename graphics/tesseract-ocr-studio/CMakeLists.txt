@@ -18,7 +18,7 @@ adecc_package_current_root(TIFF_PACKAGE libtiff)
 set(OpenCV_DIR "${OPENCV_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/cmake/opencv5")
 set(Tesseract_DIR "${TESSERACT_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/cmake/tesseract")
 set(Leptonica_DIR "${LEPTONICA_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/cmake/leptonica")
-find_package(OpenCV 5.1 CONFIG REQUIRED COMPONENTS core imgproc imgcodecs PATHS "${OpenCV_DIR}" NO_DEFAULT_PATH)
+find_package(OpenCV 5.1 CONFIG REQUIRED COMPONENTS core imgproc imgcodecs videoio PATHS "${OpenCV_DIR}" NO_DEFAULT_PATH)
 find_package(Leptonica 1.87 CONFIG REQUIRED PATHS "${Leptonica_DIR}" NO_DEFAULT_PATH)
 find_package(Tesseract 5.5 CONFIG REQUIRED PATHS "${Tesseract_DIR}" NO_DEFAULT_PATH)
 find_package(SDL2 CONFIG REQUIRED PATHS "${SDL2_PACKAGE}" NO_DEFAULT_PATH)
@@ -44,7 +44,7 @@ target_include_directories(tesseract-ocr-studio PRIVATE
    ${OpenCV_INCLUDE_DIRS} ${Tesseract_INCLUDE_DIRS} ${Leptonica_INCLUDE_DIRS}
    "${IMGUI_PACKAGE}/include" "${SDL2_PACKAGE}/include/SDL2")
 target_link_libraries(tesseract-ocr-studio PRIVATE
-   ${OpenCV_LIBS} Tesseract::libtesseract "${_imgui_import}" SDL2::SDL2)
+   ${OpenCV_LIBS} Tesseract::libtesseract "${_imgui_import}" SDL2::SDL2 ole32 oleaut32 strmiids)
 if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    target_link_options(tesseract-ocr-studio PRIVATE "-Wl,--subsystem,windows")
 endif()
