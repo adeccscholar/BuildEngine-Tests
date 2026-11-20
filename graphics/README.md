@@ -10,7 +10,7 @@ This directory groups nine independent **interactive Windows C++23/BCC64X applic
 | [Vector Galaxy](vector-galaxy/Description.md) | 851-star mathematical nebula with real HNSW similarity rings and libigl vertex-normal lighting | hnswlib, libigl, Eigen, ImGui, SDL2 |
 | [Barcode Signal Lab](barcode-signal-lab/Description.md) | Universal barcode laboratory with five writer formats, real external Zint encoding and native ZXing round-trip decoding | ZXing-C++, Zint, ImGui, SDL2 |
 | [OpenCV Barcode Vision](opencv-barcode-vision/Description.md) | Native OpenCV/ZXing barcode and ISBN recognition, DirectShow cameras, asynchronous Open Library/Google Books REST metadata and cover preview | OpenCV, ZXing-C++, Zint, ImGui, SDL2 |
-| [Tesseract OCR Studio](tesseract-ocr-studio/Description.md) | Selectable DirectShow webcams, live SDL2 image and frozen-frame Tesseract OCR, OpenCV thresholding, Leptonica PIX and recognized text | Tesseract, Leptonica, OpenCV, ImGui, SDL2 |
+| [Tesseract OCR Studio](tesseract-ocr-studio/Description.md) | Selectable HD/4K DirectShow camera, full-page or cropped German/English Tesseract OCR, native OpenCV document rectification and copyable text | Tesseract, Leptonica, OpenCV, ImGui, SDL2 |
 | [Navigation Reactor](navigation-reactor/Description.md) | Real Recast triangle classification and voxelized heightfields; interactive slope and relief controls | Recast Navigation, ImGui, SDL2 |
 | [Pulse Engine](pulse-engine/Description.md) | Glowing PCM oscilloscope, four true miniaudio oscillators, optional audible sound synthesis | miniaudio, ImGui, SDL2 |
 

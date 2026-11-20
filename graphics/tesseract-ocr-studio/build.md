@@ -149,3 +149,45 @@ Launch the interactive application:
 ```
 
 **[not verified]** BCC64X compilation and the live camera controls require execution on the actual Windows machine. The earlier OCR fixture-word-spacing correction also still requires CTest confirmation.
+
+## 9. Recognize a complete camera document or multiple paragraphs
+
+The former `PSM_SINGLE_LINE` default is unsuitable for a page of German prose, and a 640×480 capture may not contain enough pixels for small printed letters. The OCR Studio now defaults to `PSM_AUTO` and can instead use `PSM_SINGLE_BLOCK` for a known paragraph region or `PSM_SINGLE_LINE` for a line. The previous exact synthetic text regression remains present and is not weakened.
+
+For camera capture, first choose a DirectShow source, then select an appropriate **Requested camera resolution**. Full HD 1920×1080 is the initial request. UHD 3840×2160 is available when the camera and backend support it. Inspect **Actual captured pixels** to confirm the negotiated format. Frame interpolation is not a substitute for an optically legible source. Place the book squarely under the camera, fill most of the field of view with the printed area, ensure focus and non-glare illumination, then use **FREEZE FRAME** before running OCR.
+
+Select **Detect document quadrilateral** when a page has clear outer boundaries. The actual OpenCV 5.1 contour and perspective functions compute the rectangle; no mock bounding box is substituted. For a book back-cover with multiple nested boxes or only one small printed block, select **Manual text rectangle** and adjust the four sliders while observing the yellow crop border in the live preview. Choose **Single text block** for that selected paragraph, or **Automatic page** for several paragraphs. If the automatic contour cannot be found, the application transparently uses the whole frame. Compare the extracted document and the Otsu processing image in the new aspect-preserving SDL previews; both are the same pixels supplied to the OCR engine, not resized thumbnails used for recognition. The UTF-8 output is scrollable and can be copied with **COPY RECOGNIZED TEXT**.
+
+For German printed pages, select **German (deu)** or **German + English**. The first active Tesseract package only installed `eng.traineddata`; the **BuildEngine-Admin** Tesseract 5.5.4 package has now been extended to provision `deu.traineddata` from the pinned `tessdata_fast` project revision. Rebuild and reinstall that managed package before selecting German. The UI reports a missing file explicitly and does not silently substitute English. This model provisioning change has not yet been validated through the BuildEngine FSM, and the German source lacks a separately confirmed SHA-256 digest (it is pinned to the repository revision). Upstream model integrity should be finalized with a recorded source digest before considering the packaging fully verified.
+
+After updating both repositories and installing the model, regenerate the showcase configuration:
+
+```bat
+cmake -S graphics/tesseract-ocr-studio -B ../build/Test/tesseract-ocr-studio/Release/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Release -DBUILDENGINE_CONFIGURATION=Release -DCMAKE_INSTALL_PREFIX=../build/Test/tesseract-ocr-studio/Release
+```
+
+Compile the OCR showcase against the active managed libraries:
+
+```bat
+cmake --build ../build/Test/tesseract-ocr-studio/Release/cmake --parallel 4
+```
+
+Run the headless verification, which now checks exact text, visible fixture spacing and genuine page geometry:
+
+```bat
+ctest --test-dir ../build/Test/tesseract-ocr-studio/Release/cmake --output-on-failure
+```
+
+Install the built application:
+
+```bat
+cmake --install ../build/Test/tesseract-ocr-studio/Release/cmake
+```
+
+Launch the interactive studio:
+
+```bat
+..\build\Test\tesseract-ocr-studio\Release\tesseract-ocr-studio.exe
+```
+
+**[not verified]** The installed native German language model and camera-page OCR behavior require BCC64X Windows execution. A blank OCR result must remain a failing user-visible recognition outcome, not be rewritten to an expected phrase.

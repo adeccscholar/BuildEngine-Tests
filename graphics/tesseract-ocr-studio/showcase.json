@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "showcase",
   "title": "Tesseract OCR Studio",
-  "summary": "Native OpenCV webcam capture and frozen-frame OCR with Tesseract English LSTM and Leptonica image processing.",
+  "summary": "Full-page and multiparagraph document OCR with selectable HD/4K webcams, OpenCV perspective extraction and managed German/English Tesseract models.",
   "dependencies": [
     {
       "library": "tesseract",
@@ -65,7 +65,7 @@
   "applications": [
     {
       "name": "tesseract-ocr-studio",
-      "summary": "Select a DirectShow webcam, preview and freeze a frame, then perform explicit Tesseract OCR; synthetic documents and image files remain supported.",
+      "summary": "Native DirectShow camera, full-page/manual ROI/auto perspective extraction, language and layout selection, frozen frame OCR with copyable text.",
       "command": "..\\build\\Test\\tesseract-ocr-studio\\Release\\tesseract-ocr-studio.exe",
       "interactive": true
     },
