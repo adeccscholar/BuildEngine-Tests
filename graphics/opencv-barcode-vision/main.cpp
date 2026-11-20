@@ -802,6 +802,12 @@ void Interactive() {
       }
       if(!theBook.strStatus.empty())
          ImGui::TextWrapped("%s",theBook.strStatus.c_str());
+      if(!theBook.strOpenLibraryStatus.empty())
+         ImGui::TextWrapped("Open Library: %s",
+            theBook.strOpenLibraryStatus.c_str());
+      if(!theBook.strGoogleBooksStatus.empty())
+         ImGui::TextWrapped("Google Books: %s",
+            theBook.strGoogleBooksStatus.c_str());
       if(theBook.Found()) {
          ImGui::Text("Title: %s",theBook.strTitle.c_str());
          if(!theBook.strSubtitle.empty())
@@ -857,6 +863,8 @@ int main(int const iArgc,char const* const* const pszArgv) {
          BookMetadata const theBook=BookLookup::Lookup(strISBN);
          std::println("SHOWCASE|BOOK|ISBN|{}",strISBN);
          std::println("SHOWCASE|BOOK|STATUS|{}",theBook.strStatus);
+         std::println("SHOWCASE|BOOK|OPEN_LIBRARY|{}",theBook.strOpenLibraryStatus);
+         std::println("SHOWCASE|BOOK|GOOGLE_BOOKS|{}",theBook.strGoogleBooksStatus);
          if(theBook.Found()) {
             std::println("SHOWCASE|BOOK|TITLE|{}",theBook.strTitle);
             std::println("SHOWCASE|BOOK|SUBTITLE|{}",theBook.strSubtitle);
