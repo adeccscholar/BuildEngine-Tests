@@ -10,6 +10,8 @@ adecc_package_current_root(ZINT_PACKAGE zint)
 adecc_package_current_root(CURL_PACKAGE curl)
 adecc_package_current_root(JSON_PACKAGE nlohmann-json)
 adecc_package_current_root(OPENSSL_PACKAGE openssl)
+adecc_package_current_root(BROTLI_PACKAGE brotli)
+adecc_package_current_root(ZSTD_PACKAGE zstd)
 adecc_package_current_root(IMGUI_PACKAGE imgui)
 adecc_package_current_root(SDL2_PACKAGE sdl2)
 adecc_package_current_root(TBB_PACKAGE onetbb)
@@ -52,7 +54,7 @@ if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 adecc_test_install(opencv-barcode-vision RUNTIME_CLOSURE
    PACKAGE_ROOTS "${OPENCV_PACKAGE}" "${ZXING_PACKAGE}" "${ZINT_PACKAGE}"
-      "${CURL_PACKAGE}" "${OPENSSL_PACKAGE}"
+      "${CURL_PACKAGE}" "${OPENSSL_PACKAGE}" "${BROTLI_PACKAGE}" "${ZSTD_PACKAGE}"
       "${IMGUI_PACKAGE}" "${SDL2_PACKAGE}" "${TBB_PACKAGE}" "${OMP_PACKAGE}"
       "${ZLIB_PACKAGE}" "${PNG_PACKAGE}"
    TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll)
