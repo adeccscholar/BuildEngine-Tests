@@ -10,9 +10,11 @@ include(CTest)
 # Exact active packages from the BuildEngine catalog; no PATH probing.
 adecc_package_current_root(SDL3_PACKAGE sdl3)
 adecc_package_current_root(BOX2D_PACKAGE box2d)
+adecc_package_current_root(JOLT_PACKAGE jolt-physics)
 
 set(_sdl3_config "${SDL3_PACKAGE}/lib/cmake/SDL3/SDL3Config.cmake")
 set(_box2d_config "${BOX2D_PACKAGE}/lib/cmake/box2d/box2dConfig.cmake")
+set(_jolt_config "${JOLT_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/cmake/Jolt/JoltConfig.cmake")
 foreach(_config IN ITEMS "${_sdl3_config}" "${_box2d_config}")
    if(NOT EXISTS "${_config}")
       message(FATAL_ERROR "Missing native BuildEngine CMake package: ${_config}")
@@ -69,6 +71,37 @@ set_target_properties(neon-physics-verify PROPERTIES
    CXX_SCAN_FOR_MODULES OFF)
 target_link_libraries(neon-physics-verify PRIVATE neon_physics_core SDL3::SDL3)
 
+# Independently installed Jolt DLL: differential physics is an additional
+# executable, not a replacement for the existing SDL3/Box2D arena.
+if(BUILDENGINE_CONFIGURATION STREQUAL "Debug")
+   set(_jolt_suffix "d")
+else()
+   set(_jolt_suffix "")
+endif()
+set(_jolt_lib "${JOLT_PACKAGE}/lib/win64/${BUILDENGINE_CONFIGURATION}/libJolt${_jolt_suffix}.lib")
+set(_jolt_dll "${JOLT_PACKAGE}/bin/win64/${BUILDENGINE_CONFIGURATION}/libJolt${_jolt_suffix}.dll")
+foreach(_artifact IN ITEMS "${_jolt_lib}" "${_jolt_dll}")
+   if(NOT EXISTS "${_artifact}")
+      message(FATAL_ERROR "Native Jolt shared DLL artifact missing: ${_artifact}")
+   endif()
+endforeach()
+
+add_executable(neon-physics-duel JoltDifferential.cpp)
+set_target_properties(neon-physics-duel PROPERTIES
+   CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF
+   CXX_SCAN_FOR_MODULES OFF)
+target_include_directories(neon-physics-duel PRIVATE "${JOLT_PACKAGE}/include")
+# Match the accepted Jolt 5.7.0 Release consumer ABI definition set.
+target_compile_definitions(neon-physics-duel PRIVATE
+   JPH_SHARED_LIBRARY JPH_OBJECT_LAYER_BITS=16 JPH_OBJECT_STREAM
+   JPH_DEBUG_RENDERER JPH_PROFILE_ENABLED JPH_USE_SSE4_1 JPH_USE_SSE4_2
+   JPH_USE_AVX JPH_USE_AVX2 JPH_USE_LZCNT JPH_USE_TZCNT JPH_USE_F16C
+   JPH_USE_FMADD)
+target_link_libraries(neon-physics-duel PRIVATE box2d::box2d "${_jolt_lib}")
+adecc_test_install(neon-physics-duel RUNTIME_CLOSURE
+   PACKAGE_ROOTS "${JOLT_PACKAGE}" "${BOX2D_PACKAGE}"
+   TOOLCHAIN_DLLS libc++-370.dll libunwind-370.dll libwinpthread-1-370.dll)
+
 foreach(_target IN ITEMS neon-physics-arena neon-physics-verify)
    adecc_test_install(${_target}
       PACKAGE_ROOTS "${SDL3_PACKAGE}" "${BOX2D_PACKAGE}"
@@ -76,6 +109,10 @@ foreach(_target IN ITEMS neon-physics-arena neon-physics-verify)
 endforeach()
 
 if(BUILD_TESTING)
+   add_test(NAME NeonPhysicsDifferential
+      COMMAND "$<TARGET_FILE:neon-physics-duel>")
+   set_tests_properties(NeonPhysicsDifferential PROPERTIES
+      LABELS "native;physics;jolt;box2d;differential" TIMEOUT 180)
    add_test(NAME NeonPhysicsDeterminism
       COMMAND "$<TARGET_FILE:neon-physics-verify>")
    set_tests_properties(NeonPhysicsDeterminism PROPERTIES
