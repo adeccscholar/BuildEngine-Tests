@@ -3,6 +3,7 @@
 
 #include <Recast.h>
 #include "NavigationPath.h"
+#include "TerrainView.h"
 
 #include <algorithm>
 #include <array>
@@ -234,6 +235,9 @@ void Interactive() {
    float flRelief = 0.50F;
    bool bObstacle = true;
    bool bAnimate = true;
+   bool bView3D = true;
+   bool bWireframe = false;
+   TerrainCamera theCamera;
    RecastField theField = BuildField(flSlope, flRelief);
    std::string strRouteError;
    auto const Refresh = [&]() {
@@ -269,6 +273,19 @@ void Interactive() {
       ImGui::Checkbox("Animate agent", &bAnimate);
       ImGui::SameLine();
       bChange = ImGui::Button("REBUILD NAVMESH") || bChange;
+      ImGui::Checkbox("3D terrain", &bView3D);
+      ImGui::SameLine();
+      ImGui::Checkbox("Mesh wireframe", &bWireframe);
+      if(bView3D) {
+         ImGui::SetNextItemWidth(230.0F);
+         ImGui::SliderFloat("Orbit azimuth", &theCamera.flAzimuth, -3.14F, 3.14F, "%.2f rad");
+         ImGui::SameLine();
+         ImGui::SetNextItemWidth(230.0F);
+         ImGui::SliderFloat("Orbit elevation", &theCamera.flElevation, 0.18F, 1.50F, "%.2f rad");
+         ImGui::SameLine();
+         ImGui::SetNextItemWidth(230.0F);
+         ImGui::SliderFloat("Camera distance", &theCamera.flDistance, 12.0F, 48.0F, "%.1f");
+      }
       if(bChange) {
          try {
             Refresh();
@@ -288,19 +305,43 @@ void Interactive() {
       ImGui::Text("Routing: %s   |   corridor polygons: %d",
          theField.theRoute.bPathComplete ? "COMPLETE" : "NO COMPLETE PATH",
          theField.theRoute.iCorridor);
-      ImGui::TextDisabled("The route comes from native Detour queries, not a graphical approximation.");
+      ImGui::TextDisabled("The terrain uses the same 3D triangle mesh as Recast; the path is supplied by Detour.");
+      ImGui::TextDisabled("Drag the 3D view to orbit; use the mouse wheel to zoom.");
       ImVec2 const aOrigin = ImGui::GetCursorScreenPos();
       ImVec2 const aSize = ImGui::GetContentRegionAvail();
       ImVec2 const aPanel {aSize.x, std::max(260.0F, aSize.y - 10.0F)};
-      DrawField(theField, aOrigin, aPanel);
+      // The transparent capture surface enables orbit and zoom without
+      // allowing GUI controls above the viewport to hijack camera input.
+      ImGui::InvisibleButton("terrain viewport", aPanel,
+         ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
+      if(bView3D && ImGui::IsItemHovered()) {
+         ImGuiIO const& aIo = ImGui::GetIO();
+         if(ImGui::IsMouseDragging(ImGuiMouseButton_Left) ||
+            ImGui::IsMouseDragging(ImGuiMouseButton_Right)) {
+            theCamera.flAzimuth += aIo.MouseDelta.x * 0.007F;
+            theCamera.flElevation = std::clamp(
+               theCamera.flElevation + aIo.MouseDelta.y * 0.005F, 0.18F, 1.50F);
+         }
+         if(aIo.MouseWheel != 0.0F)
+            theCamera.flDistance = std::clamp(
+               theCamera.flDistance - aIo.MouseWheel * 1.5F, 12.0F, 48.0F);
+      }
       float flPhase = 0.0F;
       if(bAnimate) {
          float const flElapsed = std::chrono::duration<float>(
             std::chrono::steady_clock::now() - theStart).count();
          flPhase = std::fmod(flElapsed / 16.0F, 1.0F);
       }
-      DrawRoute(theField, aOrigin, aPanel, flPhase, bObstacle);
-      ImGui::Dummy(aPanel);
+      if(bView3D) {
+         DrawTerrain3D(theField.vecVertices, theField.vecTriangles, theField.vecArea,
+            aOrigin, aPanel, theCamera, bObstacle, bWireframe);
+         DrawTerrainRoute3D(theField.theRoute.vecPoints,
+            aOrigin, aPanel, theCamera, flPhase);
+      }
+      else {
+         DrawField(theField, aOrigin, aPanel);
+         DrawRoute(theField, aOrigin, aPanel, flPhase, bObstacle);
+      }
       ImGui::End();
       aApp.EndFrame();
    }
