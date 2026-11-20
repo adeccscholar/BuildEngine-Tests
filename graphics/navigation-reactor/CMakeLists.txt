@@ -39,8 +39,7 @@ add_executable(navigation-reactor WIN32 main.cpp)
 set_target_properties(navigation-reactor PROPERTIES CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF CXX_SCAN_FOR_MODULES OFF)
 target_compile_definitions(navigation-reactor PRIVATE
    SDL_MAIN_HANDLED WIN32_LEAN_AND_MEAN NOMINMAX
-   ADECC_MESA_OPENGL_DLL="${OpenGL_RUNTIME_DLL}"
-   IMGUI_IMPL_API=__declspec\(dllimport\))
+   ADECC_MESA_OPENGL_DLL="${OpenGL_RUNTIME_DLL}")
 target_include_directories(navigation-reactor PRIVATE
    "${RECAST_PACKAGE}/include/recastnavigation"
    "${GLEW_PACKAGE}/include"
