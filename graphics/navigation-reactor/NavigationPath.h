@@ -171,7 +171,10 @@ inline NavigationRoute BuildNavigationRoute(
    // A polygon is highlighted only when its genuine dtPolyRef occurs in the
    // corridor returned by findPath. No raster or terrain fallback is used.
    for(int iTile = 0; iTile < pNav->getMaxTiles(); ++iTile) {
-      dtMeshTile const* const pTile = pNav->getTile(iTile);
+      // The mutable getTile(int) overload is private in Detour 1.6.0.
+      // Use the documented public const overload for read-only mesh inspection.
+      dtNavMesh const& theNavMesh = *pNav;
+      dtMeshTile const* const pTile = theNavMesh.getTile(iTile);
       if(!pTile || !pTile->header || !pTile->detailMeshes || !pTile->detailTris)
          continue;
       dtPolyRef const iBase = pNav->getPolyRefBase(pTile);
