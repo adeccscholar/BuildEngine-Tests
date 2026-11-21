@@ -68,7 +68,7 @@ WeatherClient is a **weather dashboard**, not a measurement observatory. The fol
 ## Calculated Moon phase and nighttime forecast
 
 The night illustration no longer always uses the same crescent. The
-new pure C++23 header [WeatherMoon.h](WeatherMoon.h) calculates the
+new pure C++23 header `WeatherMoon.h` calculates the
 **lunar cycle** from an ISO 8601 calendar date and time:
 
 - Reference new moon: **2000-01-06 18:14 UTC**
@@ -128,7 +128,7 @@ the **entire display** without contacting Open-Meteo again:
 | Humidity, cloudiness, precipitation *probability*, direction | %, degrees | unchanged |
 
 The conversion functions live in
-[WeatherUnits.h](WeatherUnits.h), independent from SDL, Skia,
+`WeatherUnits.h`, independent from SDL, Skia,
 HTTP and Boost.Statechart. Model data is **always stored in the
 metric units requested from Open-Meteo**. All conversions are made
 at presentation time, including the forecast chart's numerical
@@ -204,7 +204,7 @@ No exact street address is inferred from an IP. Neither documentation generation
 The original screenshot showed **no text at all** while Skia geometry
 rendered. The default-constructed `SkFont` was not resolving usable glyphs
 on the current BCC64X/Skia configuration. The GUI now uses original,
-deterministic 5x7 pixel-vector glyphs in [WeatherText.h](WeatherText.h),
+deterministic 5x7 pixel-vector glyphs in `WeatherText.h`,
 drawn directly with Skia primitives, with no platform font manager or
 external font asset. The small alphabet is intentionally an ASCII fallback:
 non-ASCII characters render as a visible placeholder rather than silently
@@ -232,7 +232,7 @@ lines). A custom compass rose visualizes wind direction.
 The header displays an automatically generated English
 **current-weather summary** and **next-six-hours forecast**, including
 perceived temperature, humidity, wind, rain probability and temperature trend.
-These sentences come from [WeatherNarrative.h](WeatherNarrative.h) using
+These sentences come from `WeatherNarrative.h` using
 Open-Meteo observations; they are not predictions invented by the UI.
 A blank measurement remains explicitly unavailable rather than becoming
 a fabricated sensor value. Hourly and daily forecast graphics, buttons,
@@ -240,10 +240,10 @@ address entry and the Statechart FSM are preserved.
 
 | File | Responsibility |
 | --- | --- |
-| [WeatherArtwork.h](WeatherArtwork.h) | Pure Skia gradients, arcs, original sky illustration, dials and compass |
-| [WeatherNarrative.h](WeatherNarrative.h) | Pure C++23 weather summary and forecast description |
-| [WeatherView.h](WeatherView.h) | Forecast graphs, buttons, text rendering and pointer hit-testing |
-| [WeatherClient.cpp](WeatherClient.cpp) | SDL2 window and events, presentation composition, FSM and asynchronous requests |
+| `WeatherArtwork.h` | Pure Skia gradients, arcs, original sky illustration, dials and compass |
+| `WeatherNarrative.h` | Pure C++23 weather summary and forecast description |
+| `WeatherView.h` | Forecast graphs, buttons, text rendering and pointer hit-testing |
+| `WeatherClient.cpp` | SDL2 window and events, presentation composition, FSM and asynchronous requests |
 
 Only SDL2 and Skia supply the GUI; there are no direct Win32 UI calls.
 The artwork uses Skia raster surfaces for portability; the application still
@@ -251,7 +251,7 @@ needs an actual SDL GUI test on each platform.
 
 ## Portable GUI and Forecast Charts
 
-[WeatherView.h](WeatherView.h) draws Skia controls, hourly temperature curves, daily minima/maxima, precipitation bars, and weather symbols without Win32 window APIs, networking, or direct FSM-state access. SDL2 supplies mouse, keyboard, UTF-8 text entry, and fullscreen behavior. The scale-independent hit test is covered by offline tests.
+`WeatherView.h` draws Skia controls, hourly temperature curves, daily minima/maxima, precipitation bars, and weather symbols without Win32 window APIs, networking, or direct FSM-state access. SDL2 supplies mouse, keyboard, UTF-8 text entry, and fullscreen behavior. The scale-independent hit test is covered by offline tests.
 
 The three instruments show centered numeric values and units on separate lines. The wind panel combines the direction rose, origin/destination labels, speed, and gusts without a duplicate miniature compass.
 
@@ -278,9 +278,9 @@ At startup, the client loads a previously saved valid address if available; othe
 
 ## Project Files and Learning Goals
 
-- [WeatherModel.h](WeatherModel.h): weather data, JSON parsing, and validation.
-- [WeatherNetwork.h](WeatherNetwork.h): libcurl HTTPS, geocoding, IP lookup, and local settings.
-- [WeatherClient.cpp](WeatherClient.cpp): SDL2 application, rendering, FSM, and worker.
+- `WeatherModel.h`: weather data, JSON parsing, and validation.
+- `WeatherNetwork.h`: libcurl HTTPS, geocoding, IP lookup, and local settings.
+- `WeatherClient.cpp`: SDL2 application, rendering, FSM, and worker.
 - [build.md](build.md): BCC64X installation, dynamic libraries, and tests.
 - [LICENSE.md](LICENSE.md), [SBOM.md](SBOM.md): original license and declared dependencies.
 
@@ -340,7 +340,7 @@ options, not a replacement for a fully reliable GUI or worker lifecycle.
 
 The station now evaluates the next **48 hours of available hourly forecast
 data**, not just the six-hour narrative, through the self-contained
-[WeatherHazards.h](WeatherHazards.h). The strongest indicator is shown in
+`WeatherHazards.h`. The strongest indicator is shown in
 a **48H MODEL / LOW | WATCH | ELEVATED | HIGH** label above the forecast;
 details and the triggering forecast time are displayed at the bottom
 of the screen when there is no more important network error.
