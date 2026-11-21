@@ -92,5 +92,11 @@
       "command": "..\\build\\Test\\opencv-barcode-vision\\Release\\opencv-barcode-vision.exe --lookup-isbn 978-3-6967-1009-5",
       "interactive": false
     }
-  ]
+  ],
+  "images": {
+    "tile": "/images/showcase/graphics-opencv-barcode-vision/tile.svg",
+    "hero": "/images/showcase/graphics-opencv-barcode-vision/tile.svg",
+    "kind": "generated-concept",
+    "alt": "AI generated concept illustration for OpenCV Barcode Vision; not an application screenshot"
+  }
 }
