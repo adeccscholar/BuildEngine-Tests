@@ -1,5 +1,36 @@
 # Pulse Engine — The Shape of Sound
 
+## Scientific showcase: experience and mechanisms
+
+### What the visitor experiences
+
+Reveal the physical meaning of audio samples: real miniaudio PCM generator output produces a glowing oscilloscope; playback is optional and never required for the headless test.
+
+### Demonstration sequence
+
+Switch sine, square, triangle and sawtooth. Vary pitch and amplitude; compare actual peak/RMS numbers; press PLAY ON SPEAKERS only deliberately.
+
+### Mathematical background
+
+$$x_{\rm RMS}=\sqrt{\frac1N\sum_{n=1}^{N}x_n^2},\qquad x_{\rm peak}=\max_n|x_n|.$$
+
+The equation describes the relevant mathematical mechanism, rather than independently proving any performance, physical fidelity or runtime success.
+
+### Native pipeline and managed dependencies
+
+```mermaid
+flowchart LR
+   A0["Waveform controls"] --> A1["miniaudio PCM samples"]
+   A1["miniaudio PCM samples"] --> A2["Peak and RMS calculation"]
+   A2["Peak and RMS calculation"] --> A3["ImGui SDL2 oscilloscope"]
+   A3["ImGui SDL2 oscilloscope"] --> A4["Optional speaker callback"]
+```
+
+The diagram describes data responsibilities. BuildEngine-managed libraries remain versioned package dependencies; a successful visual display cannot replace the declared headless correctness checks.
+
+---
+
+
 ## A sound you can see
 
 An electric-blue control room transforms authentic PCM samples into luminous waveforms. Choose a sine, square, triangle or sawtooth signal; change its pitch and amplitude; inspect the peak and RMS levels and watch the oscillations change instantly. Press **PLAY ON SPEAKERS** only when you want to hear the sound. The native device is never opened in the headless verifier or on application startup.
