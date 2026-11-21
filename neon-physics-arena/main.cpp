@@ -414,6 +414,18 @@ bool HandleEvent(RuntimeView& theView, SDL_Event& theEvent) {
       }
    if(theEvent.type == SDL_EVENT_KEY_DOWN && !theEvent.key.repeat) {
       switch(theEvent.key.scancode) {
+         case SDL_SCANCODE_F11:
+            (void)SDL_SetWindowFullscreen(theView.pWindow,
+               !(SDL_GetWindowFlags(theView.pWindow)&SDL_WINDOW_FULLSCREEN));
+            break;
+         case SDL_SCANCODE_F1:
+            (void)SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
+               "About Neon Physics Arena",
+               "adecc Scholar | Neon Physics Arena\n"
+               "Native C++ / SDL3 / Box2D / Jolt differential tests\n"
+               "Physics and collision simulation\n"
+               "F1: About    F11: Fullscreen / windowed",theView.pWindow);
+            break;
          case SDL_SCANCODE_ESCAPE:
             return false;
          case SDL_SCANCODE_R:
