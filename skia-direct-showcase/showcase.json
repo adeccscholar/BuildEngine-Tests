@@ -1,60 +1,66 @@
 {
-  "schemaVersion": 1,
-  "kind": "showcase",
-  "title": "Direct Skia Graphics Showcase",
-  "summary": "Demonstrates Skia shapes, text and composited images with the managed graphics DLL and assets.",
-  "dependencies": [
-    {
-      "library": "skia",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "zlib",
-      "version": "active",
-      "direct": false
-    },
-    {
-      "library": "bzip2",
-      "version": "active",
-      "direct": false
-    },
-    {
-      "library": "brotli",
-      "version": "active",
-      "direct": false
-    },
-    {
-      "library": "libjpeg-turbo",
-      "version": "active",
-      "direct": false
-    },
-    {
-      "library": "libpng",
-      "version": "active",
-      "direct": false
-    },
-    {
-      "library": "harfbuzz",
-      "version": "active",
-      "direct": false
-    },
-    {
-      "library": "freetype",
-      "version": "active",
-      "direct": false
+    "schemaVersion": 1,
+    "kind": "showcase",
+    "title": "Direct Skia Graphics Showcase",
+    "summary": "Demonstrates Skia shapes, text and composited images with the managed graphics DLL and assets.",
+    "dependencies": [
+        {
+            "library": "skia",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "zlib",
+            "version": "active",
+            "direct": false
+        },
+        {
+            "library": "bzip2",
+            "version": "active",
+            "direct": false
+        },
+        {
+            "library": "brotli",
+            "version": "active",
+            "direct": false
+        },
+        {
+            "library": "libjpeg-turbo",
+            "version": "active",
+            "direct": false
+        },
+        {
+            "library": "libpng",
+            "version": "active",
+            "direct": false
+        },
+        {
+            "library": "harfbuzz",
+            "version": "active",
+            "direct": false
+        },
+        {
+            "library": "freetype",
+            "version": "active",
+            "direct": false
+        }
+    ],
+    "externalDependencies": [
+        "Windows graphics APIs"
+    ],
+    "status": "not-verified",
+    "applications": [
+        {
+            "name": "SkiaDirectShowcase",
+            "summary": "Fullscreen Skia rendering showcase with seven scenes and adjustable stress benchmark.",
+            "command": "..\\build\\Test\\skia-direct-showcase\\Release\\SkiaDirectShowcase.exe",
+            "interactive": true
+        }
+    ],
+    "images": {
+        "tile": "/images/showcase/skia-direct-showcase/tile.svg",
+        "hero": "/images/showcase/skia-direct-showcase/tile.svg",
+        "kind": "generated-concept",
+        "alt": "Original technical concept illustration for Direct Skia Graphics Showcase; not an application screenshot"
     }
-  ],
-  "externalDependencies": [
-    "Windows graphics APIs"
-  ],
-  "status": "not-verified",
-  "applications": [
-    {
-      "name": "SkiaDirectShowcase",
-      "summary": "Fullscreen Skia rendering showcase with seven scenes and adjustable stress benchmark.",
-      "command": "..\\build\\Test\\skia-direct-showcase\\Release\\SkiaDirectShowcase.exe",
-      "interactive": true
-    }
-  ]
 }
