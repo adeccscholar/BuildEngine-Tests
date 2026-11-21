@@ -1,5 +1,14 @@
 # Direct Skia showcase
 
+## Showcase key visual and runtime replacement
+
+![Original generated concept illustration: Vector paths, compositing, transforms and masks](/images/showcase/skia-direct-showcase/tile.svg)
+
+*Generated concept illustration, not an actual runtime screenshot.* The image depicts the data flow and scientific purpose of this project. Its geometry and display panels are explanatory, not evidence that the application produced those pixels.
+
+**Runtime evidence:** Press **F11** to toggle fullscreen/windowed mode and **F1** for the native About screen where the application's UI supports these shortcuts. The generated illustration can later be replaced by a genuine captured application image in the central `tests/Images` directory; record the replacement's provenance as `runtime-screenshot` and update the manifest's `images.tile` and `images.hero` URLs accordingly.
+
+
 ## Showcase in action: science and architecture
 
 ### Why this example matters
