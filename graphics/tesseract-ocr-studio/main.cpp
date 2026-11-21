@@ -250,6 +250,9 @@ void Interactive() {
    int iRegionMode=2;
    std::array<float,4> arrROI {.10F,.10F,.80F,.80F};
    bool bAutoUpscale=true;
+   bool bScanOnRelease=false;
+   bool bDraggingSelection=false;
+   ImVec2 aSelectionStart {};
    DocumentRegion theLastRegion;
    bool bFrozen=false;
    cv::Mat theLatestFrame;
@@ -264,6 +267,7 @@ void Interactive() {
    auto const ReleaseCamera=[&]() {
       theCapture.Disconnect();
       bFrozen=false;
+      bDraggingSelection=false;
       theFrozenFrame.release();
    };
    auto const Run=[&](cv::Mat const& theInput,bool const bCameraInput) {
@@ -440,10 +444,22 @@ void Interactive() {
          else
             strError="No camera frame is available for OCR.";
       }
+      ImGui::SameLine();
+      if(ImGui::Button("SCAN SELECTION")) {
+         if(iRegionMode!=1)
+            strError="Select a rectangle by dragging on the camera image first.";
+         else {
+            cv::Mat const& theInput=bFrozen?theFrozenFrame:theLatestFrame;
+            if(theInput.empty())
+               strError="No camera frame is available for scanning.";
+            else
+               Run(theInput.clone(),true);
+         }
+      }
       if(!theLatestFrame.empty())
          ImGui::Text("Actual captured pixels: %d x %d",
             theLatestFrame.cols,theLatestFrame.rows);
-      ImGui::TextDisabled("Requested resolution depends on camera support. OCR runs only on RECOGNIZE FRAME.");
+      ImGui::TextDisabled("Drag a rectangle on the camera image, then SCAN SELECTION.");
 
       ImGui::SeparatorText("2. Recognition settings and alternative inputs");
       ImGui::SetNextItemWidth(260);
@@ -469,6 +485,7 @@ void Interactive() {
       }
       if(iRegionMode==2)
          ImGui::TextDisabled("If no page border exists, full frame is used; use Manual rectangle for a text block.");
+      ImGui::Checkbox("Scan immediately on mouse release",&bScanOnRelease);
       ImGui::SetNextItemWidth(560);
       ImGui::InputText("Synthetic document",arrText.data(),arrText.size());
       if(ImGui::Button("RENDER + RECOGNIZE")) {
@@ -511,6 +528,48 @@ void Interactive() {
             theCameraView.DrawWithROI(flCameraWidth,310.0F,arrROI);
          else
             theCameraView.Draw(flCameraWidth,310.0F);
+         ImVec2 const aMin=ImGui::GetItemRectMin();
+         ImVec2 const aMax=ImGui::GetItemRectMax();
+         bool const bHovered=ImGui::IsItemHovered();
+         ImVec2 const aMouse=ImGui::GetIO().MousePos;
+         auto const Normalize=[&](ImVec2 const aPosition) -> ImVec2 {
+            return {
+               std::clamp((aPosition.x-aMin.x)/(aMax.x-aMin.x),0.0F,1.0F),
+               std::clamp((aPosition.y-aMin.y)/(aMax.y-aMin.y),0.0F,1.0F)};
+         };
+         if(bHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left) &&
+            !theLatestFrame.empty()) {
+            // Freeze the exact image being selected, preventing ROI/frame drift.
+            if(!bFrozen) {
+               theFrozenFrame=theLatestFrame.clone();
+               bFrozen=true;
+            }
+            bDraggingSelection=true;
+            aSelectionStart=Normalize(aMouse);
+         }
+         if(bDraggingSelection) {
+            ImVec2 const aEnd=Normalize(aMouse);
+            float const flLeft=std::min(aSelectionStart.x,aEnd.x);
+            float const flTop=std::min(aSelectionStart.y,aEnd.y);
+            float const flWidth=std::abs(aEnd.x-aSelectionStart.x);
+            float const flHeight=std::abs(aEnd.y-aSelectionStart.y);
+            if(ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+               ImGui::GetWindowDrawList()->AddRect(
+                  {aMin.x+flLeft*(aMax.x-aMin.x),aMin.y+flTop*(aMax.y-aMin.y)},
+                  {aMin.x+(flLeft+flWidth)*(aMax.x-aMin.x),
+                   aMin.y+(flTop+flHeight)*(aMax.y-aMin.y)},
+                  IM_COL32(80,220,140,255),0.0F,0,3.0F);
+            }
+            else {
+               bDraggingSelection=false;
+               if(flWidth>=.005F && flHeight>=.005F) {
+                  arrROI={flLeft,flTop,flWidth,flHeight};
+                  iRegionMode=1;
+                  if(bScanOnRelease && !theFrozenFrame.empty())
+                     Run(theFrozenFrame.clone(),true);
+               }
+            }
+         }
       }
       else
          ImGui::TextDisabled("Camera disconnected; synthetic and file OCR remain usable.");
