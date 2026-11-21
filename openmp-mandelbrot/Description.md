@@ -1,5 +1,36 @@
 # OpenMP Mandelbrot
 
+## Showcase in action: science and architecture
+
+### Why this example matters
+
+A single quadratic recurrence produces an infinitely intricate boundary. The viewer samples that mathematics at finite resolution, colors escape times and compares OpenMP scheduling policies over uneven pixel workloads.
+
+### The demonstration
+
+Zoom the Mandelbrot boundary, switch to Julia mode, change iteration limit, and compare serial/static/dynamic/guided scheduling while preserving the same fractal parameters.
+
+### Mathematical and technical foundations
+
+$$z_{n+1}=z_n^2+c,\quad z_0=0;\qquad \text{escape when }|z_n|>2.$$
+
+The equation provides context for the implemented numerical or rendering path. It is not evidence of runtime success or a claim that a simplified model represents every possible physical case.
+
+### Native data flow and dependencies
+
+```mermaid
+flowchart LR
+   S0["Mandelbrot or Julia complex parameter"] --> S1["Per-pixel escape iterations"]
+   S1["Per-pixel escape iterations"] --> S2["LLVM OpenMP schedules"]
+   S2["LLVM OpenMP schedules"] --> S3["Color raster"]
+   S3["Color raster"] --> S4["SDL2 interactive fractal"]
+```
+
+All package/library identities remain those declared in the existing showcase manifest. Existing build and verification instructions below are retained.
+
+---
+
+
 **Test purpose:** Computes the Mandelbrot fractal in parallel and presents the evolving image through SDL2.
 
 This independent BuildEngine-Tests project exercises **llvm-openmp, SDL2** with native BCC64X/C++23 consumer code. Its source and its runtime dependency closure are defined by this directory's CMake/IDE configuration and the BuildEngine package catalog.
