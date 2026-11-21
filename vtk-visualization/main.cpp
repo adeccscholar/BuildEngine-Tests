@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 adecc Systemhaus GmbH
 // SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 #include <vtkActor.h>
+#include <vtkCallbackCommand.h>
+#include <vtkCommand.h>
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkFeatureEdges.h>
@@ -30,6 +32,9 @@
 #include <vtkNew.h>
 #include <vtkType.h>
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -331,6 +336,32 @@ namespace {
       vtkNew<vtkInteractorStyleTrackballCamera> theStyle;
       theInteractor->SetRenderWindow(theWindow);
       theInteractor->SetInteractorStyle(theStyle);
+      vtkNew<vtkCallbackCommand> theHotkeys;
+      theHotkeys->SetClientData(theWindow.GetPointer());
+      theHotkeys->SetCallback([](vtkObject* const pCaller,
+         unsigned long const uEvent, void* const pClientData, void* const pData) {
+         (void)uEvent;
+         (void)pData;
+         auto* const pInteractor=vtkRenderWindowInteractor::SafeDownCast(pCaller);
+         auto* const pWindow=static_cast<vtkRenderWindow*>(pClientData);
+         if(!pInteractor || !pWindow || !pInteractor->GetKeySym()) return;
+         std::string_view const svKey {pInteractor->GetKeySym()};
+         if(svKey=="F11") {
+            pWindow->SetFullScreen(!pWindow->GetFullScreen());
+            pWindow->Render();
+         }
+         else if(svKey=="F1") {
+#if defined(_WIN32)
+            MessageBoxW(nullptr,
+               L"adecc Scholar | VTK Scientific Visualization Laboratory\n\n"
+               L"Native VTK 9.7.2 surface extraction and GPU volume rendering.\n"
+               L"F1: About    F11: Fullscreen / windowed\n"
+               L"See Description.md and actual native regression evidence.",
+               L"About VTK Visualization",MB_OK|MB_ICONINFORMATION);
+#endif
+         }
+      });
+      theInteractor->AddObserver(vtkCommand::KeyPressEvent,theHotkeys);
       theWindow->Render();
 
       if(!theOptions.strScreenshot.empty()) {
