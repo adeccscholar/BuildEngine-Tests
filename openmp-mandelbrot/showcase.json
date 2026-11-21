@@ -30,5 +30,11 @@
       "command": "..\\build\\Test\\openmp-mandelbrot\\Release\\openmp_mandelbrot_viewer.exe",
       "interactive": true
     }
-  ]
+  ],
+  "images": {
+    "tile": "/images/showcase/openmp-mandelbrot/tile.svg",
+    "hero": "/images/showcase/openmp-mandelbrot/tile.svg",
+    "kind": "generated-concept",
+    "alt": "AI generated concept illustration for Parallel Mandelbrot Explorer; not an application screenshot"
+  }
 }
