@@ -1,5 +1,36 @@
 # Neon Physics Arena: integration architecture
 
+## Showcase in action: science and architecture
+
+### Why this example matters
+
+A physics engine should make observable predictions rather than merely drawing falling shapes. The native SDL3/Box2D arena generates genuine collisions, projectile impulses and events. A separate Jolt/Box2D differential test compares independent 3D and 2D engines without falsely demanding identical numerical trajectories.
+
+### The demonstration
+
+Launch projectiles and switch gravity in the neon arena; run the headless stress case twice with seeded inputs; run the separate Jolt-vs-Box2D fixed-step duel and inspect each solver's repeatability.
+
+### Mathematical and technical foundations
+
+$$\mathbf v_{n+1}=\mathbf v_n+\mathbf a\Delta t,\qquad \mathbf x_{n+1}=\mathbf x_n+\mathbf v_{n+1}\Delta t,\quad \Delta t=\frac1{120}\,\mathrm s.$$
+
+The equation provides context for the implemented numerical or rendering path. It is not evidence of runtime success or a claim that a simplified model represents every possible physical case.
+
+### Native data flow and dependencies
+
+```mermaid
+flowchart LR
+   S0["Input and physical scenario"] --> S1["Native Box2D world / contacts"]
+   S1["Native Box2D world / contacts"] --> S2["120 Hz simulation updates"]
+   S2["120 Hz simulation updates"] --> S3["SDL3 collision and projectile scene"]
+   S3["SDL3 collision and projectile scene"] --> S4["Independent Jolt-vs-Box2D regression"]
+```
+
+All package/library identities remain those declared in the existing showcase manifest. Existing build and verification instructions below are retained.
+
+---
+
+
 **Test purpose:** Interactive SDL3 and Box2D collisions, projectiles and gravity changes with repeatable physics stress tests.
 
 ## Purpose
