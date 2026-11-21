@@ -33,6 +33,18 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
          }
          if(event.type==SDL_KEYDOWN) {
             auto k=event.key.keysym.sym;
+            if(event.key.repeat==0 && k==SDLK_F11)
+               SDL_SetWindowFullscreen(window,
+                  (SDL_GetWindowFlags(window)&SDL_WINDOW_FULLSCREEN_DESKTOP) ?
+                     0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+            if(event.key.repeat==0 && k==SDLK_F1)
+               SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
+                  "About OpenMP Mandelbrot",
+                  "adecc Scholar | OpenMP Mandelbrot\n"
+                  "C++23 / SDL2 / LLVM OpenMP\n"
+                  "Real Mandelbrot and Julia escape-time computation.\n"
+                  "F1: About    F11: Fullscreen / windowed\n"
+                  "See Description.md and BuildEngine library evidence.",window);
             if(k==SDLK_ESCAPE) running=false;
             if(k==SDLK_1) {cfg.schedule=Schedule::Serial;dirty=true;}
             if(k==SDLK_2) {cfg.schedule=Schedule::Static;dirty=true;}
