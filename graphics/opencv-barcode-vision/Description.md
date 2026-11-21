@@ -1,5 +1,36 @@
 # OpenCV Barcode Vision
 
+## Scientific showcase: experience and mechanisms
+
+### What the visitor experiences
+
+Follow a camera frame into a decoded barcode and possibly a book record: DirectShow provides real acquisition, OpenCV performs recognition, optional HTTPS services return metadata. Every stage has its own provenance.
+
+### Demonstration sequence
+
+Select a camera or image, show the OpenCV detector overlay and actual decoded text, then try an ISBN lookup and inspect source attribution and provider errors.
+
+### Mathematical background
+
+$$[u',v',w']^{\mathsf T}=H[x,y,1]^{\mathsf T},\qquad (u,v)=(u'/w',v'/w').$$
+
+The equation describes the relevant mathematical mechanism, rather than independently proving any performance, physical fidelity or runtime success.
+
+### Native pipeline and managed dependencies
+
+```mermaid
+flowchart LR
+   A0["Camera or local picture"] --> A1["OpenCV image and symbol detector"]
+   A1["OpenCV image and symbol detector"] --> A2["Decoded ISBN"]
+   A2["Decoded ISBN"] --> A3["curl TLS metadata lookup"]
+   A3["curl TLS metadata lookup"] --> A4["ImGui and SDL2 evidence"]
+```
+
+The diagram describes data responsibilities. BuildEngine-managed libraries remain versioned package dependencies; a successful visual display cannot replace the declared headless correctness checks.
+
+---
+
+
 ## Experience
 
 Use the **OpenCV 5.1** barcode detector to locate and decode EAN-13 symbols, or select the native OpenCV QR-code detector. The application displays actual decoded content, image overlays, measured processing time and optional exact round-trip verification. Load your own PNG/JPEG image, or generate a deterministic test image using the separately managed **ZXing-C++ 3.1.1** writer with its external **Zint 2.16.0** backend.
