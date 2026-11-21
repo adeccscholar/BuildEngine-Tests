@@ -1,55 +1,61 @@
 {
-  "schemaVersion": 1,
-  "kind": "showcase",
-  "title": "Navigation Reactor — 3D Detour Expedition",
-  "summary": "Real Recast/Detour terrain rendered with native Mesa OpenGL 26.2.1 + GLEW 2.3.1 GPU pipeline and the official ImGui SDL2/OpenGL3 backend, including depth-tested route and animated agent.",
-  "dependencies": [
-    {
-      "library": "recastnavigation",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "opengl",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "glew",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "imgui",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "sdl2",
-      "version": "active",
-      "direct": true
+    "schemaVersion": 1,
+    "kind": "showcase",
+    "title": "Navigation Reactor — 3D Detour Expedition",
+    "summary": "Real Recast/Detour terrain rendered with native Mesa OpenGL 26.2.1 + GLEW 2.3.1 GPU pipeline and the official ImGui SDL2/OpenGL3 backend, including depth-tested route and animated agent.",
+    "dependencies": [
+        {
+            "library": "recastnavigation",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "opengl",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "glew",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "imgui",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "sdl2",
+            "version": "active",
+            "direct": true
+        }
+    ],
+    "externalDependencies": [],
+    "status": "not-verified",
+    "applications": [
+        {
+            "name": "navigation-reactor",
+            "summary": "SDL2 Mesa OpenGL terrain with real Recast mesh and Detour path, powered by the official ImGui SDL2/OpenGL3 backend.",
+            "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe",
+            "interactive": true
+        },
+        {
+            "name": "navigation-reactor --verify",
+            "summary": "Recast rasterization and Detour native end-to-end path query checks.",
+            "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe --verify",
+            "interactive": false
+        },
+        {
+            "name": "navigation-reactor --verify-gl",
+            "summary": "Native SDL2 Mesa/GLEW OpenGL context, terrain GLSL pipeline and framebuffer smoke.",
+            "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe --verify-gl",
+            "interactive": false
+        }
+    ],
+    "images": {
+        "tile": "/images/showcase/graphics-navigation-reactor/tile.svg",
+        "hero": "/images/showcase/graphics-navigation-reactor/tile.svg",
+        "kind": "generated-concept",
+        "alt": "Original technical concept illustration for Navigation Reactor — 3D Detour Expedition; not an application screenshot"
     }
-  ],
-  "externalDependencies": [],
-  "status": "not-verified",
-  "applications": [
-    {
-      "name": "navigation-reactor",
-      "summary": "SDL2 Mesa OpenGL terrain with real Recast mesh and Detour path, powered by the official ImGui SDL2/OpenGL3 backend.",
-      "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe",
-      "interactive": true
-    },
-    {
-      "name": "navigation-reactor --verify",
-      "summary": "Recast rasterization and Detour native end-to-end path query checks.",
-      "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe --verify",
-      "interactive": false
-    },
-    {
-      "name": "navigation-reactor --verify-gl",
-      "summary": "Native SDL2 Mesa/GLEW OpenGL context, terrain GLSL pipeline and framebuffer smoke.",
-      "command": "..\\build\\Test\\navigation-reactor\\Release\\navigation-reactor.exe --verify-gl",
-      "interactive": false
-    }
-  ]
 }
