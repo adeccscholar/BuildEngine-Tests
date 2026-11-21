@@ -69,3 +69,10 @@ If a running application still reports "no write backend" or mentions independen
 The editable content field is presented with a dedicated heading and a wide text box. Press Enter or **ENCODE + SCAN** to generate a barcode and immediately decode it. The view displays the exact last successfully encoded payload, returned decoded texts and PASS/FAIL status *above* the barcode; editing input alone never changes the claimed encoded value. Generation errors clear the previous result. The visualization is limited to a 480 by 300 pixel panel (or narrower as available) rather than the previous 1080 by 440 panel, keeping the input and readback on screen for QR Code as well as linear symbols. The symbol itself is scaled proportionally.
 
 **[not verified]** Native visual placement and the 12-format Windows test still require a local BCC64X run.
+
+### Preview of the desktop application (concept)
+
+![Conceptual desktop application window for graphics/barcode-signal-lab; generated UI mockup, not an application screenshot](/images/manuals/graphics-barcode-signal-lab/concept/window.svg)
+
+*Generated application-window mockup, not a screenshot.* The panels, colors, graphs and displayed indicators illustrate a possible future interface and are **not** actual runtime measurements. Replace this image with a real capture after the native BCC64X application is built and visually accepted. Keep the original concept in `Images/manuals/graphics-barcode-signal-lab/concept/` and place verified captures under `Images/manuals/graphics-barcode-signal-lab/runtime/`.
+
