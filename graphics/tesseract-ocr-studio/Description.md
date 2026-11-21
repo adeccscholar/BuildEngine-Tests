@@ -104,3 +104,10 @@ The initial operator-guided model is a *signed vertical baseline bow* `offset(x)
 The camera-independent `--verify` now builds a synthetic grayscale image with a known curved baseline, runs real OpenCV remapping and asserts that a baseline displaced by at least 25 pixels is reduced to at most 4 pixels. It retains the original exact OCR string assertion, confidence, word-spacing, manual ROI and perspective geometry tests. New capabilities have **not** been declared verified until the native BCC64X CTest succeeds.
 
 **Scope limitation:** This is an intentionally transparent, adjustable **one-dimensional line-straightening model**, not a claim of automatic physical 3D page reconstruction. A severely folded page, strong perspective combined with varying depth, a page crossing the gutter, or locally asymmetric text distortion needs a richer surface model estimated from page contours/text baselines or multiple views. This method can improve readability and thus OCR, but improvements on real photographed books must be measured against original OCR output and confidence. Do not apply the adjustment to a flat page merely because an automatic detector finds a quadrilateral.
+
+### Preview of the desktop application (concept)
+
+![Conceptual desktop application window for graphics/tesseract-ocr-studio; generated UI mockup, not an application screenshot](/images/manuals/graphics-tesseract-ocr-studio/concept/window.svg)
+
+*Generated application-window mockup, not a screenshot.* The panels, colors, graphs and displayed indicators illustrate a possible future interface and are **not** actual runtime measurements. Replace this image with a real capture after the native BCC64X application is built and visually accepted. Keep the original concept in `Images/manuals/graphics-tesseract-ocr-studio/concept/` and place verified captures under `Images/manuals/graphics-tesseract-ocr-studio/runtime/`.
+
