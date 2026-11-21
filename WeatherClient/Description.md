@@ -367,3 +367,10 @@ as the other instruments, over the dial needle and highlights.
 The temporary dark readout plate and hardwired 5x7 pixel digits
 were removed. The instrument geometry and font-provider selection
 remain unchanged.
+
+### Preview of the desktop application (concept)
+
+![Conceptual desktop application window for WeatherClient; generated UI mockup, not an application screenshot](/images/manuals/WeatherClient/concept/window.svg)
+
+*Generated application-window mockup, not a screenshot.* The panels, colors, graphs and displayed indicators illustrate a possible future interface and are **not** actual runtime measurements. Replace this image with a real capture after the native BCC64X application is built and visually accepted. Keep the original concept in `Images/manuals/WeatherClient/concept/` and place verified captures under `Images/manuals/WeatherClient/runtime/`.
+
