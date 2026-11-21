@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="Navigation Reactor original generated concept visualization; not an application screenshot">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#081526"/><stop offset=".6" stop-color="#102842"/><stop offset="1" stop-color="#070e20"/></linearGradient><radialGradient id="halo"><stop stop-color="#4af7ce" stop-opacity=".35"/><stop offset="1" stop-color="#4af7ce" stop-opacity="0"/></radialGradient><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="blur"><feGaussianBlur stdDeviation="18"/></filter></defs>
+<rect width="1200" height="675" fill="url(#bg)"/><circle cx="600" cy="330" r="315" fill="url(#halo)"/>
+<g stroke="#3d6688" stroke-opacity=".22" stroke-width="1"><path d="M0 0V675"/><path d="M52 0V675"/><path d="M104 0V675"/><path d="M156 0V675"/><path d="M208 0V675"/><path d="M260 0V675"/><path d="M312 0V675"/><path d="M364 0V675"/><path d="M416 0V675"/><path d="M468 0V675"/><path d="M520 0V675"/><path d="M572 0V675"/><path d="M624 0V675"/><path d="M676 0V675"/><path d="M728 0V675"/><path d="M780 0V675"/><path d="M832 0V675"/><path d="M884 0V675"/><path d="M936 0V675"/><path d="M988 0V675"/><path d="M1040 0V675"/><path d="M1092 0V675"/><path d="M1144 0V675"/><path d="M1196 0V675"/><path d="M0 0H1200"/><path d="M0 52H1200"/><path d="M0 104H1200"/><path d="M0 156H1200"/><path d="M0 208H1200"/><path d="M0 260H1200"/><path d="M0 312H1200"/><path d="M0 364H1200"/><path d="M0 416H1200"/><path d="M0 468H1200"/><path d="M0 520H1200"/><path d="M0 572H1200"/><path d="M0 624H1200"/><path d="M0 676H1200"/><path d="M0 728H1200"/></g>
+<path d="M245 180H965V520H245Z" fill="none" stroke="#4af7ce" stroke-opacity=".4" stroke-width="2"/><path d="M245 180L320 123H1040L965 180 M965 180L1040 123V465L965 520" fill="none" stroke="#f3b754" stroke-opacity=".23" stroke-width="2"/>
+<g filter="url(#glow)"><path d="M260 420 L360 280 L440 345 L535 215 L680 360 L800 260" stroke="#4af7ce" stroke-width="3" fill="none"/><path d="M260 420 L360 280 L440 345 L535 215 L680 360 L800 260 L800 440 L260 510Z" fill="#4af7ce" opacity=".12"/><path d="M300 458 Q400 410 442 458 T585 418 T760 368" stroke="#f3b754" stroke-width="10" fill="none" stroke-linecap="round"/>
+<circle cx="295" cy="460" r="4" fill="#f3b754"/>
+<circle cx="340" cy="433.4955705511279" r="4" fill="#f3b754"/>
+<circle cx="385" cy="411.59819720189415" r="4" fill="#f3b754"/>
+<circle cx="430" cy="398.11412779661646" r="4" fill="#f3b754"/>
+<circle cx="475" cy="395.38719185712506" r="4" fill="#f3b754"/>
+<circle cx="520" cy="403.8913911678232" r="4" fill="#f3b754"/>
+<circle cx="565" cy="422.14850778093466" r="4" fill="#f3b754"/>
+<circle cx="610" cy="446.98505099308494" r="4" fill="#f3b754"/>
+<circle cx="655" cy="474.08388022517966" r="4" fill="#f3b754"/>
+<circle cx="700" cy="498.7346195475047" r="4" fill="#f3b754"/>
+<circle cx="745" cy="516.6524252068832" r="4" fill="#f3b754"/></g>
+<rect x="0" y="0" width="1200" height="112" fill="#091525" opacity=".89"/><path d="M45 105H700" stroke="#4af7ce" stroke-width="3"/><path d="M700 105H880" stroke="#f3b754" stroke-width="3"/>
+<text x="45" y="72" fill="#f2faff" font-family="Segoe UI,Arial,sans-serif" font-size="49" font-weight="600">Navigation Reactor</text>
+<text x="48" y="613" fill="#4af7ce" font-family="Segoe UI,Arial,sans-serif" font-size="21" letter-spacing="4">RECAST AND DETOUR</text>
+<text x="48" y="645" fill="#b6cee0" font-family="Segoe UI,Arial,sans-serif" font-size="15">ORIGINAL GENERATED KEY VISUAL  /  NOT A RUNTIME SCREENSHOT</text>
+</svg>
