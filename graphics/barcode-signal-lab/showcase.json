@@ -1,54 +1,60 @@
 {
-  "schemaVersion": 1,
-  "kind": "showcase",
-  "title": "Barcode Signal Lab — Universal Encode / Decode",
-  "summary": "Interactive 12-format symbol generation with ZXing's new writer and externally managed Zint DLL, followed by native ZXing readback and round-trip checks.",
-  "dependencies": [
-    {
-      "library": "zxing-cpp",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "zint",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "libpng",
-      "version": "active",
-      "direct": false
-    },
-    {
-      "library": "zlib",
-      "version": "active",
-      "direct": false
-    },
-    {
-      "library": "imgui",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "sdl2",
-      "version": "active",
-      "direct": true
+    "schemaVersion": 1,
+    "kind": "showcase",
+    "title": "Barcode Signal Lab — Universal Encode / Decode",
+    "summary": "Interactive 12-format symbol generation with ZXing's new writer and externally managed Zint DLL, followed by native ZXing readback and round-trip checks.",
+    "dependencies": [
+        {
+            "library": "zxing-cpp",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "zint",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "libpng",
+            "version": "active",
+            "direct": false
+        },
+        {
+            "library": "zlib",
+            "version": "active",
+            "direct": false
+        },
+        {
+            "library": "imgui",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "sdl2",
+            "version": "active",
+            "direct": true
+        }
+    ],
+    "externalDependencies": [],
+    "status": "not-verified",
+    "applications": [
+        {
+            "name": "barcode-signal-lab",
+            "summary": "Interactive twelve-format generator and scanner using ZXing's new writer backed by the external Zint DLL.",
+            "command": "..\\build\\Test\\barcode-signal-lab\\Release\\barcode-signal-lab.exe",
+            "interactive": true
+        },
+        {
+            "name": "barcode-signal-lab --verify",
+            "summary": "Headless twelve-format encode/decode regression with external Zint linkage.",
+            "command": "..\\build\\Test\\barcode-signal-lab\\Release\\barcode-signal-lab.exe --verify",
+            "interactive": false
+        }
+    ],
+    "images": {
+        "tile": "/images/showcase/graphics-barcode-signal-lab/tile.svg",
+        "hero": "/images/showcase/graphics-barcode-signal-lab/tile.svg",
+        "kind": "generated-concept",
+        "alt": "Original technical concept illustration for Barcode Signal Lab — Universal Encode / Decode; not an application screenshot"
     }
-  ],
-  "externalDependencies": [],
-  "status": "not-verified",
-  "applications": [
-    {
-      "name": "barcode-signal-lab",
-      "summary": "Interactive twelve-format generator and scanner using ZXing's new writer backed by the external Zint DLL.",
-      "command": "..\\build\\Test\\barcode-signal-lab\\Release\\barcode-signal-lab.exe",
-      "interactive": true
-    },
-    {
-      "name": "barcode-signal-lab --verify",
-      "summary": "Headless twelve-format encode/decode regression with external Zint linkage.",
-      "command": "..\\build\\Test\\barcode-signal-lab\\Release\\barcode-signal-lab.exe --verify",
-      "interactive": false
-    }
-  ]
 }
