@@ -843,6 +843,13 @@ int main(int argc,char** argv) {
             station.input+=event.text.text;
          }
          if(event.type!=SDL_KEYDOWN) continue;
+         if(event.key.repeat==0 && event.key.keysym.sym==SDLK_F1)
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
+               "About WeatherClient",
+               "adecc Scholar | WeatherClient\n"
+               "Native C++23 / Skia / SDL2 / Boost.Statechart\n"
+               "Forecast presentation, atmospheric art and lunar approximation.\n"
+               "F1: About    F11: Fullscreen / windowed",window);
          auto const key=event.key.keysym.sym;
          if(station.editing) {
             if(key==SDLK_ESCAPE) execute(view::Action::Cancel);
