@@ -2,6 +2,39 @@
 
 This directory groups ten independent **interactive Windows C++23/BCC64X applications**, each with readable controls, animated scenarios, a headless correctness test and optional independent presentation artifacts.
 
+## Curated journeys through the laboratory
+
+The goal is to make **real computation visible**. Each showcase connects a scientific question to an installed library, a genuine numerical/image/audio result and a reproducible test. Begin with the effect, study its equation and dependency graph, then inspect the verification status.
+
+| Journey | Open the experience | What becomes visible |
+| --- | --- | --- |
+| Light and inverse problems | [HDR Photon Observatory](hdr-photon-observatory/Description.md) | Floating-point OpenEXR radiance and real Ceres calibration |
+| Nonlinear worlds | [Matplot++ Chaos Atlas](matplot-chaos-atlas/Description.md) | Six maps and parametrized curves sampled by Matplot++ |
+| Walkable geometry | [Navigation Reactor](navigation-reactor/Description.md) | Real 3D Recast geometry and Detour corridor |
+| From a curved page to words | [Tesseract OCR Studio](tesseract-ocr-studio/Description.md) | OpenCV remap and authentic Tesseract recognition |
+| Similarity becomes light | [Vector Galaxy](vector-galaxy/Description.md) | hnswlib neighbor IDs and libigl surface normals |
+| Hearing the mathematics | [Pulse Engine](pulse-engine/Description.md) | miniaudio PCM waveforms, measured RMS, optional speakers |
+| A message becomes a symbol | [Barcode Signal Lab](barcode-signal-lab/Description.md) | Native Zint/ZXing encode-decode roundtrip |
+
+### The evidence pipeline
+
+```mermaid
+flowchart LR
+    INPUT["Real input or reproducible model"] --> ENGINE["Managed library computation"]
+    ENGINE --> RESULT["Actual numerical or pixel result"]
+    RESULT --> VIEW["Native interactive presentation"]
+    RESULT --> TEST["Independent headless checks"]
+    TEST --> EVIDENCE["PASS / FAIL and metrics"]
+```
+
+An inverse problem such as HDR sensor fitting minimizes a residual:
+
+$
+\min_{\theta}\;\frac12\sum_{i=1}^{N}\bigl(y_i-f(x_i;\theta)\bigr)^2.
+$
+
+Other exhibits use iterated nonlinear maps, signal synthesis, computer vision or geometry. Their exact equations and known limits are now included on each project page. **Not verified** always means no completed native BCC64X runtime acceptance evidence is being claimed.
+
 | Showcase | Native user experience | Managed libraries |
 | --- | --- | --- |
 | [Dear ImGui Neon Laboratory](imgui-neon-lab/Description.md) | Four time-dependent particle fields, scene selection, zoom and playback controls | ImGui, SDL2 |
