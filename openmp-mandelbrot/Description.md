@@ -1,5 +1,19 @@
 # OpenMP Mandelbrot
 
+
+## Showcase artwork
+
+![AI generated concept illustration: Parallel Mandelbrot Explorer](/images/showcase/openmp-mandelbrot/tile.svg)
+
+*AI generated concept illustration; not an application screenshot.* The artwork presents the scientific and interactive idea of the showcase. Displayed scenes and indicators are illustrative, not measured runtime output.
+
+### Provisional application window
+
+![AI generated provisional desktop window for Parallel Mandelbrot Explorer](/images/manuals/openmp-mandelbrot/concept/window.svg)
+
+*AI generated concept illustration of a possible application window, not a captured screen.* Replace this file reference with an accepted screenshot in `Images/manuals/openmp-mandelbrot/runtime/` once a native application capture is available; the concept source remains separate.
+
+
 ## Showcase in action: science and architecture
 
 ### Why this example matters
