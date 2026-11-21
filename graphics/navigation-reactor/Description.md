@@ -1,5 +1,36 @@
 # Navigation Reactor — 3D Detour Expedition
 
+## Scientific showcase: experience and mechanisms
+
+### What the visitor experiences
+
+Recast builds a real walkable navigation mesh from the very same 3D terrain rendered in the viewer. Detour finds a corridor and path rather than accepting a separately drawn route.
+
+### Demonstration sequence
+
+Rotate source terrain, toggle walkability, polygon and corridor overlays, vary slope and central obstacle. A path must only appear when native Detour finds one.
+
+### Mathematical background
+
+$$\theta=\arccos\!\left(\frac{\mathbf n\cdot (0,1,0)}{\|\mathbf n\|}\right),\qquad \theta\le\theta_{\max}\ \Longrightarrow\ \text{candidate walkable triangle}.$$
+
+The equation describes the relevant mathematical mechanism, rather than independently proving any performance, physical fidelity or runtime success.
+
+### Native pipeline and managed dependencies
+
+```mermaid
+flowchart LR
+   A0["Source xyz triangles"] --> A1["Recast voxel and slope classification"]
+   A1["Recast voxel and slope classification"] --> A2["Polygon navigation mesh"]
+   A2["Polygon navigation mesh"] --> A3["Detour corridor and straight path"]
+   A3["Detour corridor and straight path"] --> A4["OpenGL 3D and ImGui"]
+```
+
+The diagram describes data responsibilities. BuildEngine-managed libraries remain versioned package dependencies; a successful visual display cannot replace the declared headless correctness checks.
+
+---
+
+
 ## Actual 3D terrain, not a coloured flat raster
 
 The primary view renders **the very same 81 x 51 source terrain vertex grid and 8,000 triangles** that the native Recast pipeline classifies and rasterizes. Perspective projection, altitude-aware colouring, triangle lighting and optional wireframes make the landscape spatially legible. Terrain heights are not reconstructed from or approximated by the navigation result: the visualization and Recast both consume exactly the same world-coordinate xyz arrays.
