@@ -193,7 +193,8 @@ public:
          ImGui::TextUnformatted("F1   About this showcase");
          ImGui::TextUnformatted("F11  Fullscreen / windowed");
          ImGui::TextUnformatted("Esc  Close this dialog");
-         if(ImGui::Button("Close", {120.0F, 0.0F}))
+         if(ImGui::IsKeyPressed(ImGuiKey_Escape) ||
+            ImGui::Button("Close", {120.0F, 0.0F}))
             ImGui::CloseCurrentPopup();
          ImGui::EndPopup();
       }
