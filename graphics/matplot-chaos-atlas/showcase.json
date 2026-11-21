@@ -1,36 +1,42 @@
 {
-  "schemaVersion": 1,
-  "kind": "showcase",
-  "title": "Matplot++ Mathematical Discovery Gallery",
-  "summary": "Interactive ImGui/SDL2 gallery of six native Matplot++ sampled scenes, with readable labeled thumbnails, progressive drawing, zoom, animation controls and optional SVG export.",
-  "dependencies": [
-    {
-      "library": "matplotplusplus",
-      "version": "1.2.2",
-      "direct": true
-    },
-    {
-      "library": "imgui",
-      "version": "1.93.0",
-      "direct": true
-    },
-    {
-      "library": "sdl2",
-      "version": "active",
-      "direct": true
+    "schemaVersion": 1,
+    "kind": "showcase",
+    "title": "Matplot++ Mathematical Discovery Gallery",
+    "summary": "Interactive ImGui/SDL2 gallery of six native Matplot++ sampled scenes, with readable labeled thumbnails, progressive drawing, zoom, animation controls and optional SVG export.",
+    "dependencies": [
+        {
+            "library": "matplotplusplus",
+            "version": "1.2.2",
+            "direct": true
+        },
+        {
+            "library": "imgui",
+            "version": "1.93.0",
+            "direct": true
+        },
+        {
+            "library": "sdl2",
+            "version": "active",
+            "direct": true
+        }
+    ],
+    "externalDependencies": [],
+    "documentation": "Description.md",
+    "build": "build.md",
+    "status": "verified",
+    "applications": [
+        {
+            "name": "matplot-chaos-atlas",
+            "summary": "Interactive gallery of six mathematical scenes with progressive animated drawing and SVG export",
+            "command": "..\\build\\Test\\matplot-chaos-atlas\\Release\\matplot-chaos-atlas.exe",
+            "interactive": true
+        }
+    ],
+    "verification": "Operator-confirmed native BCC64X build and interactive execution on 2026-11-18",
+    "images": {
+        "tile": "/images/showcase/graphics-matplot-chaos-atlas/tile.svg",
+        "hero": "/images/showcase/graphics-matplot-chaos-atlas/tile.svg",
+        "kind": "generated-concept",
+        "alt": "Original technical concept illustration for Matplot++ Mathematical Discovery Gallery; not an application screenshot"
     }
-  ],
-  "externalDependencies": [],
-  "documentation": "Description.md",
-  "build": "build.md",
-  "status": "verified",
-  "applications": [
-    {
-      "name": "matplot-chaos-atlas",
-      "summary": "Interactive gallery of six mathematical scenes with progressive animated drawing and SVG export",
-      "command": "..\\build\\Test\\matplot-chaos-atlas\\Release\\matplot-chaos-atlas.exe",
-      "interactive": true
-    }
-  ],
-  "verification": "Operator-confirmed native BCC64X build and interactive execution on 2026-11-18"
 }
