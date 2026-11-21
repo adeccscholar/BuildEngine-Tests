@@ -24,5 +24,11 @@
       "interactive": true
     }
   ],
-  "verification": "Operator-confirmed native BCC64X build and interactive execution on 2026-11-18"
+  "verification": "Operator-confirmed native BCC64X build and interactive execution on 2026-11-18",
+  "images": {
+    "tile": "/images/showcase/graphics-imgui-neon-lab/tile.svg",
+    "hero": "/images/showcase/graphics-imgui-neon-lab/tile.svg",
+    "kind": "generated-concept",
+    "alt": "AI generated concept illustration for Dear ImGui Neon Constellation; not an application screenshot"
+  }
 }
