@@ -205,6 +205,17 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
          if(event.type==SDL_MOUSEWHEEL&&event.wheel.y)
             distance=(std::clamp)(distance*std::pow(0.88f,static_cast<float>(event.wheel.y)),9.0f,90.0f);
          if(event.type==SDL_KEYDOWN) {
+            if(event.key.repeat==0 && event.key.keysym.sym==SDLK_F11)
+               SDL_SetWindowFullscreen(window,
+                  (SDL_GetWindowFlags(window)&SDL_WINDOW_FULLSCREEN_DESKTOP)?
+                     0:SDL_WINDOW_FULLSCREEN_DESKTOP);
+            if(event.key.repeat==0 && event.key.keysym.sym==SDLK_F1)
+               SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
+                  "About GeoSpatial Terrain",
+                  "adecc Scholar | GeoSpatial Terrain\n"
+                  "C++23 / SDL2 / OpenGL / oneTBB / OpenMP\n"
+                  "Synthetic terrain from spatial density.\n"
+                  "F1: About    F11: Fullscreen / windowed",window);
             if(event.key.keysym.sym==SDLK_ESCAPE)running=false;
             if(event.key.keysym.sym==SDLK_f || event.key.keysym.sym==SDLK_d ||
                event.key.keysym.sym==SDLK_l) {
