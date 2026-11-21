@@ -71,6 +71,21 @@ __published:
 private:
    std::filesystem::path theArchivePath;
    int iCompletedRows {};
+   bool m_bFullscreen {};
+   TBorderStyle m_eWindowedBorder { bsSizeable };
+   TWindowState m_eWindowedState { wsNormal };
+
+   /**
+   \brief Handles About and reversible fullscreen keyboard shortcuts.
+   \details Preserves the former window border and maximization state.
+   \param aSender VCL event sender.
+   \param uKey Virtual key, cleared when processed.
+   \param theShift Keyboard modifiers.
+   \returns Nothing.
+   \throw Nothing intentionally.
+   */
+   void __fastcall HandleShowcaseKey(TObject* aSender, WORD& uKey, TShiftState theShift);
+
 
    /**
    \brief Resets the visible status matrix to its initial state.
