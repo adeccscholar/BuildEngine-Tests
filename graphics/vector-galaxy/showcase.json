@@ -1,49 +1,55 @@
 {
-  "schemaVersion": 1,
-  "kind": "showcase",
-  "title": "Vector Galaxy — The Shape of Similarity",
-  "summary": "Fly through an animated mathematical starfield where hnswlib finds actual nearest neighbours and libigl computes the 3D mesh normals that shape luminous geometry.",
-  "dependencies": [
-    {
-      "library": "hnswlib",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "libigl",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "eigen",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "imgui",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "sdl2",
-      "version": "active",
-      "direct": true
+    "schemaVersion": 1,
+    "kind": "showcase",
+    "title": "Vector Galaxy — The Shape of Similarity",
+    "summary": "Fly through an animated mathematical starfield where hnswlib finds actual nearest neighbours and libigl computes the 3D mesh normals that shape luminous geometry.",
+    "dependencies": [
+        {
+            "library": "hnswlib",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "libigl",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "eigen",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "imgui",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "sdl2",
+            "version": "active",
+            "direct": true
+        }
+    ],
+    "externalDependencies": [],
+    "status": "not-verified",
+    "applications": [
+        {
+            "name": "vector-galaxy",
+            "summary": "Interactive 851-point HNSW galaxy with live similarity searching, rotating heightfield, mesh normals and a native desktop GUI.",
+            "command": "..\\build\\Test\\vector-galaxy\\Release\\vector-galaxy.exe",
+            "interactive": true
+        },
+        {
+            "name": "vector-galaxy --verify",
+            "summary": "Headless correctness regression covering ANN neighbour count and computed mesh normals.",
+            "command": "..\\build\\Test\\vector-galaxy\\Release\\vector-galaxy.exe --verify",
+            "interactive": false
+        }
+    ],
+    "images": {
+        "tile": "/images/showcase/graphics-vector-galaxy/tile.svg",
+        "hero": "/images/showcase/graphics-vector-galaxy/tile.svg",
+        "kind": "generated-concept",
+        "alt": "Original technical concept illustration for Vector Galaxy — The Shape of Similarity; not an application screenshot"
     }
-  ],
-  "externalDependencies": [],
-  "status": "not-verified",
-  "applications": [
-    {
-      "name": "vector-galaxy",
-      "summary": "Interactive 851-point HNSW galaxy with live similarity searching, rotating heightfield, mesh normals and a native desktop GUI.",
-      "command": "..\\build\\Test\\vector-galaxy\\Release\\vector-galaxy.exe",
-      "interactive": true
-    },
-    {
-      "name": "vector-galaxy --verify",
-      "summary": "Headless correctness regression covering ANN neighbour count and computed mesh normals.",
-      "command": "..\\build\\Test\\vector-galaxy\\Release\\vector-galaxy.exe --verify",
-      "interactive": false
-    }
-  ]
 }
