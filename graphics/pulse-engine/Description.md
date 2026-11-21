@@ -55,3 +55,10 @@ Optional audible output uses a real `ma_device` callback that reads from the sam
 `pulse-engine.exe --verify` generates real float samples without opening a device. It checks for finite amplitude, nonzero audio and distinct waveform shapes. Audible quality and Windows device latency require a separate desktop and audio verification.
 
 **[not verified]** Native BCC64X build, audio output, desktop rendering and first CTest results remain pending.
+
+### Preview of the desktop application (concept)
+
+![Conceptual desktop application window for graphics/pulse-engine; generated UI mockup, not an application screenshot](/images/manuals/graphics-pulse-engine/concept/window.svg)
+
+*Generated application-window mockup, not a screenshot.* The panels, colors, graphs and displayed indicators illustrate a possible future interface and are **not** actual runtime measurements. Replace this image with a real capture after the native BCC64X application is built and visually accepted. Keep the original concept in `Images/manuals/graphics-pulse-engine/concept/` and place verified captures under `Images/manuals/graphics-pulse-engine/runtime/`.
+
