@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "showcase",
   "title": "Tesseract OCR Studio",
-  "summary": "Full-page and multiparagraph document OCR with selectable HD/4K webcams, OpenCV perspective extraction and managed German/English Tesseract models.",
+  "summary": "Full-page German/English OCR with HD/4K webcams, OpenCV perspective extraction and manually adjustable curved-book-page dewarping using genuine remap, Leptonica/Tesseract LSTM and native SDL2/ImGui.",
   "dependencies": [
     {
       "library": "tesseract",
@@ -65,13 +65,13 @@
   "applications": [
     {
       "name": "tesseract-ocr-studio",
-      "summary": "Native DirectShow camera, full-page/manual ROI/auto perspective extraction, language and layout selection, frozen frame OCR with copyable text.",
+      "summary": "Native DirectShow camera, image ROI/perspective extraction and optional curved-book-page remapping, German/English language modes, frozen-frame OCR and readable text previews.",
       "command": "..\\build\\Test\\tesseract-ocr-studio\\Release\\tesseract-ocr-studio.exe",
       "interactive": true
     },
     {
       "name": "tesseract-ocr-studio --verify",
-      "summary": "Headless native computer-vision integration verification",
+      "summary": "Headless Tesseract, Leptonica and OpenCV verification including synthetic curved-book baseline straightening.",
       "command": "..\\build\\Test\\tesseract-ocr-studio\\Release\\tesseract-ocr-studio.exe --verify",
       "interactive": false
     },

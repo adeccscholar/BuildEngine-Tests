@@ -191,3 +191,11 @@ Launch the interactive studio:
 ```
 
 **[not verified]** The installed native German language model and camera-page OCR behavior require BCC64X Windows execution. A blank OCR result must remain a failing user-visible recognition outcome, not be rewritten to an expected phrase.
+
+## 10. Flatten a curved photographed book page
+
+In camera mode, select the desired document quadrilateral or manual text rectangle, then enable **Straighten curved book page (OpenCV remap)**. Adjust **Signed page curvature** until the text baselines in the **Selected document / rectified source** panel appear straight. Positive curvature compensates text baselines sagging downward toward the middle; negative curvature compensates the opposite direction. The correction is applied to original-resolution pixels and always occurs before thresholding and Tesseract.
+
+The existing **RECOGNIZE FRAME**, **SCAN SELECTION** and frozen capture workflow remain unchanged. The new `--verify` step also performs a deterministic, camera-independent OpenCV geometry check, requiring an observed synthetic 25-pixel (or greater) bow to become no more than 4 pixels.
+
+**[not verified]** The synthetic geometry regression and real printed-page improvements await native BCC64X test execution. This manually guided curve model cannot automatically infer the physical surface of an arbitrary open book.

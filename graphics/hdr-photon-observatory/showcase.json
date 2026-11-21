@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "kind": "showcase",
+  "title": "HDR Photon Observatory — Where Light Meets Optimization",
+  "summary": "Native HDR laboratory: synthesize floating-point photon fields, write and read real OpenEXR images, and calibrate a nonlinear light model with the installed Ceres Solver DLL. Interactive tone mapping and sensor residual plots.",
+  "dependencies": [
+    {
+      "library": "ceres-solver",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "openexr",
+      "version": "3.5.4",
+      "direct": true
+    },
+    {
+      "library": "imath",
+      "version": "3.2.3",
+      "direct": true
+    },
+    {
+      "library": "eigen",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "abseil",
+      "version": "active",
+      "direct": false
+    },
+    {
+      "library": "openjph",
+      "version": "0.33.0",
+      "direct": false
+    },
+    {
+      "library": "libdeflate",
+      "version": "1.26",
+      "direct": false
+    },
+    {
+      "library": "zstd",
+      "version": "1.5.7",
+      "direct": false
+    },
+    {
+      "library": "imgui",
+      "version": "active",
+      "direct": true
+    },
+    {
+      "library": "sdl2",
+      "version": "active",
+      "direct": true
+    }
+  ],
+  "externalDependencies": [],
+  "status": "not-verified",
+  "applications": [
+    {
+      "name": "HDR Photon Observatory",
+      "summary": "Interactive HDR light-field laboratory, nonlinear Ceres calibration and real OpenEXR round-trip with live tone mapping.",
+      "command": "..\\build\\Test\\hdr-photon-observatory\\Release\\hdr-photon-observatory.exe",
+      "interactive": true
+    },
+    {
+      "name": "HDR Photon Observatory --verify",
+      "summary": "Native headless Ceres convergence, OpenEXR FP16 round-trip and high-dynamic-range checks.",
+      "command": "..\\build\\Test\\hdr-photon-observatory\\Release\\hdr-photon-observatory.exe --verify",
+      "interactive": false
+    }
+  ]
+}

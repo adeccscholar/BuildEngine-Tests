@@ -3,6 +3,7 @@
 #include "../common/CameraDevices.h"
 #include "../common/CameraFrameView.h"
 #include "DocumentRegion.h"
+#include "BookPageDewarp.h"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -210,9 +211,20 @@ bool Verify() {
    std::println("SHOWCASE|CHECK|ocr-document-perspective|{}|detected={} size={}x{}",
       bAutoRegion?"PASS":"FAIL",theAutoPage.bFound,
       theAutoPage.theDocument.cols,theAutoPage.theDocument.rows);
-   std::println("SHOWCASE|RESULT|{}|OpenCV preprocessing, Leptonica PIX and native Tesseract LSTM",
-      bExact&&bConfidence&&bWordSeparation&&bManualRegion&&bAutoRegion?"PASS":"FAIL");
-   return bExact&&bConfidence&&bWordSeparation&&bManualRegion&&bAutoRegion;
+
+   // Genuine OpenCV nonlinear remap: straighten a known synthetic book bow.
+   float constexpr flTestCurvature = 0.075F;
+   cv::Mat const theCurved = MakeCurvedBookFixture(640,420,flTestCurvature);
+   cv::Mat const theFlattened = DewarpBookPage(theCurved,flTestCurvature);
+   int const iBowBefore = MeasureBookFixtureBow(theCurved);
+   int const iBowAfter = MeasureBookFixtureBow(theFlattened);
+   bool const bBookDewarp = iBowBefore >= 25 && iBowAfter <= 4 &&
+      theFlattened.size() == theCurved.size();
+   std::println("SHOWCASE|CHECK|ocr-book-dewarp|{}|baseline-bow-before={}px after={}px",
+      bBookDewarp?"PASS":"FAIL",iBowBefore,iBowAfter);
+   std::println("SHOWCASE|RESULT|{}|OpenCV remap, preprocessing, Leptonica PIX and native Tesseract LSTM",
+      bExact&&bConfidence&&bWordSeparation&&bManualRegion&&bAutoRegion&&bBookDewarp?"PASS":"FAIL");
+   return bExact&&bConfidence&&bWordSeparation&&bManualRegion&&bAutoRegion&&bBookDewarp;
 }
 
 void Interactive() {
@@ -243,6 +255,8 @@ void Interactive() {
    std::copy(strDefault.begin(),strDefault.end(),arrText.begin());
    std::array<char,512> arrFile {};
    bool bThreshold=true;
+   bool bBookDewarp=false;
+   float flBookCurvature=0.075F;
    int iPageMode=0;
    bool const bGermanModelInstalled=std::filesystem::is_regular_file(
       std::filesystem::path{ADECC_TESSDATA_PATH}/"deu.traineddata");
@@ -276,6 +290,10 @@ void Interactive() {
             bCameraInput?static_cast<DocumentRegion::Mode>(iRegionMode):
                DocumentRegion::Mode::FullFrame,arrROI);
          cv::Mat theDocument=theRegion.theDocument;
+         // Apply geometric unbending to original-resolution pixels, never
+         // to a thumbnail or binarized OCR image.
+         if(bBookDewarp)
+            theDocument=DewarpBookPage(theDocument,flBookCurvature);
          if(bCameraInput && bAutoUpscale) {
             double const flScale=std::min(2.5,
                std::max(1.0,1800.0/std::max(theDocument.cols,theDocument.rows)));
@@ -471,6 +489,14 @@ void Interactive() {
       ImGui::Checkbox("Otsu threshold",&bThreshold);
       ImGui::SameLine();
       ImGui::Checkbox("Upscale small camera text",&bAutoUpscale);
+      ImGui::Checkbox("Straighten curved book page (OpenCV remap)",&bBookDewarp);
+      if(bBookDewarp) {
+         ImGui::SetNextItemWidth(400);
+         ImGui::SliderFloat("Signed page curvature",&flBookCurvature,
+            -.18F,.18F,"%.3f of page height");
+         ImGui::TextDisabled("Manual curve model: straighten visible text baselines; positive/negative bend as observed.");
+         ImGui::TextDisabled("This is geometric dewarping, not an automatic 3D surface reconstruction.");
+      }
       ImGui::SetNextItemWidth(270);
       ImGui::Combo("Tesseract text layout",&iPageMode,
          "Automatic page (PSM 3)\0Single text block (PSM 6)\0Single line (PSM 7)\0");
