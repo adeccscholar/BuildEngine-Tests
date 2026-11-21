@@ -1,5 +1,36 @@
 # Barcode Signal Lab — Universal Encode / Decode
 
+## Scientific showcase: experience and mechanisms
+
+### What the visitor experiences
+
+A barcode is a constrained encoding, not merely stripes. The installed ZXing writer and external Zint DLL generate real pixels; the independent ZXing decoding path recovers the text and reports exact roundtrip evidence.
+
+### Demonstration sequence
+
+Choose QR, Data Matrix or EAN-13, encode a valid payload and compare the readback with the input. Inspect why invalid length, digits or checksum lead to an explicit error.
+
+### Mathematical background
+
+$$c=\left(10-\sum_{i=1}^{12}w_i d_i\bmod 10\right)\bmod 10,\quad w_i=1\ (i\text{ odd}),\ 3\ (i\text{ even}).$$
+
+The equation describes the relevant mathematical mechanism, rather than independently proving any performance, physical fidelity or runtime success.
+
+### Native pipeline and managed dependencies
+
+```mermaid
+flowchart LR
+   A0["Input text and symbology"] --> A1["ZXing writer with Zint"]
+   A1["ZXing writer with Zint"] --> A2["Real barcode raster"]
+   A2["Real barcode raster"] --> A3["ZXing reader"]
+   A3["ZXing reader"] --> A4["Roundtrip result and SDL2 view"]
+```
+
+The diagram describes data responsibilities. BuildEngine-managed libraries remain versioned package dependencies; a successful visual display cannot replace the declared headless correctness checks.
+
+---
+
+
 ## Experience
 
 Choose **QR Code, Data Matrix, Aztec, PDF417, Code 128, Code 39, Code 93, Codabar, ITF, EAN-13, EAN-8 or UPC-A**, enter a payload, press **ENCODE + SCAN**, and watch the resulting barcode appear. A native ZXing-C++ reader independently decodes the generated pixel image and the application reports the actual recovered text and round-trip status. The rendering is based on pixels returned by the writer, not a painted imitation.
