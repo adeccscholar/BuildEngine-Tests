@@ -74,6 +74,8 @@ namespace {
 
 __fastcall TWeatherHistForm::TWeatherHistForm(TComponent* aOwner)
    : TForm(aOwner) {
+   KeyPreview = true;
+   OnKeyDown = HandleShowcaseKey;
    resultTimer_->Enabled = false;
    statusLabel_->Caption = L"Adresse und Datum eingeben, dann Abrufen waehlen.";
    }
@@ -87,6 +89,36 @@ __fastcall TWeatherHistForm::~TWeatherHistForm() {
       }
    m_pTask.reset();
    }
+
+void __fastcall TWeatherHistForm::HandleShowcaseKey(
+   TObject* aSender, WORD& uKey, TShiftState theShift) {
+   (void)aSender;
+   (void)theShift;
+   if(uKey == VK_F1) {
+      MessageDlg(L"adecc Scholar | WeatherHist\n"
+                 L"Historical Open-Meteo weather / native VCL\n\n"
+                 L"F1: About\nF11: Fullscreen / windowed\n"
+                 L"See Description.md and native BuildEngine test evidence.",
+                 mtInformation, TMsgDlgButtons() << mbOK, 0);
+      uKey = 0;
+   }
+   else if(uKey == VK_F11) {
+      if(!m_bFullscreen) {
+         m_eWindowedBorder = BorderStyle;
+         m_eWindowedState = WindowState;
+         WindowState = wsNormal;
+         BorderStyle = bsNone;
+         WindowState = wsMaximized;
+      }
+      else {
+         WindowState = wsNormal;
+         BorderStyle = m_eWindowedBorder;
+         WindowState = m_eWindowedState;
+      }
+      m_bFullscreen = !m_bFullscreen;
+      uKey = 0;
+   }
+}
 
 void TWeatherHistForm::DisplayReport(weather_hist::Report const& theReport) {
    resultsList_->Items->BeginUpdate();
