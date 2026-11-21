@@ -27,6 +27,7 @@ class OpenGLShowcase final {
    ImGuiContext* pGui {};
    std::uint64_t uLastTick {};
    bool bRunning {true};
+   bool bAboutRequested {};
    bool bSDLBackend {};
    bool bGLBackend {};
 
@@ -149,11 +150,14 @@ public:
              aEvent.window.event == SDL_WINDOWEVENT_CLOSE &&
              aEvent.window.windowID == SDL_GetWindowID(pWindow)))
             bRunning = false;
-         if(aEvent.type == SDL_KEYDOWN &&
-            aEvent.key.keysym.sym == SDLK_F11)
-            SDL_SetWindowFullscreen(pWindow,
-               SDL_GetWindowFlags(pWindow) & SDL_WINDOW_FULLSCREEN_DESKTOP ?
-                  0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+         if(aEvent.type == SDL_KEYDOWN && aEvent.key.repeat == 0) {
+            if(aEvent.key.keysym.sym == SDLK_F11)
+               SDL_SetWindowFullscreen(pWindow,
+                  SDL_GetWindowFlags(pWindow) & SDL_WINDOW_FULLSCREEN_DESKTOP ?
+                     0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+            else if(aEvent.key.keysym.sym == SDLK_F1)
+               bAboutRequested = true;
+         }
       }
       ImGui_ImplOpenGL3_NewFrame();
       ImGui_ImplSDL2_NewFrame();
@@ -167,6 +171,32 @@ public:
    \throw Nothing intentionally.
    */
    void EndFrame() {
+      if(bAboutRequested) {
+         ImGui::OpenPopup("About this showcase");
+         bAboutRequested = false;
+      }
+      ImGui::SetNextWindowSize({520.0F, 0.0F}, ImGuiCond_Appearing);
+      if(ImGui::BeginPopupModal("About this showcase", nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+         ImGui::TextColored({0.36F, 0.91F, 0.90F, 1.0F},
+                            "BUILDENGINE / NATIVE C++23 LABORATORY");
+         ImGui::Separator();
+         ImGui::TextWrapped("%s", SDL_GetWindowTitle(pWindow));
+         ImGui::TextDisabled("Renderer: OpenGL3 / Dear ImGui %s", IMGUI_VERSION);
+         ImGui::TextWrapped("OpenGL: %s", VersionString().c_str());
+         ImGui::Spacing();
+         ImGui::TextWrapped("This application is an interactive BuildEngine test "
+                            "using native dependencies. Actual package versions, "
+                            "licenses, mathematical background and verification "
+                            "evidence are documented in its showcase page.");
+         ImGui::Separator();
+         ImGui::TextUnformatted("F1   About this showcase");
+         ImGui::TextUnformatted("F11  Fullscreen / windowed");
+         ImGui::TextUnformatted("Esc  Close this dialog");
+         if(ImGui::Button("Close", {120.0F, 0.0F}))
+            ImGui::CloseCurrentPopup();
+         ImGui::EndPopup();
+      }
       ImGui::Render();
       int iWidth {}, iHeight {};
       SDL_GL_GetDrawableSize(pWindow, &iWidth, &iHeight);
