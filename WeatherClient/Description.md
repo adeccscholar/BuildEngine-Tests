@@ -7,6 +7,44 @@
 
 [TOC]
 
+## Gallery spotlight: a forecast becomes an illustrated physical story
+
+Watch a **native Skia weather desk** turn structured forecast data into clouds, precipitation, wind, temperature instruments and a time-dependent night sky. The spectacle is generated with Skia geometry and typography, not downloaded weather illustrations. In demo mode the presentation can be explored without claiming live measurements; online mode adds real forecast-provider responses and their separate failure states.
+
+**What to demonstrate:** launch the declared `WeatherClient --demo` application, switch conditions, follow the hourly and daily visualizations and inspect the lunar-phase indicator. Compare a clear daytime scene with a nighttime weather scene. The controls and data sources are described in [Architecture.md](Architecture.md) and [REST.md](REST.md).
+
+### Why the moon changes with time
+
+The implemented educational approximation uses a reference new moon at 2000-01-06 18:14 UTC and mean synodic period of approximately 29.530588853 days. With elapsed days `d` and phase fraction `\phi`:
+
+$$
+\phi=\operatorname{frac}\left(\frac{d}{29.530588853}\right),
+\qquad
+L=\frac{1-\cos(2\pi\phi)}{2}.
+$$
+
+`L` approximates the illuminated fraction: near zero at new moon and near one at full moon. This **is not an astronomical ephemeris**; the time-zone approximation and lunar perturbations described below are relevant near phase transitions.
+
+### Forecast provenance, model and presentation
+
+```mermaid
+flowchart TD
+    API["Online forecast providers"] --> HTTP["curl / OpenSSL HTTPS"]
+    HTTP --> MODEL["JSON forecast and timestamps"]
+    DEMO["Offline demo inputs"] --> MODEL
+    MODEL --> STATE["Boost.Statechart / view model"]
+    STATE --> SCENE["Skia: original conditions and instruments"]
+    MODEL --> MOON["Approximate lunar phase"]
+    MOON --> SCENE
+    SCENE --> SDL["SDL2 desktop dashboard"]
+    MODEL --> TEST["Offline model and statechart checks"]
+```
+
+**Trust boundary:** a compelling night-sky image does not make the weather forecast more precise than its source, and a computed lunar illumination is not proof of exact moonrise, position or observational conditions.
+
+---
+
+
 ## Technical Documentation and Navigation
 
 WeatherClient is a **weather dashboard**, not a measurement observatory. The following pages document implemented behavior and distinguish source-code facts from runtime checks that have not been performed locally:
