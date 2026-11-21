@@ -1,0 +1,78 @@
+# Shared showcase image assets
+
+This directory belongs to the synchronized `BuildEngine-Tests` checkout at
+`<ProductionRoot>/tests/Images`. The BuildEngine HTTP server exposes **static**
+images at `/images/*`, where the URL suffix maps to the same relative path below
+this directory. Supported media types: SVG, PNG, JPEG, GIF, WebP.
+
+## Structure
+
+```text
+Images/
+  README.md
+  showcase/<manifest-path-with-slashes-replaced-by-dashes>/
+    tile.svg        # current repository-owned original topic-specific concept
+    tile.webp       # optional original generated bitmap or runtime screenshot
+    hero.png        # optional large original generated or captured image
+  manuals/<same-key>/
+    runtime/        # ONLY genuine screenshots from an executed native application
+    concept/        # explanatory artwork, never represented as screenshots
+```
+
+The ten initial gallery tiles are original vector concept artwork under
+`Images/showcase/`. The original high-resolution generated PNG/WebP
+illustrations are also available as a separately delivered asset package for
+manual checkout installation. Their existence in that package does **not**
+mean the corresponding PNG files have been committed to the repository.
+
+## Manifest contract
+
+```json
+{
+  "images": {
+    "tile": "/images/showcase/graphics-hdr-photon-observatory/tile.svg",
+    "hero": "/images/showcase/graphics-hdr-photon-observatory/tile.svg",
+    "kind": "generated-concept",
+    "alt": "Original technical concept illustration; not an application screenshot"
+  }
+}
+```
+
+An image URL must point to an actual local file; the browser never fetches
+third-party artwork. The server rejects path traversal, symlink aliases and
+unsupported extensions. Image provenance is shown in the gallery and in the
+showcase detail page.
+
+## Replacing an illustration with an actual screenshot
+
+1. Run the native application with its normal dependencies and library closure.
+2. Where supported, use **F11** to switch to fullscreen and **F1** to show About.
+3. Capture the actual application screen, without generating or recreating the
+   screen contents with an image model.
+4. Store the screenshot under `Images/manuals/<key>/runtime/` or as a
+   `showcase/<key>/tile.webp`, preserving an untouched original when possible.
+5. Point the specific `showcase.json` `images.tile` or `images.hero` field
+   at the new file and set `images.kind` to `runtime-screenshot`.
+6. Update the corresponding `Description.md` image URL and caption; do not
+   retain the "generated concept" caption for a real screenshot.
+7. Commit the source image, description and manifest together. Run the local
+   BuildEngine presentation-cache synchronization and verify HTTP 200 on the
+   static asset, `/showcases/` and the showcase detail view.
+
+The supplied key visuals are illustrations of *intent*, not measured
+outputs or reproducibility evidence. They do not replace native tests,
+SBOMs, screenshots or verification logs.
+
+## Native keyboard policy
+
+For interactive GUI targets that have a window and a key event loop:
+- **F1**: About with application title, technologies and help keys.
+- **F11**: reversible fullscreen/windowed toggle.
+- Headless tests and command-line consumers have no window and therefore no
+  F1/F11 shortcut.
+
+For shared SDL2/ImGui showcases, both actions live in
+`graphics/common/NativeShowcase.h` or `OpenGLShowcase.h` to avoid divergence.
+The standalone VCL, SDL2/SDL3, VTK and Win32 frontends implement the same
+shortcuts through their platform event-handling mechanisms. GUI integration
+and visual behavior require a native BCC64X run for final verification.
