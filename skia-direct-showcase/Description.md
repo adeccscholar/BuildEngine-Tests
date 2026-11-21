@@ -9,6 +9,12 @@
 **Runtime evidence:** Press **F11** to toggle fullscreen/windowed mode and **F1** for the native About screen where the application's UI supports these shortcuts. The generated illustration can later be replaced by a genuine captured application image in the central `tests/Images` directory; record the replacement's provenance as `runtime-screenshot` and update the manifest's `images.tile` and `images.hero` URLs accordingly.
 
 
+### Preview of the desktop application (concept)
+
+![Conceptual desktop application window for skia-direct-showcase; generated UI mockup, not an application screenshot](/images/manuals/skia-direct-showcase/concept/window.svg)
+
+*Generated application-window mockup, not a screenshot.* The panels, colors, graphs and displayed indicators illustrate a possible future interface and are **not** actual runtime measurements. Replace this image with a real capture after the native BCC64X application is built and visually accepted. Keep the original concept in `Images/manuals/skia-direct-showcase/concept/` and place verified captures under `Images/manuals/skia-direct-showcase/runtime/`.
+
 ## Showcase in action: science and architecture
 
 ### Why this example matters
