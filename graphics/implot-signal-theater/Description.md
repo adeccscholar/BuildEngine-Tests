@@ -1,5 +1,19 @@
 # ImPlot Real-Time Signal Theater
 
+
+## Showcase artwork
+
+![AI generated concept illustration: ImPlot Real-Time Signal Theater](/images/showcase/graphics-implot-signal-theater/tile.svg)
+
+*AI generated concept illustration; not an application screenshot.* The artwork presents the scientific and interactive idea of the showcase. Displayed scenes and indicators are illustrative, not measured runtime output.
+
+### Provisional application window
+
+![AI generated provisional desktop window for ImPlot Real-Time Signal Theater](/images/manuals/graphics-implot-signal-theater/concept/window.svg)
+
+*AI generated concept illustration of a possible application window, not a captured screen.* Replace this file reference with an accepted screenshot in `Images/manuals/graphics-implot-signal-theater/runtime/` once a native application capture is available; the concept source remains separate.
+
+
 ## Scientific showcase: experience and mechanisms
 
 ### What the visitor experiences
