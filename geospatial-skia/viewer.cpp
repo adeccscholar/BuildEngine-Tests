@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
 #include "GeoData.h"
+#include "../graphics/common/Win32ShowcaseKeys.h"
 #include <windows.h>
 #include <commdlg.h>
 #include <shellapi.h>
@@ -180,6 +181,10 @@ LRESULT CALLBACK WindowProc(HWND window,UINT msg,WPARAM wp,LPARAM lp) {
          DragFinish(drop);return 0;
       }
       case WM_KEYDOWN: {
+         if(adecc::tests::win32::HandleShowcaseKey(window,wp,lp,
+            L"GeoSpatial Skia",
+            L"Skia rendering / address density / oneTBB and OpenMP"))
+            return 0;
          bool refresh=true;
          if((GetKeyState(VK_CONTROL)&0x8000)!=0 && wp=='O'){ChooseFile(window);return 0;}
          if((GetKeyState(VK_CONTROL)&0x8000)!=0 && wp=='D'){ChooseDirectory(window);return 0;}
