@@ -31,6 +31,21 @@ class TWeatherHistForm final : public TForm {
 
    std::shared_ptr<TaskState> m_pTask;
    std::jthread m_aWorker;
+   bool m_bFullscreen {};
+   TBorderStyle m_eWindowedBorder { bsSizeable };
+   TWindowState m_eWindowedState { wsNormal };
+
+   /**
+   \brief Handles About and reversible fullscreen keyboard shortcuts.
+   \details Preserves the former window border and maximization state.
+   \param aSender VCL event sender.
+   \param uKey Virtual key, cleared when processed.
+   \param theShift Keyboard modifiers.
+   \returns Nothing.
+   \throw Nothing intentionally.
+   */
+   void __fastcall HandleShowcaseKey(TObject* aSender, WORD& uKey, TShiftState theShift);
+
 
    /** \brief Present the report in the list.
    \details All strings are UTF-8 and must be decoded for the VCL.
