@@ -235,10 +235,37 @@ void __fastcall TViewerForm::FormMouseWheel(
 }
 
 void __fastcall TViewerForm::ApplicationMessage(tagMSG& message, bool& handled) {
-   if(handled || message.message != WM_KEYDOWN ||
-      (!document_.IsOpen() && message.wParam != 'O'))
+   if(handled || message.message != WM_KEYDOWN)
       return;
    if(message.hwnd != Handle && !::IsChild(Handle, message.hwnd))
+      return;
+   if(message.wParam == VK_F1) {
+      handled = true;
+      MessageDlg(L"adecc Scholar | PDFium VCL Viewer\n"
+                 L"Native PDFium rendering, scrolling and page navigation.\n"
+                 L"F1: About\nF11: Fullscreen / windowed\n"
+                 L"See Description.md for package and verification evidence.",
+                 mtInformation, TMsgDlgButtons() << mbOK, 0);
+      return;
+   }
+   if(message.wParam == VK_F11) {
+      handled = true;
+      if(!m_bFullscreen) {
+         m_eWindowedBorder = BorderStyle;
+         m_eWindowedState = WindowState;
+         WindowState = wsNormal;
+         BorderStyle = bsNone;
+         WindowState = wsMaximized;
+      }
+      else {
+         WindowState = wsNormal;
+         BorderStyle = m_eWindowedBorder;
+         WindowState = m_eWindowedState;
+      }
+      m_bFullscreen = !m_bFullscreen;
+      return;
+   }
+   if(!document_.IsOpen() && message.wParam != 'O')
       return;
 
    bool const ctrl = (::GetKeyState(VK_CONTROL) & 0x8000) != 0;
