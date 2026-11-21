@@ -51,3 +51,10 @@ The headless CTest verifies all six numerical scenes without opening a GUI. The 
 See [build instructions](build.md), [license](LICENSE.md) and [SBOM](SBOM.md).
 
 **Verification:** Native BCC64X build and interactive operation confirmed by the operator on 2026-11-18.
+
+### Preview of the desktop application (concept)
+
+![Conceptual desktop application window for graphics/matplot-chaos-atlas; generated UI mockup, not an application screenshot](/images/manuals/graphics-matplot-chaos-atlas/concept/window.svg)
+
+*Generated application-window mockup, not a screenshot.* The panels, colors, graphs and displayed indicators illustrate a possible future interface and are **not** actual runtime measurements. Replace this image with a real capture after the native BCC64X application is built and visually accepted. Keep the original concept in `Images/manuals/graphics-matplot-chaos-atlas/concept/` and place verified captures under `Images/manuals/graphics-matplot-chaos-atlas/runtime/`.
+
