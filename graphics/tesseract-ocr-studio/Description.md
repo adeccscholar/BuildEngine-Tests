@@ -1,5 +1,36 @@
 # Tesseract OCR Studio
 
+## Scientific showcase: experience and mechanisms
+
+### What the visitor experiences
+
+Turn a photographed page into recognized text. OpenCV handles crop, perspective, thresholding and optional curved-page remap; Leptonica supplies real PIX objects; Tesseract performs native LSTM inference.
+
+### Demonstration sequence
+
+Choose a camera or image, view source/corrected images, adjust the curved-book transform only when needed, compare OCR UTF-8 result and confidence.
+
+### Mathematical background
+
+$$t^*=\arg\max_t \omega_0(t)\omega_1(t)\bigl(\mu_0(t)-\mu_1(t)\bigr)^2.$$
+
+The equation describes the relevant mathematical mechanism, rather than independently proving any performance, physical fidelity or runtime success.
+
+### Native pipeline and managed dependencies
+
+```mermaid
+flowchart LR
+   A0["Camera or image"] --> A1["OpenCV perspective and optional dewarping"]
+   A1["OpenCV perspective and optional dewarping"] --> A2["Otsu preprocessing"]
+   A2["Otsu preprocessing"] --> A3["Leptonica PIX"]
+   A3["Leptonica PIX"] --> A4["Tesseract LSTM recognition"]
+```
+
+The diagram describes data responsibilities. BuildEngine-managed libraries remain versioned package dependencies; a successful visual display cannot replace the declared headless correctness checks.
+
+---
+
+
 ## Experience
 
 A native OCR workbench that renders a synthetic English document with OpenCV or accepts an existing PNG/JPEG. The operator can enable/disable **Otsu thresholding**, select **single-line or automatic page segmentation**, and inspect the original image, processed grayscale pixels, recognized UTF-8 text, confidence and recognition time.
