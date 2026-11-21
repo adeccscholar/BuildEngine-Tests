@@ -85,3 +85,10 @@ The showcase now exports triangles from the **actual Detour detail mesh** (`dtMe
 Surface samples are no longer projected to arbitrary nearby polygons: every sample is evaluated against the **returned path-corridor polygon references only**, using `dtNavMeshQuery::closestPointOnPoly`. If a point cannot be placed within the horizontal clearance, the route is incomplete. Route and moving agent use that same validated sequence. This establishes geometric corridor membership; more advanced agent-radius clearance and dynamic-obstacle avoidance are not claimed.
 
 The UI includes independent `NavMesh polygons` and `Detour corridor` checkboxes. Both `--verify` and `--verify-gl` include native detail triangle/corridor consistency evidence. GPU test requires a real SDL2/Mesa display context. **[not verified]** until native Windows BCC64X execution.
+
+### Preview of the desktop application (concept)
+
+![Conceptual desktop application window for graphics/navigation-reactor; generated UI mockup, not an application screenshot](/images/manuals/graphics-navigation-reactor/concept/window.svg)
+
+*Generated application-window mockup, not a screenshot.* The panels, colors, graphs and displayed indicators illustrate a possible future interface and are **not** actual runtime measurements. Replace this image with a real capture after the native BCC64X application is built and visually accepted. Keep the original concept in `Images/manuals/graphics-navigation-reactor/concept/` and place verified captures under `Images/manuals/graphics-navigation-reactor/runtime/`.
+
