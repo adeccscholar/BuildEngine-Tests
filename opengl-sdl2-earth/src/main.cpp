@@ -642,6 +642,22 @@ int RunApplication() {
                DebugPrint(std::format("Cannot change VSync: {}", SDL_GetError()));
             DebugPrint(std::format("VSync interval: {}", SDL_GL_GetSwapInterval()));
             }
+         else if (aEvent.type == SDL_KEYDOWN && aEvent.key.repeat == 0 &&
+                  aEvent.key.keysym.sym == SDLK_F11) {
+            SDL_Window* const pNativeWindow = pWindow.get();
+            SDL_SetWindowFullscreen(pNativeWindow,
+               (SDL_GetWindowFlags(pNativeWindow)&SDL_WINDOW_FULLSCREEN_DESKTOP)?
+                  0:SDL_WINDOW_FULLSCREEN_DESKTOP);
+            }
+         else if (aEvent.type == SDL_KEYDOWN && aEvent.key.repeat == 0 &&
+                  aEvent.key.keysym.sym == SDLK_F1) {
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
+               "About OpenGL SDL2 Earth",
+               "adecc Scholar | OpenGL SDL2 Earth\n"
+               "C++23 / SDL2 / OpenGL / GLEW / SOIL2\n"
+               "Illuminated globe and native 3D logo.\n"
+               "F1: About    F11: Fullscreen / windowed",pWindow.get());
+            }
          else if ((aEvent.type == SDL_KEYDOWN) && (aEvent.key.keysym.sym == SDLK_ESCAPE)) {
             fRunning = false;
             }
