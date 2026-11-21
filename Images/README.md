@@ -11,16 +11,19 @@ this directory. Supported media types: SVG, PNG, JPEG, GIF, WebP.
 Images/
   README.md
   showcase/<manifest-path-with-slashes-replaced-by-dashes>/
-    tile.svg        # current repository-owned original topic-specific concept
+    tile.svg        # cinematic, repository-owned, topic-specific concept artwork
     tile.webp       # optional original generated bitmap or runtime screenshot
     hero.png        # optional large original generated or captured image
   manuals/<same-key>/
+    concept/window.svg # generated provisional desktop application window
     runtime/        # ONLY genuine screenshots from an executed native application
     concept/        # explanatory artwork, never represented as screenshots
 ```
 
-The ten initial gallery tiles are original vector concept artwork under
-`Images/showcase/`. The original high-resolution generated PNG/WebP
+The ten updated gallery tiles are original, high-contrast cinematic vector concept artwork under
+`Images/showcase/`. The corresponding descriptions each show a **second**
+image: a provisional desktop-window mockup stored under
+`Images/manuals/<key>/concept/window.svg`. Neither image is a runtime screenshot. The original high-resolution generated PNG/WebP
 illustrations are also available as a separately delivered asset package for
 manual checkout installation. Their existence in that package does **not**
 mean the corresponding PNG files have been committed to the repository.
@@ -42,6 +45,13 @@ An image URL must point to an actual local file; the browser never fetches
 third-party artwork. The server rejects path traversal, symlink aliases and
 unsupported extensions. Image provenance is shown in the gallery and in the
 showcase detail page.
+
+## Image roles and acceptance
+
+- The **gallery tile** illustrates the showcase theme and must remain visually compelling at small sizes.
+- The **desktop-window mockup** is embedded directly in the showcase `Description.md` and illustrates a possible UI; synthetic numerical values, screen labels and controls are not functional evidence.
+- When a working native application is available, put actual runtime captures under the separate `runtime/` directory and replace only the corresponding documentation references. Keep concepts identifiable as concepts.
+- The source manifest `images.kind` stays `generated-concept` until its tile/hero URL references genuine captured imagery. A mockup in the description does not change that classification.
 
 ## Replacing an illustration with an actual screenshot
 
