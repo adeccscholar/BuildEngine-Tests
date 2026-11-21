@@ -442,6 +442,17 @@ public:
                      entry_ += ch;
             }
             else if(event.type == SDL_KEYDOWN) {
+               if(event.key.repeat == 0 && event.key.keysym.sym == SDLK_F11)
+                  SDL_SetWindowFullscreen(window_.get(),
+                     (SDL_GetWindowFlags(window_.get()) & SDL_WINDOW_FULLSCREEN_DESKTOP)
+                        ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+               if(event.key.repeat == 0 && event.key.keysym.sym == SDLK_F1)
+                  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
+                     "About PDFium SDL2 Viewer",
+                     "adecc Scholar | PDFium SDL2\n"
+                     "Native C++23 PDFium rasterization and SDL2 viewport.\n"
+                     "F1: About    F11: Fullscreen / windowed\n"
+                     "See Description.md for dependencies and verification.",window_.get());
                SDL_Keycode const key = event.key.keysym.sym;
                bool const ctrl = (event.key.keysym.mod & KMOD_CTRL) != 0;
                if(ctrl && key == SDLK_o)
