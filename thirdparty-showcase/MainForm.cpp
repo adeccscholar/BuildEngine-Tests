@@ -28,7 +28,39 @@ TMainForm* MainForm = nullptr;
 
 __fastcall TMainForm::TMainForm(TComponent* Owner)
    : TForm(Owner) {
+   KeyPreview = true;
+   OnKeyDown = HandleShowcaseKey;
    }
+
+void __fastcall TMainForm::HandleShowcaseKey(
+   TObject* aSender, WORD& uKey, TShiftState theShift) {
+   (void)aSender;
+   (void)theShift;
+   if(uKey == VK_F1) {
+      MessageDlg(L"adecc Scholar | ThirdParty Showcase\n"
+                 L"Native BCC64X HTTPS / JSON / compression / ZIP\n\n"
+                 L"F1: About\nF11: Fullscreen / windowed\n"
+                 L"See Description.md and native BuildEngine test evidence.",
+                 mtInformation, TMsgDlgButtons() << mbOK, 0);
+      uKey = 0;
+   }
+   else if(uKey == VK_F11) {
+      if(!m_bFullscreen) {
+         m_eWindowedBorder = BorderStyle;
+         m_eWindowedState = WindowState;
+         WindowState = wsNormal;
+         BorderStyle = bsNone;
+         WindowState = wsMaximized;
+      }
+      else {
+         WindowState = wsNormal;
+         BorderStyle = m_eWindowedBorder;
+         WindowState = m_eWindowedState;
+      }
+      m_bFullscreen = !m_bFullscreen;
+      uKey = 0;
+   }
+}
 
 void __fastcall TMainForm::FormShow(TObject*) {
    ResetDashboard();
