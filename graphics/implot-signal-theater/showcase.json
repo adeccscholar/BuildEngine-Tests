@@ -29,5 +29,11 @@
       "interactive": true
     }
   ],
-  "verification": "Operator-confirmed native BCC64X build and interactive execution on 2026-11-18"
+  "verification": "Operator-confirmed native BCC64X build and interactive execution on 2026-11-18",
+  "images": {
+    "tile": "/images/showcase/graphics-implot-signal-theater/tile.svg",
+    "hero": "/images/showcase/graphics-implot-signal-theater/tile.svg",
+    "kind": "generated-concept",
+    "alt": "AI generated concept illustration for ImPlot Real-Time Signal Theater; not an application screenshot"
+  }
 }
