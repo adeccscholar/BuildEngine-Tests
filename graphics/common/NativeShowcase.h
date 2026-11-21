@@ -27,6 +27,7 @@ class NativeShowcase final {
    ImGuiContext* pContext {};
    std::uint64_t uLastTick {};
    bool bRunning { true };
+   bool bAboutRequested {};
 
    /** \brief Synchronizes the dynamic font textures introduced in ImGui 1.92. */
    void UpdateTexture(ImTextureData* const pTexture) {
@@ -233,10 +234,12 @@ public:
                default: break;
                }
             if(aKey != ImGuiKey_None) aIo.AddKeyEvent(aKey, bPressed);
-            if(bPressed && aEvent.key.keysym.sym == SDLK_F11)
+            if(bPressed && aEvent.key.repeat == 0 && aEvent.key.keysym.sym == SDLK_F11)
                SDL_SetWindowFullscreen(pWindow,
                   SDL_GetWindowFlags(pWindow) & SDL_WINDOW_FULLSCREEN_DESKTOP
                      ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+            if(bPressed && aEvent.key.repeat == 0 && aEvent.key.keysym.sym == SDLK_F1)
+               bAboutRequested = true;
             }
          if(aEvent.type == SDL_TEXTINPUT) aIo.AddInputCharactersUTF8(aEvent.text.text);
          }
@@ -251,6 +254,32 @@ public:
 
    /** \brief Renders a complete ImGui frame with font text, plots, and clipping. */
    void EndFrame() {
+      if(bAboutRequested) {
+         ImGui::OpenPopup("About this showcase");
+         bAboutRequested = false;
+      }
+      ImGui::SetNextWindowSize({520.0F, 0.0F}, ImGuiCond_Appearing);
+      if(ImGui::BeginPopupModal("About this showcase", nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+         ImGui::TextColored({0.36F, 0.91F, 0.90F, 1.0F},
+                            "BUILDENGINE / NATIVE C++23 LABORATORY");
+         ImGui::Separator();
+         ImGui::TextWrapped("%s", SDL_GetWindowTitle(pWindow));
+         ImGui::TextDisabled("Renderer: SDL2 geometry / Dear ImGui %s", IMGUI_VERSION);
+         ImGui::TextDisabled("Output: native SDL2 accelerated geometry and font textures");
+         ImGui::Spacing();
+         ImGui::TextWrapped("This application is an interactive BuildEngine test "
+                            "using native dependencies. Actual package versions, "
+                            "licenses, mathematical background and verification "
+                            "evidence are documented in its showcase page.");
+         ImGui::Separator();
+         ImGui::TextUnformatted("F1   About this showcase");
+         ImGui::TextUnformatted("F11  Fullscreen / windowed");
+         ImGui::TextUnformatted("Esc  Close this dialog");
+         if(ImGui::Button("Close", {120.0F, 0.0F}))
+            ImGui::CloseCurrentPopup();
+         ImGui::EndPopup();
+      }
       ImGui::Render();
       SDL_SetRenderDrawColor(pRenderer, 7, 13, 28, 255);
       SDL_RenderClear(pRenderer);
