@@ -1,5 +1,38 @@
 # PolicyTest — adecc-core-lib policy acceptance
 
+## The showcase: values that cannot enter the system incorrectly
+
+A domain value is stronger than a formatted string. The acceptance suite demonstrates **type-oriented validation**: IBAN, dates, monetary amounts, German VAT IDs, SEPA text and related identifiers are admitted only after their declared policies accept them. Conversion and presentation are deliberately separate; for example, an IBAN's normalized value and its grouped display have different purposes.
+
+**What to demonstrate:** run `adecc_policy_test` and inspect both the accepted and deliberately rejected cases. The interesting result is not merely a green test total; it is that a malformed value is rejected at the same policy boundary as a successful value is normalized. The suite uses the existing adecc-core-lib interfaces, never copied domain implementations.
+
+### The arithmetic behind an IBAN check
+
+The common checksum procedure moves the first four IBAN characters to the end, maps letters to values from 10 to 35 and interprets the resulting decimal digits modulo 97. The required residue is:
+
+$$
+\operatorname{mod}_{97}(\operatorname{RearrangeAndExpand}(\mathrm{IBAN}))=1.
+$$
+
+For monetary rounding, two otherwise reasonable rules can differ exactly at halfway values. Round-half-to-even picks an even final digit, while round-away-from-zero selects the greater magnitude. The test records these differences on positive and negative cases; it does not pretend that a single rounding rule is universally correct.
+
+### Where the policy boundary sits
+
+```mermaid
+flowchart LR
+    RAW["External string or typed input"] --> NORMAL["Conversion and normalization"]
+    NORMAL --> POLICY{"Composed policy satisfied?"}
+    POLICY -->|"Yes"| VALUE["Validated domain value"]
+    VALUE --> VIEW["Formatting / serialization"]
+    POLICY -->|"No"| REJECT["Explicit invalid-input result"]
+    VIEW --> CHECK["Roundtrip and assertion tests"]
+```
+
+**Limits:** modulo-97 validation does not establish a real bank account or a country's complete BBAN registry. Syntax validators are not email-deliverability or URL-reachability checks. That distinction is part of what the demonstration teaches.
+
+---
+
+
 **Test purpose:** Tests IBAN, SEPA, dates, localized amounts, VAT, strings and rounding policies with valid and invalid inputs.
 
 [TOC]
