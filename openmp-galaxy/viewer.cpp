@@ -172,6 +172,20 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
             distance=(std::clamp)(distance*std::pow(0.88f,static_cast<float>(e.wheel.y)),2.0f,120.0f);
          if(e.type==SDL_KEYDOWN) {
             switch(e.key.keysym.sym) {
+               case SDLK_F11:
+                  if(e.key.repeat==0) SDL_SetWindowFullscreen(window,
+                     (SDL_GetWindowFlags(window)&SDL_WINDOW_FULLSCREEN_DESKTOP) ?
+                        0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+                  break;
+               case SDLK_F1:
+                  if(e.key.repeat==0) SDL_ShowSimpleMessageBox(
+                     SDL_MESSAGEBOX_INFORMATION, "About OpenMP Galaxy",
+                     "adecc Scholar | OpenMP Galaxy\n"
+                     "C++23 / SDL2 / OpenGL / LLVM OpenMP\n"
+                     "Analytic star field with serial and parallel scheduling.\n"
+                     "F1: About    F11: Fullscreen / windowed\n"
+                     "F4: Former overhead camera view.",window);
+                  break;
                case SDLK_ESCAPE:running=false;break;
                case SDLK_SPACE:paused=!paused;break;
                case SDLK_1:schedule=Schedule::Serial;break;
@@ -182,7 +196,7 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int) {
                case SDLK_MINUS:case SDLK_KP_MINUS:threads=(std::max)(1,threads-1);break;
                case SDLK_r:galaxy=Initialize(configuration);elapsed=0.0;break;
                case SDLK_c:spin=0.0f;tilt=0.57f;distance=16.0f;panX=panY=0.0f;break;
-               case SDLK_F1:spin=0.0f;tilt=1.55f;panX=panY=0.0f;break;
+               case SDLK_F4:spin=0.0f;tilt=1.55f;panX=panY=0.0f;break;
                case SDLK_F2:spin=0.0f;tilt=0.03f;panX=panY=0.0f;break;
                case SDLK_F3:spin=0.0f;tilt=0.57f;panX=panY=0.0f;break;
                case SDLK_LEFT:panX-=0.05f;break;
