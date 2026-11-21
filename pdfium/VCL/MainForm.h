@@ -25,6 +25,9 @@ class TViewerForm final : public TForm {
    int zoomPercent_ { 100 }; // 100% fits the entire page to the canvas.
    int wheelRemainder_ {};
    int wheelMode_ { -1 };
+   bool m_bFullscreen {};
+   TBorderStyle m_eWindowedBorder {bsSizeable};
+   TWindowState m_eWindowedState {wsNormal};
    bool dragging_ {};
    int dragX_ {};
    int dragY_ {};
