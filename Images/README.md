@@ -20,8 +20,8 @@ Images/
     concept/        # explanatory artwork, never represented as screenshots
 ```
 
-The ten updated gallery tiles are original, high-contrast cinematic vector concept artwork under
-`Images/showcase/`. The corresponding descriptions each show a **second**
+The fourteen gallery tiles currently covered by this image contract are original, high-contrast, generated SVG concept illustrations under
+`Images/showcase/`. Their showcase descriptions also embed a **second**
 image: a provisional desktop-window mockup stored under
 `Images/manuals/<key>/concept/window.svg`. Neither image is a runtime screenshot. The original high-resolution generated PNG/WebP
 illustrations are also available as a separately delivered asset package for
@@ -99,3 +99,21 @@ The provisional UI image is *not* a runtime screenshot and should remain so labe
 Do not link directly to `.cpp`, `.h`, or `CMakeLists.txt` from showcase descriptions. Explaining architecture, algorithms and dependencies is the purpose of these pages; sources remain internal project implementation. Names of code files may be shown as inline text without linking.
 
 The server serves all such artwork from the synchronized tests checkout under `/images/`. A remote Git commit by itself does not synchronize files into the local server: the image files and updated `showcase.json` must be present in the checkout, and PostgreSQL presentation caches must be refreshed before a cached gallery can display newly declared tiles.
+
+## Additional showcase image coverage (2026-11-21)
+
+The following previously unillustrated showcases now include an original SVG tile,
+a separate provisional desktop-window illustration and matching embedded image
+references in `Description.md`:
+
+- `graphics/imgui-neon-lab`: Dear ImGui Neon Constellation
+- `graphics/implot-signal-theater`: ImPlot Real-Time Signal Theater
+- `graphics/opencv-barcode-vision`: OpenCV Barcode Vision
+- `openmp-mandelbrot`: Parallel Mandelbrot Explorer
+
+On the gallery cards, the image is constrained to 260 by 148 pixels with
+`object-fit: contain` and a dark padded background. This preserves the entire
+illustration and avoids clipping. The caption reads `AI generated concept illustration;
+not an application screenshot`. Manifest synchronization state and verification
+state remain available in their source metadata, but are not repeated as boilerplate
+text on every card.
