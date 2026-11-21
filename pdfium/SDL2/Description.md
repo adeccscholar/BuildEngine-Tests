@@ -1,5 +1,36 @@
 # PDFium viewer SDL2
 
+## Showcase in action: science and architecture
+
+### Why this example matters
+
+Follow a document from actual PDFium parsing and page rasterization into an interactive SDL2 page viewer. Zoom, pan and page controls have real content behind them; a separate C API test checks rendering without UI.
+
+### The demonstration
+
+Open a PDF, navigate boundaries and change zoom from fit through controlled percentages. Compare the C API rasterization and independent page-scroll regression, not just whether a window opens.
+
+### Mathematical and technical foundations
+
+$$s_{\rm display}=s_{\rm fit}\cdot\frac{z}{100},\qquad 50\le z\le 600.$$
+
+The equation provides context for the implemented numerical or rendering path. It is not evidence of runtime success or a claim that a simplified model represents every possible physical case.
+
+### Native data flow and dependencies
+
+```mermaid
+flowchart LR
+   S0["PDF object and page"] --> S1["Native PDFium rasterizer"]
+   S1["Native PDFium rasterizer"] --> S2["RGBA page bitmap"]
+   S2["RGBA page bitmap"] --> S3["SDL2 zoom/pan viewer"]
+   S3["SDL2 zoom/pan viewer"] --> S4["Independent headless C API and navigation tests"]
+```
+
+All package/library identities remain those declared in the existing showcase manifest. Existing build and verification instructions below are retained.
+
+---
+
+
 **Test purpose:** Displays PDF pages and verifies native PDFium rendering/API behavior and page navigation.
 
 This independent BCC64X/C++23 BuildEngine-Tests project consumes **PDFium 2025.11.19, SDL2 2.32.10 and Skia 153**. The exact transitive runtime closure is defined in [CMakeLists.txt](CMakeLists.txt) and resolved through versioned BuildEngine packages.
