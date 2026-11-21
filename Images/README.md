@@ -86,3 +86,16 @@ For shared SDL2/ImGui showcases, both actions live in
 The standalone VCL, SDL2/SDL3, VTK and Win32 frontends implement the same
 shortcuts through their platform event-handling mechanisms. GUI integration
 and visual behavior require a native BCC64X run for final verification.
+
+## Gallery and documentation presentation contract
+
+The same showcase image is used in two visible places:
+
+1. The showcase overview gallery renders `images.tile` as the image at the top of its card, linking **only to the showcase description**, not to source files. PostgreSQL and filesystem renderer paths both support the display.
+2. The showcase description embeds the gallery artwork as a hero illustration and separately embeds the provisional desktop UI image from `Images/manuals/<showcase-key>/concept/window.svg`.
+
+The provisional UI image is *not* a runtime screenshot and should remain so labelled. Replace its documentation URL with a verified asset under `runtime/` once the native application has been accepted. Concept art and screenshots are distinct evidence types.
+
+Do not link directly to `.cpp`, `.h`, or `CMakeLists.txt` from showcase descriptions. Explaining architecture, algorithms and dependencies is the purpose of these pages; sources remain internal project implementation. Names of code files may be shown as inline text without linking.
+
+The server serves all such artwork from the synchronized tests checkout under `/images/`. A remote Git commit by itself does not synchronize files into the local server: the image files and updated `showcase.json` must be present in the checkout, and PostgreSQL presentation caches must be refreshed before a cached gallery can display newly declared tiles.
