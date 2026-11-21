@@ -1,5 +1,36 @@
 # HDR Photon Observatory — Where Light Meets Optimization
 
+## Scientific showcase: experience and mechanisms
+
+### What the visitor experiences
+
+Experience the boundary between radiance, stored HDR pixels, sensor measurements and display exposure. OpenEXR preserves half-float data, while native Ceres autodifferentiation fits the unknown amplitude, location and width of a Gaussian light model.
+
+### Demonstration sequence
+
+Regenerate a bright HDR field, fit the 48 sensor observations, write/read OpenEXR, then change exposure. The image preview must change without altering the stored radiance; compare cost and pixel error.
+
+### Mathematical background
+
+$$\widehat y_i=Ae^{-\frac12((x_i-\mu)/\sigma)^2}+0.04,\qquad \min_{A,\mu,\sigma}\frac12\sum_{i=1}^{48}(y_i-\widehat y_i)^2.$$
+
+The equation describes the relevant mathematical mechanism, rather than independently proving any performance, physical fidelity or runtime success.
+
+### Native pipeline and managed dependencies
+
+```mermaid
+flowchart LR
+   A0["Gaussian light model"] --> A1["Floating-point radiance"]
+   A1["Floating-point radiance"] --> A2["OpenEXR and Imath roundtrip"]
+   A2["OpenEXR and Imath roundtrip"] --> A3["Exposure mapping and display"]
+   A3["Exposure mapping and display"] --> A4["Ceres Solver with Eigen and Abseil"]
+```
+
+The diagram describes data responsibilities. BuildEngine-managed libraries remain versioned package dependencies; a successful visual display cannot replace the declared headless correctness checks.
+
+---
+
+
 ## Invitation
 
 Step into a laboratory where photons become data, data become an inverse problem, and the inverse problem becomes a living picture. The left-hand side of the experiment is an authentic floating-point light field: a luminous point source and diffraction streak with radiance exceeding the range of an ordinary RGB display. The right-hand side is a sensor-calibration problem solved by the **installed Ceres Solver 2.3.0 native DLL** rather than by a custom hand-written numerical optimizer.
