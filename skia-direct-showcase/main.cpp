@@ -3,6 +3,7 @@
 // Project: adecc Scholar
 
 #include <windows.h>
+#include "../graphics/common/Win32ShowcaseKeys.h"
 #include <wincodec.h>
 #include <objbase.h>
 
@@ -1148,6 +1149,10 @@ namespace
 
             case WM_KEYDOWN:
             case WM_SYSKEYDOWN:
+               if(adecc::tests::win32::HandleShowcaseKey(hWindow,wParam,lParam,
+                  L"Skia Direct Showcase",
+                  L"Native Skia paths, transformations, masks and compositing"))
+                  return 0;
                if(pThis != nullptr)
                {
                   pThis->HandleKey(hWindow, wParam);
