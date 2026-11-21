@@ -1,40 +1,46 @@
 {
-  "schemaVersion": 1,
-  "kind": "showcase",
-  "title": "VTK Scientific Visualization Laboratory",
-  "summary": "Interactive analytical isosurfaces and GPU volume rendering with deterministic VTK geometry and TBB/OpenMP stress checks.",
-  "dependencies": [
-    {
-      "library": "vtk",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "onetbb",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "llvm-openmp",
-      "version": "active",
-      "direct": true
-    },
-    {
-      "library": "opengl",
-      "version": "active",
-      "direct": true
+    "schemaVersion": 1,
+    "kind": "showcase",
+    "title": "VTK Scientific Visualization Laboratory",
+    "summary": "Interactive analytical isosurfaces and GPU volume rendering with deterministic VTK geometry and TBB/OpenMP stress checks.",
+    "dependencies": [
+        {
+            "library": "vtk",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "onetbb",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "llvm-openmp",
+            "version": "active",
+            "direct": true
+        },
+        {
+            "library": "opengl",
+            "version": "active",
+            "direct": true
+        }
+    ],
+    "externalDependencies": [
+        "Windows system OpenGL driver"
+    ],
+    "status": "not-verified",
+    "applications": [
+        {
+            "name": "vtk-visualization",
+            "summary": "Interactive dual-viewport VTK scientific isosurface and volume renderer.",
+            "command": "..\\build\\Test\\vtk-visualization\\Release\\vtk-visualization.exe --resolution 161 --backend TBB",
+            "interactive": true
+        }
+    ],
+    "images": {
+        "tile": "/images/showcase/vtk-visualization/tile.svg",
+        "hero": "/images/showcase/vtk-visualization/tile.svg",
+        "kind": "generated-concept",
+        "alt": "Original technical concept illustration for VTK Scientific Visualization Laboratory; not an application screenshot"
     }
-  ],
-  "externalDependencies": [
-    "Windows system OpenGL driver"
-  ],
-  "status": "not-verified",
-  "applications": [
-    {
-      "name": "vtk-visualization",
-      "summary": "Interactive dual-viewport VTK scientific isosurface and volume renderer.",
-      "command": "..\\build\\Test\\vtk-visualization\\Release\\vtk-visualization.exe --resolution 161 --backend TBB",
-      "interactive": true
-    }
-  ]
 }
