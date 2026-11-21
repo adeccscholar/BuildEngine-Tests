@@ -79,3 +79,10 @@ This is a deterministic integration exercise, **not** radiometrically calibrated
 [Active Ceres Solver](/library/ceres-solver/2.3.0/) is a pinned **unreleased development snapshot**, not an official 2.3.0 release. [OpenEXR 3.5.4](/library/openexr/3.5.4/) uses installed Imath 3.2.3, OpenJPH 0.33.0, libdeflate 1.26 and zstd 1.5.7. Ceres consumes independently installed Abseil and Eigen; SDL2 and Dear ImGui are only the presentation layer. The executable uses the BuildEngine BCC64X (Clang/EMBT) toolchain and its dynamic runtime policy. No MinGW or MSVC-produced fallback binaries are used.
 
 **Verification status: [not verified].** Library-level native smokes passed, but this new interactive application has not been built or executed on the Windows BCC64X host.
+
+### Preview of the desktop application (concept)
+
+![Conceptual desktop application window for graphics/hdr-photon-observatory; generated UI mockup, not an application screenshot](/images/manuals/graphics-hdr-photon-observatory/concept/window.svg)
+
+*Generated application-window mockup, not a screenshot.* The panels, colors, graphs and displayed indicators illustrate a possible future interface and are **not** actual runtime measurements. Replace this image with a real capture after the native BCC64X application is built and visually accepted. Keep the original concept in `Images/manuals/graphics-hdr-photon-observatory/concept/` and place verified captures under `Images/manuals/graphics-hdr-photon-observatory/runtime/`.
+
