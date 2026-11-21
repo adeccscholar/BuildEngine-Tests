@@ -1,6 +1,6 @@
 # Native graphics demonstration gallery
 
-This directory groups nine independent **interactive Windows C++23/BCC64X applications**, each with readable controls, animated scenarios, a headless correctness test and optional independent presentation artifacts.
+This directory groups ten independent **interactive Windows C++23/BCC64X applications**, each with readable controls, animated scenarios, a headless correctness test and optional independent presentation artifacts.
 
 | Showcase | Native user experience | Managed libraries |
 | --- | --- | --- |
@@ -13,6 +13,7 @@ This directory groups nine independent **interactive Windows C++23/BCC64X applic
 | [Tesseract OCR Studio](tesseract-ocr-studio/Description.md) | Selectable HD/4K DirectShow camera, full-page or cropped German/English Tesseract OCR, native OpenCV document rectification and copyable text | Tesseract, Leptonica, OpenCV, ImGui, SDL2 |
 | [Navigation Reactor](navigation-reactor/Description.md) | Real Recast triangle classification and voxelized heightfields; interactive slope and relief controls | Recast Navigation, ImGui, SDL2 |
 | [Pulse Engine](pulse-engine/Description.md) | Glowing PCM oscilloscope, four true miniaudio oscillators, optional audible sound synthesis | miniaudio, ImGui, SDL2 |
+| [HDR Photon Observatory](hdr-photon-observatory/Description.md) | Interactive HDR photon fields, genuine OpenEXR round-trip, Ceres nonlinear calibration, exposure and sensor visualization, headless numerical checks | Ceres Solver, OpenEXR, Imath, ImGui, SDL2 |
 
 Each application builds independently with CMake/Ninja, uses installed BuildEngine DLLs, and provides one-line build commands in its own `build.md`. The graphic is part of the native application, **not** a browser rendering of pre-generated SVGs. The central server can additionally display independently generated SVGs when available.
 
