@@ -1,5 +1,36 @@
 # Vector Galaxy — The Shape of Similarity
 
+## Showcase in action: science and architecture
+
+### Why this example matters
+
+Vector similarity becomes a navigable 851-star nebula: the actual HNSW search highlights neighbor indices while libigl and Eigen calculate mesh normals for lighting.
+
+### The demonstration
+
+Move the query in three axes, vary the neighbor count, inspect which stars HNSW returns and zoom through the normal-lit surface.
+
+### Mathematical and technical foundations
+
+$$d(\mathbf q,\mathbf v_i)=\sqrt{\sum_{j=1}^{3}(q_j-v_{ij})^2}.$$
+
+The equation provides context for the implemented numerical or rendering path. It is not evidence of runtime success or a claim that a simplified model represents every possible physical case.
+
+### Native data flow and dependencies
+
+```mermaid
+flowchart LR
+   S0["Deterministic three-dimensional features"] --> S1["hnswlib HNSW search"]
+   S1["hnswlib HNSW search"] --> S2["Actual candidate indices"]
+   S2["Actual candidate indices"] --> S3["Eigen and libigl mesh normals"]
+   S3["Eigen and libigl mesh normals"] --> S4["ImGui SDL2 illuminated view"]
+```
+
+All package/library identities remain those declared in the existing showcase manifest. Existing build and verification instructions below are retained.
+
+---
+
+
 ## The invitation
 
 What does **similarity** look like when an index of hundreds of objects becomes a living universe? Vector Galaxy turns feature-space retrieval into a luminous, explorable topographic nebula. Search vectors move through three dimensions; cyan rings reveal the neighbours actually returned by the managed hnswlib index. The geometry is not a painted backdrop: a triangulated 851-vertex heightfield is analysed with libigl and Eigen, and its normals influence the light of the mesh.
