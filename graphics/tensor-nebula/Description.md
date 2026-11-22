@@ -164,3 +164,35 @@ A valid library build is not proof of a successful showcase UI. Native GPU suppo
 *Generated concept only, not a runtime screenshot. Genuine captures belong under Images/manuals/graphics-tensor-nebula/runtime/.*
 
 **[not verified]** This upgraded application has not yet been compiled or executed with BCC64X.
+
+## Responsiveness: independent numerical computation and GPU presentation
+
+The former implementation performed CPU trigonometric wave calculations, SIMD reductions and OpenGL texture uploads synchronously inside the SDL/ImGui event loop. In particular, software Mesa rendering and large 1024 by 576 tensors could delay sliders, mouse events and window redraw.
+
+The updated design keeps SDL2/ImGui as the sole owner of the GL context. A dedicated C++23 std::jthread computes wave tensors using genuine oneTBB 2023.2.0 parallel_for over independent rows, inside a bounded task_arena to leave cores for the UI. Rapid changes replace pending requests rather than growing a work queue. Every completed CPU tensor and its exact parameters cross the worker/UI boundary as a shared immutable snapshot; no expensive calculation, GL upload or draw runs under the short ownership mutex.
+
+A completed tensor may be displayed even if a newer phase has been requested; this prevents continual phase animation from starving the display. The R32F texture is reallocated only for changed dimensions, and normal updates use glTexSubImage2D. The Mesa framebuffer is updated at most approximately 25 times per second, while the ImGui input loop continues between draws.
+
+### Scheduling architecture
+
+```mermaid
+flowchart LR
+   UI[SDL2 and ImGui events] --> Q[Latest pending settings]
+   Q --> W[std::jthread numerical worker]
+   W --> T[Bounded oneTBB task_arena]
+   T --> P[parallel_for independent xtensor rows]
+   P --> X[xtensor intensity and xsimd metrics]
+   X --> S[Immutable completed snapshot]
+   S -->|short ownership exchange| U[UI OpenGL thread]
+   U --> G[R32F GPU texture upload]
+   G --> F[GPU framebuffer at up to 25 Hz]
+   F --> I[ImGui view and interactive controls]
+```
+
+### User-adjustable performance
+
+The Motion and Evidence panel exposes Compute frames / second (4 to 40) and GPU render scale (0.4 to 1.0). The former controls numerical sampling frequency, while the latter reduces pixel workload without changing the physical tensor's numerical resolution. For software Mesa, begin with 512 by 288 tensor values, 16 to 24 compute frames per second and a GPU scale of 0.6 to 0.75.
+
+Headless CTest also stresses latest-request coalescing by submitting 24 rapid changes and verifying the final field arrives. Native BCC64X execution and measured latency remain **[not verified]**.
+
+OpenMP is intentionally not nested with oneTBB in the same computation: a second scheduler would introduce oversubscription and make responsiveness harder to reason about. This makes no general performance claim comparing oneTBB with LLVM OpenMP.
