@@ -1,3 +1,19 @@
+## Three new original concept image families (2026-11-22)
+
+Original repository-owned SVG artwork is now committed for each new native demonstration. Tile and desktop-window imagery are separate files, with provenance kept as `generated-concept` until independently captured native screenshots exist.
+
+| Showcase | Gallery tile | Desktop concept |
+
+| --- | --- | --- |
+
+| Tensor Nebula | `showcase/graphics-tensor-nebula/tile.svg` | `manuals/graphics-tensor-nebula/concept/window.svg` |
+
+| Geometry Cathedral | `showcase/graphics-geometry-cathedral/tile.svg` | `manuals/graphics-geometry-cathedral/concept/window.svg` |
+
+| Acoustic Orbitarium | `showcase/graphics-acoustic-orbitarium/tile.svg` | `manuals/graphics-acoustic-orbitarium/concept/window.svg` |
+
+All of these images are programmatically authored concept illustrations, **not** captures from a functioning native program. The same images are linked in the corresponding `showcase.json` and `Description.md`. A local tests checkout update and presentation-cache refresh are required before they appear in a running local server.
+
 # Shared showcase image assets
 
 This directory belongs to the synchronized `BuildEngine-Tests` checkout at
