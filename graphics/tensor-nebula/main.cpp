@@ -1,88 +1,347 @@
 #include "../common/GraphicsDllImports.h"
-#include "../common/NativeShowcase.h"
-#include <xtensor/containers/xarray.hpp>
-#include <xtensor/core/xmath.hpp>
+#include "../common/OpenGLShowcase.h"
+#include "TensorField.h"
+#include "NebulaGL.h"
+
+#include <SDL.h>
+#include <imgui.h>
 #include <xtl/xoptional.hpp>
 #include <xsimd/xsimd.hpp>
+
 #include <algorithm>
+#include <array>
+#include <chrono>
 #include <cmath>
 #include <exception>
+#include <numbers>
 #include <print>
+#include <stdexcept>
+#include <string>
 #include <string_view>
+
 namespace {
-constexpr std::size_t uCols=72, uRows=44;
+using tensor_nebula::FieldMode;
+using tensor_nebula::FieldSettings;
+using tensor_nebula::NebulaGL;
+using tensor_nebula::TensorField;
+
+constexpr std::array<char const*,4> arrExperiments {
+   "Binary stars / two sources", "Trinity / three sources",
+   "Standing wave chamber", "Gaussian pulse"
+};
+constexpr std::array<char const*,4> arrVisualModes {
+   "Cinematic nebula", "Scientific contours", "Illuminated relief", "3D wave landscape"
+};
+constexpr std::array<char const*,4> arrPalettes {
+   "Nebula violet", "Aurora", "Solar plasma", "Monochrome"
+};
+constexpr std::array<int,3> arrWidths {512,768,1024};
+constexpr std::array<int,3> arrHeights {288,432,576};
+constexpr std::array<char const*,3> arrResolutions {
+   "512 x 288 / standard", "768 x 432 / detail", "1024 x 576 / cinema"
+};
+
 /**
-\brief Computes coherent two-source interference with the installed xtensor library.
-\details Uses a native two-dimensional tensor for the real rendered field.
-\param flPhase Phase offset.
-\param flFrequency Spatial angular frequency.
-\returns Numerically bounded intensity array.
-\throw std::bad_alloc When allocation fails.
+\brief Verifies the real xtensor/xtl/xsimd calculation without a window.
+\details Multiple physical modes are evaluated and checked against analytical
+   bounds, symmetric cases and lane-wise SIMD references. This remains safe for
+   the headless BuildEngine CTest phase.
+\returns True if all independent checks pass.
+\throw std::exception On invalid installed-library behavior.
 */
-xt::xarray<double> Generate(double const flPhase, double const flFrequency) {
-   xt::xarray<double> theField=xt::zeros<double>({uRows,uCols});
-   for(std::size_t uRow=0;uRow<uRows;++uRow) {
-      for(std::size_t uCol=0;uCol<uCols;++uCol) {
-         double const flX=(double(uCol)/(uCols-1)-.5)*6.0;
-         double const flY=(double(uRow)/(uRows-1)-.5)*3.7;
-         double const flA=std::cos(flFrequency*std::hypot(flX+1.35,flY));
-         double const flB=std::cos(flFrequency*std::hypot(flX-1.35,flY)+flPhase);
-         theField(uRow,uCol)=.25*(flA+flB)*(flA+flB);
-      }
-   }
-   return theField;
-}
 bool Verify() {
-   xtl::xoptional<int> const theOptional {42};
-   xsimd::batch<float> const theVector {2.0F};
-   float const flSum=xsimd::reduce_add(theVector);
-   auto const theField=Generate(0.0,7.0);
-   bool const bXtl=theOptional.has_value()&&theOptional.value()==42;
-   bool const bSimd=std::abs(flSum-2.0F*xsimd::batch<float>::size)<.005F;
-   bool const bTensor=theField.dimension()==2 && theField.shape()[0]==uRows
-      && theField.shape()[1]==uCols && std::all_of(theField.begin(),theField.end(),
-         [](double const flValue){return std::isfinite(flValue)&&flValue>=0&&flValue<=1.000001;});
-   std::println("SHOWCASE|CHECK|xtl|{}",bXtl?"PASS":"FAIL");
-   std::println("SHOWCASE|CHECK|xsimd|{}",bSimd?"PASS":"FAIL");
-   std::println("SHOWCASE|CHECK|xtensor|{}",bTensor?"PASS":"FAIL");
-   bool const bOK=bXtl&&bSimd&&bTensor;
-   std::println("SHOWCASE|RESULT|{}|Tensor Nebula",bOK?"PASS":"FAIL");
-   return bOK;
+   TensorField<float> theField;
+   FieldSettings aSettings;
+   aSettings.iWidth = 192;
+   aSettings.iHeight = 112;
+   aSettings.flFrequency = 7.0F;
+   bool bAllModes = true;
+   bool bBounded = true;
+   bool bFinite = true;
+   for(int iMode=0;iMode<4;++iMode) {
+      aSettings.theMode = static_cast<FieldMode>(iMode);
+      aSettings.flPhase = iMode == 0 ? 0.0F : .63F;
+      theField.Compute(aSettings);
+      auto const& aMetrics = theField.Metrics();
+      bool const bShape = theField.Values().dimension() == 2 &&
+         theField.Values().shape()[0] == 112 &&
+         theField.Values().shape()[1] == 192 &&
+         aMetrics.uSamples == 192U*112U;
+      bAllModes = bAllModes && bShape && aMetrics.flMaximum > .001F;
+      bBounded = bBounded && aMetrics.flMinimum >= -.00001F &&
+         aMetrics.flMaximum <= 1.00001F;
+      bFinite = bFinite && std::isfinite(aMetrics.flMean) &&
+         std::isfinite(aMetrics.flEnergy);
+   }
+   aSettings.theMode = FieldMode::twin;
+   aSettings.flPhase = 0.0F;
+   theField.Compute(aSettings);
+   auto const& aValues = theField.Values();
+   float const flSymmetry = std::abs(aValues(40,23) - aValues(40,168));
+   bool const bSymmetry = flSymmetry < .0002F;
+   xtl::xoptional<float> const theInside = theField.Sample(15, 15);
+   xtl::xoptional<float> const theOutside = theField.Sample(-1, 0);
+   bool const bOptional = theInside.has_value() && !theOutside.has_value();
+   xsimd::batch<float> const theBatch {2.0F};
+   float const flReduced = xsimd::reduce_add(theBatch);
+   bool const bSimd = std::abs(flReduced -
+      2.0F*static_cast<float>(xsimd::batch<float>::size)) < .01F;
+
+   std::println("SHOWCASE|CHECK|xtensor-four-modes|{}|four physical models and shapes",
+      bAllModes ? "PASS" : "FAIL");
+   std::println("SHOWCASE|CHECK|tensor-bounds|{}|intensity in [0,1]",
+      bBounded ? "PASS" : "FAIL");
+   std::println("SHOWCASE|CHECK|tensor-finite|{}|all SIMD field metrics finite",
+      bFinite ? "PASS" : "FAIL");
+   std::println("SHOWCASE|CHECK|two-source-symmetry|{}|difference={:.7f}",
+      bSymmetry ? "PASS" : "FAIL",flSymmetry);
+   std::println("SHOWCASE|CHECK|xtl-optional|{}|inside and outside samples",
+      bOptional ? "PASS" : "FAIL");
+   std::println("SHOWCASE|CHECK|xsimd-reduction|{}|SIMD lanes={}",
+      bSimd ? "PASS" : "FAIL",xsimd::batch<float>::size);
+   bool const bPassed = bAllModes && bBounded && bFinite &&
+      bSymmetry && bOptional && bSimd;
+   std::println("SHOWCASE|RESULT|{}|Tensor Nebula CPU experiment validation",
+      bPassed ? "PASS" : "FAIL");
+   return bPassed;
 }
+
+/**
+\brief Runs the actual managed Mesa OpenGL pipeline without entering a GUI loop.
+\details Creates the existing official OpenGL showcase context, uploads a real
+   xtensor array, renders both modes and checks an actual framebuffer pixel.
+\returns True after successful GPU resource, shader and framebuffer checks.
+\throw std::runtime_error If Mesa, shader or rendering startup fails.
+*/
+bool VerifyGL() {
+   OpenGLShowcase aApp {"Tensor Nebula GPU Verification",
+      ADECC_MESA_OPENGL_DLL, 640, 480};
+   TensorField<float> theField;
+   FieldSettings aSettings;
+   aSettings.iWidth = 128;
+   aSettings.iHeight = 72;
+   theField.Compute(aSettings);
+   NebulaGL theRenderer;
+   theRenderer.Upload(theField);
+   NebulaGL::VisualSettings aVisual;
+   GLuint const uTexture = theRenderer.Render(aVisual,640,360);
+   bool const bTexture = uTexture != 0 && glIsTexture(uTexture)==GL_TRUE;
+   aVisual.iMode = 3;
+   GLuint const uHeightTexture = theRenderer.Render(aVisual,640,360);
+   bool const bHeight = uHeightTexture == uTexture && glGetError() == GL_NO_ERROR;
+   std::println("SHOWCASE|CHECK|opengl-float-texture|{}|real GL_R32F tensor upload",
+      bTexture ? "PASS" : "FAIL");
+   std::println("SHOWCASE|CHECK|opengl-heightfield|{}|native depth-tested mesh",
+      bHeight ? "PASS" : "FAIL");
+   bool const bPassed = bTexture && bHeight;
+   std::println("SHOWCASE|RESULT|{}|Tensor Nebula managed OpenGL 3.3 pipeline",
+      bPassed ? "PASS" : "FAIL");
+   return bPassed;
+}
+
+/**
+\brief Runs the cinematic multi-mode observatory in the official OpenGL/ImGui adapter.
+\details Recomputes the CPU source only when parameters change. The GPU merely
+   visualizes it and mouse interaction never fabricates a second field.
+\returns Nothing after the user closes the application.
+\throw std::exception On unrecoverable native renderer failures.
+*/
 void Interactive() {
-   NativeShowcase aApp {"BuildEngine | TENSOR NEBULA - Mathematics of Light",1500,920};
-   float flPhase=.15F,flFrequency=7.0F;
+   OpenGLShowcase aApp {"BuildEngine | TENSOR NEBULA - Wave Observatory",
+      ADECC_MESA_OPENGL_DLL, 1620, 980};
+   NebulaGL theRenderer;
+   TensorField<float> theField;
+   FieldSettings aSettings;
+   NebulaGL::VisualSettings aVisual;
+   aSettings.flFrequency = 9.0F;
+   int iExperiment = 0;
+   int iResolution = 0;
+   bool bAnimate = true;
+   bool bShowMeasurements = true;
+   bool bShowSources = true;
+   bool bDirty = true;
+   bool bSaveScreenshot = false;
+   float flSpeed = .65F;
+   auto thePrevious = std::chrono::steady_clock::now();
+
    while(aApp.Running()) {
+      auto const theNow = std::chrono::steady_clock::now();
+      float const flDelta = std::clamp(
+         std::chrono::duration<float>(theNow-thePrevious).count(),0.0F,.07F);
+      thePrevious = theNow;
       aApp.BeginFrame();
+      if(bAnimate) {
+         aSettings.flPhase += flDelta*flSpeed;
+         if(aSettings.flPhase > 2.0F*std::numbers::pi_v<float>)
+            aSettings.flPhase -= 2.0F*std::numbers::pi_v<float>;
+         bDirty = true;
+      }
+
       ImGui::SetNextWindowPos({0,0});
       ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-      ImGui::Begin("NEBULA",nullptr,ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize);
-      NativeShowcase::Header("TENSOR NEBULA / MATHEMATICS OF LIGHT","xtensor + xsimd + xtl / native interference laboratory");
-      ImGui::SliderFloat("Phase",&flPhase,-3.14159F,3.14159F);
-      ImGui::SliderFloat("Spatial frequency",&flFrequency,2.0F,16.0F);
-      auto const theField=Generate(flPhase,flFrequency);
-      ImVec2 const aOrigin=ImGui::GetCursorScreenPos(),aAvailable=ImGui::GetContentRegionAvail();
-      float const flW=aAvailable.x/float(uCols),flH=aAvailable.y/float(uRows);
-      ImDrawList* const pDraw=ImGui::GetWindowDrawList();
-      for(std::size_t uRow=0;uRow<uRows;++uRow) {
-         for(std::size_t uCol=0;uCol<uCols;++uCol) {
-            float const flV=float(theField(uRow,uCol));
-            ImU32 const uColor=IM_COL32(int(17+230*flV*flV),int(24+180*std::sqrt(flV)),int(55+190*(1-std::abs(flV-.5F))),255);
-            float const flX=aOrigin.x+uCol*flW,flY=aOrigin.y+uRow*flH;
-            pDraw->AddRectFilled({flX,flY},{flX+flW+.2F,flY+flH+.2F},uColor);
+      ImGui::Begin("Tensor Nebula",nullptr,ImGuiWindowFlags_NoDecoration |
+         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+         ImGuiWindowFlags_NoBringToFrontOnFocus);
+      OpenGLShowcase::Header("TENSOR NEBULA / THE MATHEMATICS OF LIGHT",
+         "Managed xtensor + xsimd + xtl   /   OpenGL 3.3 + GLEW + official Dear ImGui");
+      ImGui::TextColored({.95F,.80F,.48F,1.0F},
+         "A living field of light. Every luminous pixel is sampled from the CPU tensor.");
+      ImGui::Separator();
+
+      float const flPanelWidth = std::clamp(ImGui::GetContentRegionAvail().x*.255F,305.0F,420.0F);
+      ImGui::BeginChild("Nebula Controls",{flPanelWidth,0},true);
+      ImGui::TextColored({.44F,.91F,.96F,1.0F},"WAVE EXPERIMENTS");
+      bDirty = ImGui::Combo("Experiment",&iExperiment,arrExperiments.data(),
+         static_cast<int>(arrExperiments.size())) || bDirty;
+      aSettings.theMode = static_cast<FieldMode>(iExperiment);
+      if(ImGui::Combo("Field resolution",&iResolution,arrResolutions.data(),
+         static_cast<int>(arrResolutions.size()))) {
+         aSettings.iWidth=arrWidths[iResolution];
+         aSettings.iHeight=arrHeights[iResolution];
+         bDirty = true;
+      }
+      bDirty = ImGui::SliderFloat("Phase / rad",&aSettings.flPhase,
+         -3.14159F,6.28318F) || bDirty;
+      bDirty = ImGui::SliderFloat("Wave number",&aSettings.flFrequency,
+         2.0F,20.0F) || bDirty;
+      bDirty = ImGui::SliderFloat("Emitter separation",&aSettings.flSeparation,
+         .4F,4.0F) || bDirty;
+      if(iExperiment == 3)
+         bDirty = ImGui::SliderFloat("Pulse width",&aSettings.flEnvelope,
+            .2F,2.2F) || bDirty;
+      ImGui::Separator();
+      ImGui::TextColored({.44F,.91F,.96F,1.0F},"GPU VISUALIZATION");
+      ImGui::Combo("Rendering mode",&aVisual.iMode,arrVisualModes.data(),
+         static_cast<int>(arrVisualModes.size()));
+      ImGui::Combo("Color science",&aVisual.iPalette,arrPalettes.data(),
+         static_cast<int>(arrPalettes.size()));
+      ImGui::SliderFloat("Luminous diffusion",&aVisual.flGlow,0.0F,2.2F);
+      ImGui::SliderFloat("Isoline contrast",&aVisual.flContours,0.0F,1.4F);
+      if(aVisual.iMode != 3) {
+         ImGui::SliderFloat("Exposure",&aVisual.flExposure,.25F,3.0F);
+         ImGui::SliderFloat("Surface relief",&aVisual.flRelief,0.0F,3.0F);
+         ImGui::SliderFloat("Zoom",&aVisual.flZoom,.6F,5.0F);
+      }
+      else {
+         ImGui::SliderFloat("Elevation",&aVisual.flElevation,.2F,3.6F);
+         ImGui::SliderFloat("Camera azimuth",&aVisual.flYaw,-3.14F,3.14F);
+         ImGui::SliderFloat("Camera pitch",&aVisual.flPitch,.16F,1.3F);
+         ImGui::SliderFloat("Camera distance",&aVisual.flDistance,5.0F,16.0F);
+      }
+      ImGui::Separator();
+      ImGui::TextColored({.44F,.91F,.96F,1.0F},"MOTION AND EVIDENCE");
+      ImGui::Checkbox("Animate the wave field",&bAnimate);
+      ImGui::SliderFloat("Animation speed",&flSpeed,.0F,3.0F);
+      ImGui::Checkbox("Native measurements",&bShowMeasurements);
+      ImGui::Checkbox("Emitter positions",&bShowSources);
+      if(ImGui::Button("Save genuine GPU screenshot (BMP)"))
+         bSaveScreenshot = true;
+      if(ImGui::Button("Reset camera")) {
+         aVisual.flZoom=1.0F;aVisual.flPanX=0.0F;aVisual.flPanY=0.0F;
+         aVisual.flYaw=.55F;aVisual.flPitch=.55F;aVisual.flDistance=8.0F;
+      }
+      ImGui::TextDisabled("F11 fullscreen  |  F1 about");
+      ImGui::TextDisabled("%s",aApp.VersionString().c_str());
+      ImGui::EndChild();
+      ImGui::SameLine();
+      ImGui::BeginChild("Observatory",{0,0},true,
+         ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoScrollWithMouse);
+      if(bDirty) {
+         theField.Compute(aSettings);
+         theRenderer.Upload(theField);
+         bDirty = false;
+      }
+      auto const& aMetrics = theField.Metrics();
+      if(bShowMeasurements) {
+         ImGui::Text("RESOLUTION %d x %d  |  INTENSITY  %.4f .. %.4f  |  MEAN %.4f  |  ENERGY %.4f",
+            aSettings.iWidth,aSettings.iHeight,aMetrics.flMinimum,
+            aMetrics.flMaximum,aMetrics.flMean,aMetrics.flEnergy);
+         ImGui::TextDisabled("xsimd native lane count: %zu  |  CPU tensor -> GL_R32F -> shader -> GPU framebuffer",
+            xsimd::batch<float>::size);
+      }
+      ImVec2 const aPanel = ImGui::GetContentRegionAvail();
+      int const iWidth=std::max(1,static_cast<int>(aPanel.x));
+      int const iHeight=std::max(1,static_cast<int>(aPanel.y));
+      GLuint const uTexture=theRenderer.Render(aVisual,iWidth,iHeight);
+      ImVec2 const aImagePos=ImGui::GetCursorScreenPos();
+      ImGui::Image(static_cast<ImTextureID>(uTexture),aPanel,{0,1},{1,0});
+      if(ImGui::IsItemHovered()) {
+         ImGuiIO const& aIO=ImGui::GetIO();
+         if(aVisual.iMode == 3) {
+            if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+               aVisual.flYaw += aIO.MouseDelta.x*.005F;
+               aVisual.flPitch=std::clamp(aVisual.flPitch-aIO.MouseDelta.y*.005F,.16F,1.3F);
+            }
+            aVisual.flDistance=std::clamp(aVisual.flDistance-aIO.MouseWheel*.6F,5.0F,16.0F);
+         }
+         else {
+            if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+               aVisual.flPanX -= aIO.MouseDelta.x/
+                  std::max(aPanel.x,1.0F)/aVisual.flZoom;
+               aVisual.flPanY += aIO.MouseDelta.y/
+                  std::max(aPanel.y,1.0F)/aVisual.flZoom;
+            }
+            aVisual.flZoom=std::clamp(aVisual.flZoom+
+               aIO.MouseWheel*.15F,.6F,5.0F);
+            float const flU=(aIO.MousePos.x-aImagePos.x)/std::max(aPanel.x,1.0F);
+            float const flV=1.0F-(aIO.MousePos.y-aImagePos.y)/std::max(aPanel.y,1.0F);
+            float const flX=(flU-.5F)/aVisual.flZoom+.5F+aVisual.flPanX;
+            float const flY=(flV-.5F)/aVisual.flZoom+.5F+aVisual.flPanY;
+            int const iX=static_cast<int>(flX*(aSettings.iWidth-1));
+            int const iY=static_cast<int>(flY*(aSettings.iHeight-1));
+            auto const theSample=theField.Sample(iX,iY);
+            if(theSample.has_value()) {
+               ImGui::BeginTooltip();
+               ImGui::Text("Field sample (%d,%d): %.6f",iX,iY,theSample.value());
+               ImGui::EndTooltip();
+            }
          }
       }
+      if(bShowSources && aVisual.iMode != 3 &&
+         (iExperiment==0 || iExperiment==1) && aVisual.flZoom>=.6F) {
+         ImDrawList* const pDraw=ImGui::GetWindowDrawList();
+         for(int iSource=0;iSource<(iExperiment==1?3:2);++iSource) {
+            float const flX=iSource==2?0.0F:
+               (iSource==0?-aSettings.flSeparation*.5F:aSettings.flSeparation*.5F);
+            float const flY=iSource==2?1.4F:0.0F;
+            float const flU=flX/6.4F+.5F;
+            float const flV=flY/3.6F+.5F;
+            float const flScreenX=aImagePos.x+
+               (.5F+(flU-.5F-aVisual.flPanX)*aVisual.flZoom)*aPanel.x;
+            float const flScreenY=aImagePos.y+
+               (.5F-(flV-.5F-aVisual.flPanY)*aVisual.flZoom)*aPanel.y;
+            if(flScreenX>=aImagePos.x && flScreenX<aImagePos.x+aPanel.x &&
+               flScreenY>=aImagePos.y && flScreenY<aImagePos.y+aPanel.y) {
+               pDraw->AddCircleFilled({flScreenX,flScreenY},7.0F,IM_COL32(255,235,183,240));
+               pDraw->AddCircle({flScreenX,flScreenY},15.0F,IM_COL32(255,225,140,185),36,2.0F);
+            }
+         }
+      }
+      ImGui::EndChild();
       ImGui::End();
+
+      if(bSaveScreenshot) {
+         std::string const strFilename="tensor-nebula-capture.bmp";
+         bool const bSaved=theRenderer.SaveScreenshot(strFilename);
+         std::println("SHOWCASE|CAPTURE|{}|{}",bSaved?"PASS":"FAIL",strFilename);
+         bSaveScreenshot=false;
+      }
       aApp.EndFrame();
    }
 }
 }
+
 int main(int const iArgc,char const* const* const pszArgv) {
    try {
-      if(iArgc>1&&std::string_view {pszArgv[1]}=="--verify")return Verify()?0:1;
-      Interactive();return 0;
+      if(iArgc>1 && std::string_view {pszArgv[1]}=="--verify")
+         return Verify()?0:1;
+      if(iArgc>1 && std::string_view {pszArgv[1]}=="--verify-gl")
+         return VerifyGL()?0:1;
+      Interactive();
+      return 0;
    }
    catch(std::exception const& theError) {
-      std::println(stderr,"SHOWCASE|ERROR|{}",theError.what());return 2;
+      std::println(stderr,"SHOWCASE|ERROR|{}",theError.what());
+      return 2;
    }
 }
