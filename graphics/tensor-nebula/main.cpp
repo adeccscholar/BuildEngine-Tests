@@ -271,12 +271,12 @@ void Interactive() {
          theLastRequest=theRequestNow;
          bDirty=false;
       }
-      if(auto pCompleted=theComputer.TakeCompleted()) {
+      if(auto theCompleted=theComputer.TakeCompleted()) {
          // The GL context and all texture writes are owned by this UI thread.
-         theRenderer.Upload(*pCompleted);
-         pDisplayedField=std::move(pCompleted);
-         aDisplayedSettings=aSettings;
-         uLastAccepted=uLastSubmitted;
+         theRenderer.Upload(*theCompleted->pField);
+         pDisplayedField=std::move(theCompleted->pField);
+         aDisplayedSettings=theCompleted->theSettings;
+         uLastAccepted=theCompleted->uRevision;
       }
       if(bShowMeasurements && pDisplayedField) {
          auto const& aMetrics=pDisplayedField->Metrics();
@@ -287,7 +287,8 @@ void Interactive() {
             xsimd::batch<float>::size);
       }
       ImGui::TextDisabled("Calculation: %s  |  request #%llu / accepted #%llu",
-         pDisplayedField ? (bDirty ? "updating" : "ready") : "preparing",
+         pDisplayedField ? (uLastAccepted < uLastSubmitted || bDirty ?
+            "updating" : "ready") : "preparing",
          static_cast<unsigned long long>(uLastSubmitted),
          static_cast<unsigned long long>(uLastAccepted));
       ImVec2 const aPanel=ImGui::GetContentRegionAvail();
@@ -340,11 +341,15 @@ void Interactive() {
          }
       }
       if(pDisplayedField && bShowSources && aVisual.iMode != 3 &&
-         (iExperiment==0 || iExperiment==1) && aVisual.flZoom>=.6F) {
+         (aDisplayedSettings.theMode==FieldMode::twin ||
+          aDisplayedSettings.theMode==FieldMode::trinity) &&
+         aVisual.flZoom>=.6F) {
          ImDrawList* const pDraw=ImGui::GetWindowDrawList();
-         for(int iSource=0;iSource<(iExperiment==1?3:2);++iSource) {
+         for(int iSource=0;iSource<
+               (aDisplayedSettings.theMode==FieldMode::trinity?3:2);++iSource) {
             float const flX=iSource==2?0.0F:
-               (iSource==0?-aSettings.flSeparation*.5F:aSettings.flSeparation*.5F);
+               (iSource==0?-aDisplayedSettings.flSeparation*.5F:
+                  aDisplayedSettings.flSeparation*.5F);
             float const flY=iSource==2?1.4F:0.0F;
             float const flU=flX/6.4F+.5F;
             float const flV=flY/3.6F+.5F;
