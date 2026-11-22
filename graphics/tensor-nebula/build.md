@@ -37,3 +37,77 @@ cmake --install ../build/Test/tensor-nebula/Release/cmake
 ```
 Use separate Debug paths and matching packages. No alternate compiler or package probing.
 **[not verified]** Pending BCC64X native execution.
+
+## Managed OpenGL / GLEW / official ImGui backend
+
+The project resolves the unique active managed versions of xtensor, xsimd, xtl, SDL2, imgui, OpenGL and GLEW from the BuildEngine XML catalog. It requires the exact configuration-specific CMake exports and import libraries, including the official imgui_sdl2_opengl3 DLL. The managed Mesa opengl32.dll and libgallium_wgl.dll are staged as dynamic runtime modules. No alternative GL, MinGW, MSVC or downloaded SDK fallback is permitted.
+
+### Headless native numerical verification
+
+Execute the CPU assertions (also included in the normal CTest invocation):
+
+```bat
+..\build\Test\tensor-nebula\Release\tensor-nebula.exe --verify
+```
+
+### Optional desktop OpenGL regression
+
+Only when a Windows desktop session and working Mesa OpenGL 3.3 context are available, enable the GPU-specific CTest by reconfiguring the **existing** independent Release build tree:
+
+```bat
+cmake -S graphics/tensor-nebula -B ../build/Test/tensor-nebula/Release/cmake -DTENSOR_NEBULA_ENABLE_GL_CTEST=ON
+```
+
+Compile the updated test configuration:
+
+```bat
+cmake --build ../build/Test/tensor-nebula/Release/cmake --parallel 4
+```
+
+Run only the actual OpenGL desktop check:
+
+```bat
+ctest --test-dir ../build/Test/tensor-nebula/Release/cmake -R TensorNebulaMesaOpenGL --output-on-failure -V
+```
+
+Alternatively, launch the same GPU verification directly:
+
+```bat
+..\build\Test\tensor-nebula\Release\tensor-nebula.exe --verify-gl
+```
+
+### Debug native build, separate from Release
+
+Configure the Debug target without any Release-package fallback:
+
+```bat
+cmake -S graphics/tensor-nebula -B ../build/Test/tensor-nebula/Debug/cmake -G Ninja -C bootstrap/BuildEngineInit.cmake -DCMAKE_BUILD_TYPE=Debug -DBUILDENGINE_CONFIGURATION=Debug -DCMAKE_INSTALL_PREFIX=../build/Test/tensor-nebula/Debug
+```
+
+Build Debug:
+
+```bat
+cmake --build ../build/Test/tensor-nebula/Debug/cmake --parallel 4
+```
+
+Run the standard headless Debug tests:
+
+```bat
+ctest --test-dir ../build/Test/tensor-nebula/Debug/cmake --output-on-failure
+```
+
+Install Debug with its own DLL closure:
+
+```bat
+cmake --install ../build/Test/tensor-nebula/Debug/cmake
+```
+
+Launch the Debug observatory:
+
+```bat
+..\build\Test\tensor-nebula\Debug\tensor-nebula.exe
+```
+
+The real screenshot button captures the current offscreen OpenGL framebuffer as tensor-nebula-capture.bmp. It does not render synthetic image evidence. F1 shows About and F11 toggles fullscreen through the shared OpenGLShowcase adapter.
+
+**[not verified]** No native BCC64X build or OpenGL desktop acceptance has been executed as part of this update.
