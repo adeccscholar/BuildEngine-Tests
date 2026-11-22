@@ -4,6 +4,8 @@
 #include <xtensor/core/xmath.hpp>
 #include <xtl/xoptional.hpp>
 #include <xsimd/xsimd.hpp>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include <algorithm>
 #include <cmath>
@@ -79,10 +81,12 @@ public:
          static_cast<std::size_t>(theSettings.iHeight),
          static_cast<std::size_t>(theSettings.iWidth)
       });
-      float const flPi = std::numbers::pi_v<float>;
       float const flXScale = 6.4F / static_cast<float>(theSettings.iWidth - 1);
       float const flYScale = 3.6F / static_cast<float>(theSettings.iHeight - 1);
-      for(int iY = 0; iY < theSettings.iHeight; ++iY) {
+      oneapi::tbb::parallel_for(
+         oneapi::tbb::blocked_range<int> {0, theSettings.iHeight, 8},
+         [&](oneapi::tbb::blocked_range<int> const& theRows) {
+      for(int iY = theRows.begin(); iY < theRows.end(); ++iY) {
          float const flY = -1.8F + static_cast<float>(iY) * flYScale;
          for(int iX = 0; iX < theSettings.iWidth; ++iX) {
             float const flX = -3.2F + static_cast<float>(iX) * flXScale;
@@ -126,6 +130,7 @@ public:
             theIntensity(iY, iX) = static_cast<T>(std::clamp(flValue, 0.0F, 1.0F));
          }
       }
+         });
       RecalculateMetrics();
    }
 
