@@ -196,3 +196,44 @@ The Motion and Evidence panel exposes Compute frames / second (4 to 40) and GPU 
 Headless CTest also stresses latest-request coalescing by submitting 24 rapid changes and verifying the final field arrives. Native BCC64X execution and measured latency remain **[not verified]**.
 
 OpenMP is intentionally not nested with oneTBB in the same computation: a second scheduler would introduce oversubscription and make responsiveness harder to reason about. This makes no general performance claim comparing oneTBB with LLVM OpenMP.
+
+
+## Managed Mesa runtime backend selection
+
+
+
+The observatory can now request **Softpipe**, **Gallium D3D12**, or **Gallium Zink** from the dark-blue control panel. The selection is a request; the actual `GL_VENDOR`, `GL_RENDERER`, GL version and GLSL version are shown separately. A D3D12 adapter preference can be `Automatic`, `Intel`, or `NVIDIA` using Mesa's documented adapter-name substring setting. This does not override actual GPU availability.
+
+
+
+An existing WGL context cannot safely change its selected Gallium driver. The **Apply backend and restart** button therefore launches a new copy with explicit `--mesa-backend` / `--mesa-adapter` arguments and closes the previous instance only after successfully launching the new one. The new process sets the environment **before** creating its Mesa context.
+
+
+
+```mermaid
+
+flowchart TD
+
+   U[User selects requested Gallium backend] --> R[Launch new Tensor Nebula process]
+
+   R --> E[Set GALLIUM_DRIVER and optional D3D12 adapter name]
+
+   E --> C[SDL loads managed Mesa opengl32.dll and creates WGL context]
+
+   C --> A[Read actual GL_VENDOR and GL_RENDERER]
+
+   A --> V{Requested GPU driver actually running?}
+
+   V -->|Yes| P[Display GPU evidence and render scene]
+
+   V -->|No / CPU fallback| F[Explicit GPU verification failure]
+
+```
+
+
+
+**Integration boundary:** Softpipe is the existing managed runtime. D3D12 is a source-only experimental Mesa build attempt depending on DirectX-Headers 1.619.1. Zink is not yet compiled in the package and requires a managed Vulkan Loader with full upstream tests; its selection is explicitly experimental and must not be described as a working NVIDIA/Intel GPU path.
+
+
+
+Headless `--verify` does not load OpenGL. Desktop verification accepts `--verify-gl --mesa-backend=d3d12 --mesa-adapter=nvidia` and records both the requested mode and actual renderer. Known software rasterizer fallback is reported as failed evidence, not successful GPU use.
