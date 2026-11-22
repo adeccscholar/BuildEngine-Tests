@@ -146,11 +146,11 @@ class NebulaGL final {
             // Screen-space luminous diffusion: samples of the actual tensor texture.
             vec2 blur = uTexel*vec2(7.0);
             float halo = 0.0;
-            for(int i=-2;i<=2;i++) {
-               for(int j=-2;j<=2;j++)
+            for(int i=-1;i<=1;i++) {
+               for(int j=-1;j<=1;j++)
                   halo += max(0.,field(uv+vec2(float(i),float(j))*blur)-.5);
             }
-            halo /= 25.0;
+            halo /= 9.0;
             color += uGlow * vec3(.26,.42,.77)*halo*2.2;
             color += .11*vec3(.34,.57,.92)*pow(intensity,5.);
             color = pow(max(color,vec3(0.)),vec3(.90));
@@ -335,12 +335,19 @@ public:
       auto const& theArray=theField.Values();
       if(theArray.dimension()!=2)
          throw std::runtime_error {"Tensor Nebula texture requires a rank-two tensor"};
-      iTextureHeight=static_cast<int>(theArray.shape()[0]);
-      iTextureWidth=static_cast<int>(theArray.shape()[1]);
+      int const iNewHeight=static_cast<int>(theArray.shape()[0]);
+      int const iNewWidth=static_cast<int>(theArray.shape()[1]);
+      bool const bResize=iTextureWidth!=iNewWidth || iTextureHeight!=iNewHeight;
+      iTextureWidth=iNewWidth;
+      iTextureHeight=iNewHeight;
       glBindTexture(GL_TEXTURE_2D,uFieldTexture);
       glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-      glTexImage2D(GL_TEXTURE_2D,0,GL_R32F,iTextureWidth,iTextureHeight,0,
-         GL_RED,GL_FLOAT,theArray.data());
+      if(bResize)
+         glTexImage2D(GL_TEXTURE_2D,0,GL_R32F,iTextureWidth,iTextureHeight,0,
+            GL_RED,GL_FLOAT,theArray.data());
+      else
+         glTexSubImage2D(GL_TEXTURE_2D,0,0,0,iTextureWidth,iTextureHeight,
+            GL_RED,GL_FLOAT,theArray.data());
    }
 
    /**
