@@ -1,3 +1,19 @@
+## 22 November 2026: three native science observatories
+
+The new showcase wave consists of independent C++23/BCC64X projects. Each application has a real installed-library API path, a headless `--verify` acceptance route, its own CMake build, source manifest, full mathematical description and two original SVG concepts. **[not verified]** Native showcase builds and screenshots are pending; the library FSM 141/141 result does not establish interactive showcase acceptance.
+
+| Showcase | Native libraries demonstrated | Independent acceptance |
+
+| --- | --- | --- |
+
+| [Tensor Nebula](graphics/tensor-nebula/) | xtensor 0.27.1, xsimd 13.2.0, xtl 0.8.0, SDL2/ImGui | tensor bounds, SIMD reduction and xtl optional |
+
+| [Geometry Cathedral](graphics/geometry-cathedral/) | CGAL 6.2.1, Assimp 6.0.6, doctest 2.4.12, SDL2/ImGui | CGAL convex hull, squared-distance and Assimp OBJ topology with doctest |
+
+| [Acoustic Orbitarium](graphics/acoustic-orbitarium/) | OpenAL Soft 1.25.2, SDL2/ImGui | device-free OpenAL API; actual audio device only by explicit GUI request |
+
+Each project follows the shared `bootstrap/BuildEngineInit.cmake` and `cmake/BuildEngineTests.cmake` contract. The projects do not use MSVC, system dependency fallback or borrowed SDK trees. F1/About and F11/fullscreen use the existing `NativeShowcase` adapter.
+
 # BuildEngine Tests
 
 This repository can be checked out under the BuildEngine root as `tests` (or `Test`). Every application is a separate project directly below this directory. There is no test/demo split and no top-level multi-project configure required.
