@@ -1,6 +1,7 @@
 #include "../common/GraphicsDllImports.h"
 #include "../common/OpenGLShowcase.h"
 #include "TensorField.h"
+#include "AsyncField.h"
 #include "NebulaGL.h"
 
 #include <SDL.h>
@@ -14,6 +15,8 @@
 #include <cmath>
 #include <exception>
 #include <numbers>
+#include <memory>
+#include <cstdint>
 #include <print>
 #include <stdexcept>
 #include <string>
@@ -24,6 +27,7 @@ using tensor_nebula::FieldMode;
 using tensor_nebula::FieldSettings;
 using tensor_nebula::NebulaGL;
 using tensor_nebula::TensorField;
+using tensor_nebula::AsyncField;
 
 constexpr std::array<char const*,4> arrExperiments {
    "Binary stars / two sources", "Trinity / three sources",
@@ -150,8 +154,10 @@ void Interactive() {
    OpenGLShowcase aApp {"BuildEngine | TENSOR NEBULA - Wave Observatory",
       ADECC_MESA_OPENGL_DLL, 1620, 980};
    NebulaGL theRenderer;
-   TensorField<float> theField;
+   AsyncField theComputer;
+   std::shared_ptr<TensorField<float> const> pDisplayedField;
    FieldSettings aSettings;
+   FieldSettings aDisplayedSettings;
    NebulaGL::VisualSettings aVisual;
    aSettings.flFrequency = 9.0F;
    int iExperiment = 0;
@@ -162,7 +168,15 @@ void Interactive() {
    bool bDirty = true;
    bool bSaveScreenshot = false;
    float flSpeed = .65F;
+   float flRenderScale = .75F;
+   int iMaxComputeHz = 24;
    auto thePrevious = std::chrono::steady_clock::now();
+   auto theLastRequest = thePrevious-std::chrono::seconds {1};
+   std::uint64_t uLastSubmitted {};
+   std::uint64_t uLastAccepted {};
+   // Kick off an initial frame before the first event/render cycle.
+   uLastSubmitted = theComputer.RequestFrame(aSettings);
+   bDirty = false;
 
    while(aApp.Running()) {
       auto const theNow = std::chrono::steady_clock::now();
@@ -232,6 +246,8 @@ void Interactive() {
       ImGui::TextColored({.44F,.91F,.96F,1.0F},"MOTION AND EVIDENCE");
       ImGui::Checkbox("Animate the wave field",&bAnimate);
       ImGui::SliderFloat("Animation speed",&flSpeed,.0F,3.0F);
+      ImGui::SliderInt("Compute frames / second",&iMaxComputeHz,4,40);
+      ImGui::SliderFloat("GPU render scale",&flRenderScale,.4F,1.0F);
       ImGui::Checkbox("Native measurements",&bShowMeasurements);
       ImGui::Checkbox("Emitter positions",&bShowSources);
       if(ImGui::Button("Save genuine GPU screenshot (BMP)"))
@@ -246,26 +262,50 @@ void Interactive() {
       ImGui::SameLine();
       ImGui::BeginChild("Observatory",{0,0},true,
          ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoScrollWithMouse);
-      if(bDirty) {
-         theField.Compute(aSettings);
-         theRenderer.Upload(theField);
-         bDirty = false;
+      // UI sliders are always processed first. Requests are coalesced, never
+      // calculated synchronously on the SDL/ImGui event thread.
+      auto const theRequestNow = std::chrono::steady_clock::now();
+      auto const theInterval=std::chrono::milliseconds {1000/std::max(1,iMaxComputeHz)};
+      if(bDirty && theRequestNow-theLastRequest>=theInterval) {
+         uLastSubmitted=theComputer.RequestFrame(aSettings);
+         theLastRequest=theRequestNow;
+         bDirty=false;
       }
-      auto const& aMetrics = theField.Metrics();
-      if(bShowMeasurements) {
-         ImGui::Text("RESOLUTION %d x %d  |  INTENSITY  %.4f .. %.4f  |  MEAN %.4f  |  ENERGY %.4f",
-            aSettings.iWidth,aSettings.iHeight,aMetrics.flMinimum,
-            aMetrics.flMaximum,aMetrics.flMean,aMetrics.flEnergy);
-         ImGui::TextDisabled("xsimd native lane count: %zu  |  CPU tensor -> GL_R32F -> shader -> GPU framebuffer",
+      if(auto pCompleted=theComputer.TakeCompleted()) {
+         // The GL context and all texture writes are owned by this UI thread.
+         theRenderer.Upload(*pCompleted);
+         pDisplayedField=std::move(pCompleted);
+         aDisplayedSettings=aSettings;
+         uLastAccepted=uLastSubmitted;
+      }
+      if(bShowMeasurements && pDisplayedField) {
+         auto const& aMetrics=pDisplayedField->Metrics();
+         ImGui::Text("RESOLUTION %zu x %zu  |  INTENSITY %.4f .. %.4f  |  MEAN %.4f  |  ENERGY %.4f",
+            pDisplayedField->Values().shape()[1],pDisplayedField->Values().shape()[0],
+            aMetrics.flMinimum,aMetrics.flMaximum,aMetrics.flMean,aMetrics.flEnergy);
+         ImGui::TextDisabled("xsimd lanes: %zu | oneTBB background | CPU tensor -> GL_R32F",
             xsimd::batch<float>::size);
       }
-      ImVec2 const aPanel = ImGui::GetContentRegionAvail();
-      int const iWidth=std::max(1,static_cast<int>(aPanel.x));
-      int const iHeight=std::max(1,static_cast<int>(aPanel.y));
-      GLuint const uTexture=theRenderer.Render(aVisual,iWidth,iHeight);
+      ImGui::TextDisabled("Calculation: %s  |  request #%llu / accepted #%llu",
+         pDisplayedField ? (bDirty ? "updating" : "ready") : "preparing",
+         static_cast<unsigned long long>(uLastSubmitted),
+         static_cast<unsigned long long>(uLastAccepted));
+      ImVec2 const aPanel=ImGui::GetContentRegionAvail();
       ImVec2 const aImagePos=ImGui::GetCursorScreenPos();
-      ImGui::Image(static_cast<ImTextureID>(uTexture),aPanel,{0,1},{1,0});
-      if(ImGui::IsItemHovered()) {
+      if(!pDisplayedField) {
+         ImGui::Dummy(aPanel);
+         ImGui::SetCursorScreenPos({
+            aImagePos.x+24.0F,aImagePos.y+24.0F
+         });
+         ImGui::TextUnformatted("Computing the first native tensor frame on a dedicated worker...");
+      }
+      else {
+         int const iWidth=std::max(1,static_cast<int>(aPanel.x*flRenderScale));
+         int const iHeight=std::max(1,static_cast<int>(aPanel.y*flRenderScale));
+         GLuint const uTexture=theRenderer.Render(aVisual,iWidth,iHeight);
+         ImGui::Image(static_cast<ImTextureID>(uTexture),aPanel,{0,1},{1,0});
+      }
+      if(pDisplayedField && ImGui::IsItemHovered()) {
          ImGuiIO const& aIO=ImGui::GetIO();
          if(aVisual.iMode == 3) {
             if(ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
@@ -287,9 +327,11 @@ void Interactive() {
             float const flV=1.0F-(aIO.MousePos.y-aImagePos.y)/std::max(aPanel.y,1.0F);
             float const flX=(flU-.5F)/aVisual.flZoom+.5F+aVisual.flPanX;
             float const flY=(flV-.5F)/aVisual.flZoom+.5F+aVisual.flPanY;
-            int const iX=static_cast<int>(flX*(aSettings.iWidth-1));
-            int const iY=static_cast<int>(flY*(aSettings.iHeight-1));
-            auto const theSample=theField.Sample(iX,iY);
+            int const iX=static_cast<int>(flX*
+               (static_cast<int>(pDisplayedField->Values().shape()[1])-1));
+            int const iY=static_cast<int>(flY*
+               (static_cast<int>(pDisplayedField->Values().shape()[0])-1));
+            auto const theSample=pDisplayedField->Sample(iX,iY);
             if(theSample.has_value()) {
                ImGui::BeginTooltip();
                ImGui::Text("Field sample (%d,%d): %.6f",iX,iY,theSample.value());
@@ -297,7 +339,7 @@ void Interactive() {
             }
          }
       }
-      if(bShowSources && aVisual.iMode != 3 &&
+      if(pDisplayedField && bShowSources && aVisual.iMode != 3 &&
          (iExperiment==0 || iExperiment==1) && aVisual.flZoom>=.6F) {
          ImDrawList* const pDraw=ImGui::GetWindowDrawList();
          for(int iSource=0;iSource<(iExperiment==1?3:2);++iSource) {
