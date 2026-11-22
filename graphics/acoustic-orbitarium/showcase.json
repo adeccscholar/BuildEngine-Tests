@@ -1,0 +1,47 @@
+{
+   "schemaVersion": 1,
+   "kind": "showcase",
+   "title": "Acoustic Orbitarium — Sound in Space",
+   "summary": "An interactive spatial-sound planetarium built with genuine OpenAL Soft sources, acoustic rings, listener geometry and explicit opt-in playback.",
+   "dependencies": [
+      {
+         "library": "openal-soft",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "imgui",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "sdl2",
+         "version": "active",
+         "direct": true
+      }
+   ],
+   "externalDependencies": [
+      "Optional Windows audio output device"
+   ],
+   "status": "not-verified",
+   "applications": [
+      {
+         "name": "acoustic-orbitarium",
+         "summary": "3D orbit and native spatial sound on demand",
+         "command": "..\\build\\Test\\acoustic-orbitarium\\Release\\acoustic-orbitarium.exe",
+         "interactive": true
+      },
+      {
+         "name": "acoustic-orbitarium --verify",
+         "summary": "Headless genuine OpenAL API check",
+         "command": "..\\build\\Test\\acoustic-orbitarium\\Release\\acoustic-orbitarium.exe --verify",
+         "interactive": false
+      }
+   ],
+   "images": {
+      "tile": "/images/showcase/graphics-acoustic-orbitarium/tile.svg",
+      "hero": "/images/showcase/graphics-acoustic-orbitarium/tile.svg",
+      "kind": "generated-concept",
+      "alt": "Generated spatial audio observatory illustration, not a screenshot"
+   }
+}
