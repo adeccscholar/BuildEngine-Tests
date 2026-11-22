@@ -64,9 +64,19 @@ inline void SelectMesaBackend(MesaDriver const theDriver,
          default: break;
       }
    }
-   if(!SetEnvironmentVariableW(L"GALLIUM_DRIVER", szDriver) ||
-      !SetEnvironmentVariableW(L"MESA_D3D12_DEFAULT_ADAPTER_NAME",szAdapter))
-      throw std::runtime_error {"Unable to apply Mesa Gallium driver environment"};
+   if(!SetEnvironmentVariableW(L"GALLIUM_DRIVER", szDriver))
+      throw std::runtime_error {"Unable to select Mesa Gallium driver"};
+   if(szAdapter) {
+      if(!SetEnvironmentVariableW(L"MESA_D3D12_DEFAULT_ADAPTER_NAME",szAdapter))
+         throw std::runtime_error {"Unable to select preferred D3D12 adapter"};
+   }
+   else {
+      // Deleting an absent environment variable is a successful no-op
+      // for this selection and must not prevent Softpipe startup.
+      if(!SetEnvironmentVariableW(L"MESA_D3D12_DEFAULT_ADAPTER_NAME",nullptr) &&
+         GetLastError()!=ERROR_ENVVAR_NOT_FOUND)
+         throw std::runtime_error {"Unable to reset D3D12 adapter selection"};
+   }
 }
 
 /**
