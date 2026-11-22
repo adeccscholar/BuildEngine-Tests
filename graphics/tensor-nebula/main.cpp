@@ -186,7 +186,7 @@ bool Verify() {
 \returns True after successful GPU resource, shader and framebuffer checks.
 \throw std::runtime_error If Mesa, shader or rendering startup fails.
 */
-bool VerifyGL() {
+bool VerifyGL(MesaDriver const theRequestedDriver) {
    OpenGLShowcase aApp {"Tensor Nebula GPU Verification",
       ADECC_MESA_OPENGL_DLL, 640, 480};
    TensorField<float> theField;
@@ -194,8 +194,11 @@ bool VerifyGL() {
    aSettings.iWidth = 128;
    aSettings.iHeight = 72;
    theField.Compute(aSettings);
-   std::println("SHOWCASE|INFO|mesa-request|{}",
-      tensor_nebula::ActualOpenGLRenderer());
+   std::string const strActualRenderer=tensor_nebula::ActualOpenGLRenderer();
+   std::println("SHOWCASE|INFO|mesa-requested-driver|{}",
+      tensor_nebula::arrMesaDrivers.at(
+         static_cast<std::size_t>(theRequestedDriver)));
+   std::println("SHOWCASE|INFO|opengl-actual|{}",strActualRenderer);
    NebulaGL theRenderer;
    theRenderer.Upload(theField);
    NebulaGL::VisualSettings aVisual;
@@ -208,7 +211,15 @@ bool VerifyGL() {
       bTexture ? "PASS" : "FAIL");
    std::println("SHOWCASE|CHECK|opengl-heightfield|{}|native depth-tested mesh",
       bHeight ? "PASS" : "FAIL");
-   bool const bPassed = bTexture && bHeight;
+   // A user-requested GPU backend must not be marked successful when the
+   // runtime reports a known software rasterizer fallback.
+   bool const bNoSoftwareFallback=theRequestedDriver==MesaDriver::softpipe ||
+      (strActualRenderer.find("softpipe")==std::string::npos &&
+       strActualRenderer.find("llvmpipe")==std::string::npos &&
+       strActualRenderer.find("Software Rasterizer")==std::string::npos);
+   std::println("SHOWCASE|CHECK|requested-hardware-renderer|{}|{}",
+      bNoSoftwareFallback ? "PASS" : "FAIL",strActualRenderer);
+   bool const bPassed = bTexture && bHeight && bNoSoftwareFallback;
    std::println("SHOWCASE|RESULT|{}|Tensor Nebula managed OpenGL 3.3 pipeline",
       bPassed ? "PASS" : "FAIL");
    return bPassed;
@@ -225,6 +236,7 @@ void Interactive(MesaDriver const theSelectedDriver,
                  PreferredAdapter const theSelectedAdapter) {
    OpenGLShowcase aApp {"BuildEngine | TENSOR NEBULA - Wave Observatory",
       ADECC_MESA_OPENGL_DLL, 1620, 980};
+   std::string const strActualRenderer=tensor_nebula::ActualOpenGLRenderer();
    NebulaGL theRenderer;
    AsyncField theComputer;
    std::shared_ptr<TensorField<float> const> pDisplayedField;
@@ -292,7 +304,7 @@ void Interactive(MesaDriver const theSelectedDriver,
          tensor_nebula::arrMesaDrivers.at(
             static_cast<std::size_t>(theSelectedDriver)));
       ImGui::TextWrapped("Actual OpenGL renderer: %s",
-         tensor_nebula::ActualOpenGLRenderer().c_str());
+         strActualRenderer.c_str());
       if(iRequestedDriver!=static_cast<int>(theSelectedDriver) ||
          iRequestedAdapter!=static_cast<int>(theSelectedAdapter)) {
          ImGui::TextColored({.99F,.78F,.40F,1.0F},
@@ -505,7 +517,7 @@ int main(int const iArgc,char const* const* const pszArgv) {
       if(bVerify)return Verify()?0:1;
       // Apply before constructing the SDL/WGL context in either GL mode.
       tensor_nebula::SelectMesaBackend(theDriver,theAdapter);
-      if(bVerifyGL)return VerifyGL()?0:1;
+      if(bVerifyGL)return VerifyGL(theDriver)?0:1;
       Interactive(theDriver,theAdapter);
       return 0;
    }
