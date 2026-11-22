@@ -174,6 +174,8 @@ void Interactive() {
    auto theLastRequest = thePrevious-std::chrono::seconds {1};
    std::uint64_t uLastSubmitted {};
    std::uint64_t uLastAccepted {};
+   GLuint uLastTexture {};
+   auto theLastGpuFrame=thePrevious-std::chrono::seconds {1};
    // Kick off an initial frame before the first event/render cycle.
    uLastSubmitted = theComputer.RequestFrame(aSettings);
    bDirty = false;
@@ -303,8 +305,14 @@ void Interactive() {
       else {
          int const iWidth=std::max(1,static_cast<int>(aPanel.x*flRenderScale));
          int const iHeight=std::max(1,static_cast<int>(aPanel.y*flRenderScale));
-         GLuint const uTexture=theRenderer.Render(aVisual,iWidth,iHeight);
-         ImGui::Image(static_cast<ImTextureID>(uTexture),aPanel,{0,1},{1,0});
+         // Mesa software rendering can be expensive. Reuse the completed FBO
+         // between 25Hz presentation ticks while ImGui handles input each frame.
+         auto const theGpuNow=std::chrono::steady_clock::now();
+         if(!uLastTexture || theGpuNow-theLastGpuFrame>=std::chrono::milliseconds {40}) {
+            uLastTexture=theRenderer.Render(aVisual,iWidth,iHeight);
+            theLastGpuFrame=theGpuNow;
+         }
+         ImGui::Image(static_cast<ImTextureID>(uLastTexture),aPanel,{0,1},{1,0});
       }
       if(pDisplayedField && ImGui::IsItemHovered()) {
          ImGuiIO const& aIO=ImGui::GetIO();
