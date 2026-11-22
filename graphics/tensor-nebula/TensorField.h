@@ -132,7 +132,7 @@ public:
    /**
    \brief Calculates global metrics with actual installed xsimd batch arithmetic.
    \details SIMD handles complete native-width blocks and a scalar tail.
-      The accumulation uses multiple floating-point partial sums; no timing
+      No duplicate staging vector is allocated; the native xtensor data buffer is used.\n      The accumulation uses multiple floating-point partial sums; no timing
       or speedup claim follows from this numerical API exercise.
    \returns Nothing. Updates the metric values from tensor contents.
    \throw std::runtime_error If a nonfinite sample is encountered.
@@ -141,16 +141,15 @@ public:
    void RecalculateMetrics() {
       theMetrics = {};
       if(theIntensity.size() == 0U) return;
-      std::vector<float> vecSamples;
-      vecSamples.reserve(theIntensity.size());
-      for(T const flValue : theIntensity) {
-         if(!std::isfinite(flValue))
+      std::size_t const uCount = theIntensity.size();
+      float const* const pSamples = theIntensity.data();
+      for(std::size_t uIndex = 0; uIndex < uCount; ++uIndex)
+         if(!std::isfinite(pSamples[uIndex]))
             throw std::runtime_error {"Nonfinite xtensor sample"};
-         vecSamples.push_back(static_cast<float>(flValue));
-      }
-      theMetrics.uSamples = vecSamples.size();
-      auto const [pMin, pMax] =
-         std::minmax_element(vecSamples.begin(), vecSamples.end());
+
+      theMetrics.uSamples = uCount;
+      auto const [pMin, pMax] = std::minmax_element(
+         pSamples, pSamples + uCount);
       theMetrics.flMinimum = *pMin;
       theMetrics.flMaximum = *pMax;
 
@@ -159,21 +158,20 @@ public:
       batch_ty theSum {0.0F};
       batch_ty theEnergy {0.0F};
       std::size_t uIndex {};
-      for(; uIndex + uLanes <= vecSamples.size(); uIndex += uLanes) {
-         batch_ty const theBlock =
-            batch_ty::load_unaligned(vecSamples.data() + uIndex);
+      for(; uIndex + uLanes <= uCount; uIndex += uLanes) {
+         batch_ty const theBlock = batch_ty::load_unaligned(pSamples + uIndex);
          theSum += theBlock;
          theEnergy += theBlock * theBlock;
       }
       double flSum = static_cast<double>(xsimd::reduce_add(theSum));
       double flEnergy = static_cast<double>(xsimd::reduce_add(theEnergy));
-      for(; uIndex < vecSamples.size(); ++uIndex) {
-         double const flValue = vecSamples[uIndex];
+      for(; uIndex < uCount; ++uIndex) {
+         double const flValue = pSamples[uIndex];
          flSum += flValue;
          flEnergy += flValue * flValue;
       }
-      theMetrics.flMean = static_cast<float>(flSum / vecSamples.size());
-      theMetrics.flEnergy = static_cast<float>(flEnergy / vecSamples.size());
+      theMetrics.flMean = static_cast<float>(flSum / uCount);
+      theMetrics.flEnergy = static_cast<float>(flEnergy / uCount);
    }
 
    /**
