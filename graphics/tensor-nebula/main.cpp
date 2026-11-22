@@ -2,6 +2,7 @@
 #include "../common/OpenGLShowcase.h"
 #include "TensorField.h"
 #include "AsyncField.h"
+#include "MesaBackend.h"
 #include "NebulaGL.h"
 
 #include <SDL.h>
@@ -22,6 +23,7 @@
 #include <string>
 #include <string_view>
 #include <thread>
+#include <windows.h>
 
 namespace {
 using tensor_nebula::FieldMode;
@@ -29,6 +31,8 @@ using tensor_nebula::FieldSettings;
 using tensor_nebula::NebulaGL;
 using tensor_nebula::TensorField;
 using tensor_nebula::AsyncField;
+using tensor_nebula::MesaDriver;
+using tensor_nebula::PreferredAdapter;
 
 constexpr std::array<char const*,4> arrExperiments {
    "Binary stars / two sources", "Trinity / three sources",
@@ -45,6 +49,45 @@ constexpr std::array<int,3> arrHeights {288,432,576};
 constexpr std::array<char const*,3> arrResolutions {
    "512 x 288 / standard", "768 x 432 / detail", "1024 x 576 / cinema"
 };
+
+/**
+\brief Launches a fresh process so the new Gallium backend is chosen before
+   any WGL context or managed DLL is loaded.
+\details A live SDL OpenGL context cannot safely switch Gallium backends.
+   The original process closes only after successful child creation.
+\param theDriver Selected Mesa driver.
+\param theAdapter Optional D3D12 device-name preference.
+\returns True if a new process was created.
+\throw std::runtime_error If executable lookup or CreateProcessW fails.
+*/
+bool LaunchBackend(MesaDriver const theDriver,
+                   PreferredAdapter const theAdapter) {
+   std::wstring strExe(32768,L'\0');
+   DWORD const uLength=GetModuleFileNameW(nullptr,strExe.data(),
+      static_cast<DWORD>(strExe.size()));
+   if(!uLength || uLength>=strExe.size())
+      throw std::runtime_error {"Cannot locate Tensor Nebula executable"};
+   strExe.resize(uLength);
+   std::array<std::wstring_view,3> const arrDriverArgs {
+      L"softpipe",L"d3d12",L"zink"
+   };
+   std::array<std::wstring_view,3> const arrAdapterArgs {
+      L"auto",L"intel",L"nvidia"
+   };
+   std::wstring strCommand=L"\""+strExe+L"\" --mesa-backend=";
+   strCommand+=arrDriverArgs.at(static_cast<std::size_t>(theDriver));
+   strCommand+=L" --mesa-adapter=";
+   strCommand+=arrAdapterArgs.at(static_cast<std::size_t>(theAdapter));
+   STARTUPINFOW theStartup {};
+   theStartup.cb=sizeof(theStartup);
+   PROCESS_INFORMATION theProcess {};
+   BOOL const bStarted=CreateProcessW(strExe.c_str(),strCommand.data(),
+      nullptr,nullptr,FALSE,0,nullptr,nullptr,&theStartup,&theProcess);
+   if(!bStarted)throw std::runtime_error {"Unable to restart with selected Mesa driver"};
+   CloseHandle(theProcess.hThread);
+   CloseHandle(theProcess.hProcess);
+   return true;
+}
 
 /**
 \brief Verifies the real xtensor/xtl/xsimd calculation without a window.
@@ -151,6 +194,8 @@ bool VerifyGL() {
    aSettings.iWidth = 128;
    aSettings.iHeight = 72;
    theField.Compute(aSettings);
+   std::println("SHOWCASE|INFO|mesa-request|{}",
+      tensor_nebula::ActualOpenGLRenderer());
    NebulaGL theRenderer;
    theRenderer.Upload(theField);
    NebulaGL::VisualSettings aVisual;
@@ -176,7 +221,8 @@ bool VerifyGL() {
 \returns Nothing after the user closes the application.
 \throw std::exception On unrecoverable native renderer failures.
 */
-void Interactive() {
+void Interactive(MesaDriver const theSelectedDriver,
+                 PreferredAdapter const theSelectedAdapter) {
    OpenGLShowcase aApp {"BuildEngine | TENSOR NEBULA - Wave Observatory",
       ADECC_MESA_OPENGL_DLL, 1620, 980};
    NebulaGL theRenderer;
@@ -193,6 +239,9 @@ void Interactive() {
    bool bShowSources = true;
    bool bDirty = true;
    bool bSaveScreenshot = false;
+   bool bContinue = true;
+   int iRequestedDriver=static_cast<int>(theSelectedDriver);
+   int iRequestedAdapter=static_cast<int>(theSelectedAdapter);
    float flSpeed = .65F;
    float flRenderScale = .75F;
    int iMaxComputeHz = 24;
@@ -206,7 +255,7 @@ void Interactive() {
    uLastSubmitted = theComputer.RequestFrame(aSettings);
    bDirty = false;
 
-   while(aApp.Running()) {
+   while(bContinue && aApp.Running()) {
       auto const theNow = std::chrono::steady_clock::now();
       float const flDelta = std::clamp(
          std::chrono::duration<float>(theNow-thePrevious).count(),0.0F,.07F);
@@ -232,6 +281,29 @@ void Interactive() {
 
       float const flPanelWidth = std::clamp(ImGui::GetContentRegionAvail().x*.255F,305.0F,420.0F);
       ImGui::BeginChild("Nebula Controls",{flPanelWidth,0},true);
+      ImGui::TextColored({.44F,.91F,.96F,1.0F},"MESA DRIVER / DEVICE");
+      ImGui::Combo("Gallium backend",&iRequestedDriver,
+         tensor_nebula::arrMesaDrivers.data(),
+         static_cast<int>(tensor_nebula::arrMesaDrivers.size()));
+      ImGui::Combo("D3D12 GPU preference",&iRequestedAdapter,
+         tensor_nebula::arrAdapters.data(),
+         static_cast<int>(tensor_nebula::arrAdapters.size()));
+      ImGui::TextWrapped("Active request: %s",
+         tensor_nebula::arrMesaDrivers.at(
+            static_cast<std::size_t>(theSelectedDriver)));
+      ImGui::TextWrapped("Actual OpenGL renderer: %s",
+         tensor_nebula::ActualOpenGLRenderer().c_str());
+      if(iRequestedDriver!=static_cast<int>(theSelectedDriver) ||
+         iRequestedAdapter!=static_cast<int>(theSelectedAdapter)) {
+         ImGui::TextColored({.99F,.78F,.40F,1.0F},
+            "Switching Gallium drivers requires a new process.");
+         if(ImGui::Button("Apply backend and restart")) {
+            bContinue=!LaunchBackend(
+               static_cast<MesaDriver>(iRequestedDriver),
+               static_cast<PreferredAdapter>(iRequestedAdapter));
+         }
+      }
+      ImGui::Separator();
       ImGui::TextColored({.44F,.91F,.96F,1.0F},"WAVE EXPERIMENTS");
       bDirty = ImGui::Combo("Experiment",&iExperiment,arrExperiments.data(),
          static_cast<int>(arrExperiments.size())) || bDirty;
@@ -414,11 +486,27 @@ void Interactive() {
 
 int main(int const iArgc,char const* const* const pszArgv) {
    try {
-      if(iArgc>1 && std::string_view {pszArgv[1]}=="--verify")
-         return Verify()?0:1;
-      if(iArgc>1 && std::string_view {pszArgv[1]}=="--verify-gl")
-         return VerifyGL()?0:1;
-      Interactive();
+      MesaDriver theDriver=MesaDriver::softpipe;
+      PreferredAdapter theAdapter=PreferredAdapter::automatic;
+      bool bVerify=false;
+      bool bVerifyGL=false;
+      for(int iArg=1;iArg<iArgc;++iArg) {
+         std::string_view const svArg {pszArgv[iArg]};
+         if(svArg=="--verify")bVerify=true;
+         else if(svArg=="--verify-gl")bVerifyGL=true;
+         else if(svArg.starts_with("--mesa-backend="))
+            theDriver=tensor_nebula::ParseMesaBackend(
+               svArg.substr(std::string_view {"--mesa-backend="}.size()));
+         else if(svArg.starts_with("--mesa-adapter="))
+            theAdapter=tensor_nebula::ParseMesaAdapter(
+               svArg.substr(std::string_view {"--mesa-adapter="}.size()));
+         else throw std::invalid_argument {"Unsupported Tensor Nebula argument"};
+      }
+      if(bVerify)return Verify()?0:1;
+      // Apply before constructing the SDL/WGL context in either GL mode.
+      tensor_nebula::SelectMesaBackend(theDriver,theAdapter);
+      if(bVerifyGL)return VerifyGL()?0:1;
+      Interactive(theDriver,theAdapter);
       return 0;
    }
    catch(std::exception const& theError) {
