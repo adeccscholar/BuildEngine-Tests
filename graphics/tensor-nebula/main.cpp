@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <thread>
 
 namespace {
 using tensor_nebula::FieldMode;
@@ -103,8 +104,33 @@ bool Verify() {
       bOptional ? "PASS" : "FAIL");
    std::println("SHOWCASE|CHECK|xsimd-reduction|{}|SIMD lanes={}",
       bSimd ? "PASS" : "FAIL",xsimd::batch<float>::size);
+   // Headless stress path: quickly change the inputs, then prove the newest
+   // numerical request completes on the bounded oneTBB background worker.
+   bool bAsync = false;
+   {
+      AsyncField theComputer;
+      FieldSettings aRapid=aSettings;
+      aRapid.iWidth=64;
+      aRapid.iHeight=40;
+      std::uint64_t uExpected {};
+      for(int i=0;i<24;++i) {
+         aRapid.flPhase=static_cast<float>(i)*.11F;
+         uExpected=theComputer.RequestFrame(aRapid);
+      }
+      auto const theDeadline=std::chrono::steady_clock::now()+std::chrono::seconds {5};
+      while(std::chrono::steady_clock::now()<theDeadline && !bAsync) {
+         if(auto theCompleted=theComputer.TakeCompleted()) {
+            bAsync=theCompleted->uRevision==uExpected &&
+               theCompleted->pField->Values().shape()[0]==40 &&
+               theCompleted->pField->Values().shape()[1]==64;
+         }
+         if(!bAsync)std::this_thread::sleep_for(std::chrono::milliseconds {10});
+      }
+   }
+   std::println("SHOWCASE|CHECK|onetbb-async-latest|{}|rapid requests converge to latest",
+      bAsync ? "PASS" : "FAIL");
    bool const bPassed = bAllModes && bBounded && bFinite &&
-      bSymmetry && bOptional && bSimd;
+      bSymmetry && bOptional && bSimd && bAsync;
    std::println("SHOWCASE|RESULT|{}|Tensor Nebula CPU experiment validation",
       bPassed ? "PASS" : "FAIL");
    return bPassed;
