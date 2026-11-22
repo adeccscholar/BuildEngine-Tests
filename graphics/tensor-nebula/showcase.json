@@ -1,0 +1,55 @@
+{
+   "schemaVersion": 1,
+   "kind": "showcase",
+   "title": "Tensor Nebula — Mathematics of Light",
+   "summary": "Interactive coherent-wave interference field computed with real xtensor, tested with xsimd and xtl, rendered in native SDL2/ImGui.",
+   "dependencies": [
+      {
+         "library": "xtensor",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "xsimd",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "xtl",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "imgui",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "sdl2",
+         "version": "active",
+         "direct": true
+      }
+   ],
+   "externalDependencies": [],
+   "status": "not-verified",
+   "applications": [
+      {
+         "name": "tensor-nebula",
+         "summary": "Live wave-field observatory",
+         "command": "..\\build\\Test\\tensor-nebula\\Release\\tensor-nebula.exe",
+         "interactive": true
+      },
+      {
+         "name": "tensor-nebula --verify",
+         "summary": "Headless tensor/SIMD/optional assertions",
+         "command": "..\\build\\Test\\tensor-nebula\\Release\\tensor-nebula.exe --verify",
+         "interactive": false
+      }
+   ],
+   "images": {
+      "tile": "/images/showcase/graphics-tensor-nebula/tile.svg",
+      "hero": "/images/showcase/graphics-tensor-nebula/tile.svg",
+      "kind": "generated-concept",
+      "alt": "Generated wave-interference artwork; not a runtime screenshot"
+   }
+}
