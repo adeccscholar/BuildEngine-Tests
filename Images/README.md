@@ -133,3 +133,13 @@ illustration and avoids clipping. The caption reads `AI generated concept illust
 not an application screenshot`. Manifest synchronization state and verification
 state remain available in their source metadata, but are not repeated as boilerplate
 text on every card.
+
+
+## Tensor Nebula OpenGL visual revision (2026-11-22)
+
+The two original, repository-owned SVG illustrations for Tensor Nebula have been replaced by a richer cinematic wave-observatory concept and a separately marked provisional desktop-window concept:
+
+- `showcase/graphics-tensor-nebula/tile.svg` — new scientific, luminous nebula hero/gallery tile
+- `manuals/graphics-tensor-nebula/concept/window.svg` — illustration of a possible native OpenGL command deck
+
+Neither SVG is a captured OpenGL framebuffer. The upgraded executable can now explicitly save genuine native GPU output as `tensor-nebula-capture.bmp`; copy that output into the appropriate `runtime/` directory after native verification, preserving the authored concepts. The showcase manifest remains `images.kind=generated-concept` until references actually point at accepted runtime screenshots.
