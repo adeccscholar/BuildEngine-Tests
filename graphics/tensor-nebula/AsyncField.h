@@ -56,7 +56,7 @@ private:
    \returns Nothing.
    \throw Nothing; exceptions are relayed to the UI from a short locked section.
    */
-   void Run(std::stop_token const theStop) noexcept {
+   void Run(std::stop_token const theStop) {
       // Reserve execution capacity for the responsive UI and the Mesa renderer.
       unsigned const uHardware = std::max(1U,std::thread::hardware_concurrency());
       int const iParallelism=std::max(1,std::min(6,static_cast<int>(uHardware > 2 ? uHardware-2 : 1)));
@@ -107,7 +107,15 @@ public:
    \throw std::system_error When the system cannot create a worker thread.
    */
    AsyncField() : theWorker {[this](std::stop_token const theStop) {
-      Run(theStop);
+      try {
+         Run(theStop);
+      }
+      catch(...) {
+         // Arena construction and scheduling errors must not terminate the
+         // process from the worker; report them through the UI channel.
+         std::scoped_lock theLock {theMutex};
+         pFailure=std::current_exception();
+      }
    }} {}
 
    AsyncField(AsyncField const&)=delete;
