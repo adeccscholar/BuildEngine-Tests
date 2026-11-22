@@ -6,11 +6,13 @@ The new showcase wave consists of independent C++23/BCC64X projects. Each applic
 
 | --- | --- | --- |
 
-| [Tensor Nebula](graphics/tensor-nebula/) | xtensor 0.27.1, xsimd 13.2.0, xtl 0.8.0, SDL2/ImGui | tensor bounds, SIMD reduction and xtl optional |
+| [Tensor Nebula](graphics/tensor-nebula/) | xtensor 0.27.1, xsimd 13.2.0, xtl 0.8.0, Mesa OpenGL 26.2.1, GLEW 2.3.1, SDL2/official ImGui OpenGL3 | four physical wave models, true SIMD metrics, xtl probe, optional GPU shader/3D mesh check |
 
 | [Geometry Cathedral](graphics/geometry-cathedral/) | CGAL 6.2.1, Assimp 6.0.6, doctest 2.4.12, SDL2/ImGui | CGAL convex hull, squared-distance and Assimp OBJ topology with doctest |
 
 | [Acoustic Orbitarium](graphics/acoustic-orbitarium/) | OpenAL Soft 1.25.2, SDL2/ImGui | device-free OpenAL API; actual audio device only by explicit GUI request |
+
+Tensor Nebula now renders an actual CPU-computed 512 x 288 through 1024 x 576 xtensor field through an OpenGL R32F texture, continuous GLSL color, contour and relief shading, plus a depth-tested 3D wave landscape. It uses the existing `OpenGLShowcase.h` F1/F11 handler and the exact managed Mesa/GLEW/official ImGui backend DLL. CPU `--verify` is headless; OpenGL `--verify-gl` and its CTest are optional. See its MathJax/Mermaid [scientific description](graphics/tensor-nebula/Description.md) and individually copyable one-line [build instructions](graphics/tensor-nebula/build.md). Native testing remains **[not verified]**.
 
 Each project follows the shared `bootstrap/BuildEngineInit.cmake` and `cmake/BuildEngineTests.cmake` contract. The projects do not use MSVC, system dependency fallback or borrowed SDK trees. F1/About and F11/fullscreen use the existing `NativeShowcase` adapter.
 
