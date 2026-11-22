@@ -33,10 +33,18 @@ class AsyncField final {
       std::uint64_t uRevision {};
    };
 
+public:
+   struct CompletedFrame {
+      std::shared_ptr<TensorField<float> const> pField;
+      FieldSettings theSettings;
+      std::uint64_t uRevision {};
+   };
+
+private:
    mutable std::mutex theMutex;
    std::condition_variable_any theWake;
    std::optional<Request> thePending;
-   std::shared_ptr<TensorField<float> const> pCompleted;
+   std::optional<CompletedFrame> theCompleted;
    std::exception_ptr pFailure;
    std::uint64_t uRequested {};
    std::uint64_t uCompleted {};
@@ -71,8 +79,12 @@ class AsyncField final {
             });
             {
                std::scoped_lock theLock {theMutex};
-               if(theRequest.uRevision==uRequested && !theStop.stop_requested()) {
-                  pCompleted=std::move(pNew);
+               // Publish each completed frame even if a newer phase was queued.
+               // Otherwise continuous animation could starve presentation forever.
+               if(!theStop.stop_requested()) {
+                  theCompleted=CompletedFrame {
+                     std::move(pNew),theRequest.theSettings,theRequest.uRevision
+                  };
                   uCompleted=theRequest.uRevision;
                   pFailure=nullptr;
                }
@@ -131,16 +143,17 @@ public:
    \returns A new complete field, or null when nothing newer is ready.
    \throw std::exception Re-throws current worker errors without data races.
    */
-   [[nodiscard]] std::shared_ptr<TensorField<float> const> TakeCompleted() {
+   [[nodiscard]] std::optional<CompletedFrame> TakeCompleted() {
       std::exception_ptr pError;
-      std::shared_ptr<TensorField<float> const> pResult;
+      std::optional<CompletedFrame> theResult;
       {
          std::scoped_lock theLock {theMutex};
          pError=std::exchange(pFailure,nullptr);
-         pResult=std::move(pCompleted);
+         theResult=std::move(theCompleted);
+         theCompleted.reset();
       }
       if(pError)std::rethrow_exception(pError);
-      return pResult;
+      return theResult;
    }
 
    /**
