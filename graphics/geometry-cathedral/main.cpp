@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cmath>
 #include <exception>
+#include <iterator>
 #include <print>
 #include <string_view>
 #include <vector>
@@ -56,7 +57,9 @@ TEST_CASE("CGAL convex hull orientation and exact squared distance") {
    auto const vecHull=Hull(vecPoints);
    CHECK(vecHull.size()>=3);
    CHECK(vecHull.size()<vecPoints.size());
-   CHECK(CGAL::squared_distance(Point {0,0},Point {3,4})==doctest::Approx(25.0));
+   Point const theOrigin {0.0,0.0};
+   Point const theTarget {3.0,4.0};
+   CHECK(CGAL::squared_distance(theOrigin,theTarget)==doctest::Approx(25.0));
 }
 TEST_CASE("Assimp tetrahedral OBJ import") {
    CHECK(ImportGeometry());
