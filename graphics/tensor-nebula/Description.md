@@ -1,45 +1,166 @@
-# Tensor Nebula — Mathematics of Light
+# Tensor Nebula — The Mathematics of Light
 
-![Original interference artwork](/images/showcase/graphics-tensor-nebula/tile.svg)
+[TOC|Contents]
 
-*Original concept artwork, not a native screenshot.*
+![Original wave observatory concept](/images/showcase/graphics-tensor-nebula/tile.svg)
 
-## Experience
+*Original generated concept illustration, not a runtime screenshot.*
 
-Two luminous emitters illuminate a wave observatory. Adjust phase and spatial frequency to alter constructive and destructive interference across a 72 × 44 live intensity tensor. Actual installed xtensor values feed the native heatmap.
+## Explore an interference universe
 
-## Mathematical model
+Two luminous circular emitters weave bright and dark interference fringes across a smooth, panoramic field. Add a third source to create intricate symmetry. Change the wave number, separation and relative phase to transform the wave topology. Switch to **3D Wave Landscape** and the actual computed intensity rises into a navigable, depth-tested triangular terrain.
 
-$$A_i(\mathbf r)=\cos(k\|\mathbf r-\mathbf s_i\|+\varphi_i),\quad I(\mathbf r)=\frac14(A_1+A_2)^2.$$
+The field is computed by **xtensor 0.27.1** on the CPU and remains the single scientific data source for rendering, metrics and probes. **xsimd 13.2.0** evaluates real vectorized reductions; **xtl 0.8.0** represents measurements that can genuinely be absent. Managed **OpenGL 26.2.1**, **GLEW 2.3.1**, **SDL2 2.32.10** and the official **Dear ImGui 1.93.0** backend handle visualization. No GPU shader secretly substitutes an alternative physical simulation.
 
-The positions are \(\mathbf s_1=(-1.35,0)\), \(\mathbf s_2=(1.35,0)\). The superposition law explains the bright and dark fringes.
+## Physics: four mathematical experiences
 
-## Architecture
+### Binary stars: coherent two-source interference
+
+For point sources at positions \(\mathbf s_1=(-d/2,0)\) and \(\mathbf s_2=(d/2,0)\), define:
+
+\[
+A_1(\mathbf r)=\cos(k\|\mathbf r-\mathbf s_1\|),\quad
+A_2(\mathbf r)=\cos(k\|\mathbf r-\mathbf s_2\|+\varphi).
+\]
+
+The normalized field is
+
+\[
+I_2(\mathbf r)=\frac14(A_1+A_2)^2,\qquad 0\le I_2\le1.
+\]
+
+The constructive and destructive fringes arise directly from phase superposition; no texture artwork represents measured physical intensity.
+
+### Trinity: three coherent sources
+
+A third source at \((0,1.4)\) introduces triangular interference topology:
+
+\[
+I_3(\mathbf r)=\frac19\left[
+\cos(kr_1)+\cos(kr_2+\varphi)+\cos(kr_3-\varphi/2)
+\right]^2,\quad r_i=\|\mathbf r-\mathbf s_i\|.
+\]
+
+### Standing-wave chamber
+
+A separable stationary pattern gives orthogonal nodal lines:
+
+\[
+I_{\mathrm{standing}}(x,y)=\sin^2(kx)\sin^2(ky+\varphi).
+\]
+
+### Gaussian pulse
+
+A localized ring field uses the envelope parameter \(\sigma\):
+
+\[
+I_{\mathrm{pulse}}(x,y)=
+\exp\!\left(-\frac{x^2+y^2}{2\sigma^2}\right)
+\cos^2\!\left(k\sqrt{x^2+y^2}-\varphi\right).
+\]
+
+These are bounded educational wave models rather than a calibrated radiometric simulation.
+
+## From 3,168 rectangles to a genuine floating-point GPU field
+
+The original renderer displayed **72 × 44** separate SDL rectangles. The new numerical choices are:
+
+| Quality | Tensor resolution | Values |
+| --- | --- | ---: |
+| Standard | 512 × 288 | 147,456 |
+| Detail | 768 × 432 | 331,776 |
+| Cinema | 1024 × 576 | 589,824 |
+
+The CPU numerical field is uploaded as a single-channel **GL_R32F** texture. Native OpenGL linear texture filtering smooths the display without pretending that extra samples were computed. Fragments add independently controllable color palettes, exposure, luminous diffusion, intensity contours and gradient-based lighting.
+
+The surface normal used for illuminated relief is approximated by
+
+\[
+\mathbf n=\frac{(-\alpha\,\partial_x I,-\alpha\,\partial_y I,1)}
+{\sqrt{1+\alpha^2(\partial_xI)^2+\alpha^2(\partial_yI)^2}}.
+\]
+
+The **3D Wave Landscape** is not fake perspective. A real indexed OpenGL triangle grid reads the same texture in the vertex shader, displaces mesh vertices and uses a depth buffer. Changing physical parameters recomputes the CPU tensor; changing palettes and camera controls does not alter numerical evidence.
+
+## Four display modes
+
+- **Cinematic Nebula:** flowing colors, luminous diffusion and optional contours
+- **Scientific Contours:** emphasized isolines and true individual tensor probes
+- **Illuminated Relief:** normal-based surface lighting and exposure controls
+- **3D Wave Landscape:** geometric heightfield, orbit camera and depth testing
+
+Color and glow are visual choices, not physical measurements. No GPU speedup or frame-rate claim is made without native profiling.
+
+## Architecture and managed dependencies
 
 ```mermaid
-
-flowchart LR
-
-   C[Phase and frequency] --> T[xtensor array]
-
-   T --> V[SDL2 ImGui interference atlas]
-
-   T --> Q[Headless numeric validation]
-
-   X[xsimd lane reduction] --> Q
-
-   O[xtl optional] --> Q
-
+flowchart TD
+   A[Phase, wave number, emitter separation] --> B[xtensor CPU rank-two intensity]
+   B --> C[xsimd reduction: mean and energy]
+   B --> D[xtl optional: sample or missing]
+   B --> E[OpenGL R32F field texture]
+   E --> F{Display mode}
+   F --> G[2D GLSL: palette, glow, contours, relief]
+   F --> H[3D GLSL: real vertex displacement and depth]
+   G --> I[Native framebuffer]
+   H --> I
+   I --> J[Official Dear ImGui OpenGL3 backend]
+   J --> K[SDL2 window: F1 About, F11 fullscreen]
+   B --> L[Headless numerical CTest]
+   E --> M[Optional native GL CTest]
 ```
 
-## Acceptance
+```mermaid
+flowchart LR
+   XT[xtensor] --> XTL[xtl]
+   XT --> XS[xsimd]
+   GL[Managed Mesa OpenGL] --> GW[GLEW]
+   GL --> UI[Official ImGui SDL2/OpenGL3 backend]
+   GW --> UI
+   SDL[SDL2] --> UI
+   XT --> APP[Tensor Nebula]
+   XS --> APP
+   XTL --> APP
+   UI --> APP
+```
 
-The standalone `--verify` checks tensor dimensions, finite intensity bounds, true xsimd reduction and xtl optional semantics. F11 toggles fullscreen and F1 displays About using the existing native window adapter.
+| Managed component | Technical role |
+| --- | --- |
+| [xtensor 0.27.1](/library/xtensor/0.27.1/) | Real numerical field storage |
+| [xsimd 13.2.0](/library/xsimd/13.2.0/) | SIMD block reduction and metrics |
+| [xtl 0.8.0](/library/xtl/0.8.0/) | Nullable scientific probe |
+| [OpenGL 26.2.1](/library/opengl/26.2.1/) | Mesa managed OpenGL context and GPU renderer |
+| [GLEW 2.3.1](/library/glew/2.3.1/) | GL 3.3 entry points |
+| [ImGui 1.93.0](/library/imgui/1.93.0/) | Official SDL2/OpenGL3 UI backends |
+| [SDL2 2.32.10](/library/sdl2/2.32.10/) | Native desktop and input |
 
-## UI concept
+## Presentation and interaction
 
-![Generated desktop window concept](/images/manuals/graphics-tensor-nebula/concept/window.svg)
+Begin with Binary Stars, cinematic palette and animated phase. Slowly adjust emitter separation. Switch to Trinity, then Scientific Contours, to expose mathematical structure. Use a 3D landscape and orbit camera to explore the same field as actual mesh geometry.
 
-*Not a screenshot. Replace after BCC64X visual verification.*
+| Input | Action |
+| --- | --- |
+| **F1** | About, including library renderer and help |
+| **F11** | Reversible fullscreen/windowed toggle |
+| 2D left drag | Pan |
+| 2D wheel | Zoom |
+| 2D hover | Real xtensor sample |
+| 3D left drag | Orbit the camera |
+| 3D wheel | Camera distance |
+| Screenshot button | Capture actual rendered framebuffer as BMP |
 
-**[not verified]** Native compile, CTest and interactive rendering are pending.
+F1/F11 come from the existing shared OpenGLShowcase adapter, not a new SDL event subsystem.
+
+## Verification and evidence
+
+The default **headless** CPU test executes all four physical modes, checks finite intensity and bounds, tensor dimensions, symmetry, xtl missing samples and xsimd reductions. The separately selectable **GPU** test constructs a real managed Mesa OpenGL context, uploads the tensor, renders a shader pass and a 3D heightfield, then checks GPU status. Desktop testing is explicitly opt-in through TENSOR_NEBULA_ENABLE_GL_CTEST.
+
+A valid library build is not proof of a successful showcase UI. Native GPU support and screenshots require an executed Windows BCC64X application.
+
+## Conceptual desktop application preview
+
+![Generated future-window concept](/images/manuals/graphics-tensor-nebula/concept/window.svg)
+
+*Generated concept only, not a runtime screenshot. Genuine captures belong under Images/manuals/graphics-tensor-nebula/runtime/.*
+
+**[not verified]** This upgraded application has not yet been compiled or executed with BCC64X.
