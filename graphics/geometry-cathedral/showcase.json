@@ -1,0 +1,70 @@
+{
+   "schemaVersion": 1,
+   "kind": "showcase",
+   "title": "Geometry Cathedral — The Shape of Space",
+   "summary": "Real CGAL convex hull and exact point-distance calculations meet native Assimp multi-face mesh import and doctest regression in a luminous geometry observatory.",
+   "dependencies": [
+      {
+         "library": "cgal",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "assimp",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "doctest",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "boost",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "zlib",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "zstd",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "imgui",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "sdl2",
+         "version": "active",
+         "direct": true
+      }
+   ],
+   "externalDependencies": [],
+   "status": "not-verified",
+   "applications": [
+      {
+         "name": "geometry-cathedral",
+         "summary": "Interactive CGAL hull geometry and Assimp import evidence",
+         "command": "..\\build\\Test\\geometry-cathedral\\Release\\geometry-cathedral.exe",
+         "interactive": true
+      },
+      {
+         "name": "geometry-cathedral --verify",
+         "summary": "doctest geometry and real OBJ importer checks",
+         "command": "..\\build\\Test\\geometry-cathedral\\Release\\geometry-cathedral.exe --verify",
+         "interactive": false
+      }
+   ],
+   "images": {
+      "tile": "/images/showcase/graphics-geometry-cathedral/tile.svg",
+      "hero": "/images/showcase/graphics-geometry-cathedral/tile.svg",
+      "kind": "generated-concept",
+      "alt": "Generated computational geometry cathedral, not a screenshot"
+   }
+}
