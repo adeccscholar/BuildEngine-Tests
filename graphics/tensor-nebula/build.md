@@ -111,3 +111,42 @@ Launch the Debug observatory:
 The real screenshot button captures the current offscreen OpenGL framebuffer as tensor-nebula-capture.bmp. It does not render synthetic image evidence. F1 shows About and F11 toggles fullscreen through the shared OpenGLShowcase adapter.
 
 **[not verified]** No native BCC64X build or OpenGL desktop acceptance has been executed as part of this update.
+
+
+## Managed Mesa renderer selection (experimental)
+
+The executable loads the managed Mesa WGL library. Gallium backend choices are applied **before** OpenGL context creation; switching in the GUI launches a new instance, rather than trying to mutate a live context. Always check the real GL vendor, renderer and version printed in the UI and GPU verification output. Selecting a GPU name does not prove the hardware was used.
+
+**Use the proven Softpipe reference:**
+
+```bat
+..\build\Test\tensor-nebula\Release\tensor-nebula.exe --mesa-backend=softpipe
+```
+
+**Attempt the managed D3D12 backend with NVIDIA adapter preference:**
+
+```bat
+..\build\Test\tensor-nebula\Release\tensor-nebula.exe --mesa-backend=d3d12 --mesa-adapter=nvidia
+```
+
+**Attempt the managed D3D12 backend with Intel adapter preference:**
+
+```bat
+..\build\Test\tensor-nebula\Release\tensor-nebula.exe --mesa-backend=d3d12 --mesa-adapter=intel
+```
+
+**Run a native OpenGL verification of D3D12 with explicit failure on reported software fallback:**
+
+```bat
+..\build\Test\tensor-nebula\Release\tensor-nebula.exe --verify-gl --mesa-backend=d3d12 --mesa-adapter=nvidia
+```
+
+**Prepare a Zink probe only after the Vulkan Loader is integrated and a Zink-enabled Mesa WGL DLL has been built:**
+
+```bat
+..\build\Test\tensor-nebula\Release\tensor-nebula.exe --verify-gl --mesa-backend=zink
+```
+
+The Mesa 26.2.1 XML integration currently attempts `softpipe,d3d12`; Zink remains a separately staged integration blocked by Vulkan Loader/Detours and native build evidence. The application offers it for explicit diagnostics, **not** as a working verified feature.
+
+**[not verified]** D3D12 compilation, Windows native adapter selection, physical GPU execution, and Zink are not yet verified with BCC64X.
