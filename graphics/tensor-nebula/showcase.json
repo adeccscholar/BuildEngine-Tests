@@ -1,8 +1,8 @@
 {
    "schemaVersion": 1,
    "kind": "showcase",
-   "title": "Tensor Nebula — Mathematics of Light",
-   "summary": "Interactive coherent-wave interference field computed with real xtensor, tested with xsimd and xtl, rendered in native SDL2/ImGui.",
+   "title": "Tensor Nebula — Cinematic OpenGL Wave Observatory",
+   "summary": "A cinematic multi-mode native OpenGL 3.3 wave observatory: genuine xtensor interference fields, xsimd metrics, xtl probes, glow shaders, isolines, illuminated relief and a real depth-tested 3D heightfield.",
    "dependencies": [
       {
          "library": "xtensor",
@@ -28,6 +28,16 @@
          "library": "sdl2",
          "version": "active",
          "direct": true
+      },
+      {
+         "library": "opengl",
+         "version": "active",
+         "direct": true
+      },
+      {
+         "library": "glew",
+         "version": "active",
+         "direct": true
       }
    ],
    "externalDependencies": [],
@@ -35,14 +45,20 @@
    "applications": [
       {
          "name": "tensor-nebula",
-         "summary": "Live wave-field observatory",
+         "summary": "Interactive real GL_R32F floating-point wave atlas, four physical experiments, cinematic palettes, bloom-like diffusion, scientific contours and a 3D orbitable heightfield",
          "command": "..\\build\\Test\\tensor-nebula\\Release\\tensor-nebula.exe",
          "interactive": true
       },
       {
          "name": "tensor-nebula --verify",
-         "summary": "Headless tensor/SIMD/optional assertions",
+         "summary": "Headless xtensor, xsimd and xtl numerical checks for all four wave experiments",
          "command": "..\\build\\Test\\tensor-nebula\\Release\\tensor-nebula.exe --verify",
+         "interactive": false
+      },
+      {
+         "name": "tensor-nebula --verify-gl",
+         "summary": "Optional desktop Mesa/GLEW/OpenGL 3.3 shader and depth-tested geometry verification",
+         "command": "..\\build\\Test\\tensor-nebula\\Release\\tensor-nebula.exe --verify-gl",
          "interactive": false
       }
    ],
@@ -50,6 +66,6 @@
       "tile": "/images/showcase/graphics-tensor-nebula/tile.svg",
       "hero": "/images/showcase/graphics-tensor-nebula/tile.svg",
       "kind": "generated-concept",
-      "alt": "Generated wave-interference artwork; not a runtime screenshot"
+      "alt": "Original cinematic concept illustration for Tensor Nebula OpenGL wave observatory, not a real runtime capture"
    }
 }
