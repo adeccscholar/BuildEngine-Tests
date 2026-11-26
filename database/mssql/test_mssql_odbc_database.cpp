@@ -20,6 +20,7 @@
 
 #include "database.h"
 #include "database_checks.h"
+#include <adecc/cpp_core/tests/db_uuid_test.h>
 #include "diagnostic_text.h"
 #include "mssql_odbc_database.h"
 
@@ -434,6 +435,8 @@ int main(int const iArgc, char* const* const argv) {
             Require(strWhat.find("ODBC parameter map:") != std::string::npos,
                "constraint error has no parameter mapping");
             });
+
+      adecc::test::RunUuidTests(theDatabase, std::cout, adecc::test::database_dialect::sql_server);
 
       std::cout << "\nALL MS SQL SERVER ODBC TESTS PASSED\n";
       return 0;

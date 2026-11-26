@@ -8,6 +8,7 @@
 
 #include "database.h"
 #include "database_checks.h"
+#include <adecc/cpp_core/tests/db_uuid_test.h>
 #include "diagnostic_text.h"
 #include "pqxx_database.h"
 
@@ -400,6 +401,8 @@ int main(int const iArgc, char* const* const argv) {
          [](std::string const& strWhat) {
             Require(!strWhat.empty(), "missing PostgreSQL diagnostic");
             });
+
+      adecc::test::RunUuidTests(theDatabase, std::cout, adecc::test::database_dialect::postgresql);
 
       std::cout << "\nALL POSTGRESQL LIBPQXX TESTS PASSED\n";
       return 0;

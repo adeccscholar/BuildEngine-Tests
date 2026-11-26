@@ -8,6 +8,7 @@
 #include "additional_tests.h"
 #include <adecc/mariadb/mariadb_query.h>
 #include <adecc/cpp_core/database.h>
+#include <adecc/cpp_core/tests/db_uuid_test.h>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -41,6 +42,7 @@ int main(int argc,char** argv) {
       std::cout<<"[TEST] MariaDB "<<args.host<<":"<<args.port
                <<" database="<<args.database<<" user="<<args.user<<"\n";
       int const count=buildengine_tests::database::additional::Run(db,Dialect{});
+      adecc::test::RunUuidTests(db, std::cout, adecc::test::database_dialect::mariadb);
       std::cout<<"SMOKE|RESULT|PASS|logical MariaDB shared cases: "<<count<<"\n";
       return 0;
    }
